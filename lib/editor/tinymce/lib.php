@@ -264,4 +264,15 @@ class tinymce_texteditor extends texteditor {
         global $CFG;
         return new moodle_url("$CFG->httpswwwroot/lib/editor/tinymce/tiny_mce/$this->version/");
     }
+
+    /**
+     * Return the javascript to set focus for the specified editor
+     *
+     * @param $elementid String the ID of the editor
+     * @return String the javascript to set focus correctly
+     */
+    public function get_focus_editor_js($elementid) {
+        $js = "tinyMCE.get({$elementid}).focus(false);";
+        return $js;
+    }
 }

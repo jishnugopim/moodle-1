@@ -1896,11 +1896,21 @@ function validate_' . $this->_formName . '_' . $escapedElementName . '(element) 
   }
 }
 ';
+            // The default method to set the focus
+            $elementFocusJS = "frm.elements['{$elementName}'].focus();";
+            // If this is and editor and this type of editor has a function to set it's focus, call it
+            if ($element instanceOf MoodleQuickForm_editor) {
+                $editor = editors_get_preferred_editor($element->getFormat());
+                if (method_Exists($editor, 'get_focus_editor_js')) {
+                    $elementFocusJS = $editor->get_focus_editor_js("frm.elements['{$elementName}'].id");
+                }
+            }
             $validateJS .= '
   ret = validate_' . $this->_formName . '_' . $escapedElementName.'(frm.elements[\''.$elementName.'\']) && ret;
   if (!ret && !first_focus) {
     first_focus = true;
-    frm.elements[\''.$elementName.'\'].focus();
+    ' . $elementFocusJS . '
+    document.getElementById(\'id_error_\' + frm.elements[\'' . $elementName . '\'].name).scrollIntoView();
   }
 ';
 
