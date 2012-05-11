@@ -53,7 +53,7 @@ class MoodleQuickForm_editor extends HTML_QuickForm_element {
     /** @var array options provided to initalize filepicker */
     protected $_options = array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 0, 'changeformat' => 0,
             'areamaxbytes' => FILE_AREA_MAX_BYTES_UNLIMITED, 'context' => null, 'noclean' => 0, 'trusttext' => 0,
-            'return_types' => 7);
+            'return_types' => 7, 'collapsible'=>0);
     // $_options['return_types'] = FILE_INTERNAL | FILE_EXTERNAL | FILE_REFERENCE
 
     /** @var array values for editor */
@@ -383,7 +383,11 @@ class MoodleQuickForm_editor extends HTML_QuickForm_element {
         if (!is_null($this->getAttribute('onblur')) && !is_null($this->getAttribute('onchange'))) {
             $editorrules = ' onblur="'.htmlspecialchars($this->getAttribute('onblur')).'" onchange="'.htmlspecialchars($this->getAttribute('onchange')).'"';
         }
-        $str .= '<div><textarea id="'.$id.'" name="'.$elname.'[text]" rows="'.$rows.'" cols="'.$cols.'"'.$editorrules.'>';
+        $str .= '<div><textarea id="'.$id.'" name="'.$elname.'[text]" rows="'.$rows.'" cols="'.$cols.'"';
+        if (isset($this->_options['collapsible']) && $this->_options['collapsible']) {
+            $str .= ' class="collapsible"';
+        }
+        $str .= $editorrules.'>';
         $str .= s($text);
         $str .= '</textarea></div>';
 
@@ -427,6 +431,8 @@ class MoodleQuickForm_editor extends HTML_QuickForm_element {
 
         $str .= '</div>';
 
+        $this->initialise_js();
+
         return $str;
     }
 
@@ -439,4 +445,37 @@ class MoodleQuickForm_editor extends HTML_QuickForm_element {
 
         return '';
     }
+
+    /**
+     * Initialise javascript form elements
+     * @return void
+     */
+    public function initialise_js() {
+        global $CFG, $PAGE, $OUTPUT;
+
+        static $is_initialised;
+
+        // Is TinyMCE enabled?
+        if (!$is_initialised && strpos(get_config(null, 'texteditors'), 'tinymce') === false) {
+            $is_initialised = true;
+        }
+
+        if ($is_initialised) {
+            return;
+        }
+
+        // Initialise language strings.
+        $PAGE->requires->strings_for_js(array('hideeditortoolbar', 'showeditortoolbar'),
+                'form');
+
+        $module = array(
+                'name' => 'core_question_editing',
+                'fullpath' => '/lib/form/editor.js',
+                'requires' => array('base', 'dom', 'node'),
+        );
+
+        $PAGE->requires->js_init_call('M.form_editor.init', null, false, $module);
+        $is_initialised = true;
+    }
+
 }
