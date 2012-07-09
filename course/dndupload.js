@@ -547,7 +547,9 @@ M.course_dndupload = {
             extension = file.name.substr(dotpos+1, file.name.length);
         }
 
+        console.log("Uploaded file extension is ", extension);
         for (var i=0; i<filehandlers.length; i++) {
+            console.log("Looking at ", filehandlers[i].extension);
             if (filehandlers[i].extension == '*' || filehandlers[i].extension == extension) {
                 handlers.push(filehandlers[i]);
             }

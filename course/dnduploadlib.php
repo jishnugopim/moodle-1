@@ -662,7 +662,10 @@ class dndupload_ajax_processor {
         $resp->error = self::ERROR_OK;
         $resp->icon = $mod->get_icon_url()->out();
         $resp->name = $mod->name;
-        $resp->link = $mod->get_url()->out();
+        if ($link = $mod->get_url()) {
+            print_object($link);
+            $resp->link = $link->out();
+        }
         $resp->elementid = 'module-'.$mod->id;
         $resp->commands = make_editing_buttons($mod, true, true, 0, $mod->sectionnum);
         $resp->onclick = $mod->get_on_click();

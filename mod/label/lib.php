@@ -202,3 +202,40 @@ function label_supports($feature) {
     }
 }
 
+/**
+ * Register the ability to handle drag and drop file uploads
+ * @return array containing details of the files / types the mod can handle
+ */
+function label_dndupload_register() {
+    return array('files' => array(),
+                 'types' => array(
+                     array('identifier' => 'text/html', 'message' => get_string('createlabel', 'label')),
+                 ),
+             );
+}
+
+/**
+ * Handle a file that has been uploaded
+ * @param object $uploadinfo details of the file / content that has been uploaded
+ * @return int instance id of the newly created mod
+ */
+function label_dndupload_handle($uploadinfo) {
+    // Gather the required info.
+    $data = new stdClass();
+    $data->course = $uploadinfo->course->id;
+    $data->intro = '<p>'.$uploadinfo->displayname.'</p>';
+    $data->introformat = FORMAT_HTML;
+    if ($uploadinfo->type == 'text/html') {
+        $data->introformat = FORMAT_HTML;
+        $data->intro = clean_param($uploadinfo->content, PARAM_CLEANHTML);
+    } else {
+        $data->introformat = FORMAT_PLAIN;
+        $data->intro = clean_param($uploadinfo->content, PARAM_TEXT);
+    }
+    $data->coursemodule = $uploadinfo->coursemodule;
+
+    // Set the display options to the site defaults.
+    $config = get_config('label');
+
+    return label_add_instance($data, null);
+}
