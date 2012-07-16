@@ -884,7 +884,7 @@ sup {vertical-align: super;}
 }
 
 /* Only set these options if we're showing the js container */
-.jsenabled .choosercontainer #chooseform .alloptions {
+.chooserenabled .choosercontainer #chooseform .alloptions {
     max-height: 550px;
     overflow-x: hidden;
     overflow-y: auto;
@@ -943,8 +943,8 @@ sup {vertical-align: super;}
 }
 
 /* The instruction/help area */
-.jsenabled .choosercontainer #chooseform .instruction,
-.jsenabled .choosercontainer #chooseform .typesummary {
+.chooserenabled .choosercontainer #chooseform .instruction,
+.chooserenabled .choosercontainer #chooseform .typesummary {
     display: none;
     position: absolute;
     top: 0px;
@@ -960,15 +960,15 @@ sup {vertical-align: super;}
     line-height: 2em;
 }
 
-.dir-rtl.jsenabled .choosercontainer #chooseform .instruction,
-.dir-rtl.jsenabled .choosercontainer #chooseform .typesummary {
+.dir-rtl.chooserenabled .choosercontainer #chooseform .instruction,
+.dir-rtl.chooserenabled .choosercontainer #chooseform .typesummary {
     left: 0px;
     right: 18.5em;
     border-right: 1px solid grey;
 }
 
 /* Selected option settings */
-.jsenabled .choosercontainer #chooseform .instruction,
+.chooserenabled .choosercontainer #chooseform .instruction,
 .choosercontainer #chooseform .selected .typesummary {
     display: block;
 }

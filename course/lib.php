@@ -1872,6 +1872,9 @@ function print_section_add_menus($course, $section, $modnames, $vertical=false, 
             $output = html_writer::tag('div', $output, array('class' => 'visibleifjs addresourcedropdown'));
             $modchooser = html_writer::tag('div', $modchooser, array('class' => 'hiddenifjs addresourcemodchooser'));
         }
+
+        // Always add the chooserenabled tag to cover cases where it's toggled by JS
+        $modchooser .= html_writer::script("document.body.className += ' chooserenabled';") . "\n";
         $output = $modchooser . $output;
     }
 
