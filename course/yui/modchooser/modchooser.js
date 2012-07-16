@@ -17,9 +17,6 @@ YUI.add('moodle-course-modchooser', function(Y) {
         // The current section ID
         sectionid : null,
 
-        // The hidden element holding the jump param
-        jumplink : null,
-
         initializer : function(config) {
             var dialogue = Y.one('.chooserdialoguebody');
             var header = Y.one('.choosertitle');
@@ -27,7 +24,7 @@ YUI.add('moodle-course-modchooser', function(Y) {
             };
             this.setup_chooser_dialogue(dialogue, header, params);
 
-            this.jumplink = this.container.one('#jump');
+            this.hiddenradiovalue.set('name', 'jump');
 
             // Initialize existing sections and register for dynamically created sections
             this.setup_for_section();
@@ -177,7 +174,7 @@ YUI.add('moodle-course-modchooser', function(Y) {
         },
         option_selected : function(thisoption) {
             // Add the sectionid to the URL
-            this.jumplink.set('value', thisoption.get('value') + '&section=' + this.sectionid);
+            this.hiddenradiovalue.set('value', thisoption.get('value') + '&section=' + this.sectionid);
         }
     },
     {
