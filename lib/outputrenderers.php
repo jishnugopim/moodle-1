@@ -373,6 +373,14 @@ class core_renderer extends renderer_base {
         // Set up help link popups for all links with the helplinkpopup class
         $this->page->requires->js_init_call('M.util.help_popups.setup');
 
+        // Setup help icon overlays.
+        $this->page->requires->yui_module('moodle-core-popuphelp', 'M.core.popuphelp', array(array()));
+        $this->page->requires->strings_for_js(array(
+            'morehelp',
+            'loadinghelp',
+            'loadinghelpbody',
+        ), 'moodle');
+
         $this->page->requires->js_function_call('setTimeout', array('fix_column_widths()', 20));
 
         $focus = $this->page->focuscontrol;
@@ -1817,12 +1825,8 @@ class core_renderer extends renderer_base {
         $title = get_string('helpprefix2', '', trim($title, ". \t"));
 
         $attributes = array('href'=>$url, 'title'=>$title, 'aria-haspopup' => 'true');
-        $id = html_writer::random_id('helpicon');
-        $attributes['id'] = $id;
+        $attributes['class'] = 'helpicon';
         $output = html_writer::tag('a', $output, $attributes);
-
-        $this->page->requires->js_init_call('M.util.help_icon.add', array(array('id'=>$id, 'url'=>$url->out(false))));
-        $this->page->requires->string_for_js('close', 'form');
 
         // and finally span
         return html_writer::tag('span', $output, array('class' => 'helplink'));

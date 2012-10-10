@@ -21,6 +21,7 @@ information provided here is intended especially for developers.
 YUI changes:
 * moodle-enrol-notification has been renamed to moodle-core-notification
 * YUI2 code must now use 2in3, see http://yuilibrary.com/yui/docs/yui/yui-yui2.html
+* M.util.help_icon.add() has been deprecated. Code should be updated to use moodle-core-popuphelp instead
 
 Unit testing changes:
 * output debugging() is not sent to standard output any more,

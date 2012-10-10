@@ -854,6 +854,7 @@ sup {vertical-align: super;}
     border: 0 none!important;
 }
 
+#panelhelp .moodle-dialogue-wrap,
 .chooserdialogue .moodle-dialogue-wrap {
     height: auto;
     background-color: #FFFFFF;
@@ -864,6 +865,7 @@ sup {vertical-align: super;}
     -moz-box-shadow: 5px 5px 20px 0px #666666;
 }
 
+#panelhelp .moodle-dialogue-hd,
 .chooserdialogue .moodle-dialogue-hd {
     font-size:12px!important;
     font-weight: normal!important;
@@ -1028,3 +1030,29 @@ html[dir=rtl] #page-header {float: right;}
 html[dir=rtl] .formrow label.formlabel { float:right; }
 
 html[dir=rtl] .configphp {direction:ltr;text-align:left;}
+
+#panelhelp .moodle-dialogue-content {
+  background-color: #FFF;
+  padding: 0;
+  margin: 0;
+}
+
+#panelhelp .moodle-dialogue-bd {
+  padding: 0;
+  padding: 1em;
+  line-height: 2em;
+  color: #555;
+}
+
+#panelhelp .moodle-dialogue-ft {
+  margin: 0.7em 1em;
+  text-align: right;
+}
+
+#panelhelp .moodle-dialogue-ft a {
+  vertical-align: top;
+}
+
+#panelhelp .moodle-dialogue-ft a img {
+  padding: 0 0.2em;
+}
