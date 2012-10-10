@@ -884,7 +884,7 @@ sup {vertical-align: super;}
     border: 0 none!important;
 }
 
-.chooserdialogue .moodle-dialogue-wrap {
+.moodle-dialogue-wrap {
     height: auto;
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC!important;
@@ -894,7 +894,7 @@ sup {vertical-align: super;}
     -moz-box-shadow: 5px 5px 20px 0px #666666;
 }
 
-.chooserdialogue .moodle-dialogue-wrap .moodle-dialogue-hd {
+.moodle-dialogue-hd {
     font-size:12px!important;
     font-weight: normal!important;
     letter-spacing: 1px;
@@ -910,6 +910,7 @@ sup {vertical-align: super;}
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#CCCCCC')!important;
     filter: dropshadow(color=#FFFFFF, offx=1, offy=1);
 }
+
 /* Activity Chooser "Close" button */
 .dir-rtl .moodle-dialogue-base .closebutton {float: left;}
 /* Question Bank - Question Chooser "Close" button */
@@ -1079,3 +1080,43 @@ html[dir=rtl] .configphp {direction:ltr;text-align:left;}
 
 table.flexible .r0, table.generaltable .r0 {background-color: #F0F0F0;}
 table.flexible .r1, table.generaltable .r1 {background-color: #FAFAFA;}
+
+.moodle-dialogue {
+  background-color: #FFF;
+  padding: 0;
+  margin: 0;
+}
+
+.moodle-dialogue-bd {
+  padding: 1em;
+  line-height: 2em;
+  color: #555;
+  font-size: 12px;
+}
+
+.moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-ft {
+  margin: 0.7em 1em;
+  text-align: right;
+  background-color: #FFF;
+  font-size: 12px;
+}
+
+.moodle-dialogue.chooserdialogue .moodle-dialogue-content .moodle-dialogue-ft {
+  margin: 0 0;
+}
+
+.dir-rtl .moodle-dialogue-ft {
+  text-align: left;
+}
+
+.moodle-dialogue-ft a {
+  vertical-align: top;
+}
+
+.moodle-core-tooltip-hidden {
+    display: none;
+}
+
+.moodle-dialogue-wrap.yui3-widget-content-expanded {
+    height: 100%;
+}
