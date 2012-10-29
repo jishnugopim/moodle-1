@@ -27,7 +27,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         MOVELEFT : 'a.editing_moveleft',
         MOVELEFTCLASS : 'editing_moveleft',
         MOVERIGHT : 'a.editing_moveright',
-        PAGECONTENT : 'div#page-content',
+        PAGECONTENT : 'body',
         RIGHTSIDE : '.right',
         SECTIONHIDDENCLASS : 'hidden',
         SECTIONIDPREFIX : 'section-',
