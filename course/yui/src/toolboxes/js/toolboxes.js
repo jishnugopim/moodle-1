@@ -1,4 +1,3 @@
-YUI.add('moodle-course-toolboxes', function(Y) {
     WAITICON = {'pix':"i/loading_small",'component':'moodle'};
     // The CSS selectors we use
     var CSS = {
@@ -786,9 +785,3 @@ YUI.add('moodle-course-toolboxes', function(Y) {
     M.course.init_section_toolbox = function(config) {
         return new SECTIONTOOLBOX(config);
     };
-
-},
-'@VERSION@', {
-    requires : ['base', 'node', 'io', 'moodle-course-coursebase']
-}
-);
