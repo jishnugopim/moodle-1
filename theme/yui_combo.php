@@ -94,13 +94,20 @@ foreach ($parts as $part) {
         }
         $frankenstyle = array_shift($bits);
         $filename = array_pop($bits);
+        $modulename = preg_replace('/.js$/', '', $filename);
         $dir = get_component_directory($frankenstyle);
         if ($mimetype == 'text/css') {
             $bits[] = 'assets';
             $bits[] = 'skins';
             $bits[] = 'sam';
         }
-        $contentfile = $dir.'/yui/'.join('/', $bits).'/'.$filename;
+
+        $prepender = 'moodle-' . $frankenstyle . '-';
+        $modname = $prepender . join('_', $bits);
+        $contentfile = $dir . '/yui/build/' . $modname . '/' . $prepender . $filename;
+        if (!file_exists($contentfile) or !is_file($contentfile)) {
+            $contentfile = $dir.'/yui/'.join('/', $bits).'/'.$filename;
+        }
     } else if ($version === '2in3') {
         $contentfile = "$CFG->libdir/yuilib/$part";
 
