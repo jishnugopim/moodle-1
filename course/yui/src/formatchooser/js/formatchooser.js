@@ -1,4 +1,3 @@
-YUI.add('moodle-course-formatchooser', function(Y) {
     var FORMATCHOOSER = function() {
         FORMATCHOOSER.superclass.constructor.apply(this, arguments);
     }
@@ -22,4 +21,3 @@ YUI.add('moodle-course-formatchooser', function(Y) {
     M.course.init_formatchooser = function(params) {
         return new FORMATCHOOSER(params);
     }
-}, '@VERSION@', {requires:['base', 'node', 'node-event-simulate']});
