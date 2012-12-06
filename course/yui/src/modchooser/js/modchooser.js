@@ -1,4 +1,3 @@
-YUI.add('moodle-course-modchooser', function(Y) {
     var CSS = {
         PAGECONTENT : 'div#page-content',
         SECTION : 'li.section',
@@ -156,8 +155,3 @@ YUI.add('moodle-course-modchooser', function(Y) {
     M.course.init_chooser = function(config) {
         return new MODCHOOSER(config);
     }
-},
-'@VERSION@', {
-    requires:['base', 'overlay', 'moodle-core-chooserdialogue', 'transition']
-}
-);

@@ -1,0 +1,10 @@
+{
+  "moodle-course-modchooser": {
+    "requires": [
+        "base",
+        "overlay",
+        "moodle-core-chooserdialogue",
+        "transition"
+    ]
+  }
+}
