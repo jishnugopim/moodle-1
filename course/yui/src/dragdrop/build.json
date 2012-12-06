@@ -1,0 +1,10 @@
+{
+  "name": "moodle-course-dragdrop",
+  "builds": {
+    "moodle-course-dragdrop": {
+      "jsfiles": [
+        "dragdrop.js"
+      ]
+    }
+  }
+}
