@@ -1,4 +1,4 @@
-YUI.add('moodle-course-coursebase', function(Y) {
+YUI.add('moodle-course-coursebase', function (Y, NAME) {
 
     /**
      * The coursebase class
@@ -217,8 +217,5 @@ YUI.add('moodle-course-coursebase', function(Y) {
 
     }
 
-},
-'@VERSION@', {
-    requires : ['base', 'node']
-}
-);
+
+}, '@VERSION@', {"requires": ["base", "node"]});
