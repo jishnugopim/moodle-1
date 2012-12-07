@@ -468,6 +468,15 @@ $CFG->admin = 'admin';
 // Prevent theme caching
 // $CFG->themerev = -1; // NOT FOR PRODUCTION SERVERS!
 //
+// Prevent JS caching
+// $CFG->jsrev = -1; // NOT FOR PRODUCTION SERVERS!
+//
+// When working with Moodle YUI modules, inform Moodle that you are passing your code through shifter.
+//   NOTE: Moodle does not run shifter, you must run it yourself
+//   shifter --watch is your friend
+//   For further information on shifter see https://github.com/yui/shifter and http://docs.moodle.org/dev/YUI-shifter
+// $CFG->jsuseshifter = true;
+//
 // Prevent core_string_manager on-disk cache
 // $CFG->langstringcache = false; // NOT FOR PRODUCTION SERVERS!
 //

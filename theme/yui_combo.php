@@ -73,6 +73,7 @@ foreach ($parts as $part) {
     if (empty($part)) {
         continue;
     }
+    $filecontent = '';
     $part = min_clean_param($part, 'SAFEPATH');
     $bits = explode('/', $part);
     if (count($bits) < 2) {
@@ -95,7 +96,7 @@ foreach ($parts as $part) {
         }
         $frankenstyle = array_shift($bits);
         $filename = array_pop($bits);
-        $modulename = preg_replace('/.js$/', '', $filename);
+        $modulename = $bits[0];
         $dir = get_component_directory($frankenstyle);
         if ($mimetype == 'text/css') {
             $bits[] = 'assets';
@@ -103,9 +104,41 @@ foreach ($parts as $part) {
             $bits[] = 'sam';
         }
 
-        $prepender = 'moodle-' . $frankenstyle . '-';
-        $modname = $prepender . join('_', $bits);
-        $contentfile = $dir . '/yui/build/' . $modname . '/' . $prepender . $filename;
+        // For shifted YUI modules, we need the YUI module name in frankenstyle format
+        $frankenstylemodulename = join('-', array($version, $frankenstyle, $modulename));
+
+        // If we're not using cached JS and we aren't using shifter then use the source directory
+        if ($CFG->jsrev === -1 && (!isset($CFG->jsuseshifter) || $CFG->jsuseshifter === false)) {
+            $contentbase = $dir . '/yui/src/';
+            if ($mimetype === 'application/javascript') {
+                // For the JS code, we need to add the YUI module wrapper manually
+                // The metadata is stored in /meta/frankenstyle-module-name.json in an object names frankenstyle-module-name
+                $contentfile = $contentbase . $modulename . '/js/' . $filename;
+                $metadatafile = $contentbase . $modulename . '/meta/' . $modulename . '.json';
+                if (file_exists($metadatafile) && is_file($metadatafile) && $metadata = json_decode(file_get_contents($metadatafile))) {
+                    $content .= "\n// Loaded {$modulename} from source file $contentfile\n";
+                    $content .= "// Using metadata in $metadatafile\n";
+                    $content .= "// We recommend that you use shifter (TODO link to docs.moodle.org)\n\n";
+                    $filecontent = "YUI.add('{$frankenstylemodulename}', function (Y, NAME) {\n\n";
+                    $filecontent .= file_get_contents($contentfile);
+                    $filecontent .= "\n\n}, '@VERSION', " . json_encode($metadata->$frankenstylemodulename) . ");";
+                } else {
+                    // If we can't find the metadata, this can't be a shifted module - fallback to the non-shifted approach
+                    $contentfile = null;
+                }
+            } else {
+                $srcbits = array_merge(array($modulename), $bits);
+                $contentfile = $contentbase . join('/', $srcbits) . '/' . $filename;
+                $content .= "\n/* Loaded {$filename} from source file $contentfile*/\n\n";
+                $filecontent .= file_get_contents($contentfile);
+            }
+        } else {
+            // By default, try and use the /yui/build directory
+            $frankenstylefilename = preg_replace('/' . $modulename . '/', $frankenstylemodulename, $filename);
+            $contentfile = $dir . '/yui/build/' . $frankenstylemodulename . '/' . $frankenstylefilename;
+        }
+
+        // If the shifted versions don't exist, fall back to the non-shifted file
         if (!file_exists($contentfile) or !is_file($contentfile)) {
             $contentfile = $dir.'/yui/'.join('/', $bits).'/'.$filename;
         }
@@ -127,7 +160,10 @@ foreach ($parts as $part) {
         $content .= "\n// Combo resource $part ($location) not found!\n";
         continue;
     }
-    $filecontent = file_get_contents($contentfile);
+
+    if (empty($filecontent)) {
+        $filecontent = file_get_contents($contentfile);
+    }
     $fmodified = filemtime($contentfile);
     if ($fmodified > $lastmodified) {
         $lastmodified = $fmodified;
@@ -138,8 +174,16 @@ foreach ($parts as $part) {
 
     if ($mimetype === 'text/css') {
         if ($version == 'moodle') {
-            $filecontent = preg_replace('/([a-z0-9_-]+)\.(png|gif)/', $relroot.'/theme/yui_image.php'.$sep.$version.'/'.$frankenstyle.'/'.array_shift($bits).'/$1.$2', $filecontent);
+            // Search for all images in the file and replace with an appropriate link to the yui_image.php script
+            $imagebits = array(
+                $sep . $version,
+                $frankenstyle,
+                $modulename,
+                array_shift($bits),
+                '$1.$2'
+            );
 
+            $filecontent = preg_replace('/([a-z0-9_-]+)\.(png|gif)/', $relroot.'/theme/yui_image.php'. implode('/', $imagebits), $filecontent);
         } else if ($version == '2in3') {
             // First we need to remove relative paths to images. These are used by YUI modules to make use of global assets.
             // I've added this as a separate regex so it can be easily removed once
