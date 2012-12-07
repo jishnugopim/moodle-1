@@ -41,7 +41,6 @@ if ($slashargument = min_get_slash_argument()) {
 $etag = sha1($path);
 $parts = explode('/', $path);
 $version = array_shift($parts);
-
 if ($version == 'moodle' && count($parts) >= 3) {
     //TODO: this is a ugly hack because we should not load any libs here!
     define('MOODLE_INTERNAL', true);
@@ -51,7 +50,20 @@ if ($version == 'moodle' && count($parts) >= 3) {
     $image = array_pop($parts);
     $subdir = join('/', $parts);
     $dir = get_component_directory($frankenstyle);
-    $imagepath = $dir.'/yui/'.$module.'/assets/skins/sam/'.$image;
+
+    // For shifted YUI modules, we need the YUI module name in frankenstyle format
+    $frankenstylemodulename = join('-', array($version, $frankenstyle, $module));
+
+    if ($CFG->jsrev === -1 && (!isset($CFG->jsuseshifter) || $CFG->jsuseshifter === false)) {
+        $imagepath = $dir . '/yui/src/' . $module . '/assets/skins/sam/' . $image;
+    } else {
+        $imagepath = $dir . '/yui/build/' . $frankenstylemodulename . '/assets/skins/sam/' . $image;
+    }
+
+    // If the shifted versions don't exist, fall back to the non-shifted file
+    if (!file_exists($imagepath) or !is_file($imagepath)) {
+        $imagepath = $dir.'/yui/'.$module.'/assets/skins/sam/'.$image;
+    }
 } else if ($version == 'gallery' && count($parts)==3) {
     list($module, $version, $image) = $parts;
     $imagepath = "$CFG->dirroot/lib/yui/gallery/$module/$version/assets/skins/sam/$image";
