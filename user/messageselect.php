@@ -91,7 +91,7 @@ $messagebody = $SESSION->emailselect[$id]['messagebody'];
 
 $count = 0;
 
-if ($data = data_submitted()) {
+if ($data = data_submitted() && confirm_sesskey()) {
     foreach ($data as $k => $v) {
         if (preg_match('/^(user|teacher)(\d+)$/',$k,$m)) {
             if (!array_key_exists($m[2],$SESSION->emailto[$id])) {
