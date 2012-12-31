@@ -1,10 +1,18 @@
+/**
+Provides basic Moodle course functionality common to all course JavaScript
+
+@module course-coursebase
+**/
 YUI.add('moodle-course-coursebase', function(Y) {
 
-    /**
-     * The coursebase class
-     */
     var COURSEBASENAME = 'course-coursebase',
 
+    /**
+    Provides basic Moodle course functionality common to all course JavaScript
+
+    @class course-coursebase
+    @constructor
+    **/
     COURSEBASE = function() {
         COURSEBASE.superclass.constructor.apply(this, arguments);
     },
@@ -20,19 +28,27 @@ YUI.add('moodle-course-coursebase', function(Y) {
         registermodules : [],
 
         /**
-         * Register a new Javascript Module
+         * Register a new Javascript Module which may be called later by the {{#crossLink
+         * "course-coursebase/invoke_function"}}{{/crossLink}} method.
          *
-         * @param object The instantiated module to call functions on
+         * @method register_module
+         * @param {Object} object The instantiated module to call functions on
          */
         register_module : function(object) {
             this.registermodules.push(object);
         },
 
         /**
-         * Invoke the specified function in all registered modules with the given arguments
+         * Invoke the specified function in all registered modules with the given arguments.
          *
-         * @param functionname The name of the function to call
-         * @param args The argument supplied to the function
+         * All modules which have been registered using the {{#crossLink
+         * "course-coursebase/register_module"}}{{/crossLink}} method are checked for presence of the
+         * functionname method. If the method exists, then it is called with the supplied
+         * arguments.
+         *
+         * @method invoke_function
+         * @param {String} functionname The name of the function to call
+         * @param {Object} args The argument supplied to the function
          */
         invoke_function : function(functionname, args) {
             var module;
@@ -44,33 +60,33 @@ YUI.add('moodle-course-coursebase', function(Y) {
         },
 
         /**
-        Return the course section which the supplied element is a child of
-
-        @method get_section
-        @param {Node} child The element to determine parentage for
-        @return {Node} the DOM element representing the section
-        **/
+         * Return the parent course section for the specified child.
+         *
+         * @method get_section
+         * @param {Node} child The element to determine parentage for
+         * @return {Node} the DOM element representing the section
+         */
         get_section: function(child) {
             return child.ancestor(M.course.format.get_sectionclass, true);
         },
 
         /**
-        Return the section sort number for the specified element
-        
-        @method get_section_number
-        @param {Node} The section element to determine a value for
-        @return {String} The module ID
-        **/
+         * Calculate and return the number of the specified section.
+         *
+         * @method get_section_number
+         * @param {Node} The section element to determine a value for
+         * @return {String} The module ID
+         */
         get_section_number : function(section) {
             return parseInt(section.get('id').replace(SELECTORS.SECTIONIDPREFIX, ''), 10);
         },
 
         /**
-        Find or create the list of module instances in this section
-        This is typically a <ul> element
-        
-        @param {Node} section the DOM element representing the section
-        **/
+         * Find or create the list of module instances in this section.
+         * This is typically a <ul> element with the classes section and img-text.
+         *
+         * @param {Node} section the DOM element representing the section
+         */
         get_module_list: function(section) {
             // Find the 'ul' containing the list of mods
             // TODO Make this work with other course formats
@@ -222,9 +238,11 @@ YUI.add('moodle-course-coursebase', function(Y) {
     };
 
    /**
-    * Get the class of draggable node (section wrapper if exists, otherwise section)
+    * Get the class of draggable node (section wrapper if exists, otherwise section).
     *
-    * @return {string} class of the draggable node.
+    * @method M.course.format.get_sectionwrapperclass
+    * @static
+    * @return {String} class of the draggable node.
     */
     M.course.format.get_sectionwrapperclass = M.course.format.get_sectionwrapperclass || function() {
         var config = M.course.format.get_config();
@@ -236,9 +254,11 @@ YUI.add('moodle-course-coursebase', function(Y) {
     };
 
    /**
-    * Get the tag of section node
+    * Get the tag of section node.
     *
-    * @return {string} tag of section node.
+    * @method M.course.format.get_sectionnode
+    * @static
+    * @return {String} tag of section node.
     */
     M.course.format.get_sectionnode = M.course.format.get_sectionnode || function() {
         var config = M.course.format.get_config();
@@ -250,9 +270,11 @@ YUI.add('moodle-course-coursebase', function(Y) {
     };
 
    /**
-    * Get the class of section node
+    * Get the class of section node.
     *
-    * @return {string} class of the section node.
+    * @method M.course.format.get_sectionclass
+    * @static
+    * @return {String} class of the section node.
     */
     M.course.format.get_sectionclass = M.course.format.get_sectionclass || function() {
         var config = M.course.format.get_config();

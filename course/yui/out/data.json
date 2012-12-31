@@ -1,0 +1,370 @@
+{
+    "project": {},
+    "files": {
+        "coursebase/coursebase.js": {
+            "name": "coursebase/coursebase.js",
+            "modules": {
+                "course-coursebase": 1
+            },
+            "classes": {
+                "course-coursebase": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "course-coursebase": {
+            "name": "course-coursebase",
+            "submodules": {},
+            "classes": {
+                "course-coursebase": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "coursebase/coursebase.js",
+            "line": 10,
+            "description": "Provides basic Moodle course functionality common to all course JavaScript"
+        }
+    },
+    "classes": {
+        "course-coursebase": {
+            "name": "course-coursebase",
+            "shortname": "course-coursebase",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "course-coursebase",
+            "namespace": "",
+            "file": "coursebase/coursebase.js",
+            "line": 10,
+            "description": "Provides basic Moodle course functionality common to all course JavaScript",
+            "is_constructor": 1
+        }
+    },
+    "classitems": [
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 30,
+            "description": "Register a new Javascript Module",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The instantiated module to call functions on"
+                }
+            ],
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 39,
+            "description": "Invoke the specified function in all registered modules with the given arguments",
+            "params": [
+                {
+                    "name": "functionname",
+                    "description": "The name of the function to call"
+                },
+                {
+                    "name": "args",
+                    "description": "The argument supplied to the function"
+                }
+            ],
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 54,
+            "description": "Return the course section which the supplied element is a child of",
+            "itemtype": "method",
+            "name": "get_section",
+            "params": [
+                {
+                    "name": "child",
+                    "description": "The element to determine parentage for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "the DOM element representing the section",
+                "type": "Node"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 65,
+            "description": "Return the section sort number for the specified element",
+            "itemtype": "method",
+            "name": "get_section_number",
+            "params": [
+                {
+                    "name": "The",
+                    "description": "section element to determine a value for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "The module ID",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 76,
+            "description": "Find or create the list of module instances in this section\nThis is typically a <ul> element",
+            "params": [
+                {
+                    "name": "section",
+                    "description": "the DOM element representing the section",
+                    "type": "Node"
+                }
+            ],
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 114,
+            "description": "Swap section (should be defined in format.js if requred)",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                },
+                {
+                    "name": "node1",
+                    "description": "node to swap to",
+                    "type": "String"
+                },
+                {
+                    "name": "node2",
+                    "description": "node to swap with",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "section list",
+                "type": "NodeList"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 126,
+            "description": "Process sections after ajax response (should be defined in format.js)\nIf some response is expected, we pass it over to format, as it knows better\nhot to process it.",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                },
+                {
+                    "name": "list",
+                    "description": "of sections",
+                    "type": "NodeList"
+                },
+                {
+                    "name": "response",
+                    "description": "ajax response",
+                    "type": "Array"
+                },
+                {
+                    "name": "sectionfrom",
+                    "description": "first affected section",
+                    "type": "String"
+                },
+                {
+                    "name": "sectionto",
+                    "description": "last affected section",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "void"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 142,
+            "description": "Get sections config for this format, for examples see function definition\nin the formats.",
+            "return": {
+                "description": "section list configuration",
+                "type": "Object"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 159,
+            "description": "Get section list for this format (usually items inside container_node.container_class selector)",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                }
+            ],
+            "return": {
+                "description": "section selector",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 174,
+            "description": "Get section wraper for this format (only used in case when each\ncontainer_node.container_class node is wrapped in some other element).",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                }
+            ],
+            "return": {
+                "description": "section wrapper selector or M.course.format.get_section_selector\nif section_wrapper_node and section_wrapper_class are not defined in the format config.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 190,
+            "description": "Get the tag of container node",
+            "return": {
+                "description": "tag of container node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 204,
+            "description": "Get the class of container node",
+            "return": {
+                "description": "class of the container node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 218,
+            "description": "Get the tag of draggable node (section wrapper if exists, otherwise section)",
+            "return": {
+                "description": "tag of the draggable node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 232,
+            "description": "Get the class of draggable node (section wrapper if exists, otherwise section)",
+            "return": {
+                "description": "class of the draggable node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 246,
+            "description": "Get the tag of section node",
+            "return": {
+                "description": "tag of section node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "coursebase/coursebase.js",
+            "line": 260,
+            "description": "Get the class of section node",
+            "return": {
+                "description": "class of the section node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "Missing item type\nRegister a new Javascript Module",
+            "line": " coursebase/coursebase.js:30"
+        },
+        {
+            "message": "Missing item type\nInvoke the specified function in all registered modules with the given arguments",
+            "line": " coursebase/coursebase.js:39"
+        },
+        {
+            "message": "Missing item type\nFind or create the list of module instances in this section\nThis is typically a <ul> element",
+            "line": " coursebase/coursebase.js:76"
+        },
+        {
+            "message": "Missing item type\nSwap section (should be defined in format.js if requred)",
+            "line": " coursebase/coursebase.js:114"
+        },
+        {
+            "message": "Missing item type\nProcess sections after ajax response (should be defined in format.js)\nIf some response is expected, we pass it over to format, as it knows better\nhot to process it.",
+            "line": " coursebase/coursebase.js:126"
+        },
+        {
+            "message": "Missing item type\nGet sections config for this format, for examples see function definition\nin the formats.",
+            "line": " coursebase/coursebase.js:142"
+        },
+        {
+            "message": "Missing item type\nGet section list for this format (usually items inside container_node.container_class selector)",
+            "line": " coursebase/coursebase.js:159"
+        },
+        {
+            "message": "Missing item type\nGet section wraper for this format (only used in case when each\ncontainer_node.container_class node is wrapped in some other element).",
+            "line": " coursebase/coursebase.js:174"
+        },
+        {
+            "message": "Missing item type\nGet the tag of container node",
+            "line": " coursebase/coursebase.js:190"
+        },
+        {
+            "message": "Missing item type\nGet the class of container node",
+            "line": " coursebase/coursebase.js:204"
+        },
+        {
+            "message": "Missing item type\nGet the tag of draggable node (section wrapper if exists, otherwise section)",
+            "line": " coursebase/coursebase.js:218"
+        },
+        {
+            "message": "Missing item type\nGet the class of draggable node (section wrapper if exists, otherwise section)",
+            "line": " coursebase/coursebase.js:232"
+        },
+        {
+            "message": "Missing item type\nGet the tag of section node",
+            "line": " coursebase/coursebase.js:246"
+        },
+        {
+            "message": "Missing item type\nGet the class of section node",
+            "line": " coursebase/coursebase.js:260"
+        }
+    ]
+}

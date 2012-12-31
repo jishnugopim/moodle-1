@@ -1,19 +1,16 @@
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 YUI.add('moodle-course-dndupload', function(Y, NAME) {
+    /**
+     * Provides the moodle course drag and drop upload class
+     *
+     * @module course-dndupload
+     */
+
+    /**
+     * Provides the Course drag and drop upload functionality
+     *
+     * @class course-dndupload
+     * @constructor
+     */
     var DNDUPLOAD = function() {
         DNDUPLOAD.superclass.constructor.apply(this, arguments);
     },
@@ -28,66 +25,66 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
 
     Y.extend(DNDUPLOAD, Y.Base, {
         /**
-        The section selector string used to identify and locate sections
-
-        @private
-        @property sectionselector
-        @type string
-        @default null
-        **/
+         * The section selector string used to identify and locate sections
+         *
+         * @private
+         * @property sectionselector
+         * @type string
+         * @default null
+         */
         sectionselector : null,
 
         /**
-        A reference to the status node.
-        This node is used initially to inform users that Drag and Drop upload is available
-        to them.
-
-        @private
-        @property string
-        @type Node
-        @default null
-        **/
+         * A reference to the status node.
+         * This node is used initially to inform users that Drag and Drop upload is available
+         * to them.
+         *
+         * @private
+         * @property string
+         * @type Node
+         * @default null
+         */
         statusnode : null,
 
         /**
-        Nasty hack to distinguish between dragenter(first entry),
-        dragenter+dragleave(moving between child elements) and dragleave (leaving element)
-
-        @private
-        @property entercount
-        @type Integer
-        @default 0
-        **/
+         * Nasty hack to distinguish between dragenter(first entry),
+         * dragenter+dragleave(moving between child elements) and dragleave (leaving element)
+         *
+         * @private
+         * @property entercount
+         * @type Integer
+         * @default 0
+         */
         entercount: 0,
 
         /**
-        A reference to the page body since we use this a lot
-
-        @private
-        @property body
-        @type Node
-        @default null
-        **/
+         * A reference to the page body since we use this a lot
+         *
+         * @private
+         * @property body
+         * @type Node
+         * @default null
+         */
         body: null,
 
         /**
-        A reference to the preview element
-
-        @private
-        @property preview_element
-        @type Node
-        @default null
-        **/
+         * A reference to the preview element
+         *
+         * @private
+         * @property preview_element
+         * @type Node
+         * @default null
+         */
         preview_element: null,
 
         /**
-        A reference to the preview element's span which contains the text we update
-
-        @private
-        @property preview_element_span
-        @type Node
-        @default null
-        **/
+         * A reference to the preview element's span which contains the text we update
+         *
+         * @private
+         * @property preview_element_span
+         * @type Node
+         * @default null
+         */
         preview_element_span: null,
 
         initializer : function() {
@@ -121,11 +118,11 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Check whether the current browser has the required functionality
-        
-        @method browser_supported
-        @return {boolean} Whether the browser is supported or not
-        **/
+         * Check whether the current browser has the required functionality.
+         *
+         * @method browser_supported
+         * @return {boolean} Whether the browser is supported or not
+         */
         browser_supported: function() {
             if (typeof FileReader === 'undefined') {
                 return false;
@@ -137,12 +134,12 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Add an element to tell the user that drag and drop upload is available (or to
-        explain why it is not available)
-
-        @method add_status_message
-        @return {undefined} Nothing is returned
-        **/
+         * Add an element to tell the user that drag and drop upload is available (or to
+         * explain why it is not available).
+         *
+         * @method add_status_message
+         * @return {undefined} Nothing is returned
+         */
         add_status_message: function() {
             var contentdiv,
             messagetitle,
@@ -201,13 +198,14 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Handle a dragenter event: add a suitable 'add here' message
-        when a drag event occurs, containing a registered data type
-
-        @param {Event} e The event defining the dragenter
-        @return {boolean} Always returns false to ensure that further event processing
-                          does not occur
-        **/
+         * Handle a dragenter event: add a suitable 'add here' message when a drag event
+         * occurs, containing a registered data type.
+         *
+         * @method drag_enter
+         * @param {Event} e The event defining the dragenter
+         * @return {boolean} Always returns false to ensure that further event processing
+         * does not occur
+         */
         drag_enter: function(e) {
             var type, section;
 
@@ -244,22 +242,23 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Handle a dragleave event: remove the 'add here' message (if present)
-
-        @param {event} e event data
-        **/
+         * Handle a dragleave event: remove the 'add here' message (if present)
+         *
+         * @method drag_leave
+         * @param {event} e event data
+         */
         drag_leave: function(e) {
             // Prevent any further actions
             e.preventDefault();
 
             // This event type does not support drag and drop upload
             if (!this.check_drag(e)) {
-                return false;
+                return;
             }
 
             this.entercount--;
             if (this.entercount == 1) {
-                return false;
+                return;
             }
             this.entercount = 0;
 
@@ -269,26 +268,28 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
             // Stop previewing the element now
             this.hide_preview_element();
 
-            return false;
+            return;
         },
 
         /**
-        Handle a dragover event: just prevent the browser default (necessary to allow drag
-        and drop handling to work)
-
-        @param {event} e event data
-        **/
+         * Handle a dragover event: just prevent the browser default (necessary to allow drag
+         * and drop handling to work)
+         *
+         * @method drag_over
+         * @param {Event} e event data
+         */
         drag_over: function(e) {
             this.check_drag(e);
             return false;
         },
 
         /**
-        Handle a drop event: hide the 'add here' message, check the attached data type and
-        start the upload process
-
-        @param {event} e event data
-        **/
+         * Handle a drop event: hide the 'add here' message, check the attached data type and
+         * start the upload process
+         *
+         * @method drop
+         * @param {event} e event data
+         */
         drop: function(e) {
             var type,
             files,
@@ -324,12 +325,13 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Check if the event includes data of the given type
-
-        @param {Event} e the event details
-        @param {String} type the data type to check for
-        @return {boolean} Whether the data type was found in the event data
-        **/
+         * Check if the given event includes data of the given type.
+         *
+         * @method types_includes
+         * @param {Event} e the event details
+         * @param {String} type the data type to check for
+         * @return {boolean} Whether the data type was found in the event data
+         */
         types_includes: function(e, type) {
             var i,
             types = e._event.dataTransfer.types;
@@ -342,16 +344,20 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Look through the event data, checking it against the registered data types
-        (in order of priority) and return details of the first matching data type.
-
-        @param {Event} e the event details
-        @return {boolean|object} If no matching type was found return false, otherwise an object:
-            realtype: the type as given by the browser
-            addmessage: the message to show to the user during dragging
-            namemessage: the message for requesting a name for the resource from the user
-            type: the identifier of the type (may match several 'realtype's)
-        **/
+         * Look through the event data, checking it against the registered data types
+         * (in order of priority) and return details of the first matching data type.
+         *
+         * The type is an object containing:
+         *     realtype: the type as given by the browser
+         *     addmessage: the message to show to the user during dragging
+         *     namemessage: the message for requesting a name for the resource from the user
+         *     type: the identifier of the type (may match several 'realtype's)
+         *
+         * @method drag_type
+         * @param {Event} e the event details
+         * @return {boolean|Object} If no matching type was found return false, otherwise
+         * an object containing the details of the registered upload type.
+         */
         drag_type: function(e) {
             var types, i, dttypes, j;
             // Check there is some data attached.
@@ -402,12 +408,13 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Check the content of the drag/drop includes a type we can handle.
-        If so, notify the browser that we want to handle it
-
-        @param {Event} e The event handler to check
-        @return {String|boolean} type of the event or false
-        **/
+         * Check the content of the drag/drop includes a type we can handle.
+         * If so, notify the browser that we want to handle it
+         *
+         * @method check_drag
+         * @param {Event} e The event handler to check
+         * @return {String|boolean} type of the event or false
+         */
         check_drag: function(e) {
             var type = this.drag_type(e);
             if (type) {
@@ -419,10 +426,10 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Hide the dndupload-preview element if it has been created
-
-        @return {null}
-        **/
+         * Hide the dndupload-preview element if it has been created
+         *
+         * @method hide_preview_element
+         */
         hide_preview_element: function() {
             if (!this.preview_element) {
                 return false;
@@ -431,11 +438,15 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Unhide the preview element for the given section and set it to display
-        the correct message
-        @param section the YUI node representing the selected course section
-        @param type the details of the data type detected in the drag (including the message to display)
-        **/
+         * Unhide the preview element for the given section and set it to display the
+         * correct message.
+         *
+         * If a preview element does not yet exist, then one is automatically created.
+         *
+         * @method show_preview_element
+         * @param section the YUI node representing the selected course section
+         * @param type the details of the data type detected in the drag (including the message to display)
+         */
         show_preview_element: function(section, type) {
             var modulelist;
             this.hide_preview_element();
@@ -463,13 +474,14 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Find the registered handler for the given file type. If there is more than one,
-        ask the user which one to use. Then upload the file to the server.
-
-        @param {Object} file the details of the file, taken from the FileList in the drop event
-        @param {Node} section the Node representing the selected course section
-        @param {integer} sectionnumber the number of the selected course section
-        **/
+         * Find the registered handler for the given file type. If there is more than one,
+         * ask the user which one to use. Then upload the file to the server.
+         *
+         * @method handle_file
+         * @param {Object} file the details of the file, taken from the FileList in the drop event
+         * @param {Node} section the Node representing the selected course section
+         * @param {integer} sectionnumber the number of the selected course section
+         */
         handle_file: function(file, section, sectionnumber) {
             var handlers = [],
             filehandlers = this.get('handlers').filehandlers,
@@ -505,16 +517,18 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         },
 
         /**
-        Perform a file upload for the specified file. This consists of:
-        - showing the dummy element;
-        - using an AJAX call to send the data to the server;
-        - updating the progress bar for the file; then
-        - replacing the dummy element with the real information once the AJAX call completes.
-
-        @param {Object} file the details of the file, taken from the FileList in the drop event
-        @param {Node} section the Node representing the selected course section
-        @param {integer} sectionnumber the number of the selected course section
-        */
+         * Perform a file upload for the specified file. This consists of:
+         *
+         * - showing the dummy element;
+         * - using an AJAX call to send the data to the server;
+         * - updating the progress bar for the file; then
+         * - replacing the dummy element with the real information once the AJAX call completes.
+         *
+         * @method upload_file
+         * @param {Object} file the details of the file, taken from the FileList in the drop event
+         * @param {Node} section the Node representing the selected course section
+         * @param {integer} sectionnumber the number of the selected course section
+         */
         upload_file: function(file, section, sectionnumber, module) {
             // This would be an ideal place to use the Y.io function
             // however, this does not support data encoded using the
@@ -641,83 +655,84 @@ YUI.add('moodle-course-dndupload', function(Y, NAME) {
         NAME : DNDUPLOAD,
         ATTRS : {
             /**
-            The URI to use for upload requests
-
-            @attribute uri
-            @default M.cfg.wwwroot + '/course/dndupload.php'
-            **/
+             * The URI to use for upload requests
+             *
+             * @optional
+             * @attribute uri
+             * @default M.cfg.wwwroot + '/course/dndupload.php'
+             */
             uri : {
                 'value' : M.cfg.wwwroot + '/course/dndupload.php'
             },
 
             /**
-            The course ID of the course currently being edited
-
-            @required
-            @attribute courseid
-            @writeOnce
-            @default null
-            **/
+             * The course ID of the course currently being edited
+             *
+             * @required
+             * @attribute courseid
+             * @writeOnce
+             * @default null
+             */
             courseid : {
                 'value' : null
             },
 
             /**
-            The maximum size of files allowed in this form
-
-            @required
-            @attribute maxbytes
-            @writeOnce
-            @default 0
-            **/
+             * The maximum size of files allowed in this form
+             *
+             * @required
+             * @attribute maxbytes
+             * @writeOnce
+             * @default 0
+             */
             maxbytes : {
                 'value' : 0
             },
 
             /**
-            The handlers available to this form
-
-            @required
-            @attribute handlers
-            @writeOnce
-            @default null
-            **/
+             * The handlers available to this form
+             *
+             * @required
+             * @attribute handlers
+             * @writeOnce
+             * @default null
+             */
             handlers : {
                 'value' : null
             },
 
             /**
-            Whether this form handles file uploads
-
-            @required
-            @attribute handlefile
-            @writeOnce
-            @default false
-            **/
+             * Whether this form handles file uploads
+             *
+             * @required
+             * @attribute handlefile
+             * @writeOnce
+             * @default false
+             */
             handlefile : {
                 'value' : false
             },
 
             /**
-            Whether this form handles upload of text
-
-            @required
-            @attribute handletext
-            @writeOnce
-            @default false
-            **/
+             * Whether this form handles upload of text
+             *
+             * @required
+             * @attribute handletext
+             * @writeOnce
+             * @default false
+             */
             handletext : {
                 'value' : false
             },
 
             /**
-            Whether this form handles link uploads
-
-            @required
-            @attribute handlelink
-            @writeOnce
-            @default false
-            **/
+             * Whether this form handles link uploads
+             *
+             * @required
+             * @attribute handlelink
+             * @writeOnce
+             * @default false
+             */
             handlelink : {
                 'value' : false
             }
