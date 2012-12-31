@@ -69,14 +69,50 @@ function dndupload_add_to_course($course, $modnames) {
         ),
         'requires' => array('node', 'event', 'panel', 'json', 'anim')
     );
-    $vars = array(
-        array('courseid' => $course->id,
-              'maxbytes' => get_max_upload_file_size($CFG->maxbytes, $course->maxbytes),
-              'handlers' => $handler->get_js_data(),
-              'showstatus' => $showstatus)
+    $moduleconfig = array(
+        'courseid' => $course->id,
+        'maxbytes' => get_max_upload_file_size($CFG->maxbytes, $course->maxbytes),
+        'showstatus' => $showstatus,
+        'handlefile' => false,
+        'handletext' => false,
+        'handlelink' => false,
+        'handlers' => $jsdata,
     );
 
-    $PAGE->requires->js_init_call('M.course_dndupload.init', $vars, true, $jsmodule);
+    // Determine the types of handlers that we have
+    $moduleconfig['handlefile'] = (count($moduleconfig['handlers']->filehandlers) > 0);
+    foreach ($moduleconfig['handlers']->types as $thishandler) {
+        switch ($thishandler->identifier) {
+            case 'text':
+            case 'text/html':
+                $moduleconfig['handletext'] = true;
+                break;
+            case 'url':
+                $moduleconfig['handlelink'] = true;
+                break;
+            default:
+                break;
+        }
+    }
+    $PAGE->requires->yui_module('moodle-course-dndupload',
+            'M.course.init_dndupload',
+            array($moduleconfig)
+    );
+    $PAGE->requires->strings_for_js(array(
+        'addfilehere',
+        'dndworkingfiletextlink',
+        'dndworkingfilelink',
+        'dndworkingfiletext',
+        'dndworkingfile',
+        'dndworkingtextlink',
+        'dndworkingtext',
+        'dndworkinglink',
+        'filetoolarge',
+        'actionchoice',
+        'servererror',
+        'upload',
+        'cancel',
+    ), 'moodle');
 }
 
 

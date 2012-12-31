@@ -28,6 +28,9 @@ define('AJAX_SCRIPT', true);
 require_once(dirname(dirname(__FILE__)).'/config.php');
 require_once($CFG->dirroot.'/course/dnduploadlib.php');
 
+print_r($_GET);
+print_r($_POST);
+
 $courseid = required_param('course', PARAM_INT);
 $section = required_param('section', PARAM_INT);
 $type = required_param('type', PARAM_TEXT);

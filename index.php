@@ -155,6 +155,9 @@
         // Add the module chooser
         $renderer = $PAGE->get_renderer('core', 'course');
         echo $renderer->course_modchooser(get_module_metadata($SITE, $modnames), $SITE);
+
+        // Include course format js module
+        $PAGE->requires->js('/lib/format.js');
     }
 
     if (isloggedin() and !isguestuser() and isset($CFG->frontpageloggedin)) {

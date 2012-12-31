@@ -3,22 +3,21 @@ YUI.add('moodle-course-coursebase', function(Y) {
     /**
      * The coursebase class
      */
-    var COURSEBASENAME = 'course-coursebase';
+    var COURSEBASENAME = 'course-coursebase',
 
-    var COURSEBASE = function() {
+    COURSEBASE = function() {
         COURSEBASE.superclass.constructor.apply(this, arguments);
-    }
+    },
+
+    SELECTORS = {
+        SECTIONIDPREFIX : 'section-',
+        SECTIONCONTENT : 'content',
+        SECTIONSUMMARY : 'div.summary'
+    };
 
     Y.extend(COURSEBASE, Y.Base, {
         // Registered Modules
         registermodules : [],
-
-        /**
-         * Initialize the coursebase module
-         */
-        initializer : function(config) {
-            // We don't actually perform any work here
-        },
 
         /**
          * Register a new Javascript Module
@@ -36,12 +35,60 @@ YUI.add('moodle-course-coursebase', function(Y) {
          * @param args The argument supplied to the function
          */
         invoke_function : function(functionname, args) {
+            var module;
             for (module in this.registermodules) {
                 if (functionname in this.registermodules[module]) {
                     this.registermodules[module][functionname](args);
                 }
             }
+        },
+
+        /**
+        Return the course section which the supplied element is a child of
+
+        @method get_section
+        @param {Node} child The element to determine parentage for
+        @return {Node} the DOM element representing the section
+        **/
+        get_section: function(child) {
+            return child.ancestor(M.course.format.get_sectionclass, true);
+        },
+
+        /**
+        Return the section sort number for the specified element
+        
+        @method get_section_number
+        @param {Node} The section element to determine a value for
+        @return {String} The module ID
+        **/
+        get_section_number : function(section) {
+            return parseInt(section.get('id').replace(SELECTORS.SECTIONIDPREFIX, ''), 10);
+        },
+
+        /**
+        Find or create the list of module instances in this section
+        This is typically a <ul> element
+        
+        @param {Node} section the DOM element representing the section
+        **/
+        get_module_list: function(section) {
+            // Find the 'ul' containing the list of mods
+            // TODO Make this work with other course formats
+            var modulelist = section.one('ul.section'),
+            sectionsummary;
+            if (!modulelist) {
+                // Create the above 'ul' if it doesn't exist
+                modulelist = Y.Node.create('<ul />')
+                    .addClass('section')
+                    .addClass('img-text');
+                sectionsummary = section.one('.' + SELECTORS.SECTIONCONTENT + ' ' + SELECTORS.SECTIONSUMMARY);
+                sectionsummary.insert(modulelist, 'after');
+
+            }
+
+            return modulelist;
         }
+
     },
     {
         NAME : COURSEBASENAME,
@@ -54,7 +101,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
     M.course.coursebase = M.course.coursebase || new COURSEBASE();
 
     // Abstract functions that needs to be defined per format (course/format/somename/format.js)
-    M.course.format = M.course.format || {}
+    M.course.format = M.course.format || {};
 
    /**
     * Swap section (should be defined in format.js if requred)
@@ -66,7 +113,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
     */
     M.course.format.swap_sections = M.course.format.swap_sections || function(Y, node1, node2) {
         return null;
-    }
+    };
 
    /**
     * Process sections after ajax response (should be defined in format.js)
@@ -82,7 +129,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
     */
     M.course.format.process_sections = M.course.format.process_sections || function(Y, sectionlist, response, sectionfrom, sectionto) {
         return null;
-    }
+    };
 
    /**
     * Get sections config for this format, for examples see function definition
@@ -98,8 +145,8 @@ YUI.add('moodle-course-coursebase', function(Y) {
             section_wrapper_class : null, // optional
             section_node : null,  // compulsory
             section_class : null  // compulsory
-        }
-    }
+        };
+    };
 
    /**
     * Get section list for this format (usually items inside container_node.container_class selector)
@@ -114,7 +161,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         }
         console.log('section_node and section_class are not defined in M.course.format.get_config');
         return null;
-    }
+    };
 
    /**
     * Get section wraper for this format (only used in case when each
@@ -130,7 +177,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
             return config.section_wrapper_node + '.' + config.section_wrapper_class;
         }
         return M.course.format.get_section_selector(Y);
-    }
+    };
 
    /**
     * Get the tag of container node
@@ -144,7 +191,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         } else {
             console.log('container_node is not defined in M.course.format.get_config');
         }
-    }
+    };
 
    /**
     * Get the class of container node
@@ -158,7 +205,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         } else {
             console.log('container_class is not defined in M.course.format.get_config');
         }
-    }
+    };
 
    /**
     * Get the tag of draggable node (section wrapper if exists, otherwise section)
@@ -172,7 +219,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         } else {
             return config.section_node;
         }
-    }
+    };
 
    /**
     * Get the class of draggable node (section wrapper if exists, otherwise section)
@@ -186,7 +233,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         } else {
             return config.section_class;
         }
-    }
+    };
 
    /**
     * Get the tag of section node
@@ -200,7 +247,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         } else {
             console.log('section_node is not defined in M.course.format.get_config');
         }
-    }
+    };
 
    /**
     * Get the class of section node
@@ -214,8 +261,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
         } else {
             console.log('section_class is not defined in M.course.format.get_config');
         }
-
-    }
+    };
 
 },
 '@VERSION@', {
