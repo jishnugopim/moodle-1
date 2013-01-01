@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>coursebase&#x2F;coursebase.js</title>
+    <title>course&#x2F;yui&#x2F;coursebase&#x2F;coursebase.js - Moodle YUI module API</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0pr2&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -15,7 +15,7 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="..&#x2F;assets/css/logo.png" title=""></h1>
+                <h1><img src="&#x2F;moodle&#x2F;pix&#x2F;moodlelogo.gif" title="Moodle YUI module API"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
@@ -41,13 +41,43 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="..&#x2F;classes/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;classes/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formchangechecker.html">core-formchangechecker</a></li>
+            
                 <li><a href="..&#x2F;classes/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;classes/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;classes/course-resource-toolbox.html">course-resource-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-section-toolbox.html">course-section-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-toolboxes.html">course-toolboxes</a></li>
             
             </ul>
 
             <ul id="api-modules" class="apis modules">
             
+                <li><a href="..&#x2F;modules/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;modules/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formchangechecker.html">core-formchangechecker</a></li>
+            
                 <li><a href="..&#x2F;modules/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;modules/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;modules/course-toolboxes.html">course-toolboxes</a></li>
+            
+                <li><a href="..&#x2F;modules/enrol-notification.html">enrol-notification</a></li>
             
             </ul>
         </div>
@@ -84,7 +114,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: coursebase&#x2F;coursebase.js</h1>
+                        <h1 class="file-heading">File: course&#x2F;yui&#x2F;coursebase&#x2F;coursebase.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -98,11 +128,11 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     var COURSEBASENAME = &#x27;course-coursebase&#x27;,
 
     &#x2F;**
-    Provides basic Moodle course functionality common to all course JavaScript
-
-    @class course-coursebase
-    @constructor
-    **&#x2F;
+     * Provides basic Moodle course functionality common to all course JavaScript
+     *
+     * @class course-coursebase
+     * @constructor
+     *&#x2F;
     COURSEBASE = function() {
         COURSEBASE.superclass.constructor.apply(this, arguments);
     },
@@ -118,19 +148,27 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
         registermodules : [],
 
         &#x2F;**
-         * Register a new Javascript Module
+         * Register a new Javascript Module which may be called later by the {{#crossLink
+         * &quot;course-coursebase&#x2F;invoke_function&quot;}}{{&#x2F;crossLink}} method.
          *
-         * @param object The instantiated module to call functions on
+         * @method register_module
+         * @param {Object} object The instantiated module to call functions on
          *&#x2F;
         register_module : function(object) {
             this.registermodules.push(object);
         },
 
         &#x2F;**
-         * Invoke the specified function in all registered modules with the given arguments
+         * Invoke the specified function in all registered modules with the given arguments.
          *
-         * @param functionname The name of the function to call
-         * @param args The argument supplied to the function
+         * All modules which have been registered using the {{#crossLink
+         * &quot;course-coursebase&#x2F;register_module&quot;}}{{&#x2F;crossLink}} method are checked for presence of the
+         * functionname method. If the method exists, then it is called with the supplied
+         * arguments.
+         *
+         * @method invoke_function
+         * @param {String} functionname The name of the function to call
+         * @param {Object} args The argument supplied to the function
          *&#x2F;
         invoke_function : function(functionname, args) {
             var module;
@@ -142,33 +180,35 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
         },
 
         &#x2F;**
-        Return the course section which the supplied element is a child of
-
-        @method get_section
-        @param {Node} child The element to determine parentage for
-        @return {Node} the DOM element representing the section
-        **&#x2F;
+         * Return the parent course section for the specified child.
+         *
+         * @method get_section
+         * @param {Node} child The element to determine parentage for
+         * @return {Node} the DOM element representing the section
+         *&#x2F;
         get_section: function(child) {
             return child.ancestor(M.course.format.get_sectionclass, true);
         },
 
         &#x2F;**
-        Return the section sort number for the specified element
-        
-        @method get_section_number
-        @param {Node} The section element to determine a value for
-        @return {String} The module ID
-        **&#x2F;
+         * Calculate and return the number of the specified section.
+         *
+         * @method get_section_number
+         * @param {Node} The section element to determine a value for
+         * @return {String} The module ID
+         *&#x2F;
         get_section_number : function(section) {
             return parseInt(section.get(&#x27;id&#x27;).replace(SELECTORS.SECTIONIDPREFIX, &#x27;&#x27;), 10);
         },
 
         &#x2F;**
-        Find or create the list of module instances in this section
-        This is typically a &lt;ul&gt; element
-        
-        @param {Node} section the DOM element representing the section
-        **&#x2F;
+         * Find or create the list of module instances in this section.
+         * This is typically a &lt;ul&gt; element with the classes section and img-text.
+         *
+         * @method get_module_list
+         * @param {Node} section the DOM element representing the section
+         * @return {Node} The Node referring to the module list
+         *&#x2F;
         get_module_list: function(section) {
             &#x2F;&#x2F; Find the &#x27;ul&#x27; containing the list of mods
             &#x2F;&#x2F; TODO Make this work with other course formats
@@ -204,6 +244,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
    &#x2F;**
     * Swap section (should be defined in format.js if requred)
     *
+    * @method M.course.format.swap_sections
     * @param {YUI} Y YUI3 instance
     * @param {string} node1 node to swap to
     * @param {string} node2 node to swap with
@@ -218,6 +259,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     * If some response is expected, we pass it over to format, as it knows better
     * hot to process it.
     *
+    * @method M.course.format.process_sections
     * @param {YUI} Y YUI3 instance
     * @param {NodeList} list of sections
     * @param {array} response ajax response
@@ -233,6 +275,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     * Get sections config for this format, for examples see function definition
     * in the formats.
     *
+    * @method M.course.format.get_config
     * @return {object} section list configuration
     *&#x2F;
     M.course.format.get_config = M.course.format.get_config || function() {
@@ -249,6 +292,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
    &#x2F;**
     * Get section list for this format (usually items inside container_node.container_class selector)
     *
+    * @method M.course.format.get_section_selector
     * @param {YUI} Y YUI3 instance
     * @return {string} section selector
     *&#x2F;
@@ -265,6 +309,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     * Get section wraper for this format (only used in case when each
     * container_node.container_class node is wrapped in some other element).
     *
+    * @method M.course.format.get_section_selector
     * @param {YUI} Y YUI3 instance
     * @return {string} section wrapper selector or M.course.format.get_section_selector
     * if section_wrapper_node and section_wrapper_class are not defined in the format config.
@@ -280,6 +325,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
    &#x2F;**
     * Get the tag of container node
     *
+    * @method M.course.format.get_containernode
     * @return {string} tag of container node.
     *&#x2F;
     M.course.format.get_containernode = M.course.format.get_containernode || function() {
@@ -294,6 +340,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
    &#x2F;**
     * Get the class of container node
     *
+    * @method M.course.format.get_containerclass
     * @return {string} class of the container node.
     *&#x2F;
     M.course.format.get_containerclass = M.course.format.get_containerclass || function() {
@@ -308,6 +355,7 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
    &#x2F;**
     * Get the tag of draggable node (section wrapper if exists, otherwise section)
     *
+    * @method M.course.format.get_sectionwrappernode
     * @return {string} tag of the draggable node.
     *&#x2F;
     M.course.format.get_sectionwrappernode = M.course.format.get_sectionwrappernode || function() {
@@ -320,9 +368,11 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     };
 
    &#x2F;**
-    * Get the class of draggable node (section wrapper if exists, otherwise section)
+    * Get the class of draggable node (section wrapper if exists, otherwise section).
     *
-    * @return {string} class of the draggable node.
+    * @method M.course.format.get_sectionwrapperclass
+    * @static
+    * @return {String} class of the draggable node.
     *&#x2F;
     M.course.format.get_sectionwrapperclass = M.course.format.get_sectionwrapperclass || function() {
         var config = M.course.format.get_config();
@@ -334,9 +384,11 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     };
 
    &#x2F;**
-    * Get the tag of section node
+    * Get the tag of section node.
     *
-    * @return {string} tag of section node.
+    * @method M.course.format.get_sectionnode
+    * @static
+    * @return {String} tag of section node.
     *&#x2F;
     M.course.format.get_sectionnode = M.course.format.get_sectionnode || function() {
         var config = M.course.format.get_config();
@@ -348,9 +400,11 @@ YUI.add(&#x27;moodle-course-coursebase&#x27;, function(Y) {
     };
 
    &#x2F;**
-    * Get the class of section node
+    * Get the class of section node.
     *
-    * @return {string} class of the section node.
+    * @method M.course.format.get_sectionclass
+    * @static
+    * @return {String} class of the section node.
     *&#x2F;
     M.course.format.get_sectionclass = M.course.format.get_sectionclass || function() {
         var config = M.course.format.get_config();

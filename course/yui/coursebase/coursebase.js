@@ -8,11 +8,11 @@ YUI.add('moodle-course-coursebase', function(Y) {
     var COURSEBASENAME = 'course-coursebase',
 
     /**
-    Provides basic Moodle course functionality common to all course JavaScript
-
-    @class course-coursebase
-    @constructor
-    **/
+     * Provides basic Moodle course functionality common to all course JavaScript
+     *
+     * @class course-coursebase
+     * @constructor
+     */
     COURSEBASE = function() {
         COURSEBASE.superclass.constructor.apply(this, arguments);
     },
@@ -85,7 +85,9 @@ YUI.add('moodle-course-coursebase', function(Y) {
          * Find or create the list of module instances in this section.
          * This is typically a <ul> element with the classes section and img-text.
          *
+         * @method get_module_list
          * @param {Node} section the DOM element representing the section
+         * @return {Node} The Node referring to the module list
          */
         get_module_list: function(section) {
             // Find the 'ul' containing the list of mods
@@ -122,6 +124,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
    /**
     * Swap section (should be defined in format.js if requred)
     *
+    * @method M.course.format.swap_sections
     * @param {YUI} Y YUI3 instance
     * @param {string} node1 node to swap to
     * @param {string} node2 node to swap with
@@ -136,6 +139,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
     * If some response is expected, we pass it over to format, as it knows better
     * hot to process it.
     *
+    * @method M.course.format.process_sections
     * @param {YUI} Y YUI3 instance
     * @param {NodeList} list of sections
     * @param {array} response ajax response
@@ -151,6 +155,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
     * Get sections config for this format, for examples see function definition
     * in the formats.
     *
+    * @method M.course.format.get_config
     * @return {object} section list configuration
     */
     M.course.format.get_config = M.course.format.get_config || function() {
@@ -167,6 +172,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
    /**
     * Get section list for this format (usually items inside container_node.container_class selector)
     *
+    * @method M.course.format.get_section_selector
     * @param {YUI} Y YUI3 instance
     * @return {string} section selector
     */
@@ -183,6 +189,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
     * Get section wraper for this format (only used in case when each
     * container_node.container_class node is wrapped in some other element).
     *
+    * @method M.course.format.get_section_selector
     * @param {YUI} Y YUI3 instance
     * @return {string} section wrapper selector or M.course.format.get_section_selector
     * if section_wrapper_node and section_wrapper_class are not defined in the format config.
@@ -198,6 +205,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
    /**
     * Get the tag of container node
     *
+    * @method M.course.format.get_containernode
     * @return {string} tag of container node.
     */
     M.course.format.get_containernode = M.course.format.get_containernode || function() {
@@ -212,6 +220,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
    /**
     * Get the class of container node
     *
+    * @method M.course.format.get_containerclass
     * @return {string} class of the container node.
     */
     M.course.format.get_containerclass = M.course.format.get_containerclass || function() {
@@ -226,6 +235,7 @@ YUI.add('moodle-course-coursebase', function(Y) {
    /**
     * Get the tag of draggable node (section wrapper if exists, otherwise section)
     *
+    * @method M.course.format.get_sectionwrappernode
     * @return {string} tag of the draggable node.
     */
     M.course.format.get_sectionwrappernode = M.course.format.get_sectionwrappernode || function() {

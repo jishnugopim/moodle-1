@@ -1,0 +1,1813 @@
+{
+    "project": {
+        "name": "Moodle YUI module API",
+        "description": "Documentation for the YUI modules written for Moodle",
+        "url": "https://moodle.org",
+        "logo": "/moodle/pix/moodlelogo.gif"
+    },
+    "files": {
+        "course/yui/coursebase/coursebase.js": {
+            "name": "course/yui/coursebase/coursebase.js",
+            "modules": {
+                "course-coursebase": 1
+            },
+            "classes": {
+                "course-coursebase": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "course/yui/dndupload/dndupload.js": {
+            "name": "course/yui/dndupload/dndupload.js",
+            "modules": {
+                "course-dndupload": 1
+            },
+            "classes": {
+                "course-dndupload": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "course/yui/dragdrop/dragdrop.js": {
+            "name": "course/yui/dragdrop/dragdrop.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "course/yui/modchooser/modchooser.js": {
+            "name": "course/yui/modchooser/modchooser.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "course/yui/toolboxes/toolboxes.js": {
+            "name": "course/yui/toolboxes/toolboxes.js",
+            "modules": {
+                "course-toolboxes": 1
+            },
+            "classes": {
+                "course-toolboxes": 1,
+                "course-resource-toolbox": 1,
+                "course-section-toolbox": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "enrol/yui/notification/notification.js": {
+            "name": "enrol/yui/notification/notification.js",
+            "modules": {
+                "enrol-notification": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/yui/chooserdialogue/chooserdialogue.js": {
+            "name": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "modules": {
+                "core-chooserdialogue": 1
+            },
+            "classes": {
+                "core-chooserdialogue": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/yui/dragdrop/dragdrop.js": {
+            "name": "lib/yui/dragdrop/dragdrop.js",
+            "modules": {
+                "core-dragdrop": 1
+            },
+            "classes": {
+                "core-dragdrop": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/yui/formautosubmit/formautosubmit.js": {
+            "name": "lib/yui/formautosubmit/formautosubmit.js",
+            "modules": {
+                "core-formautosubmit": 1
+            },
+            "classes": {
+                "core-formautosubmit": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/yui/formchangechecker/formchangechecker.js": {
+            "name": "lib/yui/formchangechecker/formchangechecker.js",
+            "modules": {
+                "core-formchangechecker": 1
+            },
+            "classes": {
+                "core-formchangechecker": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "course-coursebase": {
+            "name": "course-coursebase",
+            "submodules": {},
+            "classes": {
+                "course-coursebase": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 10,
+            "description": "Provides basic Moodle course functionality common to all course JavaScript"
+        },
+        "course-dndupload": {
+            "name": "course-dndupload",
+            "submodules": {},
+            "classes": {
+                "course-dndupload": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 8,
+            "description": "Provides the moodle course drag and drop upload class"
+        },
+        "course-toolboxes": {
+            "name": "course-toolboxes",
+            "submodules": {},
+            "classes": {
+                "course-toolboxes": 1,
+                "course-resource-toolbox": 1,
+                "course-section-toolbox": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 651,
+            "description": "Provides toolboxes"
+        },
+        "enrol-notification": {
+            "name": "enrol-notification",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "enrol/yui/notification/notification.js",
+            "line": 1,
+            "description": "This module provides backwards compatability and should be removed\nentirely in Moodle 2.5",
+            "deprecated": true
+        },
+        "core-chooserdialogue": {
+            "name": "core-chooserdialogue",
+            "submodules": {},
+            "classes": {
+                "core-chooserdialogue": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 8,
+            "description": "Provides the moodle core chooser dialogue functionality."
+        },
+        "core-dragdrop": {
+            "name": "core-dragdrop",
+            "submodules": {},
+            "classes": {
+                "core-dragdrop": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 13,
+            "description": "Provides the generic moodle drag and drop class"
+        },
+        "core-formautosubmit": {
+            "name": "core-formautosubmit",
+            "submodules": {},
+            "classes": {
+                "core-formautosubmit": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 15,
+            "description": "Form auto submission"
+        },
+        "core-formchangechecker": {
+            "name": "core-formchangechecker",
+            "submodules": {},
+            "classes": {
+                "core-formchangechecker": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 14,
+            "description": "Form change checker"
+        }
+    },
+    "classes": {
+        "course-coursebase": {
+            "name": "course-coursebase",
+            "shortname": "course-coursebase",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "course-coursebase",
+            "namespace": "",
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 10,
+            "description": "Provides basic Moodle course functionality common to all course JavaScript",
+            "is_constructor": 1
+        },
+        "course-dndupload": {
+            "name": "course-dndupload",
+            "shortname": "course-dndupload",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "course-dndupload",
+            "namespace": "",
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 8,
+            "description": "Provides the Course drag and drop upload functionality",
+            "is_constructor": 1
+        },
+        "course-toolboxes": {
+            "name": "course-toolboxes",
+            "shortname": "course-toolboxes",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "course-toolboxes",
+            "namespace": "",
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 48,
+            "description": "The toolbox classes\n\nTOOLBOX is a generic class which should never be directly instantiated\nRESOURCETOOLBOX is a class extending TOOLBOX containing code specific to resources\nSECTIONTOOLBOX is a class extending TOOLBOX containing code specific to sections",
+            "is_constructor": 1
+        },
+        "course-resource-toolbox": {
+            "name": "course-resource-toolbox",
+            "shortname": "course-resource-toolbox",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "course-toolboxes",
+            "namespace": "",
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 234,
+            "description": "The resourcetoolbox\n\nTOOLBOX is a generic class which should never be directly instantiated\nRESOURCETOOLBOX is a class extending TOOLBOX containing code specific to resources\nSECTIONTOOLBOX is a class extending TOOLBOX containing code specific to sections",
+            "is_constructor": 1
+        },
+        "course-section-toolbox": {
+            "name": "course-section-toolbox",
+            "shortname": "course-section-toolbox",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "course-toolboxes",
+            "namespace": "",
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 651,
+            "description": "The section toolbox\n\nThe course-section-toolbox extends course-toolbox to provide",
+            "is_constructor": 1
+        },
+        "core-chooserdialogue": {
+            "name": "core-chooserdialogue",
+            "shortname": "core-chooserdialogue",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "core-chooserdialogue",
+            "namespace": "",
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 8,
+            "description": "Provides the moodle core chooser dialogue functionality.",
+            "is_constructor": 1
+        },
+        "core-dragdrop": {
+            "name": "core-dragdrop",
+            "shortname": "core-dragdrop",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "core-dragdrop",
+            "namespace": "",
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 13,
+            "description": "The core-dragdrop class is an abstract class which provides general\ndrag and drop functionality to Moodle.",
+            "is_constructor": 1
+        },
+        "core-formautosubmit": {
+            "name": "core-formautosubmit",
+            "shortname": "core-formautosubmit",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "core-formautosubmit",
+            "namespace": "",
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 15,
+            "description": "Autosubmission of forms",
+            "is_constructor": 1
+        },
+        "core-formchangechecker": {
+            "name": "core-formchangechecker",
+            "shortname": "core-formchangechecker",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "core-formchangechecker",
+            "namespace": "",
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 14,
+            "description": "Warns users before moving away from a modified form",
+            "is_constructor": 1
+        }
+    },
+    "classitems": [
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 30,
+            "description": "Register a new Javascript Module which may be called later by the {{#crossLink\n\"course-coursebase/invoke_function\"}}{{/crossLink}} method.",
+            "itemtype": "method",
+            "name": "register_module",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The instantiated module to call functions on",
+                    "type": "Object"
+                }
+            ],
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 41,
+            "description": "Invoke the specified function in all registered modules with the given arguments.\n\nAll modules which have been registered using the {{#crossLink\n\"course-coursebase/register_module\"}}{{/crossLink}} method are checked for presence of the\nfunctionname method. If the method exists, then it is called with the supplied\narguments.",
+            "itemtype": "method",
+            "name": "invoke_function",
+            "params": [
+                {
+                    "name": "functionname",
+                    "description": "The name of the function to call",
+                    "type": "String"
+                },
+                {
+                    "name": "args",
+                    "description": "The argument supplied to the function",
+                    "type": "Object"
+                }
+            ],
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 62,
+            "description": "Return the parent course section for the specified child.",
+            "itemtype": "method",
+            "name": "get_section",
+            "params": [
+                {
+                    "name": "child",
+                    "description": "The element to determine parentage for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "the DOM element representing the section",
+                "type": "Node"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 73,
+            "description": "Calculate and return the number of the specified section.",
+            "itemtype": "method",
+            "name": "get_section_number",
+            "params": [
+                {
+                    "name": "The",
+                    "description": "section element to determine a value for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "The module ID",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 84,
+            "description": "Find or create the list of module instances in this section.\nThis is typically a <ul> element with the classes section and img-text.",
+            "itemtype": "method",
+            "name": "get_module_list",
+            "params": [
+                {
+                    "name": "section",
+                    "description": "the DOM element representing the section",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "The Node referring to the module list",
+                "type": "Node"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 124,
+            "description": "Swap section (should be defined in format.js if requred)",
+            "itemtype": "method",
+            "name": "M.course.format.swap_sections",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                },
+                {
+                    "name": "node1",
+                    "description": "node to swap to",
+                    "type": "String"
+                },
+                {
+                    "name": "node2",
+                    "description": "node to swap with",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "section list",
+                "type": "NodeList"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 137,
+            "description": "Process sections after ajax response (should be defined in format.js)\nIf some response is expected, we pass it over to format, as it knows better\nhot to process it.",
+            "itemtype": "method",
+            "name": "M.course.format.process_sections",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                },
+                {
+                    "name": "list",
+                    "description": "of sections",
+                    "type": "NodeList"
+                },
+                {
+                    "name": "response",
+                    "description": "ajax response",
+                    "type": "Array"
+                },
+                {
+                    "name": "sectionfrom",
+                    "description": "first affected section",
+                    "type": "String"
+                },
+                {
+                    "name": "sectionto",
+                    "description": "last affected section",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "void"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 154,
+            "description": "Get sections config for this format, for examples see function definition\nin the formats.",
+            "itemtype": "method",
+            "name": "M.course.format.get_config",
+            "return": {
+                "description": "section list configuration",
+                "type": "Object"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 172,
+            "description": "Get section list for this format (usually items inside container_node.container_class selector)",
+            "itemtype": "method",
+            "name": "M.course.format.get_section_selector",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                }
+            ],
+            "return": {
+                "description": "section selector",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 188,
+            "description": "Get section wraper for this format (only used in case when each\ncontainer_node.container_class node is wrapped in some other element).",
+            "itemtype": "method",
+            "name": "M.course.format.get_section_selector",
+            "params": [
+                {
+                    "name": "Y",
+                    "description": "YUI3 instance",
+                    "type": "YUI"
+                }
+            ],
+            "return": {
+                "description": "section wrapper selector or M.course.format.get_section_selector\nif section_wrapper_node and section_wrapper_class are not defined in the format config.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 205,
+            "description": "Get the tag of container node",
+            "itemtype": "method",
+            "name": "M.course.format.get_containernode",
+            "return": {
+                "description": "tag of container node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 220,
+            "description": "Get the class of container node",
+            "itemtype": "method",
+            "name": "M.course.format.get_containerclass",
+            "return": {
+                "description": "class of the container node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 235,
+            "description": "Get the tag of draggable node (section wrapper if exists, otherwise section)",
+            "itemtype": "method",
+            "name": "M.course.format.get_sectionwrappernode",
+            "return": {
+                "description": "tag of the draggable node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 250,
+            "description": "Get the class of draggable node (section wrapper if exists, otherwise section).",
+            "itemtype": "method",
+            "name": "M.course.format.get_sectionwrapperclass",
+            "static": 1,
+            "return": {
+                "description": "class of the draggable node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 266,
+            "description": "Get the tag of section node.",
+            "itemtype": "method",
+            "name": "M.course.format.get_sectionnode",
+            "static": 1,
+            "return": {
+                "description": "tag of section node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/coursebase/coursebase.js",
+            "line": 282,
+            "description": "Get the class of section node.",
+            "itemtype": "method",
+            "name": "M.course.format.get_sectionclass",
+            "static": 1,
+            "return": {
+                "description": "class of the section node.",
+                "type": "String"
+            },
+            "class": "course-coursebase",
+            "module": "course-coursebase"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 27,
+            "description": "The section selector string used to identify and locate sections",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "sectionselector",
+            "type": "string",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 37,
+            "description": "A reference to the status node.\nThis node is used initially to inform users that Drag and Drop upload is available\nto them.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "string",
+            "type": "Node",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 49,
+            "description": "Nasty hack to distinguish between dragenter(first entry),\ndragenter+dragleave(moving between child elements) and dragleave (leaving element)",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "entercount",
+            "type": "Integer",
+            "default": "0",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 60,
+            "description": "A reference to the page body since we use this a lot",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "body",
+            "type": "Node",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 70,
+            "description": "A reference to the preview element",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "preview_element",
+            "type": "Node",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 80,
+            "description": "A reference to the preview element's span which contains the text we update",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "property",
+            "name": "preview_element_span",
+            "type": "Node",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 120,
+            "description": "Check whether the current browser has the required functionality.",
+            "itemtype": "method",
+            "name": "browser_supported",
+            "return": {
+                "description": "Whether the browser is supported or not",
+                "type": "Boolean"
+            },
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 136,
+            "description": "Add an element to tell the user that drag and drop upload is available (or to\nexplain why it is not available).",
+            "itemtype": "method",
+            "name": "add_status_message",
+            "return": {
+                "description": "Nothing is returned",
+                "type": "Undefined"
+            },
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 200,
+            "description": "Handle a dragenter event: add a suitable 'add here' message when a drag event\noccurs, containing a registered data type.",
+            "itemtype": "method",
+            "name": "drag_enter",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event defining the dragenter",
+                    "type": "Event"
+                }
+            ],
+            "return": {
+                "description": "Always returns false to ensure that further event processing\ndoes not occur",
+                "type": "Boolean"
+            },
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 244,
+            "description": "Handle a dragleave event: remove the 'add here' message (if present)",
+            "itemtype": "method",
+            "name": "drag_leave",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "event data",
+                    "type": "Event"
+                }
+            ],
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 274,
+            "description": "Handle a dragover event: just prevent the browser default (necessary to allow drag\nand drop handling to work)",
+            "itemtype": "method",
+            "name": "drag_over",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "event data",
+                    "type": "Event"
+                }
+            ],
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 286,
+            "description": "Handle a drop event: hide the 'add here' message, check the attached data type and\nstart the upload process",
+            "itemtype": "method",
+            "name": "drop",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "event data",
+                    "type": "Event"
+                }
+            ],
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 327,
+            "description": "Check if the given event includes data of the given type.",
+            "itemtype": "method",
+            "name": "types_includes",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "the event details",
+                    "type": "Event"
+                },
+                {
+                    "name": "type",
+                    "description": "the data type to check for",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Whether the data type was found in the event data",
+                "type": "Boolean"
+            },
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 346,
+            "description": "Look through the event data, checking it against the registered data types\n(in order of priority) and return details of the first matching data type.\n\nThe type is an object containing:\n    realtype: the type as given by the browser\n    addmessage: the message to show to the user during dragging\n    namemessage: the message for requesting a name for the resource from the user\n    type: the identifier of the type (may match several 'realtype's)",
+            "itemtype": "method",
+            "name": "drag_type",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "the event details",
+                    "type": "Event"
+                }
+            ],
+            "return": {
+                "description": "If no matching type was found return false, otherwise\nan object containing the details of the registered upload type.",
+                "type": "Boolean|Object"
+            },
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 410,
+            "description": "Check the content of the drag/drop includes a type we can handle.\nIf so, notify the browser that we want to handle it",
+            "itemtype": "method",
+            "name": "check_drag",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event handler to check",
+                    "type": "Event"
+                }
+            ],
+            "return": {
+                "description": "type of the event or false",
+                "type": "String|boolean"
+            },
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 428,
+            "description": "Hide the dndupload-preview element if it has been created",
+            "itemtype": "method",
+            "name": "hide_preview_element",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 440,
+            "description": "Unhide the preview element for the given section and set it to display the\ncorrect message.\n\nIf a preview element does not yet exist, then one is automatically created.",
+            "itemtype": "method",
+            "name": "show_preview_element",
+            "params": [
+                {
+                    "name": "section",
+                    "description": "the YUI node representing the selected course section"
+                },
+                {
+                    "name": "type",
+                    "description": "the details of the data type detected in the drag (including the message to display)"
+                }
+            ],
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 476,
+            "description": "Find the registered handler for the given file type. If there is more than one,\nask the user which one to use. Then upload the file to the server.",
+            "itemtype": "method",
+            "name": "handle_file",
+            "params": [
+                {
+                    "name": "file",
+                    "description": "the details of the file, taken from the FileList in the drop event",
+                    "type": "Object"
+                },
+                {
+                    "name": "section",
+                    "description": "the Node representing the selected course section",
+                    "type": "Node"
+                },
+                {
+                    "name": "sectionnumber",
+                    "description": "the number of the selected course section",
+                    "type": "Integer"
+                }
+            ],
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 519,
+            "description": "Perform a file upload for the specified file. This consists of:\n\n- showing the dummy element;\n- using an AJAX call to send the data to the server;\n- updating the progress bar for the file; then\n- replacing the dummy element with the real information once the AJAX call completes.",
+            "itemtype": "method",
+            "name": "upload_file",
+            "params": [
+                {
+                    "name": "file",
+                    "description": "the details of the file, taken from the FileList in the drop event",
+                    "type": "Object"
+                },
+                {
+                    "name": "section",
+                    "description": "the Node representing the selected course section",
+                    "type": "Node"
+                },
+                {
+                    "name": "sectionnumber",
+                    "description": "the number of the selected course section",
+                    "type": "Integer"
+                }
+            ],
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 657,
+            "description": "The URI to use for upload requests",
+            "optional": 1,
+            "itemtype": "attribute",
+            "name": "uri",
+            "default": "M.cfg.wwwroot + '/course/dndupload.php'",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 668,
+            "description": "The course ID of the course currently being edited",
+            "required": 1,
+            "itemtype": "attribute",
+            "name": "courseid",
+            "writeonce": "",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 680,
+            "description": "The maximum size of files allowed in this form",
+            "required": 1,
+            "itemtype": "attribute",
+            "name": "maxbytes",
+            "writeonce": "",
+            "default": "0",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 692,
+            "description": "The handlers available to this form",
+            "required": 1,
+            "itemtype": "attribute",
+            "name": "handlers",
+            "writeonce": "",
+            "default": "null",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 704,
+            "description": "Whether this form handles file uploads",
+            "required": 1,
+            "itemtype": "attribute",
+            "name": "handlefile",
+            "writeonce": "",
+            "default": "false",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 716,
+            "description": "Whether this form handles upload of text",
+            "required": 1,
+            "itemtype": "attribute",
+            "name": "handletext",
+            "writeonce": "",
+            "default": "false",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dndupload/dndupload.js",
+            "line": 728,
+            "description": "Whether this form handles link uploads",
+            "required": 1,
+            "itemtype": "attribute",
+            "name": "handlelink",
+            "writeonce": "",
+            "default": "false",
+            "class": "course-dndupload",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dragdrop/dragdrop.js",
+            "line": 67,
+            "description": "Apply dragdrop features to the specified selector or node that refers to section(s)",
+            "itemtype": "method",
+            "name": "setup_for_section",
+            "params": [
+                {
+                    "name": "baseselector",
+                    "description": "The CSS selector or node to limit scope to",
+                    "type": "Node|String"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dragdrop/dragdrop.js",
+            "line": 103,
+            "itemtype": "method",
+            "name": "get_section_id",
+            "params": [
+                {
+                    "name": "The",
+                    "description": "node to determine the section id for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "The section ID",
+                "type": "Integer"
+            },
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dragdrop/dragdrop.js",
+            "line": 112,
+            "description": "Drag-dropping related functions",
+            "itemtype": "method",
+            "name": "drag_start",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dragdrop/dragdrop.js",
+            "line": 291,
+            "description": "Apply dragdrop features to the specified selector or node that refers to section(s)",
+            "itemtype": "method",
+            "name": "setup_for_section",
+            "params": [
+                {
+                    "name": "baseselector",
+                    "description": "The CSS selector or node to limit scope to",
+                    "type": "Node|String"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/dragdrop/dragdrop.js",
+            "line": 318,
+            "description": "Apply dragdrop features to the specified selector or node that refers to resource(s)",
+            "itemtype": "method",
+            "name": "setup_for_resource",
+            "params": [
+                {
+                    "name": "baseselector",
+                    "description": "The CSS selector or node to limit scope to",
+                    "type": "Node|StrinG"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/modchooser/modchooser.js",
+            "line": 36,
+            "description": "Update any section areas within the scope of the specified\nselector with AJAX equivalents",
+            "itemtype": "method",
+            "name": "setup_for_section",
+            "params": [
+                {
+                    "name": "baseselector",
+                    "description": "The selector to limit scope to",
+                    "type": "Node|String"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/modchooser/modchooser.js",
+            "line": 75,
+            "description": "Display the module chooser",
+            "itemtype": "method",
+            "name": "dialogue",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "Event Triggering Event",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-dndupload"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 63,
+            "description": "Toggle the visibility and availability for the specified\nresource show/hide button",
+            "itemtype": "method",
+            "name": "toggle_hide_resource_ui",
+            "params": [
+                {
+                    "name": "button",
+                    "description": "The button to toggle",
+                    "type": "Node|String"
+                }
+            ],
+            "class": "course-toolboxes",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 117,
+            "description": "Send a request using the REST API",
+            "itemtype": "method",
+            "name": "send_request",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "The data to submit",
+                    "type": "Object"
+                },
+                {
+                    "name": "statusspinner",
+                    "description": "(optional) A statusspinner which may contain a section\nloader",
+                    "type": "Node"
+                },
+                {
+                    "name": "optionalconfig",
+                    "description": "(optional) Any additional configuration to submit",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "response responseText field from responce"
+            },
+            "class": "course-toolboxes",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 191,
+            "description": "Return the module ID for the specified element",
+            "itemtype": "method",
+            "name": "get_element_id",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "The <li> element to determine a module-id number for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "The module ID",
+                "type": "String"
+            },
+            "class": "course-toolboxes",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 201,
+            "description": "Return the module ID for the specified element",
+            "itemtype": "method",
+            "name": "get_section_id",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "The <li> element to determine a module-id number for",
+                    "type": "Node"
+                }
+            ],
+            "return": {
+                "description": "The module ID",
+                "type": "String"
+            },
+            "class": "course-toolboxes",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 250,
+            "description": "Initialize the resource toolbox\nUpdates all span.commands with relevant handlers and other required changes",
+            "itemtype": "method",
+            "name": "initializer",
+            "class": "course-resource-toolbox",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 272,
+            "description": "Update any span.commands within the scope of the specified\nselector with AJAX equivelants",
+            "itemtype": "method",
+            "name": "setup_for_resource",
+            "params": [
+                {
+                    "name": "baseselector",
+                    "description": "The selector to limit scope to",
+                    "type": "Node|String"
+                }
+            ],
+            "class": "course-resource-toolbox",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 480,
+            "description": "Add the moveleft button\nThis is required after moving left from an initial position of 0",
+            "itemtype": "method",
+            "name": "add_moveleft",
+            "params": [
+                {
+                    "name": "target",
+                    "description": "The encapsulating <li> element",
+                    "type": "Node"
+                }
+            ],
+            "class": "course-resource-toolbox",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 511,
+            "description": "Edit the title for the resource",
+            "itemtype": "method",
+            "name": "edit_resource_title",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event triggering the action",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "course-resource-toolbox",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 660,
+            "description": "Updates all span.commands with relevant handlers and other required changes.",
+            "itemtype": "method",
+            "name": "initializer",
+            "class": "course-section-toolbox",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "course/yui/toolboxes/toolboxes.js",
+            "line": 674,
+            "description": "Update any section areas within the scope of the specified\nselector with AJAX equivelants",
+            "itemtype": "method",
+            "name": "setup_for_section",
+            "params": [
+                {
+                    "name": "baseselector",
+                    "description": "The selector to limit scope to",
+                    "type": "Node|String"
+                }
+            ],
+            "class": "course-section-toolbox",
+            "module": "course-toolboxes"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 19,
+            "description": "A link to the panel widget.",
+            "itemtype": "attribute",
+            "name": "panel",
+            "access": "protected",
+            "tagname": "",
+            "writeonce": "",
+            "type": "Node",
+            "default": "null",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 30,
+            "description": "A reference to the submit button.",
+            "itemtype": "attribute",
+            "name": "submitbutton",
+            "access": "protected",
+            "tagname": "",
+            "writeonce": "",
+            "type": "Node",
+            "default": "null",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 41,
+            "description": "A reference to the chooser dialogue container.",
+            "itemtype": "attribute",
+            "name": "container",
+            "access": "protected",
+            "tagname": "",
+            "writeonce": "",
+            "type": "Node",
+            "default": "null",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 52,
+            "description": "An array of the listen events that we access.",
+            "itemtype": "attribute",
+            "name": "listeners",
+            "access": "protected",
+            "tagname": "",
+            "type": "Array",
+            "default": "[]",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 62,
+            "description": "The initial overflow setting for the page.",
+            "itemtype": "attribute",
+            "name": "initialoverflow",
+            "access": "protected",
+            "tagname": "",
+            "type": "String",
+            "default": "''",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 72,
+            "description": "A reference to the body content",
+            "itemtype": "attribute",
+            "name": "bodycontent",
+            "access": "protected",
+            "tagname": "",
+            "type": "Node",
+            "default": "null",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 82,
+            "description": "A reference to the header content",
+            "itemtype": "attribute",
+            "name": "headercontent",
+            "access": "protected",
+            "tagname": "",
+            "type": "Node",
+            "default": "null",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 92,
+            "description": "The configuration of the current instance",
+            "itemtype": "attribute",
+            "name": "instanceconfig",
+            "access": "protected",
+            "tagname": "",
+            "type": "Object",
+            "default": "null",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 102,
+            "description": "The main method to initially set up the content of the chooser\ndialogue.",
+            "itemtype": "method",
+            "name": "setup_chooser_dialogue",
+            "params": [
+                {
+                    "name": "bodycontent",
+                    "description": "The content of the main body of the dialogue.",
+                    "type": "Node|String"
+                },
+                {
+                    "name": "headerContent",
+                    "description": "The content of the dialogue header.",
+                    "type": "Node|String"
+                },
+                {
+                    "name": "config",
+                    "description": "The configuration for this dialogue instance.\n\nThe configuration object may include any settings which can be applied to a\n{{#crossLinkModule \"Y.Panel\"}}{{/crossLinkModule}}. In addition the following\nsettings are available:\n\n* draggable - whether the module may be dragged (default true)",
+                    "type": "Object"
+                }
+            ],
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 123,
+            "description": "Prepare the chooser instance for display.\n\nThis method should not normally be called directly.",
+            "itemtype": "method",
+            "name": "prepare_chooser",
+            "final": 1,
+            "access": "protected",
+            "tagname": "",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 174,
+            "description": "Display the chooser dialogue.",
+            "itemtype": "method",
+            "name": "display_chooser",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event which triggered the opening",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 272,
+            "description": "Cancel any listen events in the listenevents queue\n\nSeveral locations add event handlers which should only be called before the form is submitted. This provides\na way of cancelling those events.",
+            "itemtype": "method",
+            "name": "cancel_listenevents",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 288,
+            "description": "Calculate the optimum height of the chooser dialogue\n\nThis tries to set a sensible maximum and minimum to ensure that some options are always shown, and preferably\nall, whilst fitting the box within the current viewport.",
+            "itemtype": "method",
+            "name": "center_dialogue",
+            "params": [
+                {
+                    "name": "dialogue",
+                    "description": "The dialogue to centre",
+                    "type": "Node"
+                }
+            ],
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 413,
+            "description": "The minimum height that the chooser should be.\n\nThis value is used for calculating the optimum location for\ncentering the dialogue.",
+            "itemtype": "attribute",
+            "name": "minheight",
+            "default": "300",
+            "type": "integer",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 427,
+            "description": "The maximum height that the chooser should be.\n\nThis value is used for calculating the optimum location for\ncentering the dialogue.",
+            "itemtype": "attribute",
+            "name": "maxheight",
+            "default": "660",
+            "type": "integer",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/chooserdialogue/chooserdialogue.js",
+            "line": 441,
+            "description": "The title to use on the close button.",
+            "itemtype": "attribute",
+            "name": "closeButtonTitle",
+            "default": "'Close'",
+            "type": "String",
+            "class": "core-chooserdialogue",
+            "module": "core-chooserdialogue"
+        },
+        {
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 209,
+            "description": "drag_start",
+            "itemtype": "method",
+            "name": "drag_start",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event supplied by delegation",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-dragdrop",
+            "module": "core-dragdrop"
+        },
+        {
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 217,
+            "description": "drag_end",
+            "itemtype": "method",
+            "name": "drag_end",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event supplied by delegation",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-dragdrop",
+            "module": "core-dragdrop"
+        },
+        {
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 225,
+            "description": "drag_drag",
+            "itemtype": "method",
+            "name": "drag_drag",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event supplied by delegation",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-dragdrop",
+            "module": "core-dragdrop"
+        },
+        {
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 233,
+            "description": "drag_dropmiss",
+            "itemtype": "method",
+            "name": "drag_dropmiss",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event supplied by delegation",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-dragdrop",
+            "module": "core-dragdrop"
+        },
+        {
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 241,
+            "description": "drop_over",
+            "itemtype": "method",
+            "name": "drop_over",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event supplied by delegation",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-dragdrop",
+            "module": "core-dragdrop"
+        },
+        {
+            "file": "lib/yui/dragdrop/dragdrop.js",
+            "line": 249,
+            "description": "drop_hit",
+            "itemtype": "method",
+            "name": "drop_hit",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event supplied by delegation",
+                    "type": "Event"
+                }
+            ],
+            "class": "core-dragdrop",
+            "module": "core-dragdrop"
+        },
+        {
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 30,
+            "description": "Initialize the module",
+            "itemtype": "method",
+            "name": "initializer",
+            "access": "protected",
+            "tagname": "",
+            "class": "core-formautosubmit",
+            "module": "core-formautosubmit"
+        },
+        {
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 62,
+            "description": "Check whether the select element was changed",
+            "itemtype": "method",
+            "name": "check_changed",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "core-formautosubmit",
+            "module": "core-formautosubmit"
+        },
+        {
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 91,
+            "description": "Process any changes",
+            "itemtype": "method",
+            "name": "process_changes",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "core-formautosubmit",
+            "module": "core-formautosubmit"
+        },
+        {
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 108,
+            "description": "The ID of the item to check.",
+            "itemtype": "attribute",
+            "name": "selectid",
+            "type": "String",
+            "default": "''",
+            "writeonce": "",
+            "class": "core-formautosubmit",
+            "module": "core-formautosubmit"
+        },
+        {
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 120,
+            "description": "The 'nothing' value for the dropdown select.\n\nThe nothing value is used to identify select values which should have no\neffect.",
+            "itemtype": "attribute",
+            "name": "nothing",
+            "type": "any",
+            "default": "''",
+            "writeonce": "",
+            "class": "core-formautosubmit",
+            "module": "core-formautosubmit"
+        },
+        {
+            "file": "lib/yui/formautosubmit/formautosubmit.js",
+            "line": 135,
+            "description": "This value needs to be removed",
+            "itemtype": "attribute",
+            "name": "ignorechangeevent",
+            "type": "boolean",
+            "default": "false",
+            "deprecated": true,
+            "class": "core-formautosubmit",
+            "module": "core-formautosubmit"
+        },
+        {
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 29,
+            "description": "Initialize the module",
+            "itemtype": "method",
+            "name": "initializer",
+            "class": "core-formchangechecker",
+            "module": "core-formchangechecker"
+        },
+        {
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 56,
+            "description": "Store the initial value of the currently focussed element\n\nIf an element has been focussed and changed but not yet blurred, the on change\nevent won't be fired. We need to store it's initial value to compare it in the\nget_form_dirty_state function later.",
+            "itemtype": "method",
+            "name": "store_initial_value",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event handle triggering the initial value storage",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "core-formchangechecker",
+            "module": "core-formchangechecker"
+        },
+        {
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 116,
+            "description": "Set the form changed state to true",
+            "itemtype": "method",
+            "name": "M.core_formchangechecker.set_form_changed",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "The event that triggered a form change",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "core-formchangechecker",
+            "module": "core-formchangechecker"
+        },
+        {
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 134,
+            "description": "Set the form submitted state to true",
+            "itemtype": "method",
+            "name": "M.core_formchangechecker.set_form_submitted",
+            "class": "core-formchangechecker",
+            "module": "core-formchangechecker"
+        },
+        {
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 143,
+            "description": "Attempt to determine whether the form has been modified in any way and\nis thus 'dirty'",
+            "itemtype": "method",
+            "name": "M.core_formchangechecker.get_form_dirty_state",
+            "return": {
+                "description": "Integer 1 is the form is dirty; 0 if not"
+            },
+            "class": "core-formchangechecker",
+            "module": "core-formchangechecker"
+        },
+        {
+            "file": "lib/yui/formchangechecker/formchangechecker.js",
+            "line": 186,
+            "description": "Return a suitable message if changes have been made to a form",
+            "itemtype": "method",
+            "name": "M.core_formchangechecker.report_form_dirty_state",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "",
+                    "type": "EventHandle"
+                }
+            ],
+            "class": "core-formchangechecker",
+            "module": "core-formchangechecker"
+        }
+    ],
+    "warnings": []
+}

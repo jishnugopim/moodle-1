@@ -1,3 +1,8 @@
+/**
+ * Provides toolboxes
+ *
+ * @module course-toolboxes
+ */
 YUI.add('moodle-course-toolboxes', function(Y) {
     WAITICON = {'pix':"i/loading_small",'component':'moodle'};
     // The CSS selectors we use
@@ -46,6 +51,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
      * TOOLBOX is a generic class which should never be directly instantiated
      * RESOURCETOOLBOX is a class extending TOOLBOX containing code specific to resources
      * SECTIONTOOLBOX is a class extending TOOLBOX containing code specific to sections
+     *
+     * @class course-toolboxes
+     * @constructor
      */
     var TOOLBOX = function() {
         TOOLBOX.superclass.constructor.apply(this, arguments);
@@ -55,6 +63,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         /**
          * Toggle the visibility and availability for the specified
          * resource show/hide button
+         *
+         * @method toggle_hide_resource_ui
+         * @param {Node|String} button The button to toggle
          */
         toggle_hide_resource_ui : function(button) {
             var element = button.ancestor(CSS.ACTIVITYLI);
@@ -106,9 +117,11 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         /**
          * Send a request using the REST API
          *
-         * @param data The data to submit
-         * @param statusspinner (optional) A statusspinner which may contain a section loader
-         * @param optionalconfig (optional) Any additional configuration to submit
+         * @method send_request
+         * @param {Object} data The data to submit
+         * @param {Node} statusspinner (optional) A statusspinner which may contain a section
+         * loader
+         * @param {Object} optionalconfig (optional) Any additional configuration to submit
          * @return response responseText field from responce
          */
         send_request : function(data, statusspinner, optionalconfig) {
@@ -178,8 +191,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         /**
          * Return the module ID for the specified element
          *
-         * @param element The <li> element to determine a module-id number for
-         * @return string The module ID
+         * @method get_element_id
+         * @param {Node} element The <li> element to determine a module-id number for
+         * @return {String} The module ID
          */
         get_element_id : function(element) {
             return element.get('id').replace(CSS.MODULEIDPREFIX, '');
@@ -187,8 +201,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         /**
          * Return the module ID for the specified element
          *
-         * @param element The <li> element to determine a module-id number for
-         * @return string The module ID
+         * @method get_section_id
+         * @param {Node} element The <li> element to determine a module-id number for
+         * @return {String} The module ID
          */
         get_section_id : function(section) {
             return section.get('id').replace(CSS.SECTIONIDPREFIX, '');
@@ -216,6 +231,16 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         RESOURCETOOLBOX.superclass.constructor.apply(this, arguments);
     }
 
+    /**
+     * The resourcetoolbox
+     *
+     * TOOLBOX is a generic class which should never be directly instantiated
+     * RESOURCETOOLBOX is a class extending TOOLBOX containing code specific to resources
+     * SECTIONTOOLBOX is a class extending TOOLBOX containing code specific to sections
+     *
+     * @class course-resource-toolbox
+     * @constructor
+     */
     Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         // Variables
         GROUPS_NONE     : 0,
@@ -224,8 +249,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
 
         /**
          * Initialize the resource toolbox
-         *
          * Updates all span.commands with relevant handlers and other required changes
+         *
+         * @method initializer
          */
         initializer : function(config) {
             this.setup_for_resource();
@@ -247,8 +273,8 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          * Update any span.commands within the scope of the specified
          * selector with AJAX equivelants
          *
-         * @param baseselector The selector to limit scope to
-         * @return void
+         * @method setup_for_resource
+         * @param {Node|String} baseselector The selector to limit scope to
          */
         setup_for_resource : function(baseselector) {
             if (!baseselector) {
@@ -455,7 +481,8 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          * Add the moveleft button
          * This is required after moving left from an initial position of 0
          *
-         * @param target The encapsulating <li> element
+         * @method add_moveleft
+         * @param {Node} target The encapsulating <li> element
          */
         add_moveleft : function(target) {
             var left_string = M.util.get_string('moveleft', 'moodle');
@@ -483,6 +510,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         },
         /**
          * Edit the title for the resource
+         *
+         * @method edit_resource_title
+         * @param {EventHandle} e The event triggering the action
          */
         edit_resource_title : function(e) {
             // Get the element we're working on
@@ -618,11 +648,19 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         SECTIONTOOLBOX.superclass.constructor.apply(this, arguments);
     }
 
+    /**
+     * The section toolbox
+     *
+     * The course-section-toolbox extends course-toolbox to provide
+     *
+     * @class course-section-toolbox
+     * @constructor
+     */
     Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         /**
-         * Initialize the toolboxes module
+         * Updates all span.commands with relevant handlers and other required changes.
          *
-         * Updates all span.commands with relevant handlers and other required changes
+         * @method initializer
          */
         initializer : function(config) {
             this.setup_for_section();
@@ -637,8 +675,8 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          * Update any section areas within the scope of the specified
          * selector with AJAX equivelants
          *
-         * @param baseselector The selector to limit scope to
-         * @return void
+         * @method setup_for_section
+         * @param {Node|String} baseselector The selector to limit scope to
          */
         setup_for_section : function(baseselector) {
             // Left here for potential future use - not currently needed due to YUI delegation in initializer()

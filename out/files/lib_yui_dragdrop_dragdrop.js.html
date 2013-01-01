@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib&#x2F;yui&#x2F;dragdrop&#x2F;dragdrop.js - Moodle YUI module API</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0pr2&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0pr2&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="&#x2F;moodle&#x2F;pix&#x2F;moodlelogo.gif" title="Moodle YUI module API"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;classes/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formchangechecker.html">core-formchangechecker</a></li>
+            
+                <li><a href="..&#x2F;classes/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;classes/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;classes/course-resource-toolbox.html">course-resource-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-section-toolbox.html">course-section-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-toolboxes.html">course-toolboxes</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="..&#x2F;modules/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;modules/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formchangechecker.html">core-formchangechecker</a></li>
+            
+                <li><a href="..&#x2F;modules/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;modules/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;modules/course-toolboxes.html">course-toolboxes</a></li>
+            
+                <li><a href="..&#x2F;modules/enrol-notification.html">enrol-notification</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: lib&#x2F;yui&#x2F;dragdrop&#x2F;dragdrop.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+YUI.add(&#x27;moodle-core-dragdrop&#x27;, function(Y) {
+    &#x2F;**
+     * Provides the generic moodle drag and drop class
+     *
+     * @module core-dragdrop
+     *&#x2F;
+    var MOVEICON = {
+        pix: &quot;i&#x2F;move_2d&quot;,
+        largepix: &quot;i&#x2F;dragdrop&quot;,
+        component: &#x27;moodle&#x27;
+    };
+
+    &#x2F;**
+     * The core-dragdrop class is an abstract class which provides general
+     * drag and drop functionality to Moodle.
+     *
+     * @class core-dragdrop
+     * @constructor
+     *&#x2F;
+    var DRAGDROP = function() {
+        DRAGDROP.superclass.constructor.apply(this, arguments);
+    };
+
+    Y.extend(DRAGDROP, Y.Base, {
+        goingup : null,
+        lasty   : null,
+        samenodeclass : null,
+        parentnodeclass : null,
+        groups : [],
+        lastdroptarget : null,
+        initializer : function(params) {
+            &#x2F;&#x2F; Listen for all drag:start events
+            Y.DD.DDM.on(&#x27;drag:start&#x27;, this.global_drag_start, this);
+            &#x2F;&#x2F; Listen for all drag:end events
+            Y.DD.DDM.on(&#x27;drag:end&#x27;, this.global_drag_end, this);
+            &#x2F;&#x2F; Listen for all drag:drag events
+            Y.DD.DDM.on(&#x27;drag:drag&#x27;, this.global_drag_drag, this);
+            &#x2F;&#x2F; Listen for all drop:over events
+            Y.DD.DDM.on(&#x27;drop:over&#x27;, this.global_drop_over, this);
+            &#x2F;&#x2F; Listen for all drop:hit events
+            Y.DD.DDM.on(&#x27;drop:hit&#x27;, this.global_drop_hit, this);
+            &#x2F;&#x2F; Listen for all drop:miss events
+            Y.DD.DDM.on(&#x27;drag:dropmiss&#x27;, this.global_drag_dropmiss, this);
+        },
+
+        get_drag_handle: function(title, classname, iconclass, large) {
+            var iconname = MOVEICON.pix;
+            if (large) {
+                iconname = MOVEICON.largepix;
+            }
+            var dragicon = Y.Node.create(&#x27;&lt;img &#x2F;&gt;&#x27;)
+                .setStyle(&#x27;cursor&#x27;, &#x27;move&#x27;)
+                .setAttrs({
+                    &#x27;src&#x27; : M.util.image_url(iconname, MOVEICON.component),
+                    &#x27;alt&#x27; : title
+                });
+            if (iconclass) {
+                dragicon.addClass(iconclass);
+            }
+
+            var dragelement = Y.Node.create(&#x27;&lt;span&gt;&lt;&#x2F;span&gt;&#x27;)
+                .addClass(classname)
+                .setAttribute(&#x27;title&#x27;, title)
+            dragelement.appendChild(dragicon);
+            return dragelement;
+        },
+
+        lock_drag_handle: function(drag, classname) {
+            &#x2F;&#x2F; Disable dragging
+            drag.removeHandle(&#x27;.&#x27;+classname);
+        },
+
+        unlock_drag_handle: function(drag, classname) {
+            &#x2F;&#x2F; Enable dragging
+            drag.addHandle(&#x27;.&#x27;+classname);
+        },
+
+        ajax_failure: function(response) {
+            var e = {
+                name : response.status+&#x27; &#x27;+response.statusText,
+                message : response.responseText
+            };
+            return new M.core.exception(e);
+        },
+
+        in_group: function(target) {
+            var ret = false;
+            Y.each(this.groups, function(v, k) {
+                if (target._groups[v]) {
+                    ret = true;
+                }
+            }, this);
+            return ret;
+        },
+        &#x2F;*
+         * Drag-dropping related functions
+         *&#x2F;
+        global_drag_start : function(e) {
+            &#x2F;&#x2F; Get our drag object
+            var drag = e.target;
+            &#x2F;&#x2F; Check that drag object belongs to correct group
+            if (!this.in_group(drag)) {
+                return;
+            }
+            &#x2F;&#x2F; Set some general styles here
+            drag.get(&#x27;node&#x27;).setStyle(&#x27;opacity&#x27;, &#x27;.25&#x27;);
+            drag.get(&#x27;dragNode&#x27;).setStyles({
+                opacity: &#x27;.75&#x27;,
+                borderColor: drag.get(&#x27;node&#x27;).getStyle(&#x27;borderColor&#x27;),
+                backgroundColor: drag.get(&#x27;node&#x27;).getStyle(&#x27;backgroundColor&#x27;)
+            });
+            drag.get(&#x27;dragNode&#x27;).empty();
+            this.drag_start(e);
+        },
+
+        global_drag_end : function(e) {
+            var drag = e.target;
+            &#x2F;&#x2F; Check that drag object belongs to correct group
+            if (!this.in_group(drag)) {
+                return;
+            }
+            &#x2F;&#x2F;Put our general styles back
+            drag.get(&#x27;node&#x27;).setStyles({
+                visibility: &#x27;&#x27;,
+                opacity: &#x27;1&#x27;
+            });
+            this.drag_end(e);
+        },
+
+        global_drag_drag : function(e) {
+            var drag = e.target;
+            &#x2F;&#x2F; Check that drag object belongs to correct group
+            if (!this.in_group(drag)) {
+                return;
+            }
+            &#x2F;&#x2F;Get the last y point
+            var y = drag.lastXY[1];
+            &#x2F;&#x2F;is it greater than the lasty var?
+            if (y &lt; this.lasty) {
+                &#x2F;&#x2F;We are going up
+                this.goingup = true;
+            } else {
+                &#x2F;&#x2F;We are going down.
+                this.goingup = false;
+            }
+            &#x2F;&#x2F;Cache for next check
+            this.lasty = y;
+            this.drag_drag(e);
+        },
+
+        global_drop_over : function(e) {
+            &#x2F;&#x2F; Check that drop object belong to correct group
+            if (!e.drop || !e.drop.inGroup(this.groups)) {
+                return;
+            }
+            &#x2F;&#x2F;Get a reference to our drag and drop nodes
+            var drag = e.drag.get(&#x27;node&#x27;);
+            var drop = e.drop.get(&#x27;node&#x27;);
+            &#x2F;&#x2F; Save last drop target for the case of missed target processing
+            this.lastdroptarget = e.drop;
+            &#x2F;&#x2F;Are we dropping on the same node?
+            if (drop.hasClass(this.samenodeclass)) {
+                &#x2F;&#x2F;Are we not going up?
+                if (!this.goingup) {
+                    drop = drop.next(&#x27;.&#x27;+this.samenodeclass);
+                }
+                &#x2F;&#x2F;Add the node
+                e.drop.get(&#x27;node&#x27;).ancestor().insertBefore(drag, drop);
+            } else if (drop.hasClass(this.parentnodeclass) &amp;&amp; !drop.contains(drag)) {
+                &#x2F;&#x2F; We are dropping on parent node and it is empty
+                if (this.goingup) {
+                    drop.append(drag);
+                } else {
+                    drop.prepend(drag);
+                }
+            }
+            this.drop_over(e);
+        },
+
+        global_drag_dropmiss : function(e) {
+            &#x2F;&#x2F; drag:dropmiss does not have e.drag and e.drop properties
+            &#x2F;&#x2F; we substitute them for the ease of use. For e.drop we use,
+            &#x2F;&#x2F; this.lastdroptarget (ghost node we use for indicating where to drop)
+            e.drag = e.target;
+            e.drop = this.lastdroptarget;
+            &#x2F;&#x2F; Check that drag object belongs to correct group
+            if (!this.in_group(e.drag)) {
+                return;
+            }
+            &#x2F;&#x2F; Check that drop object belong to correct group
+            if (!e.drop || !e.drop.inGroup(this.groups)) {
+                return;
+            }
+            this.drag_dropmiss(e);
+        },
+
+        global_drop_hit : function(e) {
+            &#x2F;&#x2F; Check that drop object belong to correct group
+            if (!e.drop || !e.drop.inGroup(this.groups)) {
+                return;
+            }
+            this.drop_hit(e);
+        },
+
+        &#x2F;*
+         * Abstract functions definitions
+         *&#x2F;
+
+        &#x2F;**
+         * drag_start
+         *
+         * @method drag_start
+         * @param {Event} e The event supplied by delegation
+         *&#x2F;
+        drag_start : function(e) {},
+
+        &#x2F;**
+         * drag_end
+         *
+         * @method drag_end
+         * @param {Event} e The event supplied by delegation
+         *&#x2F;
+        drag_end : function(e) {},
+
+        &#x2F;**
+         * drag_drag
+         *
+         * @method drag_drag
+         * @param {Event} e The event supplied by delegation
+         *&#x2F;
+        drag_drag : function(e) {},
+
+        &#x2F;**
+         * drag_dropmiss
+         *
+         * @method drag_dropmiss
+         * @param {Event} e The event supplied by delegation
+         *&#x2F;
+        drag_dropmiss : function(e) {},
+
+        &#x2F;**
+         * drop_over
+         *
+         * @method drop_over
+         * @param {Event} e The event supplied by delegation
+         *&#x2F;
+        drop_over : function(e) {},
+
+        &#x2F;**
+         * drop_hit
+         *
+         * @method drop_hit
+         * @param {Event} e The event supplied by delegation
+         *&#x2F;
+        drop_hit : function(e) {}
+    }, {
+        NAME : &#x27;dragdrop&#x27;,
+        ATTRS : {}
+    });
+
+M.core = M.core || {};
+M.core.dragdrop = DRAGDROP;
+
+}, &#x27;@VERSION@&#x27;, {requires:[&#x27;base&#x27;, &#x27;node&#x27;, &#x27;io&#x27;, &#x27;dom&#x27;, &#x27;dd&#x27;, &#x27;moodle-core-notification&#x27;]});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>

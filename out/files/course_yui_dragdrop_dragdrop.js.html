@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>course&#x2F;yui&#x2F;dragdrop&#x2F;dragdrop.js - Moodle YUI module API</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0pr2&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0pr2&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="&#x2F;moodle&#x2F;pix&#x2F;moodlelogo.gif" title="Moodle YUI module API"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;classes/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formchangechecker.html">core-formchangechecker</a></li>
+            
+                <li><a href="..&#x2F;classes/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;classes/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;classes/course-resource-toolbox.html">course-resource-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-section-toolbox.html">course-section-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-toolboxes.html">course-toolboxes</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="..&#x2F;modules/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;modules/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formchangechecker.html">core-formchangechecker</a></li>
+            
+                <li><a href="..&#x2F;modules/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;modules/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;modules/course-toolboxes.html">course-toolboxes</a></li>
+            
+                <li><a href="..&#x2F;modules/enrol-notification.html">enrol-notification</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: course&#x2F;yui&#x2F;dragdrop&#x2F;dragdrop.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+YUI.add(&#x27;moodle-course-dragdrop&#x27;, function(Y) {
+
+    var CSS = {
+        ACTIVITY : &#x27;activity&#x27;,
+        COMMANDSPAN : &#x27;span.commands&#x27;,
+        CONTENT : &#x27;content&#x27;,
+        COURSECONTENT : &#x27;course-content&#x27;,
+        EDITINGMOVE : &#x27;editing_move&#x27;,
+        ICONCLASS : &#x27;iconsmall&#x27;,
+        JUMPMENU : &#x27;jumpmenu&#x27;,
+        LEFT : &#x27;left&#x27;,
+        LIGHTBOX : &#x27;lightbox&#x27;,
+        MOVEDOWN : &#x27;movedown&#x27;,
+        MOVEUP : &#x27;moveup&#x27;,
+        PAGECONTENT : &#x27;page-content&#x27;,
+        RIGHT : &#x27;right&#x27;,
+        SECTION : &#x27;section&#x27;,
+        SECTIONADDMENUS : &#x27;section_add_menus&#x27;,
+        SECTIONHANDLE : &#x27;section-handle&#x27;,
+        SUMMARY : &#x27;summary&#x27;
+    };
+
+    var DRAGSECTION = function() {
+        DRAGSECTION.superclass.constructor.apply(this, arguments);
+    };
+    Y.extend(DRAGSECTION, M.core.dragdrop, {
+        sectionlistselector : null,
+
+        initializer : function(params) {
+            &#x2F;&#x2F; Set group for parent class
+            this.groups = [&#x27;section&#x27;];
+            this.samenodeclass = M.course.format.get_sectionwrapperclass();
+            this.parentnodeclass = M.course.format.get_containerclass();
+
+            &#x2F;&#x2F; Check if we are in single section mode
+            if (Y.Node.one(&#x27;.&#x27;+CSS.JUMPMENU)) {
+                return false;
+            }
+            &#x2F;&#x2F; Initialise sections dragging
+            this.sectionlistselector = M.course.format.get_section_wrapper(Y);
+            if (this.sectionlistselector) {
+                this.sectionlistselector = &#x27;.&#x27;+CSS.COURSECONTENT+&#x27; &#x27;+this.sectionlistselector;
+                this.setup_for_section(this.sectionlistselector);
+
+                &#x2F;&#x2F; Make each li element in the lists of sections draggable
+                var nodeselector = this.sectionlistselector.slice(CSS.COURSECONTENT.length+2);
+                var del = new Y.DD.Delegate({
+                    container: &#x27;.&#x27;+CSS.COURSECONTENT,
+                    nodes: nodeselector,
+                    target: true,
+                    handles: [&#x27;.&#x27;+CSS.LEFT],
+                    dragConfig: {groups: this.groups}
+                });
+                del.dd.plug(Y.Plugin.DDProxy, {
+                    &#x2F;&#x2F; Don&#x27;t move the node at the end of the drag
+                    moveOnEnd: false
+                });
+                del.dd.plug(Y.Plugin.DDConstrained, {
+                    &#x2F;&#x2F; Keep it inside the .course-content
+                    constrain: &#x27;#&#x27;+CSS.PAGECONTENT,
+                    stickY: true
+                });
+                del.dd.plug(Y.Plugin.DDWinScroll);
+            }
+        },
+
+         &#x2F;**
+          * Apply dragdrop features to the specified selector or node that refers to section(s)
+          *
+          * @method setup_for_section
+          * @param {Node|String} baseselector The CSS selector or node to limit scope to
+          *&#x2F;
+        setup_for_section : function(baseselector) {
+            Y.Node.all(baseselector).each(function(sectionnode) {
+                &#x2F;&#x2F; Determine the section ID
+                var sectionid = this.get_section_id(sectionnode);
+
+                &#x2F;&#x2F; We skip the top section as it is not draggable
+                if (sectionid &gt; 0) {
+                    &#x2F;&#x2F; Remove move icons
+                    var movedown = sectionnode.one(&#x27;.&#x27;+CSS.RIGHT+&#x27; a.&#x27;+CSS.MOVEDOWN);
+                    var moveup = sectionnode.one(&#x27;.&#x27;+CSS.RIGHT+&#x27; a.&#x27;+CSS.MOVEUP);
+
+                    &#x2F;&#x2F; Add dragger icon
+                    var title = M.util.get_string(&#x27;movesection&#x27;, &#x27;moodle&#x27;, sectionid);
+                    var cssleft = sectionnode.one(&#x27;.&#x27;+CSS.LEFT);
+
+                    if ((movedown || moveup) &amp;&amp; cssleft) {
+                        cssleft.setStyle(&#x27;cursor&#x27;, &#x27;move&#x27;);
+                        cssleft.appendChild(this.get_drag_handle(title, CSS.SECTIONHANDLE, &#x27;icon&#x27;, true));
+
+                        if (moveup) {
+                            moveup.remove();
+                        }
+                        if (movedown) {
+                            movedown.remove();
+                        }
+                    }
+                }
+            }, this);
+        },
+
+        &#x2F;**
+         * @method get_section_id
+         * @param {Node} The node to determine the section id for
+         * @return {integer} The section ID
+         *&#x2F;
+        get_section_id : function(node) {
+            return Number(node.get(&#x27;id&#x27;).replace(&#x2F;section-&#x2F;i, &#x27;&#x27;));
+        },
+
+        &#x2F;**
+         * Drag-dropping related functions
+         *
+         * @method drag_start
+         * @param {EventHandle} e
+         *&#x2F;
+        drag_start : function(e) {
+            &#x2F;&#x2F; Get our drag object
+            var drag = e.target;
+            &#x2F;&#x2F; Creat a dummy structure of the outer elemnents for clean styles application
+            var containernode = Y.Node.create(&#x27;&lt;&#x27;+M.course.format.get_containernode()+&#x27;&gt;&lt;&#x2F;&#x27;+M.course.format.get_containernode()+&#x27;&gt;&#x27;);
+            containernode.addClass(M.course.format.get_containerclass());
+            var sectionnode = Y.Node.create(&#x27;&lt;&#x27;+ M.course.format.get_sectionwrappernode()+&#x27;&gt;&lt;&#x2F;&#x27;+ M.course.format.get_sectionwrappernode()+&#x27;&gt;&#x27;);
+            sectionnode.addClass( M.course.format.get_sectionwrapperclass());
+            sectionnode.setStyle(&#x27;margin&#x27;, 0);
+            sectionnode.setContent(drag.get(&#x27;node&#x27;).get(&#x27;innerHTML&#x27;));
+            containernode.appendChild(sectionnode);
+            drag.get(&#x27;dragNode&#x27;).setContent(containernode);
+            drag.get(&#x27;dragNode&#x27;).addClass(CSS.COURSECONTENT);
+        },
+
+        drag_dropmiss : function(e) {
+            &#x2F;&#x2F; Missed the target, but we assume the user intended to drop it
+            &#x2F;&#x2F; on the last last ghost node location, e.drag and e.drop should be
+            &#x2F;&#x2F; prepared by global_drag_dropmiss parent so simulate drop_hit(e).
+            this.drop_hit(e);
+        },
+
+        drop_hit : function(e) {
+            var drag = e.drag;
+            &#x2F;&#x2F; Get a reference to our drag node
+            var dragnode = drag.get(&#x27;node&#x27;);
+            var dropnode = e.drop.get(&#x27;node&#x27;);
+            &#x2F;&#x2F; Prepare some variables
+            var dragnodeid = Number(this.get_section_id(dragnode));
+            var dropnodeid = Number(this.get_section_id(dropnode));
+
+            var loopstart = dragnodeid;
+            var loopend = dropnodeid;
+
+            if (this.goingup) {
+                loopstart = dropnodeid;
+                loopend = dragnodeid;
+            }
+
+            &#x2F;&#x2F; Get the list of nodes
+            drag.get(&#x27;dragNode&#x27;).removeClass(CSS.COURSECONTENT);
+            var sectionlist = Y.Node.all(this.sectionlistselector);
+
+            &#x2F;&#x2F; Add lightbox if it not there
+            var lightbox = M.util.add_lightbox(Y, dragnode);
+
+            var params = {};
+
+            &#x2F;&#x2F; Handle any variables which we must pass back through to
+            var pageparams = this.get(&#x27;config&#x27;).pageparams;
+            for (varname in pageparams) {
+                params[varname] = pageparams[varname];
+            }
+
+            &#x2F;&#x2F; Prepare request parameters
+            params.sesskey = M.cfg.sesskey;
+            params.courseId = this.get(&#x27;courseid&#x27;);
+            params[&#x27;class&#x27;] = &#x27;section&#x27;;
+            params.field = &#x27;move&#x27;;
+            params.id = dragnodeid;
+            params.value = dropnodeid;
+
+            &#x2F;&#x2F; Do AJAX request
+            var uri = M.cfg.wwwroot + this.get(&#x27;ajaxurl&#x27;);
+
+            Y.io(uri, {
+                method: &#x27;POST&#x27;,
+                data: params,
+                on: {
+                    start : function(tid) {
+                        lightbox.show();
+                    },
+                    success: function(tid, response) {
+                        &#x2F;&#x2F; Update section titles, we can&#x27;t simply swap them as
+                        &#x2F;&#x2F; they might have custom title
+                        try {
+                            var responsetext = Y.JSON.parse(response.responseText);
+                            if (responsetext.error) {
+                                new M.core.ajaxException(responsetext);
+                            }
+                            M.course.format.process_sections(Y, sectionlist, responsetext, loopstart, loopend);
+                        } catch (e) {}
+
+                        &#x2F;&#x2F; Classic bubble sort algorithm is applied to the section
+                        &#x2F;&#x2F; nodes between original drag node location and the new one.
+                        do {
+                            var swapped = false;
+                            for (var i = loopstart; i &lt;= loopend; i++) {
+                                if (this.get_section_id(sectionlist.item(i-1)) &gt; this.get_section_id(sectionlist.item(i))) {
+                                    &#x2F;&#x2F; Swap section id
+                                    var sectionid = sectionlist.item(i-1).get(&#x27;id&#x27;);
+                                    sectionlist.item(i-1).set(&#x27;id&#x27;, sectionlist.item(i).get(&#x27;id&#x27;));
+                                    sectionlist.item(i).set(&#x27;id&#x27;, sectionid);
+                                    &#x2F;&#x2F; See what format needs to swap
+                                    M.course.format.swap_sections(Y, i-1, i);
+                                    &#x2F;&#x2F; Update flag
+                                    swapped = true;
+                                }
+                            }
+                            loopend = loopend - 1;
+                        } while (swapped);
+
+                        &#x2F;&#x2F; Finally, hide the lightbox
+                        window.setTimeout(function(e) {
+                            lightbox.hide();
+                        }, 250);
+                    },
+                    failure: function(tid, response) {
+                        this.ajax_failure(response);
+                        lightbox.hide();
+                    }
+                },
+                context:this
+            });
+        }
+
+    }, {
+        NAME : &#x27;course-dragdrop-section&#x27;,
+        ATTRS : {
+            courseid : {
+                value : null
+            },
+            ajaxurl : {
+                &#x27;value&#x27; : 0
+            },
+            config : {
+                &#x27;value&#x27; : 0
+            }
+        }
+    });
+
+    var DRAGRESOURCE = function() {
+        DRAGRESOURCE.superclass.constructor.apply(this, arguments);
+    };
+    Y.extend(DRAGRESOURCE, M.core.dragdrop, {
+        initializer : function(params) {
+            &#x2F;&#x2F; Set group for parent class
+            this.groups = [&#x27;resource&#x27;];
+            this.samenodeclass = CSS.ACTIVITY;
+            this.parentnodeclass = CSS.SECTION;
+            this.resourcedraghandle = this.get_drag_handle(M.str.moodle.move, CSS.EDITINGMOVE, CSS.ICONCLASS);
+
+            &#x2F;&#x2F; Go through all sections
+            var sectionlistselector = M.course.format.get_section_selector(Y);
+            if (sectionlistselector) {
+                sectionlistselector = &#x27;.&#x27;+CSS.COURSECONTENT+&#x27; &#x27;+sectionlistselector;
+                this.setup_for_section(sectionlistselector);
+
+                &#x2F;&#x2F; Initialise drag &amp; drop for all resources&#x2F;activities
+                var nodeselector = sectionlistselector.slice(CSS.COURSECONTENT.length+2)+&#x27; li.&#x27;+CSS.ACTIVITY;
+                var del = new Y.DD.Delegate({
+                    container: &#x27;.&#x27;+CSS.COURSECONTENT,
+                    nodes: nodeselector,
+                    target: true,
+                    handles: [&#x27;.&#x27; + CSS.EDITINGMOVE],
+                    dragConfig: {groups: this.groups}
+                });
+                del.dd.plug(Y.Plugin.DDProxy, {
+                    &#x2F;&#x2F; Don&#x27;t move the node at the end of the drag
+                    moveOnEnd: false,
+                    cloneNode: true
+                });
+                del.dd.plug(Y.Plugin.DDConstrained, {
+                    &#x2F;&#x2F; Keep it inside the .course-content
+                    constrain: &#x27;#&#x27;+CSS.PAGECONTENT
+                });
+                del.dd.plug(Y.Plugin.DDWinScroll);
+
+                M.course.coursebase.register_module(this);
+                M.course.dragres = this;
+            }
+        },
+
+         &#x2F;**
+         * Apply dragdrop features to the specified selector or node that refers to section(s)
+         *
+         * @method setup_for_section
+         * @param {Node|String} baseselector The CSS selector or node to limit scope to
+         *&#x2F;
+        setup_for_section : function(baseselector) {
+            Y.Node.all(baseselector).each(function(sectionnode) {
+                var resources = sectionnode.one(&#x27;.&#x27;+CSS.CONTENT+&#x27; ul.&#x27;+CSS.SECTION);
+                &#x2F;&#x2F; See if resources ul exists, if not create one
+                if (!resources) {
+                    var resources = Y.Node.create(&#x27;&lt;ul&gt;&lt;&#x2F;ul&gt;&#x27;);
+                    resources.addClass(CSS.SECTION);
+                    sectionnode.one(&#x27;.&#x27;+CSS.CONTENT+&#x27; div.&#x27;+CSS.SUMMARY).insert(resources, &#x27;after&#x27;);
+                }
+                &#x2F;&#x2F; Define empty ul as droptarget, so that item could be moved to empty list
+                var tar = new Y.DD.Drop({
+                    node: resources,
+                    groups: this.groups,
+                    padding: &#x27;20 0 20 0&#x27;
+                });
+
+                &#x2F;&#x2F; Initialise each resource&#x2F;activity in this section
+                this.setup_for_resource(&#x27;#&#x27;+sectionnode.get(&#x27;id&#x27;)+&#x27; li.&#x27;+CSS.ACTIVITY);
+            }, this);
+        },
+
+        &#x2F;**
+         * Apply dragdrop features to the specified selector or node that refers to resource(s)
+         *
+         * @method setup_for_resource
+         * @param {Node|StrinG} baseselector The CSS selector or node to limit scope to
+         *&#x2F;
+        setup_for_resource : function(baseselector) {
+            Y.Node.all(baseselector).each(function(resourcesnode) {
+                &#x2F;&#x2F; Replace move icons
+                var move = resourcesnode.one(&#x27;a.&#x27;+CSS.EDITINGMOVE);
+                if (move) {
+                    move.replace(this.resourcedraghandle.cloneNode(true));
+                }
+            }, this);
+        },
+
+        get_section_id : function(node) {
+            return Number(node.get(&#x27;id&#x27;).replace(&#x2F;section-&#x2F;i, &#x27;&#x27;));
+        },
+
+        get_resource_id : function(node) {
+            return Number(node.get(&#x27;id&#x27;).replace(&#x2F;module-&#x2F;i, &#x27;&#x27;));
+        },
+
+        drag_start : function(e) {
+            &#x2F;&#x2F; Get our drag object
+            var drag = e.target;
+            drag.get(&#x27;dragNode&#x27;).setContent(drag.get(&#x27;node&#x27;).get(&#x27;innerHTML&#x27;));
+            drag.get(&#x27;dragNode&#x27;).all(&#x27;img.iconsmall&#x27;).setStyle(&#x27;vertical-align&#x27;, &#x27;baseline&#x27;);
+        },
+
+        drag_dropmiss : function(e) {
+            &#x2F;&#x2F; Missed the target, but we assume the user intended to drop it
+            &#x2F;&#x2F; on the last last ghost node location, e.drag and e.drop should be
+            &#x2F;&#x2F; prepared by global_drag_dropmiss parent so simulate drop_hit(e).
+            this.drop_hit(e);
+        },
+
+        drop_hit : function(e) {
+            var drag = e.drag;
+            &#x2F;&#x2F; Get a reference to our drag node
+            var dragnode = drag.get(&#x27;node&#x27;);
+            var dropnode = e.drop.get(&#x27;node&#x27;);
+
+            &#x2F;&#x2F; Add spinner if it not there
+            var spinner = M.util.add_spinner(Y, dragnode.one(CSS.COMMANDSPAN));
+
+            var params = {};
+
+            &#x2F;&#x2F; Handle any variables which we must pass back through to
+            var pageparams = this.get(&#x27;config&#x27;).pageparams;
+            for (varname in pageparams) {
+                params[varname] = pageparams[varname];
+            }
+
+            &#x2F;&#x2F; Prepare request parameters
+            params.sesskey = M.cfg.sesskey;
+            params.courseId = this.get(&#x27;courseid&#x27;);
+            params[&#x27;class&#x27;] = &#x27;resource&#x27;;
+            params.field = &#x27;move&#x27;;
+            params.id = Number(this.get_resource_id(dragnode));
+            params.sectionId = this.get_section_id(dropnode.ancestor(M.course.format.get_section_wrapper(Y), true));
+
+            if (dragnode.next()) {
+                params.beforeId = Number(this.get_resource_id(dragnode.next()));
+            }
+
+            &#x2F;&#x2F; Do AJAX request
+            var uri = M.cfg.wwwroot + this.get(&#x27;ajaxurl&#x27;);
+
+            Y.io(uri, {
+                method: &#x27;POST&#x27;,
+                data: params,
+                on: {
+                    start : function(tid) {
+                        this.lock_drag_handle(drag, CSS.EDITINGMOVE);
+                        spinner.show();
+                    },
+                    success: function(tid, response) {
+                        this.unlock_drag_handle(drag, CSS.EDITINGMOVE);
+                        window.setTimeout(function(e) {
+                            spinner.hide();
+                        }, 250);
+                    },
+                    failure: function(tid, response) {
+                        this.ajax_failure(response);
+                        this.unlock_drag_handle(drag, CSS.SECTIONHANDLE);
+                        spinner.hide();
+                        &#x2F;&#x2F; TODO: revert nodes location
+                    }
+                },
+                context:this
+            });
+        }
+    }, {
+        NAME : &#x27;course-dragdrop-resource&#x27;,
+        ATTRS : {
+            courseid : {
+                value : null
+            },
+            ajaxurl : {
+                &#x27;value&#x27; : 0
+            },
+            config : {
+                &#x27;value&#x27; : 0
+            }
+        }
+    });
+
+    M.course = M.course || {};
+    M.course.init_resource_dragdrop = function(params) {
+        new DRAGRESOURCE(params);
+    }
+    M.course.init_section_dragdrop = function(params) {
+        new DRAGSECTION(params);
+    }
+}, &#x27;@VERSION@&#x27;, {requires:[&#x27;base&#x27;, &#x27;node&#x27;, &#x27;io&#x27;, &#x27;dom&#x27;, &#x27;dd&#x27;, &#x27;dd-scroll&#x27;, &#x27;moodle-core-dragdrop&#x27;, &#x27;moodle-core-notification&#x27;, &#x27;moodle-course-coursebase&#x27;]});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>

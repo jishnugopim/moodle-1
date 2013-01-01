@@ -37,8 +37,8 @@ YUI.add('moodle-course-modchooser', function(Y) {
          * Update any section areas within the scope of the specified
          * selector with AJAX equivalents
          *
-         * @param baseselector The selector to limit scope to
-         * @return void
+         * @method setup_for_section
+         * @param {Node|String} baseselector The selector to limit scope to
          */
         setup_for_section : function(baseselector) {
             if (!baseselector) {
@@ -75,9 +75,8 @@ YUI.add('moodle-course-modchooser', function(Y) {
         /**
          * Display the module chooser
          *
-         * @param e Event Triggering Event
-         * @param secitonid integer The ID of the section triggering the dialogue
-         * @return void
+         * @method dialogue
+         * @param {EventHandle} e Event Triggering Event
          */
         display_mod_chooser : function (e) {
             // Set the section for this version of the dialogue

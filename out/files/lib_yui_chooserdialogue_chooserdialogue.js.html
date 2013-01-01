@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib&#x2F;yui&#x2F;chooserdialogue&#x2F;chooserdialogue.js - Moodle YUI module API</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0pr2&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0pr2&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="&#x2F;moodle&#x2F;pix&#x2F;moodlelogo.gif" title="Moodle YUI module API"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;classes/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;classes/core-formchangechecker.html">core-formchangechecker</a></li>
+            
+                <li><a href="..&#x2F;classes/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;classes/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;classes/course-resource-toolbox.html">course-resource-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-section-toolbox.html">course-section-toolbox</a></li>
+            
+                <li><a href="..&#x2F;classes/course-toolboxes.html">course-toolboxes</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="..&#x2F;modules/core-chooserdialogue.html">core-chooserdialogue</a></li>
+            
+                <li><a href="..&#x2F;modules/core-dragdrop.html">core-dragdrop</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formautosubmit.html">core-formautosubmit</a></li>
+            
+                <li><a href="..&#x2F;modules/core-formchangechecker.html">core-formchangechecker</a></li>
+            
+                <li><a href="..&#x2F;modules/course-coursebase.html">course-coursebase</a></li>
+            
+                <li><a href="..&#x2F;modules/course-dndupload.html">course-dndupload</a></li>
+            
+                <li><a href="..&#x2F;modules/course-toolboxes.html">course-toolboxes</a></li>
+            
+                <li><a href="..&#x2F;modules/enrol-notification.html">enrol-notification</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: lib&#x2F;yui&#x2F;chooserdialogue&#x2F;chooserdialogue.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+YUI.add(&#x27;moodle-core-chooserdialogue&#x27;, function(Y) {
+    &#x2F;**
+     * Provides the moodle core chooser dialogue functionality.
+     *
+     * @module core-chooserdialogue
+     *&#x2F;
+
+    &#x2F;**
+     * Provides the moodle core chooser dialogue functionality.
+     *
+     * @class core-chooserdialogue
+     * @constructor
+     *&#x2F;
+    var CHOOSERDIALOGUE = function() {
+        CHOOSERDIALOGUE.superclass.constructor.apply(this, arguments);
+    }
+
+    Y.extend(CHOOSERDIALOGUE, Y.Base, {
+        &#x2F;**
+         * A link to the panel widget.
+         *
+         * @attribute panel
+         * @protected
+         * @writeOnce
+         * @type Node
+         * @default null
+         *&#x2F;
+        panel: null,
+
+        &#x2F;**
+         * A reference to the submit button.
+         *
+         * @attribute submitbutton
+         * @protected
+         * @writeOnce
+         * @type Node
+         * @default null
+         *&#x2F;
+        submitbutton : null,
+
+        &#x2F;**
+         * A reference to the chooser dialogue container.
+         *
+         * @attribute container
+         * @protected
+         * @writeOnce
+         * @type Node
+         * @default null
+         *&#x2F;
+        container : null,
+
+        &#x2F;**
+         * An array of the listen events that we access.
+         *
+         * @attribute listeners
+         * @protected
+         * @type Array
+         * @default []
+         *&#x2F;
+        listenevents : [],
+
+        &#x2F;**
+         * The initial overflow setting for the page.
+         *
+         * @attribute initialoverflow
+         * @protected
+         * @type String
+         * @default &#x27;&#x27;
+         *&#x2F;
+        initialoverflow : &#x27;&#x27;,
+
+        &#x2F;**
+         * A reference to the body content
+         *
+         * @attribute bodycontent
+         * @protected
+         * @type Node
+         * @default null
+         *&#x2F;
+        bodycontent : null,
+
+        &#x2F;**
+         * A reference to the header content
+         *
+         * @attribute headercontent
+         * @protected
+         * @type Node
+         * @default null
+         *&#x2F;
+        headercontent : null,
+
+        &#x2F;**
+         * The configuration of the current instance
+         *
+         * @attribute instanceconfig
+         * @protected
+         * @type Object
+         * @default null
+         *&#x2F;
+        instanceconfig : null,
+
+        &#x2F;**
+         * The main method to initially set up the content of the chooser
+         * dialogue.
+         *
+         * @method setup_chooser_dialogue
+         * @param {Node|String} bodycontent The content of the main body of the dialogue.
+         * @param {Node|String} headerContent The content of the dialogue header.
+         * @param {Object} config The configuration for this dialogue instance.
+         *
+         * The configuration object may include any settings which can be applied to a
+         * {{#crossLinkModule &quot;Y.Panel&quot;}}{{&#x2F;crossLinkModule}}. In addition the following
+         * settings are available:
+         *
+         * * draggable - whether the module may be dragged (default true)
+         *&#x2F;
+        setup_chooser_dialogue : function(bodycontent, headercontent, config) {
+            this.bodycontent = bodycontent;
+            this.headercontent = headercontent;
+            this.instanceconfig = config;
+        },
+
+        &#x2F;**
+         * Prepare the chooser instance for display.
+         *
+         * This method should not normally be called directly.
+         *
+         * @method prepare_chooser
+         * @final
+         * @protected
+         *&#x2F;
+        prepare_chooser : function () {
+            if (this.overlay) {
+                return;
+            }
+
+            &#x2F;&#x2F; Set Default options
+            var params = {
+                bodyContent : this.bodycontent.get(&#x27;innerHTML&#x27;),
+                headerContent : this.headercontent.get(&#x27;innerHTML&#x27;),
+                width : &#x27;540px&#x27;,
+                draggable : true,
+                visible : false, &#x2F;&#x2F; Hide by default
+                zindex : 100, &#x2F;&#x2F; Display in front of other items
+                lightbox : true, &#x2F;&#x2F; This dialogue should be modal
+                shim : true,
+                closeButtonTitle : this.get(&#x27;closeButtonTitle&#x27;)
+            };
+
+            &#x2F;&#x2F; Override with additional options
+            for (paramkey in this.instanceconfig) {
+              params[paramkey] = this.instanceconfig[paramkey];
+            }
+
+            &#x2F;&#x2F; Create the panel
+            this.panel = new M.core.dialogue(params);
+
+            &#x2F;&#x2F; Remove the template for the chooser
+            this.bodycontent.remove();
+            this.headercontent.remove();
+
+            &#x2F;&#x2F; Hide and then render the panel
+            this.panel.hide();
+            this.panel.render();
+
+            &#x2F;&#x2F; Set useful links
+            this.container = this.panel.get(&#x27;boundingBox&#x27;).one(&#x27;.choosercontainer&#x27;);
+            this.options = this.container.all(&#x27;.option input[type=radio]&#x27;);
+
+            &#x2F;&#x2F; Add the chooserdialogue class to the container for styling
+            this.panel.get(&#x27;boundingBox&#x27;).addClass(&#x27;chooserdialogue&#x27;);
+        },
+
+        &#x2F;**
+         * Display the chooser dialogue.
+         *
+         * @method display_chooser
+         * @param {Event} e The event which triggered the opening
+         *&#x2F;
+        display_chooser : function (e) {
+            this.prepare_chooser();
+
+            &#x2F;&#x2F; Stop the default event actions before we proceed
+            e.preventDefault();
+
+            var bb = this.panel.get(&#x27;boundingBox&#x27;);
+            var dialogue = this.container.one(&#x27;.alloptions&#x27;);
+
+            &#x2F;&#x2F; Get the overflow setting when the chooser was opened - we
+            &#x2F;&#x2F; may need this later
+            if (Y.UA.ie &gt; 0) {
+                this.initialoverflow = Y.one(&#x27;html&#x27;).getStyle(&#x27;overflow&#x27;);
+            } else {
+                this.initialoverflow = Y.one(&#x27;body&#x27;).getStyle(&#x27;overflow&#x27;);
+            }
+
+            var thisevent;
+
+            &#x2F;&#x2F; This will detect a change in orientation and retrigger centering
+            thisevent = Y.one(&#x27;document&#x27;).on(&#x27;orientationchange&#x27;, function(e) {
+                this.center_dialogue(dialogue);
+            }, this);
+            this.listenevents.push(thisevent);
+
+            &#x2F;&#x2F; Detect window resizes (most browsers)
+            thisevent = Y.one(&#x27;window&#x27;).on(&#x27;resize&#x27;, function(e) {
+                this.center_dialogue(dialogue);
+            }, this);
+            this.listenevents.push(thisevent);
+
+            &#x2F;&#x2F; These will trigger a check_options call to display the correct help
+            thisevent = this.container.on(&#x27;click&#x27;, this.check_options, this);
+            this.listenevents.push(thisevent);
+            thisevent = this.container.on(&#x27;key_up&#x27;, this.check_options, this);
+            this.listenevents.push(thisevent);
+            thisevent = this.container.on(&#x27;dblclick&#x27;, function(e) {
+                if (e.target.ancestor(&#x27;div.option&#x27;)) {
+                    this.check_options();
+
+                    &#x2F;&#x2F; Prevent duplicate submissions
+                    this.submitbutton.setAttribute(&#x27;disabled&#x27;, &#x27;disabled&#x27;);
+                    this.options.setAttribute(&#x27;disabled&#x27;, &#x27;disabled&#x27;);
+                    this.cancel_listenevents();
+
+                    this.container.one(&#x27;form&#x27;).submit();
+                }
+            }, this);
+            this.listenevents.push(thisevent);
+
+            this.container.one(&#x27;form&#x27;).on(&#x27;submit&#x27;, function(e) {
+                &#x2F;&#x2F; Prevent duplicate submissions on submit
+                this.submitbutton.setAttribute(&#x27;disabled&#x27;, &#x27;disabled&#x27;);
+                this.options.setAttribute(&#x27;disabled&#x27;, &#x27;disabled&#x27;);
+                this.cancel_listenevents();
+            }, this);
+
+            &#x2F;&#x2F; Hook onto the cancel button to hide the form
+            thisevent = this.container.one(&#x27;.addcancel&#x27;).on(&#x27;click&#x27;, this.cancel_popup, this);
+            this.listenevents.push(thisevent);
+
+            &#x2F;&#x2F; Hide will be managed by cancel_popup after restoring the body overflow
+            thisevent = bb.one(&#x27;button.closebutton&#x27;).on(&#x27;click&#x27;, this.cancel_popup, this);
+            this.listenevents.push(thisevent);
+
+            &#x2F;&#x2F; Grab global keyup events and handle them
+            thisevent = Y.one(&#x27;document&#x27;).on(&#x27;keyup&#x27;, this.handle_key_press, this);
+            this.listenevents.push(thisevent);
+
+            &#x2F;&#x2F; Add references to various elements we adjust
+            this.jumplink     = this.container.one(&#x27;.jump&#x27;);
+            this.submitbutton = this.container.one(&#x27;.submitbutton&#x27;);
+
+            &#x2F;&#x2F; Disable the submit element until the user makes a selection
+            this.submitbutton.set(&#x27;disabled&#x27;, &#x27;true&#x27;);
+
+            &#x2F;&#x2F; Ensure that the options are shown
+            this.options.removeAttribute(&#x27;disabled&#x27;);
+
+            &#x2F;&#x2F; Display the panel
+            this.panel.show();
+
+            &#x2F;&#x2F; Re-centre the dialogue after we&#x27;ve shown it.
+            this.center_dialogue(dialogue);
+
+            &#x2F;&#x2F; Finally, focus the first radio element - this enables form selection via the keyboard
+            this.container.one(&#x27;.option input[type=radio]&#x27;).focus();
+
+            &#x2F;&#x2F; Trigger check_options to set the initial jumpurl
+            this.check_options();
+        },
+
+        &#x2F;**
+         * Cancel any listen events in the listenevents queue
+         *
+         * Several locations add event handlers which should only be called before the form is submitted. This provides
+         * a way of cancelling those events.
+         *
+         * @method cancel_listenevents
+         *&#x2F;
+        cancel_listenevents : function () {
+            &#x2F;&#x2F; Detach all listen events to prevent duplicate triggers
+            var thisevent;
+            while (thisevent = this.listenevents.shift()) {
+                thisevent.detach();
+            }
+        },
+
+        &#x2F;**
+         * Calculate the optimum height of the chooser dialogue
+         *
+         * This tries to set a sensible maximum and minimum to ensure that some options are always shown, and preferably
+         * all, whilst fitting the box within the current viewport.
+         *
+         * @method center_dialogue
+         * @param {Node} dialogue The dialogue to centre
+         *&#x2F;
+        center_dialogue : function(dialogue) {
+            var bb = this.panel.get(&#x27;boundingBox&#x27;);
+
+            var winheight = bb.get(&#x27;winHeight&#x27;);
+            var winwidth = bb.get(&#x27;winWidth&#x27;);
+            var offsettop = 0;
+
+            &#x2F;&#x2F; Try and set a sensible max-height -- this must be done before setting the top
+            &#x2F;&#x2F; Set a default height of 640px
+            var newheight = this.get(&#x27;maxheight&#x27;);
+            if (winheight &lt;= newheight) {
+                &#x2F;&#x2F; Deal with smaller window sizes
+                if (winheight &lt;= this.get(&#x27;minheight&#x27;)) {
+                    newheight = this.get(&#x27;minheight&#x27;);
+                } else {
+                    newheight = winheight;
+                }
+            }
+
+            &#x2F;&#x2F; Set a fixed position if the window is large enough
+            if (newheight &gt; this.get(&#x27;minheight&#x27;)) {
+                bb.setStyle(&#x27;position&#x27;, &#x27;fixed&#x27;);
+                &#x2F;&#x2F; Disable the page scrollbars
+                if (Y.UA.ie &gt; 0) {
+                    Y.one(&#x27;html&#x27;).setStyle(&#x27;overflow&#x27;, &#x27;hidden&#x27;);
+                } else {
+                    Y.one(&#x27;body&#x27;).setStyle(&#x27;overflow&#x27;, &#x27;hidden&#x27;);
+                }
+            } else {
+                bb.setStyle(&#x27;position&#x27;, &#x27;absolute&#x27;);
+                offsettop = Y.one(&#x27;window&#x27;).get(&#x27;scrollTop&#x27;);
+                &#x2F;&#x2F; Ensure that the page scrollbars are enabled
+                if (Y.UA.ie &gt; 0) {
+                    Y.one(&#x27;html&#x27;).setStyle(&#x27;overflow&#x27;, this.initialoverflow);
+                } else {
+                    Y.one(&#x27;body&#x27;).setStyle(&#x27;overflow&#x27;, this.initialoverflow);
+                }
+            }
+
+            &#x2F;&#x2F; Take off 15px top and bottom for borders, plus 40px each for the title and button area before setting the
+            &#x2F;&#x2F; new max-height
+            var totalheight = newheight;
+            newheight = newheight - (15 + 15 + 40 + 40);
+            dialogue.setStyle(&#x27;max-height&#x27;, newheight + &#x27;px&#x27;);
+            dialogue.setStyle(&#x27;height&#x27;, newheight + &#x27;px&#x27;);
+
+            &#x2F;&#x2F; Re-calculate the location now that we&#x27;ve changed the size
+            var dialoguetop = Math.max(12, ((winheight - totalheight) &#x2F; 2)) + offsettop;
+
+            &#x2F;&#x2F; We need to set the height for the yui3-widget - can&#x27;t work
+            &#x2F;&#x2F; out what we&#x27;re setting at present -- shoud be the boudingBox
+            bb.setStyle(&#x27;top&#x27;, dialoguetop + &#x27;px&#x27;);
+
+            &#x2F;&#x2F; Calculate the left location of the chooser
+            &#x2F;&#x2F; We don&#x27;t set a minimum width in the same way as we do height as the width would be far lower than the
+            &#x2F;&#x2F; optimal width for moodle anyway.
+            var dialoguewidth = bb.get(&#x27;offsetWidth&#x27;);
+            var dialogueleft = (winwidth - dialoguewidth) &#x2F; 2;
+            bb.setStyle(&#x27;left&#x27;, dialogueleft + &#x27;px&#x27;);
+        },
+
+        handle_key_press : function(e) {
+            if (e.keyCode == 27) {
+                this.cancel_popup(e);
+            }
+        },
+
+        cancel_popup : function (e) {
+            &#x2F;&#x2F; Prevent normal form submission before hiding
+            e.preventDefault();
+            this.hide();
+        },
+
+        hide : function() {
+            &#x2F;&#x2F; Cancel all listen events
+            this.cancel_listenevents();
+
+            &#x2F;&#x2F; Re-enable the page scrollbars
+            if (Y.UA.ie &gt; 0) {
+                Y.one(&#x27;html&#x27;).setStyle(&#x27;overflow&#x27;, this.initialoverflow);
+            } else {
+                Y.one(&#x27;body&#x27;).setStyle(&#x27;overflow&#x27;, this.initialoverflow);
+            }
+
+            this.container.detachAll();
+            this.panel.hide();
+        },
+
+        check_options : function(e) {
+            &#x2F;&#x2F; Check which options are set, and change the parent class
+            &#x2F;&#x2F; to show&#x2F;hide help as required
+            this.options.each(function(thisoption) {
+                var optiondiv = thisoption.get(&#x27;parentNode&#x27;).get(&#x27;parentNode&#x27;);
+                if (thisoption.get(&#x27;checked&#x27;)) {
+                    optiondiv.addClass(&#x27;selected&#x27;);
+
+                    &#x2F;&#x2F; Trigger any events for this option
+                    this.option_selected(thisoption);
+
+                    &#x2F;&#x2F; Ensure that the form may be submitted
+                    this.submitbutton.removeAttribute(&#x27;disabled&#x27;);
+
+                    &#x2F;&#x2F; Ensure that the radio remains focus so that keyboard navigation is still possible
+                    thisoption.focus();
+                } else {
+                    optiondiv.removeClass(&#x27;selected&#x27;);
+                }
+            }, this);
+        },
+
+        option_selected : function(e) {
+        }
+    },
+    {
+        NAME : &#x27;moodle-core-chooserdialogue&#x27;,
+        ATTRS : {
+            &#x2F;**
+             * The minimum height that the chooser should be.
+             *
+             * This value is used for calculating the optimum location for
+             * centering the dialogue.
+             *
+             * @attribute minheight
+             * @default 300
+             * @type integer
+             *&#x2F;
+            minheight : {
+                value : 300
+            },
+
+            &#x2F;**
+             * The maximum height that the chooser should be.
+             *
+             * This value is used for calculating the optimum location for
+             * centering the dialogue.
+             *
+             * @attribute maxheight
+             * @default 660
+             * @type integer
+             *&#x2F;
+            maxheight : {
+                value : 660
+            },
+
+            &#x2F;**
+             * The title to use on the close button.
+             *
+             * @attribute closeButtonTitle
+             * @default &#x27;Close&#x27;
+             * @type String
+             *&#x2F;
+            closeButtonTitle : {
+                validator : Y.Lang.isString,
+                value : &#x27;Close&#x27;
+            }
+        }
+    });
+    M.core = M.core || {};
+    M.core.chooserdialogue = CHOOSERDIALOGUE;
+},
+&#x27;@VERSION@&#x27;, {
+    requires:[&#x27;base&#x27;, &#x27;panel&#x27;, &#x27;moodle-core-notification&#x27;]
+}
+);
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>

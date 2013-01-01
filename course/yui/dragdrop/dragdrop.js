@@ -65,11 +65,11 @@ YUI.add('moodle-course-dragdrop', function(Y) {
         },
 
          /**
-         * Apply dragdrop features to the specified selector or node that refers to section(s)
-         *
-         * @param baseselector The CSS selector or node to limit scope to
-         * @return void
-         */
+          * Apply dragdrop features to the specified selector or node that refers to section(s)
+          *
+          * @method setup_for_section
+          * @param {Node|String} baseselector The CSS selector or node to limit scope to
+          */
         setup_for_section : function(baseselector) {
             Y.Node.all(baseselector).each(function(sectionnode) {
                 // Determine the section ID
@@ -100,12 +100,20 @@ YUI.add('moodle-course-dragdrop', function(Y) {
             }, this);
         },
 
+        /**
+         * @method get_section_id
+         * @param {Node} The node to determine the section id for
+         * @return {integer} The section ID
+         */
         get_section_id : function(node) {
             return Number(node.get('id').replace(/section-/i, ''));
         },
 
-        /*
+        /**
          * Drag-dropping related functions
+         *
+         * @method drag_start
+         * @param {EventHandle} e
          */
         drag_start : function(e) {
             // Get our drag object
@@ -283,8 +291,8 @@ YUI.add('moodle-course-dragdrop', function(Y) {
          /**
          * Apply dragdrop features to the specified selector or node that refers to section(s)
          *
-         * @param baseselector The CSS selector or node to limit scope to
-         * @return void
+         * @method setup_for_section
+         * @param {Node|String} baseselector The CSS selector or node to limit scope to
          */
         setup_for_section : function(baseselector) {
             Y.Node.all(baseselector).each(function(sectionnode) {
@@ -306,11 +314,12 @@ YUI.add('moodle-course-dragdrop', function(Y) {
                 this.setup_for_resource('#'+sectionnode.get('id')+' li.'+CSS.ACTIVITY);
             }, this);
         },
+
         /**
          * Apply dragdrop features to the specified selector or node that refers to resource(s)
          *
-         * @param baseselector The CSS selector or node to limit scope to
-         * @return void
+         * @method setup_for_resource
+         * @param {Node|StrinG} baseselector The CSS selector or node to limit scope to
          */
         setup_for_resource : function(baseselector) {
             Y.Node.all(baseselector).each(function(resourcesnode) {

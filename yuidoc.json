@@ -1,0 +1,17 @@
+{
+    "name": "Moodle YUI module API",
+    "description": "Documentation for the YUI modules written for Moodle",
+    "url": "https://moodle.org",
+    "logo": "/moodle/pix/moodlelogo.gif",
+    "options": {
+        "linkNatives": true,
+        "ignorePaths": [
+            "yuilib"
+        ],
+        "opaths": [
+            "*/yui"
+        ],
+        "paths": "*/yui",
+        "no-color": 1
+    }
+}
