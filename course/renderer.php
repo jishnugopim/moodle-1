@@ -309,7 +309,10 @@ class core_course_renderer extends plugin_renderer_base {
      */
     protected function course_modchooser_module($module, $classes = array('option')) {
         $output = '';
-        $output .= html_writer::start_tag('div', array('class' => implode(' ', $classes)));
+        $output .= html_writer::start_tag('div', array(
+            'class' => implode(' ', $classes),
+            'data-tags'  => strtolower($module->name) . ' ' . $module->title,
+        ));
         $output .= html_writer::start_tag('label', array('for' => 'module_' . $module->name));
         if (!isset($module->types)) {
             $output .= html_writer::tag('input', '', array('type' => 'radio',
