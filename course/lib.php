@@ -4558,6 +4558,7 @@ function include_course_ajax($course, $usedmodules = array(), $enabledmodules = 
             'modchooserenable',
             'modchooserdisable',
     ), 'moodle');
+    $PAGE->requires->string_for_js('filter', 'moodle');
 
     return true;
 }
