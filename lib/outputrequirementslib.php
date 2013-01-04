@@ -944,18 +944,18 @@ class page_requirements_manager {
 
         if ($this->yui3loader->combine) {
             $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->comboBase
-                     .$CFG->yui3version.'/build/cssreset/reset-min.css&amp;'
-                     .$CFG->yui3version.'/build/cssfonts/fonts-min.css&amp;'
-                     .$CFG->yui3version.'/build/cssgrids/grids-min.css&amp;'
-                     .$CFG->yui3version.'/build/cssbase/base-min.css" />';
+                     .$CFG->yui3version.'/build/cssreset/cssreset-min.css&amp;'
+                     .$CFG->yui3version.'/build/cssfonts/cssfonts-min.css&amp;'
+                     .$CFG->yui3version.'/build/cssgrids/cssgrids-min.css&amp;'
+                     .$CFG->yui3version.'/build/cssbase/cssbase-min.css" />';
             $code .= '<script type="text/javascript" src="'.$this->yui3loader->comboBase
                      .$CFG->yui3version.'/build/simpleyui/simpleyui-min.js&amp;'
                      .$CFG->yui3version.'/build/loader/loader-min.js"></script>';
         } else {
-            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssreset/reset-min.css" />';
-            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssfonts/fonts-min.css" />';
-            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssgrids/grids-min.css" />';
-            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssbase/base-min.css" />';
+            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssreset/cssreset-min.css" />';
+            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssfonts/cssfonts-min.css" />';
+            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssgrids/cssgrids-min.css" />';
+            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.'cssbase/cssbase-min.css" />';
             $code .= '<script type="text/javascript" src="'.$this->yui3loader->base.'simpleyui/simpleyui-min.js"></script>';
             $code .= '<script type="text/javascript" src="'.$this->yui3loader->base.'loader/loader-min.js"></script>';
         }
