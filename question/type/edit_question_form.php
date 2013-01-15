@@ -104,7 +104,7 @@ abstract class question_edit_form extends question_wizard_form {
         $this->context = context::instance_by_id($record->contextid);
 
         $this->editoroptions = array('subdirs' => 1, 'maxfiles' => EDITOR_UNLIMITED_FILES,
-                'context' => $this->context, 'collapsible' => 1);
+                'context' => $this->context, 'collapsed' => 1);
         $this->fileoptions = array('subdirs' => 1, 'maxfiles' => -1, 'maxbytes' => -1);
 
         $this->category = $category;
@@ -665,6 +665,6 @@ abstract class question_edit_form extends question_wizard_form {
     public abstract function qtype();
 
     protected function get_non_collabsible_editor_options() {
-        return array_merge($this->editoroptions, Array('collapsible' => 0));
+        return array_merge($this->editoroptions, Array('collapsed' => 0));
     }
 }
