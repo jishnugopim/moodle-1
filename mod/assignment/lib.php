@@ -3810,7 +3810,7 @@ function assignment_get_types() {
     foreach ($standardassignments as $assignmenttype) {
         $type = new stdClass();
         $type->modclass = MOD_CLASS_ACTIVITY;
-        $type->type = "assignment&amp;type=$assignmenttype";
+        $type->subtype = $assignmenttype;
         $type->typestr = get_string("type$assignmenttype", 'assignment');
         $types[] = $type;
     }
@@ -3825,6 +3825,7 @@ function assignment_get_types() {
             $type = new stdClass();
             $type->modclass = MOD_CLASS_ACTIVITY;
             $type->type = "assignment&amp;type=$assignmenttype";
+            $type->subtype = $assignmenttype;
             $type->typestr = get_string("type$assignmenttype", 'assignment_'.$assignmenttype);
             $types[] = $type;
         }

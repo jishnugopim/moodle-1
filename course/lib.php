@@ -1158,8 +1158,7 @@ function get_module_metadata($course, $modnames, $sectionreturn = null) {
                     // Set the Sub Type metadata
                     $subtype = new stdClass();
                     $subtype->title = $type->typestr;
-                    $subtype->type = str_replace('&amp;', '&', $type->type);
-                    $subtype->name = preg_replace('/.*type=/', '', $subtype->type);
+                    $subtype->name = $type->subtype;
                     $subtype->archetype = $type->modclass;
 
                     // The group archetype should match the subtype archetypes and all subtypes
@@ -1169,7 +1168,7 @@ function get_module_metadata($course, $modnames, $sectionreturn = null) {
                     if (get_string_manager()->string_exists('help' . $subtype->name, $modname)) {
                         $subtype->help = get_string('help' . $subtype->name, $modname);
                     }
-                    $subtype->link = new moodle_url($urlbase, array('add' => $subtype->type));
+                    $subtype->link = new moodle_url($urlbase, array('add' => $modname, 'type' => $type->subtype));
                     $group->types[] = $subtype;
                 }
                 $modlist[$course->id][$modname] = $group;

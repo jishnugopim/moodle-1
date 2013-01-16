@@ -5,6 +5,8 @@ information provided here is intended especially for developers.
 === 2.5 ===
 
 * support for 'mod/*' filters was removed
+* For modules with subtypes, MODNAME_get_types() should now return the
+  subtype for each type in the returned array (MDL-37538).
 
 === 2.4 ===
 
