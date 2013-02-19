@@ -139,7 +139,9 @@ foreach ($parts as $part) {
         }
 
         // If the shifted versions don't exist, fall back to the non-shifted file
+        $filename = preg_replace('/-min\.js/', '.js', $filename);
         if (!file_exists($contentfile) or !is_file($contentfile)) {
+            $contentfile = preg_replace('/-min\.js/', '.js', $contentfile);
             $contentfile = $dir.'/yui/'.join('/', $bits).'/'.$filename;
         }
     } else if ($version === '2in3') {
