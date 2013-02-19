@@ -111,16 +111,28 @@ foreach ($parts as $part) {
         if ($CFG->jsrev === -1 && (!isset($CFG->jsuseshifter) || $CFG->jsuseshifter === false)) {
             $contentbase = $dir . '/yui/src/';
             if ($mimetype === 'application/javascript') {
-                // For the JS code, we need to add the YUI module wrapper manually
-                // The metadata is stored in /meta/frankenstyle-module-name.json in an object names frankenstyle-module-name
-                $contentfile = $contentbase . $modulename . '/js/' . $filename;
+                // We need to add the YUI module wrapper manually.
+                // The metadata containing requirements is stored in /meta/frankenstyle-module-name.json in an object names frankenstyle-module-name
+                // The metadata containing the list of js files is stored in build.json in an object names frankenstyle-module-name
+                $jsbase = $contentbase . $modulename . '/js/';
                 $metadatafile = $contentbase . $modulename . '/meta/' . $modulename . '.json';
-                if (file_exists($metadatafile) && is_file($metadatafile) && $metadata = json_decode(file_get_contents($metadatafile))) {
-                    $content .= "\n// Loaded {$modulename} from source file $contentfile\n";
-                    $content .= "// Using metadata in $metadatafile\n";
+                $buildmetafile = $contentbase . $modulename . '/build.json';
+                if (file_exists($metadatafile) && is_file($metadatafile) && $metadata = json_decode(file_get_contents($metadatafile)) &&
+                        file_exists($buildmetafile) && is_file($buildmetafile) && $buildmeta = json_decode(file_get_contents($buildmetafile))) {
+                    $files = $buildmeta->builds->$frankenstylemodulename->jsfiles;
+                    $content .= "\n// Loading {$modulename} from source files defined in {$buildmetafile}\n";
+                    $content .= "// Using metadata in {$metadatafile} and build data from {$buildmetafile}\n";
                     $content .= "// We recommend that you use shifter (TODO link to docs.moodle.org)\n\n";
                     $filecontent = "YUI.add('{$frankenstylemodulename}', function (Y, NAME) {\n\n";
-                    $filecontent .= file_get_contents($contentfile);
+
+                    foreach ($files as $file) {
+                        $contentfile = $jsbase . $file;
+                        if (file_exists($contentfile)) {
+                            $filecontent .= file_get_contents($contentfile);
+                        } else {
+                            $filecontent .= "// Unable to file {$contentfile} to include\n";
+                        }
+                    }
                     $filecontent .= "\n\n}, '@VERSION', " . json_encode($metadata->$frankenstylemodulename) . ");";
                 } else {
                     // If we can't find the metadata, this can't be a shifted module - fallback to the non-shifted approach
