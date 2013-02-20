@@ -1091,6 +1091,10 @@ sup {vertical-align: super;}
     border: none;
 }
 
+.choosercontainer .yui3-highlight {
+    background-color: yellow;
+}
+
 .choosercontainer #chooseform .moduletypetitle {
     text-transform: uppercase;
     padding-top: 1.2em;
