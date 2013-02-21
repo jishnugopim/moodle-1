@@ -57,13 +57,10 @@ if ($version == 'moodle' && count($parts) >= 3) {
     // For shifted YUI modules, we need the YUI module name in frankenstyle format
     $frankenstylemodulename = join('-', array($version, $frankenstyle, $module));
 
-    if ($CFG->jsrev === -1 && (!isset($CFG->jsuseshifter) || $CFG->jsuseshifter === false)) {
-        $imagepath = $dir . '/yui/src/' . $module . '/assets/skins/sam/' . $image;
-    } else {
-        $imagepath = $dir . '/yui/build/' . $frankenstylemodulename . '/assets/skins/sam/' . $image;
-    }
+    // By default, try and use the /yui/build directory
+    $imagepath = $dir . '/yui/build/' . $frankenstylemodulename . '/assets/skins/sam/' . $image;
 
-    // If the shifted versions don't exist, fall back to the non-shifted file
+    // If the shifted versions don't exist, fall back to the non-shifted file.
     if (!file_exists($imagepath) or !is_file($imagepath)) {
         $imagepath = $dir.'/yui/'.$module.'/assets/skins/sam/'.$image;
     }
