@@ -11,7 +11,7 @@
         "linkNatives": true,
         "attributesEmit": "true",
         "selleck": "true",
-        "outdir": "./yuidocs",
+        "outdir": "../yuidocs",
         "paths": "**/yui/src/*"
     }   
 }
