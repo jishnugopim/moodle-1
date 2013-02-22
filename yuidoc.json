@@ -1,0 +1,17 @@
+{
+    "name": "Moodle",
+    "description": "YUI documentation for Moodle", 
+    "version": "@VERSION@",
+    "url": "https://moodle.org",
+    "logo": "https://moodle.org/theme/image.php/moodleofficial/theme/1360919562/moodle-logo",
+    "options": {
+        "external": {
+            "data": "http://yuilibrary.com/yui/docs/api/data.json"
+        },  
+        "linkNatives": true,
+        "attributesEmit": "true",
+        "selleck": "true",
+        "outdir": "./yuidocs",
+        "paths": "**/yui/src/*"
+    }   
+}
