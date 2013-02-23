@@ -113,7 +113,7 @@ foreach ($parts as $part) {
 
         if (!file_exists($contentfile) or !is_file($contentfile)) {
             // We have to revert to the non-minified and non-debug versions.
-            $contentfile = preg_replace('/-(min|debug)\.js/', '.js', $contentfile);
+            $filename = preg_replace('/-(min|debug)\.js/', '.js', $filename);
             $contentfile = $dir.'/yui/'.join('/', $bits).'/'.$filename;
         }
     } else if ($version === '2in3') {
