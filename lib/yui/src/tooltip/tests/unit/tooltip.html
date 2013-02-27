@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Test Page</title>
-    <script id="testheader" src="../../../../testheader.js"></script>
+    <script id="testheader" src="../../../../common/scripts/testheader.js"></script>
 </head>
 <body class="yui3-skin-sam">
 
@@ -29,7 +29,6 @@ window.onload = function() {
             }
         },
     }).use('test-console', 'test', 'moodle-core-tooltip-test', function (Y) {
-        new Y.Test.Console().render();
         Y.Test.Runner.setName('M.core.tooltip');
         Y.Test.Runner.run();
     });
