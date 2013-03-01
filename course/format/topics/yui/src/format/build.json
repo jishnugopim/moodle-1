@@ -1,0 +1,10 @@
+{
+  "name": "moodle-format_topics-format",
+  "builds": {
+    "moodle-format_topics-format": {
+      "jsfiles": [
+        "format.js"
+      ]
+    }
+  }
+}

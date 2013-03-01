@@ -1,0 +1,8 @@
+{
+  "moodle-format_topics-format": {
+    "requires": [
+        "node",
+        "moodle-course-coursebase"
+    ]
+  }
+}
