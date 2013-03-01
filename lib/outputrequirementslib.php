@@ -136,6 +136,11 @@ class page_requirements_manager {
     protected $YUI_config;
 
     /**
+     * @var array List of top-level YUI modules used to reduce queries.
+     */
+    protected $yuimodules = array();
+
+    /**
      * @var array Some config vars exposed in JS, please no secret stuff there
      */
     protected $M_cfg;
@@ -719,6 +724,9 @@ class page_requirements_manager {
             $jscode = "Y.on('domready', function() { $jscode });";
         }
         $this->jsinitcode[] = $jscode;
+
+        // Add the modules required into the list of modules on the page.
+        $this->yuimodules = array_merge($this->yuimodules, convert_to_array($modules));
     }
 
     /**
@@ -942,10 +950,13 @@ class page_requirements_manager {
      * @return string
      */
     protected function get_javascript_init_code() {
+        $return = '';
         if (count($this->jsinitcode)) {
-            return implode("\n", $this->jsinitcode) . "\n";
+            // Y.use here before the rest of the jsinitcode means that we load all external files in fewer requests.
+            $return .= 'Y.use('.join(',', array_map('json_encode', $this->yuimodules)).',function() {});';
+            $return .= implode("\n", $this->jsinitcode) . "\n";
         }
-        return '';
+        return $return;
     }
 
     /**
