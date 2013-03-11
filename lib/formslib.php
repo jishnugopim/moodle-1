@@ -1539,40 +1539,28 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
                 // So, we have more than $_non_collapsible_headers headers
                 // add all headers to collapsible elements array (if they have not been added yet).
                 unset($lastHeader);
-                $lastHeader = null;
                 $anyRequiredOrError = false;
                 $headercounter = 0;
+                $seenfirstheader = false;
                 foreach (array_keys($this->_elements) as $elementIndex){
                     $element =& $this->_elements[$elementIndex];
                     if ($element->getType()=='header') {
-                        if (!is_null($lastHeader)) {
-                            $lastHeader->_generateId();
+                        if ($seenfirstheader) {
+                            $element->_generateId();
                             // Check if we had any required elements or
                             // we are at the top header that should be expanded by default.
                             if ($anyRequiredOrError || $headercounter === 1) {
-                                $this->setExpanded($lastHeader->getAttribute('id'));
-                            } else if (!isset($this->_collapsibleElements[$lastHeader->getAttribute('id')])) {
+                                $this->setExpanded($element->getAttribute('id'));
+                            } else if (!isset($this->_collapsibleElements[$element->getAttribute('id')])) {
                                 // Define element as collapsed by default.
-                                $this->setExpanded($lastHeader->getAttribute('id'), false);
+                                $this->setExpanded($element->getAttribute('id'), false);
                             }
                         }
+                        $seenfirstheader = true;
                         $headercounter++;
-                        $lastHeader =& $element;
                         $anyRequiredOrError = false;
                     } elseif (in_array($element->getName(), $this->_required) || isset($this->_errors[$element->getName()])) {
                         $anyRequiredOrError = true;
-                    }
-                }
-                // Process very last header.
-                if (!is_null($lastHeader)){
-                    $lastHeader->_generateId();
-                    // Check if we had any required elements or
-                    // we are at the top header that should be expanded by default.
-                    if ($anyRequiredOrError || $headercounter === 1) {
-                        $this->setExpanded($lastHeader->getName());
-                    } elseif (!isset($this->_collapsibleElements[$lastHeader->getAttribute('id')])) {
-                        // Define element as collapsed by default.
-                        $this->setExpanded($lastHeader->getName(), false);
                     }
                 }
             }
