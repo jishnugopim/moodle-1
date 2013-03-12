@@ -59,8 +59,8 @@ table.minicalendar td,
 }
 
 .categorybox,
-.categoryboxcontent,
-.coursebox,
+/*.coursebox,*/
+.course_category_tree.courses-only .courses .course,
 .notifyproblem,
 .notifysuccess,
 table.minicalendar {
