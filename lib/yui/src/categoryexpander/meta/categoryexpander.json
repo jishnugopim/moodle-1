@@ -1,0 +1,10 @@
+{
+  "moodle-core-categoryexpander": {
+    "requires": [
+        "node",
+        "io-base",
+        "json-parse",
+        "cache"
+    ]
+  }
+}
