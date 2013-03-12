@@ -85,6 +85,10 @@
 .coursebox.remotecoursebox .remotecourseinfo {padding:3px 5px;font-size:0.9em;}
 .dir-rtl .coursebox .teachers {padding:3px 21px 3px 0;}
 
+.course_category_tree .content {
+    /* This ensures that animations do not cause text to overlay until the hidden style is applied */
+    overflow: hidden;
+}
 .course_category_tree .controls {margin-bottom:5px;text-align:right;float:right;}
 .course_category_tree .controls div {padding-right:2em;font-size:75%;}
 
