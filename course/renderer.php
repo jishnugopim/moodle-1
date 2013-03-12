@@ -1350,6 +1350,14 @@ class core_course_renderer extends plugin_renderer_base {
         // Subcategories
         $content .= $this->coursecat_subcategories($chelper, $coursecat, $depth);
 
+        static $jsloaded = false;
+        if (!$jsloaded) {
+            // We must only load this module once.
+            $this->page->requires->yui_module('moodle-course-categoryexpander',
+                    'Y.Moodle.course.categoryexpander.init');
+            $jsloaded = true;
+        }
+
         // AUTO show courses: Courses will be shown expanded if this is not nested category,
         // and number of courses no bigger than $CFG->courseswithsummarieslimit.
         $showcoursesauto = $chelper->get_show_courses() == self::COURSECAT_SHOW_COURSES_AUTO;
@@ -1412,9 +1420,12 @@ class core_course_renderer extends plugin_renderer_base {
                 $classes[] = 'with_children';
             }
         }
-        $content = html_writer::start_tag('div', array('class' => join(' ', $classes),
+        $content = html_writer::start_tag('div', array(
+            'class' => join(' ', $classes),
             'data-categoryid' => $coursecat->id,
-            'data-depth' => $depth));
+            'data-depth' => $depth,
+            'data-showcourses' => $chelper->get_show_courses(),
+        ));
 
         // category name
         $categoryname = $coursecat->get_formatted_name();
@@ -1452,16 +1463,11 @@ class core_course_renderer extends plugin_renderer_base {
             return '';
         }
 
-        // Generate an id and the required JS call to make this a nice widget
-        $id = html_writer::random_id('course_category_tree');
-        $this->page->requires->js_init_call('M.util.init_toggle_class_on_click',
-                array($id, '.category.with_children.loaded > .info .name', 'collapsed', '.category.with_children.loaded'));
-
         // Start content generation
         $content = '';
         $attributes = $chelper->get_and_erase_attributes('course_category_tree clearfix');
         $content .= html_writer::start_tag('div',
-                array('id' => $id, 'data-showcourses' => $chelper->get_show_courses()) + $attributes);
+                array('data-showcourses' => $chelper->get_show_courses()) + $attributes);
 
         $content .= html_writer::tag('div', $categorycontent, array('class' => 'content'));
 
