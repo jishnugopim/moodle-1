@@ -1,7 +1,7 @@
 {
-  "name": "moodle-core-categoryexpander",
+  "name": "moodle-course-categoryexpander",
   "builds": {
-    "moodle-core-categoryexpander": {
+    "moodle-course-categoryexpander": {
       "jsfiles": [
         "categoryexpander.js"
       ]

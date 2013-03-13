@@ -1418,6 +1418,10 @@ class core_course_renderer extends plugin_renderer_base {
             $this->strings->summary = get_string('summary');
         }
 
+        $this->page->requires->yui_module('moodle-course-categoryexpander', 'M.course.categoryexpander.init');
+        //$this->page->requires->strings_for_js(array(
+        //), 'moodle');
+
         // render html for subcategories beforehead because their presence/absence may affect CSS classes of this category
         $contentsubcategories = $this->coursecat_subcategories($coursecatr);
 
@@ -1433,23 +1437,15 @@ class core_course_renderer extends plugin_renderer_base {
         $contentcourses = $this->coursecat_courses($coursecatr);
 
         if ($depth == 0) {
-            // This is the top level, open div.course_category_tree and include js.
-
-            // Generate an id and the required JS call to make this a nice widget
-            $id = html_writer::random_id('course_category_tree');
-            if (!$coursecatr->get_omit_subcat() && !empty($contentsubcategories)) {
-                $this->page->requires->js_init_call('M.util.init_toggle_class_on_click',
-                        array($id, '.category.with_children.loaded > .category_label .category_name', 'collapsed', '.category.with_children.loaded'));
-            }
-
             // Start content generation
             $mainclass = $coursecatr->get_display_option('class', '');
             if ($coursecatr->get_omit_subcat() || (empty($contentsubcategories) &&
                     $coursecatr->get_show_courses() >= coursecat_renderable::SHOW_COURSES_EXPANDED)) {
                 $mainclass .= ' courses-only';
             }
-            $content .= html_writer::start_tag('div', array('id' => $id,
-                'class' => 'course_category_tree '. $mainclass));
+            $content .= html_writer::start_tag('div', array(
+                'class' => 'course_category_tree '. $mainclass
+            ));
         } else {
             // This is nested category, open div.category
 
@@ -1468,7 +1464,11 @@ class core_course_renderer extends plugin_renderer_base {
                 $classes[] = 'with_children';
                 $classes[] = 'loaded';
             }
-            $content .= html_writer::start_tag('div', array('class' => join(' ', $classes)));
+            $content .= html_writer::start_tag('div', array(
+                'class' => join(' ', $classes),
+                'data-categoryid' => $coursecatr->id,
+                'data-depth' => $depth,
+            ));
         }
 
         if ($coursecatr->id && $depth) {
@@ -1481,7 +1481,14 @@ class core_course_renderer extends plugin_renderer_base {
             $content .= html_writer::start_tag('div', array('class' => 'category_label'));
             $categoryname = html_writer::link(new moodle_url('/course/category.php',
                     array('id' => $coursecatr->id)),
-                    $categoryname, array('class' => 'category_link'));
+                    $categoryname, array(
+                        'class' => 'category_link',
+                    ));
+            $headerattributes = array(
+                'class' => 'category_name',
+                'data-categoryid' => $coursecatr->id,
+                'data-depth' => $depth,
+            );
             if ($depth > 1) {
                 $content .= html_writer::tag('h4', $categoryname, array('class' => 'category_name'));
             } else {
