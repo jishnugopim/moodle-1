@@ -1,4 +1,5 @@
 var SELECTORS = {
+        ANIMATOR: 'div.animator',
         COURSES: '.courses',
         LISTENLINK: '.category_name',
         PARENTWITHCHILDREN: 'div.category',
@@ -6,6 +7,7 @@ var SELECTORS = {
     },
 
     CSS = {
+        ANIMATOR: 'animator',
         COURSES: 'courses',
         LOADED: 'loaded',
         NOTLOADED: 'notloaded',
@@ -13,7 +15,6 @@ var SELECTORS = {
         SUBCATEGORIES: 'subcategories',
         HASCHILDREN: 'with_children'
     },
-    FRONTPAGECATEGORYNAMES = 2,
     FRONTPAGECATEGORYCOMBO = 4;
 
 M.course = M.course || {};
@@ -25,7 +26,8 @@ M.course.categoryexpander = M.course.categoryexpander || {
     toggle_expansion: function(e) {
         var categorynode,
             categoryid,
-            depth;
+            depth,
+            animator;
         e.preventDefault();
 
         // Grab the ancestor.
@@ -58,6 +60,10 @@ M.course.categoryexpander = M.course.categoryexpander || {
                 }
             });
         } else {
+            animator = categorynode.one(SELECTORS.ANIMATOR);
+            if (!animator) {
+                this.add_animator(categorynode);
+            }
             categorynode.toggleClass(CSS.SECTIONCOLLAPSED);
         }
     },
@@ -65,6 +71,7 @@ M.course.categoryexpander = M.course.categoryexpander || {
         var subcategories,
             courses,
             newnode,
+            childnode,
             data;
         try {
             data = Y.JSON.parse(response.responseText);
@@ -83,26 +90,31 @@ M.course.categoryexpander = M.course.categoryexpander || {
             .removeClass(CSS.NOTLOADED);
 
         subcategories = newnode.one(SELECTORS.SUBCATEGORIES);
-        if (subcategories) {
-            subcategories.hide();
-            ioargs.categorynode.appendChild(subcategories);
-            subcategories.show();
-        }
-
         courses = newnode.one(SELECTORS.COURSES);
-        if (courses) {
-            courses.hide();
-            ioargs.categorynode.appendChild(courses);
-            courses.transition({
-                duration: 5,
-                easing: 'ease-out',
-                opacity: {
-                    delay: 1.5,
-                    duration: 1.25,
-                    value: 1
-                }
-            });
-            courses.show();
-        }
+
+        childnode = this.add_animator([subcategories, courses]);
+        ioargs.categorynode.appendChild(childnode);
+    },
+    add_animator: function(parentnode) {
+        var childnode = Y.Node.create('<div>')
+                .addClass(CSS.ANIMATOR);
+
+        childnode.fx = new Y.Anim({
+            node: childnode,
+            from: {
+                height: 0,
+                opacity: 0
+            },
+            to: {
+                height: '100%',
+                opacity: 1
+            }
+        });
+
+        parentnode.get('children').each(function(node) {
+            childnode.appendChild(node);
+        });
+        parentnode.appendChild(childnode);
+        return parentnode;
     }
 };
