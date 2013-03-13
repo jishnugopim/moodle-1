@@ -1459,6 +1459,7 @@ class core_course_renderer extends plugin_renderer_base {
                 if ($coursecatr->get_child_categories_count() ||
                         ($coursecatr->get_show_courses() > coursecat_renderable::SHOW_COURSES_COUNT && $coursecatr->get_child_courses_count())) {
                     $classes[] = 'with_children';
+                    $classes[] = 'collapsed';
                 }
             } else if (!empty($contentsubcategories) || !empty($contentcourses)) {
                 $classes[] = 'with_children';
@@ -1497,10 +1498,12 @@ class core_course_renderer extends plugin_renderer_base {
             $content .= html_writer::end_tag('div'); // .category_label
         }
 
+        $content .= html_writer::start_tag('div', array('class' => 'category_children'));
         // Subcategories
         $content .= $contentsubcategories;
         // Courses
         $content .= $contentcourses;
+        $content .= html_writer::end_tag('div'); // .category_children
 
         if ($depth == 0) {
             if (!empty($contentsubcategories) && $coursecatr->get_subcat_depth() != 1) {

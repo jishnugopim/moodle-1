@@ -1,7 +1,8 @@
 YUI.add('moodle-course-categoryexpander', function (Y, NAME) {
 
 var SELECTORS = {
-        ANIMATOR: 'div.animator',
+        CATEGORYCHILDREN: 'div.category_children',
+        CATEGORYLABEL: '.category_label',
         COURSES: '.courses',
         LISTENLINK: '.category_name',
         PARENTWITHCHILDREN: 'div.category',
@@ -9,7 +10,7 @@ var SELECTORS = {
     },
 
     CSS = {
-        ANIMATOR: 'animator',
+        CATEGORYCHILDREN: 'category_children',
         COURSES: 'courses',
         LOADED: 'loaded',
         NOTLOADED: 'notloaded',
@@ -28,9 +29,7 @@ M.course.categoryexpander = M.course.categoryexpander || {
     toggle_expansion: function(e) {
         var categorynode,
             categoryid,
-            depth,
-            animator;
-        e.preventDefault();
+            depth;
 
         // Grab the ancestor.
         categorynode = e.target.ancestor(SELECTORS.PARENTWITHCHILDREN, true);
@@ -62,17 +61,30 @@ M.course.categoryexpander = M.course.categoryexpander || {
                 }
             });
         } else {
-            animator = categorynode.one(SELECTORS.ANIMATOR);
-            if (!animator) {
-                this.add_animator(categorynode);
-            }
-            categorynode.toggleClass(CSS.SECTIONCOLLAPSED);
+            this.apply_animation(categorynode);
+        }
+        e.preventDefault();
+    },
+    apply_animation: function(categorynode) {
+        var categorychildren = categorynode.one(SELECTORS.CATEGORYCHILDREN);
+        this.add_animator(categorychildren);
+
+        // If we already have the class, remove it before showing otherwise we perform the
+        // animation whilst the node is hidden.
+        if (categorynode.hasClass(CSS.SECTIONCOLLAPSED)) {
+            categorynode.removeClass(CSS.SECTIONCOLLAPSED);
+            categorychildren.fx.set('reverse', false);
+            categorychildren.fx.run();
+        } else {
+            categorychildren.fx.set('reverse', true);
+            categorychildren.fx.once('end', function() {
+                this.addClass(CSS.SECTIONCOLLAPSED);
+            }, categorynode);
+            categorychildren.fx.run();
         }
     },
     handle_category_results: function(tid, response, ioargs) {
-        var subcategories,
-            courses,
-            newnode,
+        var newnode,
             childnode,
             data;
         try {
@@ -85,39 +97,49 @@ M.course.categoryexpander = M.course.categoryexpander || {
         }
 
         // Insert it into a set of new child nodes to categorynode.
-        // TODO add some nice transitions here
         newnode = Y.Node.create(data);
         ioargs.categorynode
             .addClass(CSS.LOADED)
             .removeClass(CSS.NOTLOADED);
 
-        subcategories = newnode.one(SELECTORS.SUBCATEGORIES);
-        courses = newnode.one(SELECTORS.COURSES);
-
-        childnode = this.add_animator([subcategories, courses]);
-        ioargs.categorynode.appendChild(childnode);
+        // FIXME - would be nice to not have this served by the renderer.
+        newnode.one(SELECTORS.CATEGORYLABEL).remove();
+        childnode = ioargs.categorynode.one(SELECTORS.CATEGORYCHILDREN);
+            childnode.appendChild(newnode);
+        this.apply_animation(ioargs.categorynode);
     },
-    add_animator: function(parentnode) {
-        var childnode = Y.Node.create('<div>')
-                .addClass(CSS.ANIMATOR);
-
-        childnode.fx = new Y.Anim({
-            node: childnode,
+    add_animator: function(childnode) {
+        if (typeof childnode.fx !== "undefined") {
+            return;
+        }
+        childnode.plug(Y.Plugin.NodeFX, {
             from: {
                 height: 0,
                 opacity: 0
             },
             to: {
-                height: '100%',
+                height: function(node) { // dynamic in case of change
+                    return node.get('scrollHeight'); // get expanded height (offsetHeight may be zero)
+                },
                 opacity: 1
+            },
+            easing: Y.Easing.easeOut,
+            duration: 0.3
+        });
+        /*
+        childnode.fx = new Y.Anim({
+            easing: 'easeIn',
+            node: childnode,
+            duration: 0.3,
+            from: {
+                height: 0
+            },
+            to: {
+                height: '100%'
             }
-        });
+        });*/
 
-        parentnode.get('children').each(function(node) {
-            childnode.appendChild(node);
-        });
-        parentnode.appendChild(childnode);
-        return parentnode;
+        return childnode;
     }
 };
 
