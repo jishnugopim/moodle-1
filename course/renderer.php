@@ -1469,6 +1469,7 @@ class core_course_renderer extends plugin_renderer_base {
                 'class' => join(' ', $classes),
                 'data-categoryid' => $coursecatr->id,
                 'data-depth' => $depth,
+                'data-showcourses' => $coursecatr->get_show_courses(),
             ));
         }
 

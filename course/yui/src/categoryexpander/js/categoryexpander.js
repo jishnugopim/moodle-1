@@ -52,7 +52,8 @@ M.course.categoryexpander = M.course.categoryexpander || {
                 data: {
                     type: FRONTPAGECATEGORYCOMBO,
                     categoryid: categoryid,
-                    depth: depth
+                    depth: depth,
+                    showcourses: categorynode.getData('showcourses')
                 },
                 "arguments": {
                     categorynode: categorynode
