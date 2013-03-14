@@ -75,14 +75,26 @@ M.course.categoryexpander = M.course.categoryexpander || {
         // If we already have the class, remove it before showing otherwise we perform the
         // animation whilst the node is hidden.
         if (categorynode.hasClass(CSS.SECTIONCOLLAPSED)) {
+            // To avoid a jump effect, we need to set the height of the children to 0 here before unhiding the SECTIONCOLLAPSED class
+            categorychildren.setStyle('height', '0');
             categorynode.removeClass(CSS.SECTIONCOLLAPSED);
             categorychildren.fx.set('reverse', false);
             categorychildren.fx.run();
+            categorychildren.fx.once('end', function() {
+                this.setStyles({
+                    height: '',
+                    opacity: ''
+                });
+            }, categorychildren);
         } else {
             categorychildren.fx.set('reverse', true);
-            categorychildren.fx.once('end', function() {
+            categorychildren.fx.once('end', function(e, categorychildren) {
                 this.addClass(CSS.SECTIONCOLLAPSED);
-            }, categorynode);
+                categorychildren.setStyles({
+                    height: '',
+                    opacity: ''
+                });
+            }, categorynode, categorychildren);
             categorychildren.fx.run();
         }
     },
@@ -127,7 +139,8 @@ M.course.categoryexpander = M.course.categoryexpander || {
                 },
                 opacity: 1
             },
-            easing: Y.Easing.easeOut,
+            //easing: Y.Easing.easeOut,
+            easing: Y.Easing.backIn,
             duration: 0.3
         });
 

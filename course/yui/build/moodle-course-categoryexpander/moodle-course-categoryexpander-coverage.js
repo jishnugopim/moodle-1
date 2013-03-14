@@ -26,11 +26,11 @@ _yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryex
     path: "build/moodle-course-categoryexpander/moodle-course-categoryexpander.js",
     code: []
 };
-_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].code=["YUI.add('moodle-course-categoryexpander', function (Y, NAME) {","","var SELECTORS = {","        CATEGORYCHILDREN: 'div.category_children',","        CATEGORYLABEL: '.category_label',","        COURSES: '.courses',","        LISTENLINK: '.category_name',","        PARENTWITHCHILDREN: 'div.category',","        SUBCATEGORIES: '.subcategories'","    },","","    CSS = {","        CATEGORYCHILDREN: 'category_children',","        COURSES: 'courses',","        LOADED: 'loaded',","        NOTLOADED: 'notloaded',","        SECTIONCOLLAPSED: 'collapsed',","        SUBCATEGORIES: 'subcategories',","        HASCHILDREN: 'with_children'","    },","    FRONTPAGECATEGORYCOMBO = 4;","","M.course = M.course || {};","M.course.categoryexpander = M.course.categoryexpander || {","    init: function() {","        Y.one(Y.config.doc).delegate('click', this.toggle_expansion, SELECTORS.LISTENLINK, this);","        this.init = function(){};","    },","    toggle_expansion: function(e) {","        var categorynode,","            categoryid,","            depth;","","        // Return early if an anchor or image were clicked.","        if (e.target.test('a') || e.target.test('img')) {","            return;","        }","","        // Grab the ancestor.","        categorynode = e.target.ancestor(SELECTORS.PARENTWITHCHILDREN, true);","","        if (!categorynode.hasClass(CSS.HASCHILDREN)) {","            return;","        }","","        if (categorynode.hasClass(CSS.NOTLOADED)) {","            categoryid = categorynode.getData('categoryid');","            depth = categorynode.getData('depth');","            if (typeof categoryid === \"undefined\" || typeof depth === \"undefined\") {","                return;","            }","            // Fetch the data.","            Y.io(M.cfg.wwwroot + '/course/category.ajax.php', {","                method: 'POST',","                context: this,","                on: {","                    complete: this.handle_category_results","                },","                data: {","                    type: FRONTPAGECATEGORYCOMBO,","                    categoryid: categoryid,","                    depth: depth,","                    showcourses: categorynode.getData('showcourses')","                },","                \"arguments\": {","                    categorynode: categorynode","                }","            });","        } else {","            this.apply_animation(categorynode);","        }","    },","    apply_animation: function(categorynode) {","        var categorychildren = categorynode.one(SELECTORS.CATEGORYCHILDREN);","        this.add_animator(categorychildren);","","        // If we already have the class, remove it before showing otherwise we perform the","        // animation whilst the node is hidden.","        if (categorynode.hasClass(CSS.SECTIONCOLLAPSED)) {","            categorynode.removeClass(CSS.SECTIONCOLLAPSED);","            categorychildren.fx.set('reverse', false);","            categorychildren.fx.run();","        } else {","            categorychildren.fx.set('reverse', true);","            categorychildren.fx.once('end', function() {","                this.addClass(CSS.SECTIONCOLLAPSED);","            }, categorynode);","            categorychildren.fx.run();","        }","    },","    handle_category_results: function(tid, response, ioargs) {","        var newnode,","            childnode,","            data;","        try {","            data = Y.JSON.parse(response.responseText);","            if (data.error) {","                return new M.core.ajaxException(data);","            }","        } catch (e) {","            return new M.core.exception(e);","        }","","        // Insert it into a set of new child nodes to categorynode.","        newnode = Y.Node.create(data);","        ioargs.categorynode","            .addClass(CSS.LOADED)","            .removeClass(CSS.NOTLOADED);","","        // FIXME - would be nice to not have this served by the renderer.","        newnode.one(SELECTORS.CATEGORYLABEL).remove();","        childnode = ioargs.categorynode.one(SELECTORS.CATEGORYCHILDREN);","            childnode.appendChild(newnode);","        this.apply_animation(ioargs.categorynode);","    },","    add_animator: function(childnode) {","        if (typeof childnode.fx !== \"undefined\") {","            return;","        }","","        childnode.plug(Y.Plugin.NodeFX, {","            from: {","                height: 0,","                opacity: 0","            },","            to: {","                height: function(node) { // dynamic in case of change","                    return node.get('scrollHeight'); // get expanded height (offsetHeight may be zero)","                },","                opacity: 1","            },","            easing: Y.Easing.easeOut,","            duration: 0.3","        });","","        return childnode;","    }","};","","","}, '@VERSION@', {\"requires\": [\"node\", \"io-base\", \"json-parse\", \"moodle-core-notification\", \"anim\"]});"];
-_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].lines = {"1":0,"3":0,"23":0,"24":0,"26":0,"27":0,"30":0,"35":0,"36":0,"40":0,"42":0,"43":0,"46":0,"47":0,"48":0,"49":0,"50":0,"53":0,"70":0,"74":0,"75":0,"79":0,"80":0,"81":0,"82":0,"84":0,"85":0,"86":0,"88":0,"92":0,"95":0,"96":0,"97":0,"98":0,"101":0,"105":0,"106":0,"111":0,"112":0,"113":0,"114":0,"117":0,"118":0,"121":0,"128":0,"136":0};
-_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].functions = {"init:25":0,"toggle_expansion:29":0,"(anonymous 2):85":0,"apply_animation:73":0,"handle_category_results:91":0,"height:127":0,"add_animator:116":0,"(anonymous 1):1":0};
-_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].coveredLines = 46;
-_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].coveredFunctions = 8;
+_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].code=["YUI.add('moodle-course-categoryexpander', function (Y, NAME) {","","var SELECTORS = {","        CATEGORYCHILDREN: 'div.category_children',","        CATEGORYLABEL: '.category_label',","        COURSES: '.courses',","        LISTENLINK: '.category_name',","        PARENTWITHCHILDREN: 'div.category',","        SUBCATEGORIES: '.subcategories'","    },","","    CSS = {","        CATEGORYCHILDREN: 'category_children',","        COURSES: 'courses',","        LOADED: 'loaded',","        NOTLOADED: 'notloaded',","        SECTIONCOLLAPSED: 'collapsed',","        SUBCATEGORIES: 'subcategories',","        HASCHILDREN: 'with_children'","    },","    FRONTPAGECATEGORYCOMBO = 4;","","M.course = M.course || {};","M.course.categoryexpander = M.course.categoryexpander || {","    init: function() {","        Y.one(Y.config.doc).delegate('click', this.toggle_expansion, SELECTORS.LISTENLINK, this);","        this.init = function(){};","    },","    toggle_expansion: function(e) {","        var categorynode,","            categoryid,","            depth;","","        // Return early if an anchor or image were clicked.","        if (e.target.test('a') || e.target.test('img')) {","            return;","        }","","        // Grab the ancestor.","        categorynode = e.target.ancestor(SELECTORS.PARENTWITHCHILDREN, true);","","        if (!categorynode.hasClass(CSS.HASCHILDREN)) {","            return;","        }","","        if (categorynode.hasClass(CSS.NOTLOADED)) {","            categoryid = categorynode.getData('categoryid');","            depth = categorynode.getData('depth');","            if (typeof categoryid === \"undefined\" || typeof depth === \"undefined\") {","                return;","            }","            // Fetch the data.","            Y.io(M.cfg.wwwroot + '/course/category.ajax.php', {","                method: 'POST',","                context: this,","                on: {","                    complete: this.handle_category_results","                },","                data: {","                    type: FRONTPAGECATEGORYCOMBO,","                    categoryid: categoryid,","                    depth: depth,","                    showcourses: categorynode.getData('showcourses')","                },","                \"arguments\": {","                    categorynode: categorynode","                }","            });","        } else {","            this.apply_animation(categorynode);","        }","    },","    apply_animation: function(categorynode) {","        var categorychildren = categorynode.one(SELECTORS.CATEGORYCHILDREN);","        this.add_animator(categorychildren);","","        // If we already have the class, remove it before showing otherwise we perform the","        // animation whilst the node is hidden.","        if (categorynode.hasClass(CSS.SECTIONCOLLAPSED)) {","            // To avoid a jump effect, we need to set the height of the children to 0 here before unhiding the SECTIONCOLLAPSED class","            categorychildren.setStyle('height', '0');","            categorynode.removeClass(CSS.SECTIONCOLLAPSED);","            categorychildren.fx.set('reverse', false);","            categorychildren.fx.run();","            categorychildren.fx.once('end', function() {","                this.setStyles({","                    height: '',","                    opacity: ''","                });","            }, categorychildren);","        } else {","            categorychildren.fx.set('reverse', true);","            categorychildren.fx.once('end', function(e, categorychildren) {","                this.addClass(CSS.SECTIONCOLLAPSED);","                categorychildren.setStyles({","                    height: '',","                    opacity: ''","                });","            }, categorynode, categorychildren);","            categorychildren.fx.run();","        }","    },","    handle_category_results: function(tid, response, ioargs) {","        var newnode,","            childnode,","            data;","        try {","            data = Y.JSON.parse(response.responseText);","            if (data.error) {","                return new M.core.ajaxException(data);","            }","        } catch (e) {","            return new M.core.exception(e);","        }","","        // Insert it into a set of new child nodes to categorynode.","        newnode = Y.Node.create(data);","        ioargs.categorynode","            .addClass(CSS.LOADED)","            .removeClass(CSS.NOTLOADED);","","        // FIXME - would be nice to not have this served by the renderer.","        newnode.one(SELECTORS.CATEGORYLABEL).remove();","        childnode = ioargs.categorynode.one(SELECTORS.CATEGORYCHILDREN);","            childnode.appendChild(newnode);","        this.apply_animation(ioargs.categorynode);","    },","    add_animator: function(childnode) {","        if (typeof childnode.fx !== \"undefined\") {","            return;","        }","","        childnode.plug(Y.Plugin.NodeFX, {","            from: {","                height: 0,","                opacity: 0","            },","            to: {","                height: function(node) { // dynamic in case of change","                    return node.get('scrollHeight'); // get expanded height (offsetHeight may be zero)","                },","                opacity: 1","            },","            //easing: Y.Easing.easeOut,","            easing: Y.Easing.backIn,","            duration: 0.3","        });","","        return childnode;","    }","};","","","}, '@VERSION@', {\"requires\": [\"node\", \"io-base\", \"json-parse\", \"moodle-core-notification\", \"anim\"]});"];
+_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].lines = {"1":0,"3":0,"23":0,"24":0,"26":0,"27":0,"30":0,"35":0,"36":0,"40":0,"42":0,"43":0,"46":0,"47":0,"48":0,"49":0,"50":0,"53":0,"70":0,"74":0,"75":0,"79":0,"81":0,"82":0,"83":0,"84":0,"85":0,"86":0,"92":0,"93":0,"94":0,"95":0,"100":0,"104":0,"107":0,"108":0,"109":0,"110":0,"113":0,"117":0,"118":0,"123":0,"124":0,"125":0,"126":0,"129":0,"130":0,"133":0,"140":0,"149":0};
+_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].functions = {"init:25":0,"toggle_expansion:29":0,"(anonymous 2):85":0,"(anonymous 3):93":0,"apply_animation:73":0,"handle_category_results:103":0,"height:139":0,"add_animator:128":0,"(anonymous 1):1":0};
+_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].coveredLines = 50;
+_yuitest_coverage["build/moodle-course-categoryexpander/moodle-course-categoryexpander.js"].coveredFunctions = 9;
 _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 1);
 YUI.add('moodle-course-categoryexpander', function (Y, NAME) {
 
@@ -136,72 +136,89 @@ this.add_animator(categorychildren);
         // animation whilst the node is hidden.
         _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 79);
 if (categorynode.hasClass(CSS.SECTIONCOLLAPSED)) {
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 80);
-categorynode.removeClass(CSS.SECTIONCOLLAPSED);
+            // To avoid a jump effect, we need to set the height of the children to 0 here before unhiding the SECTIONCOLLAPSED class
             _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 81);
-categorychildren.fx.set('reverse', false);
+categorychildren.setStyle('height', '0');
             _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 82);
-categorychildren.fx.run();
-        } else {
+categorynode.removeClass(CSS.SECTIONCOLLAPSED);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 83);
+categorychildren.fx.set('reverse', false);
             _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 84);
-categorychildren.fx.set('reverse', true);
+categorychildren.fx.run();
             _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 85);
 categorychildren.fx.once('end', function() {
                 _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "(anonymous 2)", 85);
 _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 86);
+this.setStyles({
+                    height: '',
+                    opacity: ''
+                });
+            }, categorychildren);
+        } else {
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 92);
+categorychildren.fx.set('reverse', true);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 93);
+categorychildren.fx.once('end', function(e, categorychildren) {
+                _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "(anonymous 3)", 93);
+_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 94);
 this.addClass(CSS.SECTIONCOLLAPSED);
-            }, categorynode);
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 88);
+                _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 95);
+categorychildren.setStyles({
+                    height: '',
+                    opacity: ''
+                });
+            }, categorynode, categorychildren);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 100);
 categorychildren.fx.run();
         }
     },
     handle_category_results: function(tid, response, ioargs) {
-        _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "handle_category_results", 91);
-_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 92);
+        _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "handle_category_results", 103);
+_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 104);
 var newnode,
             childnode,
             data;
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 95);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 107);
 try {
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 96);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 108);
 data = Y.JSON.parse(response.responseText);
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 97);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 109);
 if (data.error) {
-                _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 98);
+                _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 110);
 return new M.core.ajaxException(data);
             }
         } catch (e) {
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 101);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 113);
 return new M.core.exception(e);
         }
 
         // Insert it into a set of new child nodes to categorynode.
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 105);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 117);
 newnode = Y.Node.create(data);
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 106);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 118);
 ioargs.categorynode
             .addClass(CSS.LOADED)
             .removeClass(CSS.NOTLOADED);
 
         // FIXME - would be nice to not have this served by the renderer.
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 111);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 123);
 newnode.one(SELECTORS.CATEGORYLABEL).remove();
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 112);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 124);
 childnode = ioargs.categorynode.one(SELECTORS.CATEGORYCHILDREN);
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 113);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 125);
 childnode.appendChild(newnode);
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 114);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 126);
 this.apply_animation(ioargs.categorynode);
     },
     add_animator: function(childnode) {
-        _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "add_animator", 116);
-_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 117);
+        _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "add_animator", 128);
+_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 129);
 if (typeof childnode.fx !== "undefined") {
-            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 118);
+            _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 130);
 return;
         }
 
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 121);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 133);
 childnode.plug(Y.Plugin.NodeFX, {
             from: {
                 height: 0,
@@ -209,17 +226,18 @@ childnode.plug(Y.Plugin.NodeFX, {
             },
             to: {
                 height: function(node) { // dynamic in case of change
-                    _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "height", 127);
-_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 128);
+                    _yuitest_coverfunc("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", "height", 139);
+_yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 140);
 return node.get('scrollHeight'); // get expanded height (offsetHeight may be zero)
                 },
                 opacity: 1
             },
-            easing: Y.Easing.easeOut,
+            //easing: Y.Easing.easeOut,
+            easing: Y.Easing.backIn,
             duration: 0.3
         });
 
-        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 136);
+        _yuitest_coverline("build/moodle-course-categoryexpander/moodle-course-categoryexpander.js", 149);
 return childnode;
     }
 };
