@@ -115,6 +115,7 @@ M.course.categoryexpander = M.course.categoryexpander || {
         if (typeof childnode.fx !== "undefined") {
             return;
         }
+
         childnode.plug(Y.Plugin.NodeFX, {
             from: {
                 height: 0,
@@ -129,18 +130,6 @@ M.course.categoryexpander = M.course.categoryexpander || {
             easing: Y.Easing.easeOut,
             duration: 0.3
         });
-        /*
-        childnode.fx = new Y.Anim({
-            easing: 'easeIn',
-            node: childnode,
-            duration: 0.3,
-            from: {
-                height: 0
-            },
-            to: {
-                height: '100%'
-            }
-        });*/
 
         return childnode;
     }
