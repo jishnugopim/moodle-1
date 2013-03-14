@@ -29,6 +29,11 @@ M.course.categoryexpander = M.course.categoryexpander || {
             categoryid,
             depth;
 
+        // Return early if an anchor or image were clicked.
+        if (e.target.test('a') || e.target.test('img')) {
+            return;
+        }
+
         // Grab the ancestor.
         categorynode = e.target.ancestor(SELECTORS.PARENTWITHCHILDREN, true);
 
@@ -62,7 +67,6 @@ M.course.categoryexpander = M.course.categoryexpander || {
         } else {
             this.apply_animation(categorynode);
         }
-        e.preventDefault();
     },
     apply_animation: function(categorynode) {
         var categorychildren = categorynode.one(SELECTORS.CATEGORYCHILDREN);
