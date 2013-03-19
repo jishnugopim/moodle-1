@@ -1,0 +1,9 @@
+{
+  "moodle-mod_assign-38391bad": {
+    "requires": [
+        "should",
+        "not",
+        "appear"
+    ]
+  }
+}

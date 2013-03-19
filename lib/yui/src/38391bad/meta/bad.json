@@ -1,0 +1,9 @@
+{
+  "moodle-core-38391bad": {
+    "requires": [
+        "should",
+        "not",
+        "appear"
+    ]
+  }
+}

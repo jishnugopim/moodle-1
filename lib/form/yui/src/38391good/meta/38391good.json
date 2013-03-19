@@ -1,0 +1,8 @@
+{
+  "moodle-form-38391good": {
+    "requires": [
+        "should",
+        "appear"
+    ]
+  }
+}

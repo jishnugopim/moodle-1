@@ -1,0 +1,9 @@
+{
+  "moodle-question-38391bad": {
+    "requires": [
+        "should",
+        "not",
+        "appear"
+    ]
+  }
+}
