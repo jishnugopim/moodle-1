@@ -1062,7 +1062,7 @@ class core_course_renderer extends plugin_renderer_base {
         $content .= html_writer::start_tag('div', array(
             'class' => $classes,
             'data-courseid' => $course->id,
-            'data-type' => 1,
+            'data-type' => TYPECOURSE,
         ));
 
         $content .= html_writer::start_tag('div', array('class' => 'info'));
@@ -1434,8 +1434,7 @@ class core_course_renderer extends plugin_renderer_base {
             'data-categoryid' => $coursecat->id,
             'data-depth' => $depth,
             'data-showcourses' => $chelper->get_show_courses(),
-            // FIXME - this should be a constant
-            'data-type' => 0
+            'data-type' => TYPECATEGORY,
         ));
 
         // category name
