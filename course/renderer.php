@@ -1134,7 +1134,13 @@ class core_course_renderer extends plugin_renderer_base {
             $classes .= ' collapsed';
             $nametag = 'div';
         }
-        $content .= html_writer::start_tag('div', array('class' => $classes)); // .coursebox
+
+        // .coursebox
+        $content .= html_writer::start_tag('div', array(
+            'class' => $classes,
+            'data-courseid' => $course->id,
+            'data-type' => 1,
+        ));
 
         $content .= html_writer::start_tag('div', array('class' => 'info'));
 
@@ -1151,8 +1157,11 @@ class core_course_renderer extends plugin_renderer_base {
                 $url = new moodle_url('/course/info.php', array('id' => $course->id));
                 $image = html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/info'),
                     'alt' => $this->strings->summary));
-                $content .= $this->action_link($url, $image, new popup_action('click', $url, 'courseinfo'),
-                        array('title' => $this->strings->summary));
+                $content .= html_writer::link($url, $image, array(
+                    'title' => $this->strings->summary,
+                    'target' => '_blank',
+                    'data-courseid' => $course->id,
+                ));
             }
         }
         $content .= html_writer::end_tag('div'); // .moreinfo
@@ -1185,7 +1194,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @param stdClass|course_in_list $course
      * @return string
      */
-    protected function coursecat_coursebox_content(coursecat_helper $chelper, $course) {
+    public function coursecat_coursebox_content(coursecat_helper $chelper, $course) {
         global $CFG;
         if ($chelper->get_show_courses() < self::COURSECAT_SHOW_COURSES_EXPANDED) {
             return '';
@@ -1332,7 +1341,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @param int $depth depth of the category in the current tree
      * @return string
      */
-    protected function coursecat_subcategories(coursecat_helper $chelper, $coursecat, $depth) {
+    public function coursecat_subcategories(coursecat_helper $chelper, $coursecat, $depth) {
         global $CFG;
         $subcategories = array();
         if (!$chelper->get_categories_display_option('nodisplay')) {
@@ -1410,7 +1419,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @param int $depth depth of the category in the current tree
      * @return string
      */
-    protected function coursecat_category_content(coursecat_helper $chelper, $coursecat, $depth) {
+    public function coursecat_category_content(coursecat_helper $chelper, $coursecat, $depth) {
         $content = '';
         // Subcategories
         $content .= $this->coursecat_subcategories($chelper, $coursecat, $depth);
@@ -1490,6 +1499,8 @@ class core_course_renderer extends plugin_renderer_base {
             'data-categoryid' => $coursecat->id,
             'data-depth' => $depth,
             'data-showcourses' => $chelper->get_show_courses(),
+            // FIXME - this should be a constant
+            'data-type' => 0
         ));
 
         // category name
