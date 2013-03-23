@@ -8,14 +8,11 @@ require_once($CFG->libdir.'/coursecatlib.php');
 
 $type = required_param('type', PARAM_INT);
 
-define('TYPE_CATEGORY',  0);
-define('TYPE_COURSE',  1);
-
 if ($CFG->forcelogin) {
     require_login();
 }
 
-if ($type === TYPE_CATEGORY) {
+if ($type === TYPECATEGORY) {
     // This is a request for a category list of some kind.
     $categoryid = required_param('categoryid', PARAM_INT);
     $showcourses = required_param('showcourses', PARAM_INT);
@@ -35,7 +32,7 @@ if ($type === TYPE_CATEGORY) {
         // Show the combo list.
         $renderdata = $courserenderer->coursecat_category_content($coursecat_helper, $category, $depth);
     }
-} else if ($type === TYPE_COURSE) {
+} else if ($type === TYPECOURSE) {
     // This is a request for the course information.
     $courseid = required_param('courseid', PARAM_INT);
     $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
