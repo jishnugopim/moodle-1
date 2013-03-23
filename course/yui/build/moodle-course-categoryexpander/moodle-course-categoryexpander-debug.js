@@ -52,7 +52,7 @@ NS.init = function() {
  * Toggle the animation of the clicked category node.
  *
  * @method toggle_category_expansion
- * @protected
+ * @private
  * @param EventFacade e
  */
 NS.toggle_category_expansion = function(e) {
@@ -69,7 +69,7 @@ NS.toggle_category_expansion = function(e) {
  * Toggle the animation of the clicked coursebox node.
  *
  * @method toggle_coursebox_expansion
- * @protected
+ * @private
  * @param EventFacade e
  */
 NS.toggle_coursebox_expansion = function(e) {
@@ -93,7 +93,7 @@ NS._toggle_coursebox_expansion = function(e) {
 
     if (courseboxnode.hasClass(CSS.LOADED)) {
         // We've already loaded this content so we just need to toggle the view of it.
-        this._run__expansion(courseboxnode);
+        this.run_expansion(courseboxnode);
         return;
     }
 
@@ -128,7 +128,7 @@ NS._toggle_category_expansion = function(e) {
 
     if (categorynode.hasClass(CSS.LOADED)) {
         // We've already loaded this content so we just need to toggle the view of it.
-        this._run__expansion(categorynode);
+        this.run_expansion(categorynode);
         return;
     }
 
@@ -184,11 +184,11 @@ NS._toggle_generic_expansion = function(config) {
 /**
  * Apply the animation on the supplied node.
  *
- * @method _run__expansion
+ * @method run_expansion
  * @private
  * @param Node categorynode The node to apply the animation to
  */
-NS._run__expansion = function(categorynode) {
+NS.run_expansion = function(categorynode) {
     var categorychildren = categorynode.one(SELECTORS.CONTENTNODE);
 
     // Add our animation to the categorychildren.
@@ -228,7 +228,7 @@ NS._run__expansion = function(categorynode) {
  * This includes appending it to the relevant part of the DOM, and applying our animations.
  *
  * @method process_results
- * @protected
+ * @private
  * @param String tid The Transaction ID
  * @param Object response The Reponse returned by Y.IO
  * @param Object ioargs The additional arguments provided by Y.IO
@@ -257,7 +257,7 @@ NS.process_results = function(tid, response, args) {
         .removeClass(CSS.NOTLOADED);
 
     // Toggle the open/close status of the node now that it's content has been loaded.
-    this._run__expansion(args.parentnode);
+    this.run_expansion(args.parentnode);
 
     // Remove the spinner now that we've started to show the content.
     if (args.spinner) {
@@ -269,7 +269,7 @@ NS.process_results = function(tid, response, args) {
  * Add our animation to the Node.
  *
  * @method add_animation
- * @protected
+ * @private
  * @param Node childnode
  */
 NS.add_animation = function(childnode) {
