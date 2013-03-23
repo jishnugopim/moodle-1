@@ -16,14 +16,14 @@ YUI.add('moodle-course-categoryexpander', function (Y, NAME) {
  */
 
 var CSS = {
-        CATEGORYCONTENT: 'content',
+        CONTENTNODE: 'content',
         LOADED: 'loaded',
         NOTLOADED: 'notloaded',
         SECTIONCOLLAPSED: 'collapsed',
         HASCHILDREN: 'with_children'
     },
     SELECTORS = {
-        CATEGORYCONTENT: '.content',
+        CONTENTNODE: '.content',
         CATEGORYLISTENLINK: '.category .info .name',
         CATEGORYSPINNERLOCATION: '.name',
         COURSEBOX: '.coursebox',
@@ -81,17 +81,15 @@ NS.toggle_coursebox_expansion = function(e) {
         NS.toggle_coursebox_expansion(e);
     });
 
-    // We can't gracefully fall back because the insertion of scripts happens too late.
     e.preventDefault();
 };
 
 NS._toggle_coursebox_expansion = function(e) {
-    var courseboxnode,
-        courseid,
-        spinner;
+    var courseboxnode;
 
     // Grab the parent category container - this is where the new content will be added.
     courseboxnode = e.target.ancestor(SELECTORS.COURSEBOX, true);
+    e.preventDefault();
 
     if (courseboxnode.hasClass(CSS.LOADED)) {
         // We've already loaded this content so we just need to toggle the view of it.
@@ -99,38 +97,21 @@ NS._toggle_coursebox_expansion = function(e) {
         return;
     }
 
-    // We use Data attributes to store the course ID.
-    courseid = courseboxnode.getData('courseid');
-
-    // We have a valid object to fetch. Add a spinner to give some feedback to the user.
-    spinner = M.util.add_spinner(Y, courseboxnode.one(SELECTORS.COURSEBOXSPINNERLOCATION)).show();
-
-    // Fetch the data.
-    Y.io(URL, {
-        method: 'POST',
-        context: this,
-        on: {
-            complete: this.process_results
-        },
+    this._toggle_generic_expansion({
+        parentnode: courseboxnode,
+        childnode: courseboxnode.one(SELECTORS.CONTENTNODE),
+        spinnerhandle: SELECTORS.COURSEBOXSPINNERLOCATION,
         data: {
-            courseid: courseid,
+            courseid: courseboxnode.getData('courseid'),
             type: TYPE_COURSE
-        },
-        "arguments": {
-            parentnode: courseboxnode,
-            childnode: courseboxnode.one(SELECTORS.CATEGORYCONTENT),
-            courseboxnode: courseboxnode,
-            spinner: spinner
         }
     });
-    e.preventDefault();
 };
 
 NS._toggle_category_expansion = function(e) {
     var categorynode,
         categoryid,
-        depth,
-        spinner;
+        depth;
 
     if (e.target.test('a') || e.target.test('img')) {
         // Return early if either an anchor or an image were clicked.
@@ -158,8 +139,31 @@ NS._toggle_category_expansion = function(e) {
         return;
     }
 
-    // We have a valid object to fetch. Add a spinner to give some feedback to the user.
-    spinner = M.util.add_spinner(Y, categorynode.one(SELECTORS.CATEGORYSPINNERLOCATION)).show();
+    this._toggle_generic_expansion({
+        parentnode: categorynode,
+        childnode: categorynode.one(SELECTORS.CONTENTNODE),
+        spinnerhandle: SELECTORS.CATEGORYSPINNERLOCATION,
+        data: {
+            categoryid: categoryid,
+            depth: depth,
+            showcourses: categorynode.getData('showcourses'),
+            type: TYPE_CATEGORY
+        }
+    });
+};
+
+/**
+ * Wrapper function to handle toggling of generic types.
+ *
+ * @method _toggle_generic_expansion
+ * @private
+ * @param Object config
+ */
+NS._toggle_generic_expansion = function(config) {
+    if (config.spinnerhandle) {
+      // Add a spinner to give some feedback to the user.
+      spinner = M.util.add_spinner(Y, config.parentnode.one(config.spinnerhandle)).show();
+    }
 
     // Fetch the data.
     Y.io(URL, {
@@ -168,15 +172,10 @@ NS._toggle_category_expansion = function(e) {
         on: {
             complete: this.process_results
         },
-        data: {
-            categoryid: categoryid,
-            depth: depth,
-            showcourses: categorynode.getData('showcourses'),
-            type: TYPE_CATEGORY
-        },
+        data: config.data,
         "arguments": {
-            parentnode: categorynode,
-            childnode: categorynode.one(SELECTORS.CATEGORYCONTENT),
+            parentnode: config.parentnode,
+            childnode: config.childnode,
             spinner: spinner
         }
     });
@@ -190,7 +189,7 @@ NS._toggle_category_expansion = function(e) {
  * @param Node categorynode The node to apply the animation to
  */
 NS._run__expansion = function(categorynode) {
-    var categorychildren = categorynode.one(SELECTORS.CATEGORYCONTENT);
+    var categorychildren = categorynode.one(SELECTORS.CONTENTNODE);
 
     // Add our animation to the categorychildren.
     this.add_animation(categorychildren);
