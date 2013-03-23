@@ -1,11 +1,7 @@
 {
   "moodle-course-categoryexpander": {
     "requires": [
-        "node",
-        "io-base",
-        "json-parse",
-        "moodle-core-notification",
-        "anim"
+        "node"
     ]
   }
 }

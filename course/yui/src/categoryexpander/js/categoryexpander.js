@@ -48,6 +48,16 @@ NS.init = function() {
  * @param EventFacade e
  */
 NS.toggle_expansion = function(e) {
+    // Load the actual dependencies now that we've been called.
+    Y.use('io-base', 'json-parse', 'moodle-core-notification', 'anim', function() {
+        // Overload the toggle_expansion with the _run__expansion function to ensure that
+        // this function isn't called in the future, and call it for the first time.
+        NS.toggle_expansion = NS._toggle_expansion;
+        NS.toggle_expansion(e);
+    });
+};
+
+NS._toggle_expansion = function(e) {
     var categorynode,
         categoryid,
         depth,
