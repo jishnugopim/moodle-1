@@ -1546,16 +1546,6 @@ class core_course_renderer extends plugin_renderer_base {
 
         $content .= html_writer::tag('div', $categorycontent, array('class' => 'content'));
 
-        if ($coursecat->get_children_count() && $chelper->get_subcat_depth() != 1) {
-            // We don't need to display "Expand all"/"Collapse all" buttons if there are no
-            // subcategories or there is only one level of subcategories loaded
-            // TODO if subcategories are loaded by AJAX this might still be needed!
-            $content .= html_writer::start_tag('div', array('class' => 'controls'));
-            $content .= html_writer::tag('div', get_string('collapseall'), array('class' => 'addtoall expandall'));
-            $content .= html_writer::tag('div', get_string('expandall'), array('class' => 'removefromall collapseall'));
-            $content .= html_writer::end_tag('div');
-        }
-
         $content .= html_writer::end_tag('div'); // .course_category_tree
 
         return $content;
