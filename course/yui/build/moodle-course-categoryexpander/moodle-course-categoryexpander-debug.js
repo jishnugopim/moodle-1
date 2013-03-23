@@ -23,12 +23,17 @@ var CSS = {
         HASCHILDREN: 'with_children'
     },
     SELECTORS = {
-        CATEGORYCONTENT: 'div.content',
-        CATEGORYTREE: 'div.course_category_tree',
-        LISTENLINK: 'div.info .name',
-        PARENTWITHCHILDREN: 'div.category'
+        CATEGORYCONTENT: '.content',
+        CATEGORYLISTENLINK: '.category .info .name',
+        CATEGORYSPINNERLOCATION: '.name',
+        COURSEBOX: '.coursebox',
+        COURSEBOXLISTENLINK: '.coursebox .moreinfo',
+        COURSEBOXSPINNERLOCATION: '.name a',
+        PARENTWITHCHILDREN: '.category'
     },
     NS = Y.namespace('Moodle.course.categoryexpander'),
+    TYPE_CATEGORY = 0,
+    TYPE_COURSE = 1,
     URL = M.cfg.wwwroot + '/course/category.ajax.php';
 
 /**
@@ -39,19 +44,92 @@ var CSS = {
  * @method init
  */
 NS.init = function() {
-    Y.one(Y.config.doc).delegate('click', this.toggle_expansion, SELECTORS.LISTENLINK, this);
+    Y.one(Y.config.doc).delegate('click', this.toggle_category_expansion, SELECTORS.CATEGORYLISTENLINK, this);
+    Y.one(Y.config.doc).delegate('click', this.toggle_coursebox_expansion, SELECTORS.COURSEBOXLISTENLINK, this);
 };
 
 /**
- * Toggle the animation of the clicked node.
+ * Toggle the animation of the clicked category node.
  *
- * @method toggle_expansion
+ * @method toggle_category_expansion
  * @protected
  * @param EventFacade e
  */
-NS.toggle_expansion = function(e) {
+NS.toggle_category_expansion = function(e) {
+    // Load the actual dependencies now that we've been called.
+    Y.use('io-base', 'json-parse', 'moodle-core-notification', 'anim', function() {
+        // Overload the toggle_category_expansion with the _toggle_category_expansion function to ensure that
+        // this function isn't called in the future, and call it for the first time.
+        NS.toggle_category_expansion = NS._toggle_category_expansion;
+        NS.toggle_category_expansion(e);
+    });
+};
+
+/**
+ * Toggle the animation of the clicked coursebox node.
+ *
+ * @method toggle_coursebox_expansion
+ * @protected
+ * @param EventFacade e
+ */
+NS.toggle_coursebox_expansion = function(e) {
+    // Load the actual dependencies now that we've been called.
+    Y.use('io-base', 'json-parse', 'moodle-core-notification', 'anim', function() {
+        // Overload the toggle_coursebox_expansion with the _toggle_coursebox_expansion function to ensure that
+        // this function isn't called in the future, and call it for the first time.
+        NS.toggle_coursebox_expansion = NS._toggle_coursebox_expansion;
+        NS.toggle_coursebox_expansion(e);
+    });
+
+    // We can't gracefully fall back because the insertion of scripts happens too late.
+    e.preventDefault();
+};
+
+NS._toggle_coursebox_expansion = function(e) {
+    var courseboxnode,
+        courseid,
+        spinner;
+
+    // Grab the parent category container - this is where the new content will be added.
+    courseboxnode = e.target.ancestor(SELECTORS.COURSEBOX, true);
+
+    if (courseboxnode.hasClass(CSS.LOADED)) {
+        // We've already loaded this content so we just need to toggle the view of it.
+        this._run__expansion(courseboxnode);
+        return;
+    }
+
+    // We use Data attributes to store the course ID.
+    courseid = courseboxnode.getData('courseid');
+
+    // We have a valid object to fetch. Add a spinner to give some feedback to the user.
+    spinner = M.util.add_spinner(Y, courseboxnode.one(SELECTORS.COURSEBOXSPINNERLOCATION)).show();
+
+    // Fetch the data.
+    Y.io(URL, {
+        method: 'POST',
+        context: this,
+        on: {
+            complete: this.process_results
+        },
+        data: {
+            courseid: courseid,
+            type: TYPE_COURSE
+        },
+        "arguments": {
+            parentnode: courseboxnode,
+            childnode: courseboxnode.one(SELECTORS.CATEGORYCONTENT),
+            courseboxnode: courseboxnode,
+            spinner: spinner
+        }
+    });
+    e.preventDefault();
+};
+
+NS._toggle_category_expansion = function(e) {
     var categorynode,
         categoryid,
+        depth,
         spinner;
 
     if (e.target.test('a') || e.target.test('img')) {
@@ -69,32 +147,36 @@ NS.toggle_expansion = function(e) {
 
     if (categorynode.hasClass(CSS.LOADED)) {
         // We've already loaded this content so we just need to toggle the view of it.
-        this._toggle_expansion(categorynode);
+        this._run__expansion(categorynode);
         return;
     }
 
     // We use Data attributes to store the category.
     categoryid = categorynode.getData('categoryid');
-    if (typeof categoryid === "undefined") {
+    depth = categorynode.getData('depth');
+    if (typeof categoryid === "undefined" || typeof depth === "undefined") {
         return;
     }
 
     // We have a valid object to fetch. Add a spinner to give some feedback to the user.
-    spinner = M.util.add_spinner(Y, categorynode.one(SELECTORS.LISTENLINK)).show();
+    spinner = M.util.add_spinner(Y, categorynode.one(SELECTORS.CATEGORYSPINNERLOCATION)).show();
 
     // Fetch the data.
     Y.io(URL, {
         method: 'POST',
         context: this,
         on: {
-            complete: this.process_category_results
+            complete: this.process_results
         },
         data: {
             categoryid: categoryid,
-            showcourses: categorynode.getData('showcourses')
+            depth: depth,
+            showcourses: categorynode.getData('showcourses'),
+            type: TYPE_CATEGORY
         },
         "arguments": {
-            categorynode: categorynode,
+            parentnode: categorynode,
+            childnode: categorynode.one(SELECTORS.CATEGORYCONTENT),
             spinner: spinner
         }
     });
@@ -103,11 +185,11 @@ NS.toggle_expansion = function(e) {
 /**
  * Apply the animation on the supplied node.
  *
- * @method _toggle_expansion
+ * @method _run__expansion
  * @private
  * @param Node categorynode The node to apply the animation to
  */
-NS._toggle_expansion = function(categorynode) {
+NS._run__expansion = function(categorynode) {
     var categorychildren = categorynode.one(SELECTORS.CATEGORYCONTENT);
 
     // Add our animation to the categorychildren.
@@ -146,15 +228,14 @@ NS._toggle_expansion = function(categorynode) {
  * Process the data returned by Y.io.
  * This includes appending it to the relevant part of the DOM, and applying our animations.
  *
- * @method process_category_results
+ * @method process_results
  * @protected
  * @param String tid The Transaction ID
  * @param Object response The Reponse returned by Y.IO
  * @param Object ioargs The additional arguments provided by Y.IO
  */
-NS.process_category_results = function(tid, response, args) {
+NS.process_results = function(tid, response, args) {
     var newnode,
-        childnode,
         data;
     try {
         data = Y.JSON.parse(response.responseText);
@@ -165,25 +246,24 @@ NS.process_category_results = function(tid, response, args) {
         return new M.core.exception(e);
     }
 
-    // Insert it into a set of new child nodes to categorynode.
-    // We only want the tree part of this.
-    newnode = Y.Node.create(data)
-        .one(SELECTORS.CATEGORYTREE);
+    // Insert the returned data into a new Node.
+    newnode = Y.Node.create(data);
+
+    // Append to the existing child location.
+    args.childnode.appendChild(newnode);
 
     // Now that we have content, we can swap the classes on the toggled container.
-    args.categorynode
+    args.parentnode
         .addClass(CSS.LOADED)
         .removeClass(CSS.NOTLOADED);
 
-    // Append to the existing child location.
-    childnode = args.categorynode.one(SELECTORS.CATEGORYCONTENT);
-    childnode.appendChild(newnode);
-
     // Toggle the open/close status of the node now that it's content has been loaded.
-    this._toggle_expansion(args.categorynode);
+    this._run__expansion(args.parentnode);
 
     // Remove the spinner now that we've started to show the content.
-    args.spinner.hide().destroy();
+    if (args.spinner) {
+        args.spinner.hide().destroy();
+    }
 };
 
 /**
@@ -212,11 +292,11 @@ NS.add_animation = function(childnode) {
             },
             opacity: 1
         },
-        duration: 0.3
+        duration: 0.2
     });
 
     return childnode;
 };
 
 
-}, '@VERSION@', {"requires": ["node", "io-base", "json-parse", "moodle-core-notification", "anim"]});
+}, '@VERSION@', {"requires": ["node"]});
