@@ -51,7 +51,7 @@ NS.init = function() {
  *
  * @method toggle_category_expansion
  * @private
- * @param EventFacade e
+ * @param {EventFacade} e
  */
 NS.toggle_category_expansion = function(e) {
     // Load the actual dependencies now that we've been called.
@@ -68,7 +68,7 @@ NS.toggle_category_expansion = function(e) {
  *
  * @method toggle_coursebox_expansion
  * @private
- * @param EventFacade e
+ * @param {EventFacade} e
  */
 NS.toggle_coursebox_expansion = function(e) {
     // Load the actual dependencies now that we've been called.
@@ -155,7 +155,7 @@ NS._toggle_category_expansion = function(e) {
  *
  * @method _toggle_generic_expansion
  * @private
- * @param Object config
+ * @param {Object} config
  */
 NS._toggle_generic_expansion = function(config) {
     if (config.spinnerhandle) {
@@ -184,7 +184,7 @@ NS._toggle_generic_expansion = function(config) {
  *
  * @method run_expansion
  * @private
- * @param Node categorynode The node to apply the animation to
+ * @param {Node} categorynode The node to apply the animation to
  */
 NS.run_expansion = function(categorynode) {
     var categorychildren = categorynode.one(SELECTORS.CONTENTNODE);
@@ -227,9 +227,9 @@ NS.run_expansion = function(categorynode) {
  *
  * @method process_results
  * @private
- * @param String tid The Transaction ID
- * @param Object response The Reponse returned by Y.IO
- * @param Object ioargs The additional arguments provided by Y.IO
+ * @param {String} tid The Transaction ID
+ * @param {Object} response The Reponse returned by Y.IO
+ * @param {Object} ioargs The additional arguments provided by Y.IO
  */
 NS.process_results = function(tid, response, args) {
     var newnode,
@@ -268,7 +268,7 @@ NS.process_results = function(tid, response, args) {
  *
  * @method add_animation
  * @private
- * @param Node childnode
+ * @param {Node} childnode
  */
 NS.add_animation = function(childnode) {
     if (typeof childnode.fx !== "undefined") {
