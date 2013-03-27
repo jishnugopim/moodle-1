@@ -1,0 +1,9 @@
+{
+  "moodle-form-shortforms": {
+    "requires": [
+        "base",
+        "node",
+        "selector-css3"
+    ]
+  }
+}
