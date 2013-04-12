@@ -21,6 +21,7 @@ var CSS = {
         HASCHILDREN: 'with_children'
     },
     SELECTORS = {
+        LOADEDTREES: '.with_children.loaded',
         CONTENTNODE: '.content',
         CATEGORYLISTENLINK: '.category .info .name',
         CATEGORYSPINNERLOCATION: '.name',
@@ -44,6 +45,8 @@ var CSS = {
 NS.init = function() {
     Y.one(Y.config.doc).delegate('click', this.toggle_category_expansion, SELECTORS.CATEGORYLISTENLINK, this);
     Y.one(Y.config.doc).delegate('click', this.toggle_coursebox_expansion, SELECTORS.COURSEBOXLISTENLINK, this);
+    Y.one(Y.config.doc).delegate('click', this.expand_all, '.expandall', this);
+    Y.one(Y.config.doc).delegate('click', this.collapse_all, '.collapseall', this);
 };
 
 /**
@@ -219,6 +222,37 @@ NS.run_expansion = function(categorynode) {
 
     // Now that everything has been set up, run the animation.
     categorychildren.fx.run();
+};
+
+NS.expand_all = function() {
+    var expansionlist;
+    // We need to expand their chidlren before we expand them to make
+    // things easier for adding the animations.
+    expansionlist = Y.all('.category.with_children.loaded.collapsed');
+    expansionlist.each(function(c) {
+        if (c.ancestor('.category.with_children.loaded.collapsed')) {
+            // We can just open this one - it's hidden from view
+            c.removeClass('collapsed');
+            c.all('.category.with_children.loaded').removeClass('collapsed');
+        } else {
+            this.run_expansion(c);
+        }
+    }, this);
+
+};
+
+NS.collapse_all = function() {
+    var expansionlist = Y.all('.category.with_children.loaded:not(.collapsed)');
+    expansionlist.each(function(c) {
+        if (c.ancestor('.category.with_children.loaded.collapsed:not(.collapsed)')) {
+            // We can just open this one - it's hidden from view
+            c.addClass('collapsed');
+            c.all('.category.with_children.loaded').removeClass('collapsed');
+        } else {
+            this.run_expansion(c);
+        }
+    }, this);
+
 };
 
 /**
