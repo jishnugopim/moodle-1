@@ -27,9 +27,14 @@ var CSS = {
         CONTENTNODE: '.content',
         CATEGORYLISTENLINK: '.category .info .name',
         CATEGORYSPINNERLOCATION: '.name',
+        CATEGORYWITHCOLLAPSEDLOADEDCHILDREN: '.category.with_children.loaded.collapsed',
+        CATEGORYWITHMAXIMISEDLOADEDCHILDREN: '.category.with_children.loaded:not(.collapsed)',
+        COLLAPSEALL: '.collapseall',
         COURSEBOX: '.coursebox',
         COURSEBOXLISTENLINK: '.coursebox .moreinfo',
         COURSEBOXSPINNERLOCATION: '.name a',
+        COURSECATEGORYTREE: '.course_category_tree',
+        EXPANDALL: '.expandall',
         PARENTWITHCHILDREN: '.category'
     },
     NS = Y.namespace('Moodle.course.categoryexpander'),
@@ -47,8 +52,8 @@ var CSS = {
 NS.init = function() {
     Y.one(Y.config.doc).delegate('click', this.toggle_category_expansion, SELECTORS.CATEGORYLISTENLINK, this);
     Y.one(Y.config.doc).delegate('click', this.toggle_coursebox_expansion, SELECTORS.COURSEBOXLISTENLINK, this);
-    Y.one(Y.config.doc).delegate('click', this.expand_all, '.expandall', this);
-    Y.one(Y.config.doc).delegate('click', this.collapse_all, '.collapseall', this);
+    Y.one(Y.config.doc).delegate('click', this.expand_all, SELECTORS.EXPANDALL, this);
+    Y.one(Y.config.doc).delegate('click', this.collapse_all, SELECTORS.COLLAPSEALL, this);
 };
 
 /**
@@ -226,16 +231,16 @@ NS.run_expansion = function(categorynode) {
     categorychildren.fx.run();
 };
 
-NS.expand_all = function() {
-    var expansionlist;
+NS.expand_all = function(e) {
     // We need to expand their chidlren before we expand them to make
     // things easier for adding the animations.
-    expansionlist = Y.all('.category.with_children.loaded.collapsed');
-    expansionlist.each(function(c) {
-        if (c.ancestor('.category.with_children.loaded.collapsed')) {
+    e.currentTarget.ancestor(SELECTORS.COURSECATEGORYTREE)
+        .all(SELECTORS.CATEGORYWITHCOLLAPSEDLOADEDCHILDREN)
+        .each(function(c) {
+        if (c.ancestor(SELECTORS.CATEGORYWITHCOLLAPSEDLOADEDCHILDREN)) {
             // We can just open this one - it's hidden from view
-            c.removeClass('collapsed');
-            c.all('.category.with_children.loaded').removeClass('collapsed');
+            c.removeClass(CSS.SECTIONCOLLAPSED);
+            c.all(SELECTORS.LOADEDTREES).removeClass(CSS.SECTIONCOLLAPSED);
         } else {
             this.run_expansion(c);
         }
@@ -243,13 +248,14 @@ NS.expand_all = function() {
 
 };
 
-NS.collapse_all = function() {
-    var expansionlist = Y.all('.category.with_children.loaded:not(.collapsed)');
-    expansionlist.each(function(c) {
-        if (c.ancestor('.category.with_children.loaded.collapsed:not(.collapsed)')) {
+NS.collapse_all = function(e) {
+    e.currentTarget.ancestor(SELECTORS.COURSECATEGORYTREE)
+        .all(SELECTORS.CATEGORYWITHMAXIMISEDLOADEDCHILDREN)
+        .each(function(c) {
+        if (c.ancestor(SELECTORS.CATEGORYWITHMAXIMISEDLOADEDCHILDREN)) {
             // We can just open this one - it's hidden from view
-            c.addClass('collapsed');
-            c.all('.category.with_children.loaded').removeClass('collapsed');
+            c.addClass(CSS.SECTIONCOLLAPSED);
+            c.all(SELECTORS.LOADEDTREES).addClass(CSS.SECTIONCOLLAPSED);
         } else {
             this.run_expansion(c);
         }
