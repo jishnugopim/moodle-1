@@ -55,9 +55,6 @@ define('FIRSTUSEDEXCELROW', 3);
 define('MOD_CLASS_ACTIVITY', 0);
 define('MOD_CLASS_RESOURCE', 1);
 
-define('TYPECATEGORY',  0);
-define('TYPECOURSE',  1);
-
 function make_log_url($module, $url) {
     switch ($module) {
         case 'course':
