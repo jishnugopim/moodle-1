@@ -822,6 +822,8 @@ abstract class restore_dbops {
      */
     public static function send_files_to_pool($basepath, $restoreid, $component, $filearea, $oldcontextid, $dfltuserid, $itemname = null, $olditemid = null, $forcenewcontextid = null, $skipparentitemidctxmatch = false) {
         global $DB, $CFG;
+        $rc = restore_controller_dbops::load_controller($restoreid);
+        $includesfiles = $rc->get_info()->include_files;
 
         $results = array();
 
@@ -904,24 +906,44 @@ abstract class restore_dbops {
                 // this is a regular file, it must be present in the backup pool
                 $backuppath = $basepath . backup_file_manager::get_backup_content_file_location($file->contenthash);
 
-                // The file is not found in the backup.
-                if (!file_exists($backuppath)) {
-                    $result = new stdClass();
-                    $result->code = 'file_missing_in_backup';
-                    $result->message = sprintf('missing file %s%s in backup', $file->filepath, $file->filename);
-                    $result->level = backup::LOG_WARNING;
-                    $results[] = $result;
-                    continue;
-                }
-
-                // create the file in the filepool if it does not exist yet
-                if (!$fs->file_exists($newcontextid, $component, $filearea, $rec->newitemid, $file->filepath, $file->filename)) {
-
-                    // If no license found, use default.
-                    if ($file->license == null){
-                        $file->license = $CFG->sitedefaultlicense;
+                // Some file types do not include the files as they should already be
+                // present. We still need to create entries into the files table.
+                if ($includesfiles) {
+                    // The file is not found in the backup.
+                    if (!file_exists($backuppath)) {
+                        $result = new stdClass();
+                        $result->code = 'file_missing_in_backup';
+                        $result->message = sprintf('missing file %s%s in backup', $file->filepath, $file->filename);
+                        $result->level = backup::LOG_WARNING;
+                        $results[] = $result;
+                        continue;
                     }
 
+                    // create the file in the filepool if it does not exist yet
+                    if (!$fs->file_exists($newcontextid, $component, $filearea, $rec->newitemid, $file->filepath, $file->filename)) {
+
+                        // If no license found, use default.
+                        if ($file->license == null){
+                            $file->license = $CFG->sitedefaultlicense;
+                        }
+
+                        $file_record = array(
+                            'contextid'   => $newcontextid,
+                            'component'   => $component,
+                            'filearea'    => $filearea,
+                            'itemid'      => $rec->newitemid,
+                            'filepath'    => $file->filepath,
+                            'filename'    => $file->filename,
+                            'timecreated' => $file->timecreated,
+                            'timemodified'=> $file->timemodified,
+                            'userid'      => $mappeduserid,
+                            'author'      => $file->author,
+                            'license'     => $file->license,
+                            'sortorder'   => $file->sortorder
+                        );
+                        $fs->create_file_from_pathname($file_record, $backuppath);
+                    }
+                } else {
                     $file_record = array(
                         'contextid'   => $newcontextid,
                         'component'   => $component,
@@ -936,7 +958,7 @@ abstract class restore_dbops {
                         'license'     => $file->license,
                         'sortorder'   => $file->sortorder
                     );
-                    $fs->create_file_from_pathname($file_record, $backuppath);
+                    $fs->create_file_from_storedfile($file_record, $file->id);
                 }
 
                 // store the the new contextid and the new itemid in case we need to remap
