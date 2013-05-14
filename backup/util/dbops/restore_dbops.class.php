@@ -944,21 +944,35 @@ abstract class restore_dbops {
                         $fs->create_file_from_pathname($file_record, $backuppath);
                     }
                 } else {
-                    $file_record = array(
-                        'contextid'   => $newcontextid,
-                        'component'   => $component,
-                        'filearea'    => $filearea,
-                        'itemid'      => $rec->newitemid,
-                        'filepath'    => $file->filepath,
-                        'filename'    => $file->filename,
-                        'timecreated' => $file->timecreated,
-                        'timemodified'=> $file->timemodified,
-                        'userid'      => $mappeduserid,
-                        'author'      => $file->author,
-                        'license'     => $file->license,
-                        'sortorder'   => $file->sortorder
-                    );
-                    $fs->create_file_from_storedfile($file_record, $file->id);
+                    // Files should still exist in the file table until they are removed from
+                    // the trash directory.
+                    if ($foundfiles = $DB->get_records('files', array('contenthash' => $file->contenthash))) {
+                        $file_record = array(
+                            'contextid'   => $newcontextid,
+                            'component'   => $component,
+                            'filearea'    => $filearea,
+                            'itemid'      => $rec->newitemid,
+                            'filepath'    => $file->filepath,
+                            'filename'    => $file->filename,
+                            'timecreated' => $file->timecreated,
+                            'timemodified'=> $file->timemodified,
+                            'userid'      => $mappeduserid,
+                            'author'      => $file->author,
+                            'license'     => $file->license,
+                            'sortorder'   => $file->sortorder
+                        );
+                        // Only grab one of the foundfiles - the file content should be the same for all entries.
+                        $foundfile = reset($foundfiles);
+                        $fs->create_file_from_storedfile($file_record, $foundfile->id);
+                    } else {
+                        // A matching existing file record was not found in the database.
+                        $result = new stdClass();
+                        $result->code = 'file_missing_in_backup';
+                        $result->message = sprintf('missing file %s%s in backup', $file->filepath, $file->filename);
+                        $result->level = backup::LOG_WARNING;
+                        $results[] = $result;
+                        continue;
+                    }
                 }
 
                 // store the the new contextid and the new itemid in case we need to remap
