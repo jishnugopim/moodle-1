@@ -392,6 +392,11 @@ class backup_controller extends backup implements loggable {
             $includefiles = false;
         }
 
+        // In an import, we don't need to include files.
+        if ($this->get_mode() === backup::MODE_SAMESITE) {
+            $includefiles = false;
+        }
+
         $this->includefiles = (int) $includefiles;
         $this->log("setting file inclusion to {$this->includefiles}", backup::LOG_DEBUG);
         return $this->includefiles;
