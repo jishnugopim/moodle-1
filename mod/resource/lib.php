@@ -261,18 +261,20 @@ function resource_get_coursemodule_info($coursemodule) {
     }
 
     $display = resource_get_final_display_type($resource);
+    $fullurl = new moodle_url('/mod/resource/view.php', array(
+        'id' => $coursemodule->id,
+        'redirect' => 1,
+    ));
 
     if ($display == RESOURCELIB_DISPLAY_POPUP) {
-        $fullurl = "$CFG->wwwroot/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
         $options = empty($resource->displayoptions) ? array() : unserialize($resource->displayoptions);
         $width  = empty($options['popupwidth'])  ? 620 : $options['popupwidth'];
         $height = empty($options['popupheight']) ? 450 : $options['popupheight'];
         $wh = "width=$width,height=$height,toolbar=no,location=no,menubar=no,copyhistory=no,status=no,directories=no,scrollbars=yes,resizable=yes";
-        $info->onclick = "window.open('$fullurl', '', '$wh'); return false;";
+        $info->onclick = "window.open('" . $fullurl->out(false) . "', '', '$wh'); return false;";
 
     } else if ($display == RESOURCELIB_DISPLAY_NEW) {
-        $fullurl = "$CFG->wwwroot/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
-        $info->onclick = "window.open('$fullurl'); return false;";
+        $info->onclick = "window.open('" . $fullurl->out(false) . "'); return false;";
 
     }
 
