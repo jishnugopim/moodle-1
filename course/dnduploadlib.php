@@ -76,7 +76,8 @@ function dndupload_add_to_course($course, $modnames) {
               'showstatus' => $showstatus)
     );
 
-    $PAGE->requires->js_init_call('M.course_dndupload.init', $vars, true, $jsmodule);
+    //$PAGE->requires->js_init_call('M.course_dndupload.init', $vars, true, $jsmodule);
+    $PAGE->requires->yui_module('moodle-course-dndupload', 'Y.Moodle.course.dndupload.init', $vars);
 }
 
 
