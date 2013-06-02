@@ -1,0 +1,10 @@
+{
+  "name": "moodle-course-dndupload",
+  "builds": {
+    "moodle-course-dndupload": {
+      "jsfiles": [
+        "dndupload.js"
+      ]
+    }
+  }
+}

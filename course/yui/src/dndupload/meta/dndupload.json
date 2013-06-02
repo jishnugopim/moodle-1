@@ -1,0 +1,13 @@
+{
+  "moodle-course-dndupload": {
+    "requires": [
+        "node",
+        "event",
+        "json",
+        "anim",
+        "dd",
+        "moodle-core-notification",
+        "selector-css3"
+    ]
+  }
+}
