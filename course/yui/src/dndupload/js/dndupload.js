@@ -124,6 +124,7 @@ Y.Moodle.course.dndupload = {
 
         // Ensure that all sections have the relevant mod selectors - this
         // makes the following code to add the previews easier.
+        // TODO
         //this.setup_section_mod_elements();
 
         Y.all(SELECTORS.sections_mods).each(function(node) {
@@ -135,12 +136,13 @@ Y.Moodle.course.dndupload = {
 
     // TODO Fixme
     setup_section_mod_elements: function() {
-        var selectors = Y.all(SELECTORS.sections);
-        var template = Y.Node.create('<ul class="section img-text"></ul>');
+        var selectors = Y.all(SELECTORS.sections),
+            template = Y.Node.create('<ul class="section img-text"></ul>');
 
         // Actually add the selectors now.
         selectors.each(function() {
             if (this.one(SELECTORS.section_mod)) {
+                // This section already has a section mod - no need to add another.
                 return;
             }
             this.appendChild(template.cloneNode(true));
@@ -157,7 +159,7 @@ Y.Moodle.course.dndupload = {
      */
     types_includes: function(e, type) {
         var paramkey;
-        for(paramkey in e._event.dataTransfer.types) {
+        for (paramkey in e._event.dataTransfer.types) {
             if (!e._event.dataTransfer.types.hasOwnProperty(paramkey)) {
                 continue;
             }
@@ -184,13 +186,14 @@ Y.Moodle.course.dndupload = {
         if (this.types_includes(e, 'Files')) {
             if (e.type !== 'drop' || e._event.dataTransfer.files.length !== 0) {
                 if (this.handlers.filehandlers.length === 0) {
-                    return false; // No available file handlers - ignore this drag.
+                    // No available file handlers - ignore this drag.
+                    return false;
                 }
 
                 return {
                     realtype: 'Files',
                     addmessage: 'addfilehere',
-                    namemessage: null, // Should not be asked for anyway
+                    namemessage: null,
                     type: 'Files'
                 };
             }
@@ -231,6 +234,7 @@ Y.Moodle.course.dndupload = {
     /**
      * Check the content of the drag/drop includes a type we can handle.
      *
+     * @method check_drag
      * @param {EventFacade} e
      * @return {String|null} The type of the event, or null if no event found.
      */
@@ -416,6 +420,7 @@ Y.Moodle.course.dndupload = {
      * Find the registered handler for the given file type. If there is more than one, ask the
      * user which one to use. Then upload the file to the server
      *
+     * TODO Rewrite
      * @method handle_file
      * @param {Object} file the details of the file, taken from the FileList in the drop event
      * @param {Node} section the DOM element representing the selected course section
@@ -423,6 +428,8 @@ Y.Moodle.course.dndupload = {
      */
     handle_file: function(file, section, sectionnumber) {
         var handlers = [],
+            handler = null,
+            current = null,
             filehandlers = this.handlers.filehandlers,
             extension = '',
             dotpos = file.name.lastIndexOf('.');
@@ -431,22 +438,148 @@ Y.Moodle.course.dndupload = {
             extension = file.name.substr(dotpos+1, file.name.length).toLowerCase();
         }
 
-        for (var i=0; i<filehandlers.length; i++) {
-            if (filehandlers[i].extension == '*' || filehandlers[i].extension == extension) {
-                handlers.push(filehandlers[i]);
+        for (handler in filehandlers) {
+            if (!filehandlers.hasOwnProperty(handler)) {
+                continue;
+            }
+            current = filehandlers[handler];
+            if (current.extension === '*' || current.extension === extension) {
+                handlers.push(current);
             }
         }
 
-        if (handlers.length == 0) {
-            // No handlers at all (not even 'resource'?)
+        if (handlers.length === 0) {
+            // No handlers at all.
             return;
         }
 
-        if (handlers.length == 1) {
-            this.upload_file(file, section, sectionnumber, handlers[0].module);
+        if (handlers.length === 1) {
+            // Only one handler - just upload using this handler.
+            return this.upload_file(file, section, sectionnumber, handlers[0].module);
+        }
+
+        return this.file_handler_dialog(file, section, sectionnumber, handlers, extension);
+    },
+
+    /**
+     * Do the file upload: show the dummy element, use an AJAX call to send the data
+     * to the server, update the progress bar for the file, then replace the dummy
+     * element with the real information once the AJAX call completes
+     *
+     * TODO Rewrite
+     * @param {Object} file the details of the file, taken from the FileList in the drop event
+     * @param section the DOM element representing the selected course section
+     * @param sectionnumber the number of the selected course section
+     */
+    upload_file: function(file, section, sectionnumber, module) {
+
+        // This would be an ideal place to use the Y.io function
+        // however, this does not support data encoded using the
+        // FormData object, which is needed to transfer data from
+        // the DataTransfer object into an XMLHTTPRequest
+        // This can be converted when the YUI issue has been integrated:
+        // http://yuilibrary.com/projects/yui3/ticket/2531274
+        var xhr = new XMLHttpRequest();
+        var self = this;
+
+        if (file.size > this.maxbytes) {
+            alert("'"+file.name+"' "+M.util.get_string('filetoolarge', 'moodle'));
             return;
         }
 
-        this.file_handler_dialog(handlers, extension, file, section, sectionnumber);
+        // Add the file to the display
+        var resel = this.add_resource_element(file.name, section, module);
+
+        // Update the progress bar as the file is uploaded
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                var percentage = Math.round((e.loaded * 100) / e.total);
+                resel.progress.style.width = percentage + '%';
+            }
+        }, false);
+
+        // Wait for the AJAX call to complete, then update the
+        // dummy element with the returned details
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var result = JSON.parse(xhr.responseText);
+                    if (result) {
+                        if (result.error === 0) {
+                            // All OK - update the dummy element
+                            if (result.content) {
+                                // A label
+                                resel.indentdiv.innerHTML = '<div class="activityinstance" ></div>' + result.content + result.commands;
+                            } else {
+                                // Not a label
+                                resel.icon.src = result.icon;
+                                resel.a.href = result.link;
+                                resel.namespan.innerHTML = result.name;
+
+                                if (!parseInt(result.visible, 10)) {
+                                    resel.a.className = 'dimmed';
+                                }
+
+                                if (result.groupingname) {
+                                    resel.groupingspan.innerHTML = '(' + result.groupingname + ')';
+                                } else {
+                                    resel.div.removeChild(resel.groupingspan);
+                                }
+
+                                resel.div.removeChild(resel.progressouter);
+                                resel.indentdiv.innerHTML += result.commands;
+                                if (result.onclick) {
+                                    resel.a.onclick = result.onclick;
+                                }
+                                if (self.Y.UA.gecko > 0) {
+                                    // Fix a Firefox bug which makes sites with a '~' in their wwwroot
+                                    // log the user out when clicking on the link (before refreshing the page).
+                                    resel.div.innerHTML = unescape(resel.div.innerHTML);
+                                }
+                            }
+                            resel.li.id = result.elementid;
+                            self.add_editing(result.elementid);
+                        } else {
+                            // Error - remove the dummy element
+                            resel.parent.removeChild(resel.li);
+                            alert(result.error);
+                        }
+                    }
+                } else {
+                    alert(M.util.get_string('servererror', 'moodle'));
+                }
+            }
+        };
+
+        // Prepare the data to send
+        var formData = new FormData();
+        formData.append('repo_upload_file', file);
+        formData.append('sesskey', M.cfg.sesskey);
+        formData.append('course', this.courseid);
+        formData.append('section', sectionnumber);
+        formData.append('module', module);
+        formData.append('type', 'Files');
+
+        // Send the AJAX call
+        xhr.open("POST", this.url, true);
+        xhr.send(formData);
+    },
+
+    /**
+     * Call the AJAX course editing initialisation to add the editing tools
+     * to the newly-created resource link
+     *
+     * @param elementid the id of the DOM element containing the new resource link
+     * @param sectionnumber the number of the selected course section
+     */
+    add_editing: function(elementid) {
+        Y.use('moodle-course-coursebase', function() {
+            this.add_editing = this._add_editing;
+            this.add_editing(elementid);
+        });
+    },
+
+    _add_editing: function(elementid) {
+        M.course.coursebase.invoke_function('setup_for_resource', '#' + elementid);
     }
 };
