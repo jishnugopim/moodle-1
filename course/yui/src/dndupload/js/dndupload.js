@@ -417,6 +417,264 @@ Y.Moodle.course.dndupload = {
     },
 
     /**
+     * Handle upload and creation of a new item.
+     *
+     * @method handle_item
+     * @param {Object} type the details of the type of content
+     * @param {Object} contents the contents to be uploaded
+     * @param {Object} section the DOM element for the section being uploaded to
+     * @param {Integer} sectionnumber the number of the section being uploaded to
+     * @return void
+     * @TODO rewrite
+     */
+    handle_item: function(type, contents, section, sectionnumber) {
+        if (type.handlers.length === 0) {
+            // Nothing to handle this - should not have got here
+            Y.log("Item with no handlers was passed", "error", "course-dndupload");
+            return;
+        }
+
+        if (type.handlers.length === 1 && type.handlers[0].noname) {
+            // Only one handler and it doesn't need a name (i.e. a label).
+            this.upload_item('', type.type, contents, section, sectionnumber, type.handlers[0].module);
+            this.check_upload_queue();
+            return;
+        }
+
+        if (this.uploaddialog) {
+            var details = {
+                isfile: false,
+                type: type,
+                contents: contents,
+                section: section,
+                sectionnumber: sectionnumber
+            };
+            return this.uploadqueue.push(details);
+        }
+
+        // FIXME WTF
+        this.uploaddialog = true;
+
+        var timestamp = new Date().getTime();
+        var uploadid = Math.round(Math.random()*100000)+'-'+timestamp;
+        var nameid = 'dndupload_handler_name'+uploadid;
+        var content = '';
+        if (type.handlers.length > 1) {
+            content += '<p>'+type.handlermessage+'</p>';
+            content += '<div id="dndupload_handlers'+uploadid+'">';
+            var sel = type.handlers[0].module;
+            for (var i=0; i<type.handlers.length; i++) {
+                var id = 'dndupload_handler'+uploadid+type.handlers[i].module;
+                var checked = (type.handlers[i].module == sel) ? 'checked="checked" ' : '';
+                content += '<input type="radio" name="handler" value="'+i+'" id="'+id+'" '+checked+'/>';
+                content += ' <label for="'+id+'">';
+                content += type.handlers[i].message;
+                content += '</label><br/>';
+            }
+            content += '</div>';
+        }
+        var disabled = (type.handlers[0].noname) ? ' disabled = "disabled" ' : '';
+        content += '<label for="'+nameid+'">'+type.namemessage+'</label>';
+        content += ' <input type="text" id="'+nameid+'" value="" '+disabled+' />';
+
+        var Y = this.Y;
+        var self = this;
+        var panel = new M.core.dialogue({
+            bodyContent: content,
+            width: '350px',
+            modal: true,
+            visible: true,
+            render: true,
+            align: {
+                node: null,
+                points: [Y.WidgetPositionAlign.CC, Y.WidgetPositionAlign.CC]
+            }
+        });
+
+        // When the panel is hidden - destroy it and then check for other pending uploads
+        panel.after("visibleChange", function(e) {
+            if (!panel.get('visible')) {
+                panel.destroy(true);
+                self.check_upload_queue();
+            }
+        });
+
+        var namefield = Y.one('#'+nameid);
+        var submit = function(e) {
+            e.preventDefault();
+            var name = Y.Lang.trim(namefield.get('value'));
+            var module = false;
+            var noname = false;
+            if (type.handlers.length > 1) {
+                // Find out which module was selected
+                var div = Y.one('#dndupload_handlers'+uploadid);
+                div.all('input').each(function(input) {
+                    if (input.get('checked')) {
+                        var idx = input.get('value');
+                        module = type.handlers[idx].module;
+                        noname = type.handlers[idx].noname;
+                    }
+                });
+                if (!module) {
+                    return;
+                }
+            } else {
+                module = type.handlers[0].module;
+                noname = type.handlers[0].noname;
+            }
+            if (name == '' && !noname) {
+                return;
+            }
+            if (noname) {
+                name = '';
+            }
+            panel.hide();
+            // Do the upload
+            self.upload_item(name, type.type, contents, section, sectionnumber, module);
+        };
+
+        // Add the submit/cancel buttons to the bottom of the dialog.
+        panel.addButton({
+            label: M.util.get_string('upload', 'moodle'),
+            action: submit,
+            section: Y.WidgetStdMod.FOOTER,
+            name: 'submit'
+        });
+        panel.addButton({
+            label: M.util.get_string('cancel', 'moodle'),
+            action: function(e) {
+                e.preventDefault();
+                panel.hide();
+            },
+            section: Y.WidgetStdMod.FOOTER
+        });
+        var submitbutton = panel.getButton('submit').button;
+        namefield.on('key', submit, 'enter'); // Submit the form if 'enter' pressed
+        namefield.after('keyup', function() {
+            if (Y.Lang.trim(namefield.get('value')) == '') {
+                submitbutton.disable();
+            } else {
+                submitbutton.enable();
+            }
+        });
+
+        // Enable / disable the 'name' box, depending on the handler selected.
+        for (i=0; i<type.handlers.length; i++) {
+            if (type.handlers[i].noname) {
+                Y.one('#dndupload_handler'+uploadid+type.handlers[i].module).on('click', function (e) {
+                    namefield.set('disabled', 'disabled');
+                    submitbutton.enable();
+                });
+            } else {
+                Y.one('#dndupload_handler'+uploadid+type.handlers[i].module).on('click', function (e) {
+                    namefield.removeAttribute('disabled');
+                    namefield.focus();
+                    if (Y.Lang.trim(namefield.get('value')) == '') {
+                        submitbutton.disable();
+                    }
+                });
+            }
+        }
+
+        // Focus on the 'name' box
+        Y.one('#'+nameid).focus();
+    },
+
+    /**
+     * Upload any data types that are not files: display a dummy resource element, send
+     * the data to the server, update the progress bar for the file, then replace the
+     * dummy element with the real information once the AJAX call completes
+     * @param name the display name for the resource / activity to create
+     * @param type the details of the data type found in the drop event
+     * @param contents the actual data that was dropped
+     * @param section the DOM element representing the selected course section
+     * @param sectionnumber the number of the selected course section
+     * @param module the module chosen to handle this upload
+     */
+    upload_item: function(name, type, contents, section, sectionnumber, module) {
+
+        // This would be an ideal place to use the Y.io function
+        // however, this does not support data encoded using the
+        // FormData object, which is needed to transfer data from
+        // the DataTransfer object into an XMLHTTPRequest
+        // This can be converted when the YUI issue has been integrated:
+        // http://yuilibrary.com/projects/yui3/ticket/2531274
+        var xhr = new XMLHttpRequest();
+        var self = this;
+
+        // Add the item to the display
+        var resel = this.add_resource_element(name, section, module);
+
+        // Wait for the AJAX call to complete, then update the
+        // dummy element with the returned details
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    var result = JSON.parse(xhr.responseText);
+                    if (result) {
+                        if (result.error == 0) {
+                            // All OK - update the dummy element
+                            if (result.content) {
+                                // A label
+                                resel.indentdiv.innerHTML = '<div class="activityinstance" ></div>' + result.content + result.commands;
+                            } else {
+                                // Not a label
+                                resel.icon.src = result.icon;
+                                resel.a.href = result.link;
+                                resel.namespan.innerHTML = result.name;
+
+                                if (!parseInt(result.visible, 10)) {
+                                    resel.a.className = 'dimmed';
+                                }
+
+                                if (result.groupingname) {
+                                    resel.groupingspan.innerHTML = '(' + result.groupingname + ')';
+                                } else {
+                                    resel.div.removeChild(resel.groupingspan);
+                                }
+
+                                resel.div.removeChild(resel.progressouter);
+                                resel.div.innerHTML += result.commands;
+                                if (result.onclick) {
+                                    resel.a.onclick = result.onclick;
+                                }
+                                if (self.Y.UA.gecko > 0) {
+                                    // Fix a Firefox bug which makes sites with a '~' in their wwwroot
+                                    // log the user out when clicking on the link (before refreshing the page).
+                                    resel.div.innerHTML = unescape(resel.div.innerHTML);
+                                }
+                            }
+                            resel.li.id = result.elementid;
+                            self.add_editing(result.elementid, sectionnumber);
+                        } else {
+                            // Error - remove the dummy element
+                            resel.parent.removeChild(resel.li);
+                            alert(result.error);
+                        }
+                    }
+                } else {
+                    alert(M.util.get_string('servererror', 'moodle'));
+                }
+            }
+        };
+
+        // Prepare the data to send
+        var formData = new FormData();
+        formData.append('contents', contents);
+        formData.append('displayname', name);
+        formData.append('sesskey', M.cfg.sesskey);
+        formData.append('course', this.courseid);
+        formData.append('section', sectionnumber);
+        formData.append('type', type);
+        formData.append('module', module);
+
+        // Send the data
+        xhr.open("POST", this.url, true);
+        xhr.send(formData);
+    },
+
+
+    /**
      * Find the registered handler for the given file type. If there is more than one, ask the
      * user which one to use. Then upload the file to the server
      *
@@ -563,6 +821,123 @@ Y.Moodle.course.dndupload = {
         // Send the AJAX call
         xhr.open("POST", this.url, true);
         xhr.send(formData);
+    },
+
+    /**
+     * Check to see if there are any other dialog boxes to show, now that the current one has
+     * been dealt with
+     */
+    check_upload_queue: function() {
+        this.uploaddialog = false;
+        if (this.uploadqueue.length == 0) {
+            return;
+        }
+
+        var details = this.uploadqueue.shift();
+        if (details.isfile) {
+            this.file_handler_dialog(details.handlers, details.extension, details.file, details.section, details.sectionnumber);
+        } else {
+            this.handle_item(details.type, details.contents, details.section, details.sectionnumber);
+        }
+    },
+
+
+    /**
+     * Show a dialog box, allowing the user to choose what to do with the file they are uploading
+     * @param handlers the available handlers to choose between
+     * @param extension the extension of the file being uploaded
+     * @param file the File object being uploaded
+     * @param section the DOM element of the section being uploaded to
+     * @param sectionnumber the number of the selected course section
+     */
+    file_handler_dialog: function(handlers, extension, file, section, sectionnumber) {
+        if (this.uploaddialog) {
+            var details = new Object();
+            details.isfile = true;
+            details.handlers = handlers;
+            details.extension = extension;
+            details.file = file;
+            details.section = section;
+            details.sectionnumber = sectionnumber;
+            this.uploadqueue.push(details);
+            return;
+        }
+        this.uploaddialog = true;
+
+        var timestamp = new Date().getTime();
+        var uploadid = Math.round(Math.random()*100000)+'-'+timestamp;
+        var content = '';
+        var sel;
+        if (extension in this.lastselected) {
+            sel = this.lastselected[extension];
+        } else {
+            sel = handlers[0].module;
+        }
+        content += '<p>'+M.util.get_string('actionchoice', 'moodle', file.name)+'</p>';
+        content += '<div id="dndupload_handlers'+uploadid+'">';
+        for (var i=0; i<handlers.length; i++) {
+            var id = 'dndupload_handler'+uploadid+handlers[i].module;
+            var checked = (handlers[i].module == sel) ? 'checked="checked" ' : '';
+            content += '<input type="radio" name="handler" value="'+handlers[i].module+'" id="'+id+'" '+checked+'/>';
+            content += ' <label for="'+id+'">';
+            content += handlers[i].message;
+            content += '</label><br/>';
+        }
+        content += '</div>';
+
+        var Y = this.Y;
+        var self = this;
+        var panel = new M.core.dialogue({
+            bodyContent: content,
+            width: '350px',
+            modal: true,
+            visible: true,
+            render: true,
+            align: {
+                node: null,
+                points: [Y.WidgetPositionAlign.CC, Y.WidgetPositionAlign.CC]
+            }
+        });
+        // When the panel is hidden - destroy it and then check for other pending uploads
+        panel.after("visibleChange", function(e) {
+            if (!panel.get('visible')) {
+                panel.destroy(true);
+                self.check_upload_queue();
+            }
+        });
+
+        // Add the submit/cancel buttons to the bottom of the dialog.
+        panel.addButton({
+            label: M.util.get_string('upload', 'moodle'),
+            action: function(e) {
+                e.preventDefault();
+                // Find out which module was selected
+                var module = false;
+                var div = Y.one('#dndupload_handlers'+uploadid);
+                div.all('input').each(function(input) {
+                    if (input.get('checked')) {
+                        module = input.get('value');
+                    }
+                });
+                if (!module) {
+                    return;
+                }
+                panel.hide();
+                // Remember this selection for next time
+                self.lastselected[extension] = module;
+                // Do the upload
+                self.upload_file(file, section, sectionnumber, module);
+            },
+            section: Y.WidgetStdMod.FOOTER
+        });
+        panel.addButton({
+            label: M.util.get_string('cancel', 'moodle'),
+            action: function(e) {
+                e.preventDefault();
+                panel.hide();
+            },
+            section: Y.WidgetStdMod.FOOTER
+        });
     },
 
     /**
