@@ -102,12 +102,13 @@ Y.Moodle.course.dndupload = {
         return true;
     },
 
-    get_preview_node: function() {
+    add_preview_to_section: function(section) {
         if (this.previews_established) {
             return;
         }
 
         if (typeof this.previewnode === "undefined") {
+            Y.log("Creating new preview node");
             this.previewnode = Y.Node.create(
                 '<li class="dndupload-preview dndupload-hidden">' +
                     '<div class="mod-indent">' +
@@ -121,8 +122,10 @@ Y.Moodle.course.dndupload = {
                     M.util.get_string('addfilehere', 'core'));
         }
 
+        section.one(SELECTORS.section_mod).appendChild(this.previewnode);
+
         return this.previewnode;
-    }
+    },
 
     /**
      * Set up preview elements for each section.
@@ -303,10 +306,10 @@ Y.Moodle.course.dndupload = {
      */
     hide_preview_element: function() {
         // Hide the currently shown preview element.
-        if (this.currentsection) {
-            this.currentsection.addClass(CSS.preview_hide)
-                    .removeClass(CSS.preview_over);
-        }
+        //if (this.currentsection) {
+            //this.currentsection.addClass(CSS.preview_hide)
+                    //.removeClass(CSS.preview_over);
+        //}
     },
 
     /**
@@ -342,7 +345,7 @@ Y.Moodle.course.dndupload = {
      * @param {EventFacade} e
      */
     dragenter: function(e) {
-        this.setup_section_previews();
+        //this.setup_section_previews();
 
         var type = this.check_drag(e),
             section = e.currentTarget.ancestor(SELECTORS.section_types, true);
@@ -355,12 +358,14 @@ Y.Moodle.course.dndupload = {
             return false;
         }
 
-        section = section.one(SELECTORS.preview_element);
-        if (this.currentsection !== section) {
+        if (section.one(SELECTORS.preview_element)) {
             this.entercount = 1;
             this.show_preview_element(section, type);
             return true;
         } else {
+            // Add the preview to the current section.
+            this.add_preview_to_section(section);
+
             this.entercount++;
             if (this.entercount > 2) {
                 this.entercount = 2;
