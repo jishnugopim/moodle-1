@@ -49,26 +49,6 @@ function dndupload_add_to_course($course, $modnames) {
     }
 
     // Add the javascript to the page.
-    $jsmodule = array(
-        'name' => 'coursedndupload',
-        'fullpath' => '/course/dndupload.js',
-        'strings' => array(
-            array('addfilehere', 'moodle'),
-            array('dndworkingfiletextlink', 'moodle'),
-            array('dndworkingfilelink', 'moodle'),
-            array('dndworkingfiletext', 'moodle'),
-            array('dndworkingfile', 'moodle'),
-            array('dndworkingtextlink', 'moodle'),
-            array('dndworkingtext', 'moodle'),
-            array('dndworkinglink', 'moodle'),
-            array('filetoolarge', 'moodle'),
-            array('actionchoice', 'moodle'),
-            array('servererror', 'moodle'),
-            array('upload', 'moodle'),
-            array('cancel', 'moodle')
-        ),
-        'requires' => array('node', 'event', 'json', 'anim')
-    );
     $vars = array(
         array('courseid' => $course->id,
               'maxbytes' => get_max_upload_file_size($CFG->maxbytes, $course->maxbytes),
@@ -76,7 +56,6 @@ function dndupload_add_to_course($course, $modnames) {
               'showstatus' => $showstatus)
     );
 
-    //$PAGE->requires->js_init_call('M.course_dndupload.init', $vars, true, $jsmodule);
     $PAGE->requires->yui_module('moodle-course-dndupload', 'Y.Moodle.course.dndupload.init', $vars);
     $PAGE->requires->strings_for_js(array(
             'addfilehere',
@@ -88,6 +67,7 @@ function dndupload_add_to_course($course, $modnames) {
             'dndworkingtext',
             'dndworkinglink',
             'filetoolarge',
+            'fileuploadwithcontent',
             'actionchoice',
             'servererror',
             'upload',
