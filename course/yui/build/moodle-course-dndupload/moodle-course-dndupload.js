@@ -21,7 +21,6 @@ YUI.add('moodle-course-dndupload', function (Y, NAME) {
  * @module moodle-course-dndupload
  * @package    core
  * @subpackage course
- * @copyright  2012 Davo Smith
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,19 +36,18 @@ var SELECTORS = {
     CSS = {
     preview_hide: 'dndupload-hidden',
     preview_over: 'dndupload-over'
+},
+    DNDUPLOAD;
+
+DNDUPLOAD = function() {
+    DNDUPLOAD.superclass.constructor.apply(this, arguments);
 };
 
-Y.Moodle.course.dndupload = {
 
-    // Various attributes.
-    maxbytes: null,
-    courseid: null,
-    handlers: null,
+Y.extend(DNDUPLOAD, Y.Base, {
     uploadqueue: [],
-    lastselected: [],
 
     // TODO fix
-    url: M.cfg.wwwroot + '/course/dndupload.php',
 
     showstatus: false,
     previews_established: false,
@@ -58,7 +56,7 @@ Y.Moodle.course.dndupload = {
 
     entercount: 0,
 
-    init: function(config) {
+    initializer: function() {
         // Check whether this browser supports drag-and-drop upload.
         if (!this.browser_supported()) {
             return;
@@ -68,11 +66,6 @@ Y.Moodle.course.dndupload = {
         if (!Y.one(SELECTORS.sections)) {
             return;
         }
-
-        // Assign attributes from our provided configuration.
-        this.maxbytes = config.maxbytes;
-        this.courseid = config.courseid;
-        this.handlers = config.handlers;
 
         // Add the event listeners.
         Y.delegate('dragenter', this.dragenter, Y.config.doc, SELECTORS.sections, this);
@@ -121,7 +114,7 @@ Y.Moodle.course.dndupload = {
                     M.util.get_string('addfilehere', 'core'));
         }
 
-        section.one(SELECTORS.section_mod).appendChild(this.previewnode);
+        section.one('ul.section').append(this.previewnode);
 
         return this.previewnode;
     },
@@ -215,7 +208,7 @@ Y.Moodle.course.dndupload = {
         // Check for files first.
         if (this.types_includes(e, 'Files')) {
             if (e.type !== 'drop' || e._event.dataTransfer.files.length !== 0) {
-                if (this.handlers.filehandlers.length === 0) {
+                if (this.get('handlers').filehandlers.length === 0) {
                     // No available file handlers - ignore this drag.
                     return false;
                 }
@@ -231,13 +224,13 @@ Y.Moodle.course.dndupload = {
 
         // Check each of the registered types.
         var typekey;
-        for (typekey in this.handlers.types) {
-            if (!this.handlers.types.hasOwnProperty(typekey)) {
+        for (typekey in this.get('handlers').types) {
+            if (!this.get('handlers').types.hasOwnProperty(typekey)) {
                 continue;
             }
 
             // Check each of the different identifiers for this type.
-            var dttypes = this.handlers.types[typekey].datatransfertypes,
+            var dttypes = this.get('handlers').types[typekey].datatransfertypes,
                 thistype;
             for (thistype in dttypes) {
                 if (!dttypes.hasOwnProperty(thistype)) {
@@ -246,11 +239,11 @@ Y.Moodle.course.dndupload = {
                 if (this.types_includes(e, dttypes[thistype])) {
                     return {
                         realtype: dttypes[thistype],
-                        addmessage:     this.handlers.types[typekey].addmessage,
-                        namemessage:    this.handlers.types[typekey].namemessage,
-                        handlermessage: this.handlers.types[typekey].handlermessage,
-                        type:           this.handlers.types[typekey].identifier,
-                        handlers:       this.handlers.types[typekey].handlers
+                        addmessage:     this.get('handlers').types[typekey].addmessage,
+                        namemessage:    this.get('handlers').types[typekey].namemessage,
+                        handlermessage: this.get('handlers').types[typekey].handlermessage,
+                        type:           this.get('handlers').types[typekey].identifier,
+                        handlers:       this.get('handlers').types[typekey].handlers
                     };
                 }
             }
@@ -470,15 +463,15 @@ Y.Moodle.course.dndupload = {
      * @TODO rewrite
      */
     handle_item: function(type, contents, section) {
-        if (type.handlers.length === 0) {
+        if (type.get('handlers').length === 0) {
             // Nothing to handle this - should not have got here
             return;
         }
 
         // Rewrite me
-        if (type.handlers.length === 1 && type.handlers[0].noname) {
+        if (type.get('handlers').length === 1 && type.get('handlers')[0].noname) {
             // Only one handler and it doesn't need a name (i.e. a label).
-            this.upload_item('', type.type, contents, section, sectionnumber, type.handlers[0].module);
+            this.upload_item('', type.type, contents, section, sectionnumber, type.get('handlers')[0].module);
             this.check_upload_queue();
             return;
         }
@@ -500,21 +493,21 @@ Y.Moodle.course.dndupload = {
         var uploadid = Math.round(Math.random()*100000)+'-'+timestamp;
         var nameid = 'dndupload_handler_name'+uploadid;
         var content = '';
-        if (type.handlers.length > 1) {
+        if (type.get('handlers').length > 1) {
             content += '<p>'+type.handlermessage+'</p>';
             content += '<div id="dndupload_handlers'+uploadid+'">';
-            var sel = type.handlers[0].module;
-            for (var i=0; i<type.handlers.length; i++) {
-                var id = 'dndupload_handler'+uploadid+type.handlers[i].module;
-                var checked = (type.handlers[i].module == sel) ? 'checked="checked" ' : '';
+            var sel = type.get('handlers')[0].module;
+            for (var i=0; i<type.get('handlers').length; i++) {
+                var id = 'dndupload_handler'+uploadid+type.get('handlers')[i].module;
+                var checked = (type.get('handlers')[i].module == sel) ? 'checked="checked" ' : '';
                 content += '<input type="radio" name="handler" value="'+i+'" id="'+id+'" '+checked+'/>';
                 content += ' <label for="'+id+'">';
-                content += type.handlers[i].message;
+                content += type.get('handlers')[i].message;
                 content += '</label><br/>';
             }
             content += '</div>';
         }
-        var disabled = (type.handlers[0].noname) ? ' disabled = "disabled" ' : '';
+        var disabled = (type.get('handlers')[0].noname) ? ' disabled = "disabled" ' : '';
         content += '<label for="'+nameid+'">'+type.namemessage+'</label>';
         content += ' <input type="text" id="'+nameid+'" value="" '+disabled+' />';
 
@@ -545,22 +538,22 @@ Y.Moodle.course.dndupload = {
             var name = Y.Lang.trim(namefield.get('value'));
             var module = false;
             var noname = false;
-            if (type.handlers.length > 1) {
+            if (type.get('handlers').length > 1) {
                 // Find out which module was selected
                 var div = Y.one('#dndupload_handlers'+uploadid);
                 div.all('input').each(function(input) {
                     if (input.get('checked')) {
                         var idx = input.get('value');
-                        module = type.handlers[idx].module;
-                        noname = type.handlers[idx].noname;
+                        module = type.get('handlers')[idx].module;
+                        noname = type.get('handlers')[idx].noname;
                     }
                 });
                 if (!module) {
                     return;
                 }
             } else {
-                module = type.handlers[0].module;
-                noname = type.handlers[0].noname;
+                module = type.get('handlers')[0].module;
+                noname = type.get('handlers')[0].noname;
             }
             if (name == '' && !noname) {
                 return;
@@ -601,13 +594,13 @@ Y.Moodle.course.dndupload = {
 
         // Enable / disable the 'name' box, depending on the handler selected.
         for (i=0; i<type.handlers.length; i++) {
-            if (type.handlers[i].noname) {
-                Y.one('#dndupload_handler'+uploadid+type.handlers[i].module).on('click', function (e) {
+            if (type.get('handlers')[i].noname) {
+                Y.one('#dndupload_handler'+uploadid+type.get('handlers')[i].module).on('click', function (e) {
                     namefield.set('disabled', 'disabled');
                     submitbutton.enable();
                 });
             } else {
-                Y.one('#dndupload_handler'+uploadid+type.handlers[i].module).on('click', function (e) {
+                Y.one('#dndupload_handler'+uploadid+type.get('handlers')[i].module).on('click', function (e) {
                     namefield.removeAttribute('disabled');
                     namefield.focus();
                     if (Y.Lang.trim(namefield.get('value')) == '') {
@@ -716,13 +709,13 @@ Y.Moodle.course.dndupload = {
         formData.append('contents', contents);
         formData.append('displayname', name);
         formData.append('sesskey', M.cfg.sesskey);
-        formData.append('course', this.courseid);
+        formData.append('course', this.get('courseid'));
         formData.append('section', sectionnumber);
         formData.append('type', type);
         formData.append('module', module);
 
         // Send the data
-        xhr.open("POST", this.url, true);
+        xhr.open("POST", this.get('url'), true);
         xhr.send(formData);
     },
 
@@ -741,7 +734,7 @@ Y.Moodle.course.dndupload = {
         var handlers = [],
             handler = null,
             current = null,
-            filehandlers = this.handlers.filehandlers,
+            filehandlers = this.get('handlers').filehandlers,
             extension = '',
             dotpos = file.name.lastIndexOf('.');
 
@@ -784,10 +777,12 @@ Y.Moodle.course.dndupload = {
      */
     upload_file: function(file, section, module) {
 
-        if (file.size > this.maxbytes) {
+        if (file.size > this.get('maxbytes')) {
             // Check that the file fits within the restraints.
-            alert("'"+file.name+"' "+M.util.get_string('filetoolarge', 'core'));
-            return;
+            return new M.core.alert({
+                title: M.util.get_string('fileuploaderror', 'core'),
+                message: M.util.get_string('filetoolarge', 'core', file.name)
+            });
         }
 
         // Add the file to the display
@@ -805,9 +800,9 @@ Y.Moodle.course.dndupload = {
         // Handle the result too.
         uploader.on('uploadcomplete', this.add_file_to_page, this, resel);
 
-        uploader.startUpload(this.url, {
+        uploader.startUpload(this.get('url'), {
             sesskey: M.cfg.sesskey,
-            course: this.courseid,
+            course: this.get('courseid'),
             section: this.get_section_id(section),
             module: module,
             type: 'Files'
@@ -1086,7 +1081,30 @@ Y.Moodle.course.dndupload = {
     add_editing: function(elementid) {
         M.course.coursebase.invoke_function('setup_for_resource', '#' + elementid);
     }
+}, {
+    ATTRS: {
+        maxbytes: {
+            value: null
+        },
+        courseid: {
+            value: null
+        },
+        handlers: {
+            value: []
+        },
+        showstatus: {
+            value: 1
+        },
+        url: {
+            value: M.cfg.wwwroot + '/course/dndupload.php'
+        }
+    }
+});
+
+Y.Moodle.course.dndupload.init = function(config) {
+    return new DNDUPLOAD(config);
 };
+
 
 
 }, '@VERSION@', {
