@@ -78,6 +78,21 @@ function dndupload_add_to_course($course, $modnames) {
 
     //$PAGE->requires->js_init_call('M.course_dndupload.init', $vars, true, $jsmodule);
     $PAGE->requires->yui_module('moodle-course-dndupload', 'Y.Moodle.course.dndupload.init', $vars);
+    $PAGE->requires->strings_for_js(array(
+            'addfilehere',
+            'dndworkingfiletextlink',
+            'dndworkingfilelink',
+            'dndworkingfiletext',
+            'dndworkingfile',
+            'dndworkingtextlink',
+            'dndworkingtext',
+            'dndworkinglink',
+            'filetoolarge',
+            'actionchoice',
+            'servererror',
+            'upload',
+            'cancel',
+        ), 'core');
 }
 
 

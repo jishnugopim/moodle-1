@@ -7,7 +7,9 @@
         "anim",
         "dd",
         "moodle-core-notification",
-        "selector-css3"
+        "moodle-course-coursebase",
+        "selector-css3",
+        "file"
     ]
   }
 }
