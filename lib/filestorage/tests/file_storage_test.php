@@ -1438,6 +1438,40 @@ class filestoragelib_testcase extends advanced_testcase {
         $file2 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
+    public function test_create_file_from_trash() {
+        global $CFG;
+        $this->resetAfterTest(true);
+
+        $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
+
+        $filerecord1 = $this->generate_file_record();
+        $fs = get_file_storage();
+
+        $file1 = $fs->create_file_from_string($filerecord1, 'test_create_file_from_trash');
+        $this->assertInstanceOf('stored_file', $file1);
+
+        global $DB;
+        // Delete the file.
+        $file1->delete();
+
+        $filerecord2 = $this->generate_file_record();
+        $file2 = $fs->create_file_from_trash($filerecord2, $file1->get_contenthash());
+        $this->assertInstanceOf('stored_file', $file2);
+    }
+
+    public function test_create_file_from_trash_invalid() {
+        global $CFG;
+        $this->resetAfterTest(true);
+
+        $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
+
+        $fs = get_file_storage();
+
+        $filerecord = $this->generate_file_record();
+        $file = $fs->create_file_from_trash($filerecord, sha1('test_create_file_from_trash_invalid'));
+        $this->assertFalse($file);
+    }
+
     public function test_file_exists_in_filestorage() {
         $this->resetAfterTest(true);
 

@@ -1089,6 +1089,22 @@ class file_storage {
     }
 
     /**
+     * Add new file based on a file which has been moved to trash.
+     *
+     * @param stdClass|array $filerecord object or array describing changes
+     * @param string $contenthash sha1 hash of content
+     * @return stored_file instance of newly created file
+     */
+    public function create_file_from_trash($filerecord, $contenthash) {
+        if (!$this->file_exists_in_trash($contenthash)) {
+            return false;
+        }
+
+        $pathname = $this->trash_path_from_hash($contenthash) . '/' . $contenthash;
+        return $this->create_file_from_pathname($filerecord, $pathname);
+    }
+
+    /**
      * Add new local file.
      *
      * @param stdClass|array $filerecord object or array describing file
