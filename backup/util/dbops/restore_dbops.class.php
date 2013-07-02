@@ -955,7 +955,7 @@ abstract class restore_dbops {
                         // Even if a file has been deleted since the backup was made, the file metadata will remain in the
                         // files table, and the file will not be moved to the trashdir.
                         // Files are not cleared from the files table by cron until several days after deletion.
-                        if ($foundfiles = $DB->get_records('files', array('contenthash' => $file->contenthash))) {
+                        if ($fs->file_exists_in_filestorage($file->contenthash) && $foundfiles = $DB->get_records('files', array('contenthash' => $file->contenthash))) {
                             // Only grab one of the foundfiles - the file content should be the same for all entries.
                             $foundfile = reset($foundfiles);
                             $fs->create_file_from_storedfile($file_record, $foundfile->id);
