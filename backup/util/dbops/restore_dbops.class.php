@@ -959,8 +959,8 @@ abstract class restore_dbops {
                             // Only grab one of the foundfiles - the file content should be the same for all entries.
                             $foundfile = reset($foundfiles);
                             $fs->create_file_from_storedfile($file_record, $foundfile->id);
-                        } else {
-                            // A matching existing file record was not found in the database.
+                        } else if (!$fs->create_file_from_trash($file_record, $file->contenthash)) {
+                            // A matching existing file record was not found in the database, or in the trash directory.
                             $result = new stdClass();
                             $result->code = 'file_missing_in_backup';
                             $result->message = sprintf('missing file %s%s in backup', $file->filepath, $file->filename);
