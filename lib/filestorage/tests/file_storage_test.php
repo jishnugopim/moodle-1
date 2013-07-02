@@ -1438,6 +1438,47 @@ class filestoragelib_testcase extends advanced_testcase {
         $file2 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
+    public function test_file_exists_in_filestorage() {
+        $this->resetAfterTest(true);
+
+        // Create a file to test.
+        $filerecord = $this->generate_file_record();
+        $fs = get_file_storage();
+
+        $file1 = $fs->create_file_from_string($filerecord, 'text contents');
+
+        $exists = $fs->file_exists_in_filestorage($file1->get_contenthash());
+        $this->assertTrue($exists);
+    }
+
+    public function test_file_exists_in_filestorage_invalid() {
+        $fs = get_file_storage();
+        $exists = $fs->file_exists_in_filestorage(sha1('someUnlikelyFileContent'));
+        $this->assertFalse($exists);
+    }
+
+    public function test_file_exists_in_trash() {
+        $this->resetAfterTest(true);
+
+        // Create a file to test.
+        $filerecord = $this->generate_file_record();
+        $fs = get_file_storage();
+
+        $file1 = $fs->create_file_from_string($filerecord, 'text contents');
+
+        // We must delete it.
+        $file1->delete();
+
+        $exists = $fs->file_exists_in_trash($file1->get_contenthash());
+        $this->assertTrue($exists);
+    }
+
+    public function test_file_exists_in_trash_invalid() {
+        $fs = get_file_storage();
+        $exists = $fs->file_exists_in_trash(sha1('someUnlikelyFileContent'));
+        $this->assertFalse($exists);
+    }
+
     /**
      * Calling stored_file::delete_reference() on a non-reference file throws coding_exception
      */

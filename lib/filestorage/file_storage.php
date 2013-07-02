@@ -143,6 +143,28 @@ class file_storage {
     }
 
     /**
+     * Whether or not the file actually exists on disk, regardless of whether it exists or
+     * not in the files table.
+     *
+     * @param string $contenthash The contenthash for this file.
+     * @return bool
+     */
+    public function file_exists_in_filestorage($contenthash) {
+        return is_readable($this->path_from_hash($contenthash));
+    }
+
+    /**
+     * Whether or not the file exists in the moodle trash directory, regardless of whether
+     * it exists or not in the files table.
+     *
+     * @param string $contenthash The contenthash for this file.
+     * @return bool
+     */
+    public function file_exists_in_trash($contenthash) {
+        return is_readable($this->trash_path_from_hash($contenthash));
+    }
+
+    /**
      * Create instance of file class from database record.
      *
      * @param stdClass $filerecord record from the files table left join files_reference table
