@@ -29,12 +29,15 @@ var SELECTORS = {
     section_mod: 'ul.section',
     sections_mods: 'li.section.main ul.section',
     section_types: 'li.section, li.main',
-    preview_element: '.dndupload-preview'
+    preview_element: '.dndupload-preview',
+    dnduploader: '.dndupload-loaded'
 },
     CSS = {
+    dnduploader: 'dndupload-loaded',
     preview_hide: 'dndupload-hidden',
     preview_over: 'dndupload-over'
 },
+    LOGNAME = 'moodle-course-dndupload',
     DNDUPLOAD;
 
 DNDUPLOAD = function() {
@@ -55,13 +58,20 @@ Y.extend(DNDUPLOAD, Y.Base, {
     entercount: 0,
 
     initializer: function() {
+        if (Y.one(Y.config.doc.body).hasClass(SELECTORS.dnduploader)) {
+            Y.log('dndupload already loaded. Exiting', 'warn', LOGNAME);
+            return;
+        }
+
         // Check whether this browser supports drag-and-drop upload.
-        if (!this.browser_supported()) {
+        if (!Y.Moodle.course.dnduploadloader.browser_supported()) {
+            Y.log('Browser not supported. Exiting', 'warn', LOGNAME);
             return;
         }
 
         // Nothing to upload to - exit early.
         if (!Y.one(SELECTORS.sections)) {
+            Y.log('Not sections to upload to. Exiting', 'warn', LOGNAME);
             return;
         }
 

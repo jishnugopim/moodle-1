@@ -5,6 +5,11 @@
       "jsfiles": [
         "dndupload.js"
       ]
+    },
+    "moodle-course-dnduploadloader": {
+      "jsfiles": [
+        "loader.js"
+      ]
     }
   }
 }
