@@ -47,15 +47,11 @@ DNDUPLOAD = function() {
 
 Y.extend(DNDUPLOAD, Y.Base, {
     uploadqueue: [],
+    currentsection: null,
+    entercount: 0,
 
     // TODO fix
-
-    showstatus: false,
     previews_established: false,
-
-    currentsection: null,
-
-    entercount: 0,
 
     initializer: function() {
         if (Y.one(Y.config.doc.body).hasClass(SELECTORS.dnduploader)) {
@@ -82,25 +78,16 @@ Y.extend(DNDUPLOAD, Y.Base, {
         Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
 
         // Add the status message.
-        if (this.showstatus) {
+        if (this.get('showstatus')) {
             this.add_status_div();
         }
+
+        // Add the dnduploader class to the body to prevent it from being loaded again.
+        Y.one(Y.config.doc.body).addClass(CSS.dnduploader);
     },
 
-    /**
-     * Check whether the browser has the required functionality
-     *
-     * @method browser_supported
-     * @return {Boolean} Whether the user's browser supports drag-and-drop uploading of files.
-     */
-    browser_supported: function() {
-        if (typeof FileReader === 'undefined') {
-            return false;
-        }
-        if (typeof FormData === 'undefined') {
-            return false;
-        }
-        return true;
+    add_status_div: function() {
+        Y.log(this.get('statusmessage'));
     },
 
     add_preview_to_section: function(section) {
@@ -109,7 +96,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         if (typeof this.previewnode === "undefined") {
-            Y.log("Creating new preview node");
+            Y.log("Creating new preview node", 'info', LOGNAME);
             this.previewnode = Y.Node.create(
                 '<li class="dndupload-preview dndupload-hidden">' +
                     '<div class="mod-indent">' +
@@ -425,7 +412,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         var type = this.check_drag(e),
             section = this.get_section(e.currentTarget);
 
-        Y.log("In the drop");
+        Y.log("In the drop", 'info', LOGNAME);
         this.hide_preview_element();
 
         if (!type) {
@@ -451,7 +438,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 if (index === 'length') {
                     continue;
                 }
-                Y.log("Checking index " + index, 'info', 'moodle-course-dndupload');
+                Y.log("Checking index " + index, 'info', LOGNAME);
                 this.handle_file(files[index], section);
             }
         } else {
@@ -476,7 +463,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
     handle_item: function(type, contents, section) {
         if (type.get('handlers').length === 0) {
             // Nothing to handle this - should not have got here
-            Y.log("Item with no handlers was passed", "error", "moodle-course-dndupload");
+            Y.log("Item with no handlers was passed", "error", LOGNAME);
             return;
         }
 
@@ -845,7 +832,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         resel.one('.dndupload-progress-outer').remove();
 
         if (responseobject.content) {
-            Y.log("Creating a new label", "info", "moodle-course-dndupload");
+            Y.log("Creating a new label", "info", LOGNAME);
             var activityinstance = Y.Node.create('<div class="activityinstance" ></div>'),
                 wrapper = Y.Node.create('<div />'),
                 content = Y.Node.create(responseobject.content);
@@ -1071,10 +1058,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         if (!modsel) {
             // Create the above 'ul' if it doesn't exist.
             // TODO Rewrite - yuck!!!
-            modsel = Y.Node.create(
-                    '<ul class="section img-text">' +
-                    '</ul>'
-                );
+            modsel = Y.Node.create( '<ul class="section img-text"/>');
             var contentel = section.get('children').pop();
             var brel = contentel.get('children').pop();
             contentel.insertBefore(modsel, brel);
@@ -1108,6 +1092,15 @@ Y.extend(DNDUPLOAD, Y.Base, {
         showstatus: {
             value: 1
         },
+        statusmessage: {
+            value: {
+                identifier: 'dndstatus',
+                component: 'moodle'
+            },
+            getter: function(val) {
+                return M.util.get_string(val.identifier, val.component);
+            }
+        },
         url: {
             value: M.cfg.wwwroot + '/course/dndupload.php'
         }
@@ -1117,4 +1110,3 @@ Y.extend(DNDUPLOAD, Y.Base, {
 Y.Moodle.course.dndupload.init = function(config) {
     return new DNDUPLOAD(config);
 };
-
