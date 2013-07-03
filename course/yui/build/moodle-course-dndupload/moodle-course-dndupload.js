@@ -31,12 +31,15 @@ var SELECTORS = {
     section_mod: 'ul.section',
     sections_mods: 'li.section.main ul.section',
     section_types: 'li.section, li.main',
-    preview_element: '.dndupload-preview'
+    preview_element: '.dndupload-preview',
+    dnduploader: '.dndupload-loaded'
 },
     CSS = {
+    dnduploader: 'dndupload-loaded',
     preview_hide: 'dndupload-hidden',
     preview_over: 'dndupload-over'
 },
+    LOGNAME = 'moodle-course-dndupload',
     DNDUPLOAD;
 
 DNDUPLOAD = function() {
@@ -46,19 +49,19 @@ DNDUPLOAD = function() {
 
 Y.extend(DNDUPLOAD, Y.Base, {
     uploadqueue: [],
-
-    // TODO fix
-
-    showstatus: false,
-    previews_established: false,
-
     currentsection: null,
-
     entercount: 0,
 
+    // TODO fix
+    previews_established: false,
+
     initializer: function() {
+        if (Y.one(Y.config.doc.body).hasClass(SELECTORS.dnduploader)) {
+            return;
+        }
+
         // Check whether this browser supports drag-and-drop upload.
-        if (!this.browser_supported()) {
+        if (!Y.Moodle.course.dnduploadloader.browser_supported()) {
             return;
         }
 
@@ -74,25 +77,15 @@ Y.extend(DNDUPLOAD, Y.Base, {
         Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
 
         // Add the status message.
-        if (this.showstatus) {
+        if (this.get('showstatus')) {
             this.add_status_div();
         }
+
+        // Add the dnduploader class to the body to prevent it from being loaded again.
+        Y.one(Y.config.doc.body).addClass(CSS.dnduploader);
     },
 
-    /**
-     * Check whether the browser has the required functionality
-     *
-     * @method browser_supported
-     * @return {Boolean} Whether the user's browser supports drag-and-drop uploading of files.
-     */
-    browser_supported: function() {
-        if (typeof FileReader === 'undefined') {
-            return false;
-        }
-        if (typeof FormData === 'undefined') {
-            return false;
-        }
-        return true;
+    add_status_div: function() {
     },
 
     add_preview_to_section: function(section) {
@@ -1058,10 +1051,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         if (!modsel) {
             // Create the above 'ul' if it doesn't exist.
             // TODO Rewrite - yuck!!!
-            modsel = Y.Node.create(
-                    '<ul class="section img-text">' +
-                    '</ul>'
-                );
+            modsel = Y.Node.create( '<ul class="section img-text"/>');
             var contentel = section.get('children').pop();
             var brel = contentel.get('children').pop();
             contentel.insertBefore(modsel, brel);
@@ -1095,6 +1085,15 @@ Y.extend(DNDUPLOAD, Y.Base, {
         showstatus: {
             value: 1
         },
+        statusmessage: {
+            value: {
+                identifier: 'dndstatus',
+                component: 'moodle'
+            },
+            getter: function(val) {
+                return M.util.get_string(val.identifier, val.component);
+            }
+        },
         url: {
             value: M.cfg.wwwroot + '/course/dndupload.php'
         }
@@ -1106,9 +1105,9 @@ Y.Moodle.course.dndupload.init = function(config) {
 };
 
 
-
 }, '@VERSION@', {
     "requires": [
+        "moodle-course-dndupload-loader",
         "node",
         "event",
         "json",
