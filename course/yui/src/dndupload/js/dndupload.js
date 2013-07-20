@@ -59,6 +59,9 @@ Y.extend(DNDUPLOAD, Y.Base, {
             return;
         }
 
+        // Add the dnduploader class to the body to prevent it from being loaded again.
+        Y.one(Y.config.doc.body).addClass(CSS.dnduploader);
+
         // Check whether this browser supports drag-and-drop upload.
         if (!Y.Moodle.course.dnduploadloader.browser_supported()) {
             Y.log('Browser not supported. Exiting', 'warn', LOGNAME);
@@ -78,16 +81,14 @@ Y.extend(DNDUPLOAD, Y.Base, {
         Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
 
         // Add the status message.
-        if (this.get('showstatus')) {
+        if (this.get('showStatusMessage')) {
+            // TODO fix this.
             this.add_status_div();
         }
-
-        // Add the dnduploader class to the body to prevent it from being loaded again.
-        Y.one(Y.config.doc.body).addClass(CSS.dnduploader);
     },
 
     add_status_div: function() {
-        Y.log(this.get('statusmessage'));
+        Y.log(this.get('statusMessage'));
     },
 
     add_preview_to_section: function(section) {
@@ -714,7 +715,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         formData.append('module', module);
 
         // Send the data
-        xhr.open("POST", this.get('url'), true);
+        xhr.open("POST", this.get('uploadURL'), true);
         xhr.send(formData);
     },
 
@@ -799,7 +800,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         // Handle the result too.
         uploader.on('uploadcomplete', this.add_file_to_page, this, resel);
 
-        uploader.startUpload(this.get('url'), {
+        uploader.startUpload(this.get('uploadURL'), {
             sesskey: M.cfg.sesskey,
             course: this.get('courseid'),
             section: this.get_section_id(section),
@@ -1080,19 +1081,66 @@ Y.extend(DNDUPLOAD, Y.Base, {
     }
 }, {
     ATTRS: {
+
+        /**
+         * The maximum size of files being uploaded.
+         *
+         * @attribute maxbytes
+         * @type Number|null
+         * @default null
+         */
         maxbytes: {
             value: null
         },
+
+        /**
+         * The ID of the current course.
+         *
+         * @attribute courseid
+         * @writeOnce
+         * @type Number|null
+         * @default null
+         */
         courseid: {
             value: null
         },
+
+        /**
+         * The list of handlers which are available for drag-and-drop upload.
+         *
+         * @attribute handlers
+         * @type Array
+         * @default []
+         */
         handlers: {
             value: []
         },
-        showstatus: {
-            value: 1
+
+        /**
+         * Whether to show the status the message that drag-and-drop upload is available.
+         *
+         * @attribute showStatusMessage
+         * @type Boolean
+         * @default true
+         */
+        showStatusMessage: {
+            value: true
         },
-        statusmessage: {
+
+        /**
+         * The message to show when drag-and-drop is available.
+         *
+         * This must be provided in the format:
+         * {
+         *  identifer: String,
+         *  component: String
+         * }
+         *
+         * @attribute statusMessage
+         * @type Object
+         * @default dndstat, moodle
+         */
+        statusMessage: {
             value: {
                 identifier: 'dndstatus',
                 component: 'moodle'
@@ -1101,7 +1149,16 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 return M.util.get_string(val.identifier, val.component);
             }
         },
-        url: {
+
+        /**
+         * The endpoint to use for drag-and-drop upload.
+         *
+         * @attribute uploadURL
+         * @writeOnce
+         * @type String
+         * @default M.cfg.wwwroot + '/course/dndupload.php'
+         */
+        uploadURL: {
             value: M.cfg.wwwroot + '/course/dndupload.php'
         }
     }
