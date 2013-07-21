@@ -25,18 +25,18 @@
 Y.namespace('Moodle.course.dndupload');
 
 var SELECTORS = {
-    sections: 'li.section.main',
-    section_mod: 'ul.section',
-    sections_mods: 'li.section.main ul.section',
-    section_types: 'li.section, li.main',
-    preview_element: '.dndupload-preview',
-    dnduploader: '.dndupload-loaded'
-},
+        sections: 'li.section.main',
+        section_mod: 'ul.section',
+        sections_mods: 'li.section.main ul.section',
+        section_types: 'li.section, li.main',
+        preview_element: '.dndupload-preview',
+        dnduploader: '.dndupload-loaded'
+    },
     CSS = {
-    dnduploader: 'dndupload-loaded',
-    preview_hide: 'dndupload-hidden',
-    preview_over: 'dndupload-over'
-},
+        dnduploader: 'dndupload-loaded',
+        preview_hide: 'dndupload-hidden',
+        preview_over: 'dndupload-over'
+    },
     LOGNAME = 'moodle-course-dndupload',
     DNDUPLOAD;
 
@@ -48,6 +48,7 @@ DNDUPLOAD = function() {
 Y.extend(DNDUPLOAD, Y.Base, {
     uploadqueue: [],
     currentsection: null,
+    lastSection: null,
     entercount: 0,
 
     // TODO fix
@@ -75,10 +76,18 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // Add the event listeners.
-        Y.delegate('dragenter', this.dragenter, Y.config.doc, SELECTORS.sections, this);
-        Y.delegate('dragleave', this.dragleave, Y.config.doc, SELECTORS.sections, this);
-        Y.delegate('dragover',  this.dragover,  Y.config.doc, SELECTORS.sections, this);
-        Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
+        //Y.delegate('dragenter', this.dragenter, Y.config.doc, SELECTORS.sections, this);
+        //Y.delegate('dragleave', this.dragleave, Y.config.doc, SELECTORS.sections, this);
+        //Y.delegate('dragover',  this.dragover,  Y.config.doc, SELECTORS.sections, this);
+        //Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
+
+        Y.delegate('dragenter', function() {
+            Y.log('dragenter');
+        }, Y.config.doc, SELECTORS.sections, this);
+
+        Y.delegate('dragleave', function() {
+            Y.log('dragleave');
+        }, Y.config.doc, SELECTORS.sections, this);
 
         // Add the status message.
         if (this.get('showStatusMessage')) {
@@ -291,38 +300,30 @@ Y.extend(DNDUPLOAD, Y.Base, {
     /**
      * Hide the current preview element.
      *
-     * @method hide_preview_element
+     * @method hideDropTarget
      */
-    hide_preview_element: function() {
-        // Hide the currently shown preview element.
-        //if (this.currentsection) {
-            //this.currentsection.addClass(CSS.preview_hide)
-                    //.removeClass(CSS.preview_over);
-        //}
+    hideDropTarget: function() {
+        if (this.currentsection) {
+            this.currentsection.getMask().hide();
+        }
     },
 
     /**
      * Show the preview element for the specified section and type.
      *
-     * @method show_preview_element
+     * @method showDropTarget
      * @param {Node} section The section being targetted.
      * @param {String} type The type of file being uploaded.
      */
-    show_preview_element: function(section, type) {
-        this.hide_preview_element();
+    showDropTarget: function(section, type) {
+        this.hideDropTarget();
 
         // Show the preview for the current section.
         if (section) {
             this.currentsection = section;
-            this.currentsection.removeClass(CSS.preview_hide)
-                    .addClass(CSS.preview_over);
-
-            this.currentsection.one('span').set('innerHTML', type.addmessage);
-            // TODO remove
-            // Horrible work-around to allow the 'Add X here' text to be a drop target in Firefox.
-            //var node = this.currentsection.one('span').getDOMNode();
-            // Dirty. Wrong.
-            //node.firstChild.nodeValue = type.addmessage;
+            var mask = section.getMask();
+            mask.one('.mask-content').set('innerHTML', type.addmessage);
+            mask.show();
         }
 
     },
@@ -334,23 +335,27 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {EventFacade} e
      */
     dragenter: function(e) {
-        //this.setup_section_previews();
-
         var type = this.check_drag(e),
             section = e.currentTarget.ancestor(SELECTORS.section_types, true);
 
         if (!type) {
-            return false;
+            return;
         }
 
         if (!section) {
-            return false;
+            return;
         }
 
+        if (section === this.lastSection) {
+            return;
+        }
+        this.lastSection = section;
+
+Y.log("dragenter " + section.get('id'));
         if (section.one(SELECTORS.preview_element)) {
             this.entercount = 1;
-            this.show_preview_element(section, type);
-            return true;
+            this.showDropTarget(section, type);
+            return;
         } else {
             // Add the preview to the current section.
             this.add_preview_to_section(section);
@@ -358,11 +363,11 @@ Y.extend(DNDUPLOAD, Y.Base, {
             this.entercount++;
             if (this.entercount > 2) {
                 this.entercount = 2;
-                return false;
+                return;
             }
         }
 
-        return false;
+        return;
     },
 
     /**
@@ -376,6 +381,13 @@ Y.extend(DNDUPLOAD, Y.Base, {
         if (!this.check_drag(e)) {
             return;
         }
+        var section = e.currentTarget.ancestor(SELECTORS.section_types, true);
+        if (this.lastSection !== section) {
+            Y.log("dragleave " + section.get('id'));
+            Y.log(e.relatedTarget);
+        }
+
+        section.getMask().hide();
 
         this.entercount--;
         if (this.entercount === 0) {
@@ -386,7 +398,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         this.currentsection = null;
 
         // Always hide the element to begin.
-        this.hide_preview_element();
+        this.hideDropTarget();
 
         return;
     },
@@ -414,7 +426,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
             section = this.get_section(e.currentTarget);
 
         Y.log("In the drop", 'info', LOGNAME);
-        this.hide_preview_element();
+        this.hideDropTarget();
 
         if (!type) {
             return false;

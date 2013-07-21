@@ -1,0 +1,10 @@
+{
+  "name": "moodle-course-base",
+  "builds": {
+    "moodle-course-base": {
+      "jsfiles": [
+        "base.js"
+      ]
+    }
+  }
+}

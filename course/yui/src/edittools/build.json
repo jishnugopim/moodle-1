@@ -1,0 +1,15 @@
+{
+  "name": "moodle-course-edittools",
+  "builds": {
+    "moodle-course-edittools-section": {
+      "jsfiles": [
+        "section.js"
+      ]
+    },
+    "moodle-course-edittools-resource": {
+      "jsfiles": [
+        "resource.js"
+      ]
+    }
+  }
+}
