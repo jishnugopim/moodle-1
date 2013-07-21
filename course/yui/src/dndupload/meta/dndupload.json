@@ -10,9 +10,13 @@
       "moodle-core-notification",
       "moodle-course-coursebase",
       "selector-css3",
-      "file"
+      "file",
+      "moodle-core-util-mask"
     ]
   },
   "moodle-course-dndupload-loader": {
+    "requires": [
+      "node"
+    ]
   }
 }

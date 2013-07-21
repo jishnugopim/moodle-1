@@ -1,0 +1,108 @@
+{
+    "project": {},
+    "files": {
+        "js/mask.js": {
+            "name": "js/mask.js",
+            "modules": {
+                "node-mask": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "js/util.js": {
+            "name": "js/util.js",
+            "modules": {
+                "moodle-core-util": 1
+            },
+            "classes": {
+                "Util": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "node": {
+            "name": "node",
+            "submodules": {
+                "node-mask": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node-mask": {
+            "name": "node-mask",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "is_submodule": 1,
+            "namespaces": {},
+            "module": "node",
+            "namespace": "",
+            "file": "js/mask.js",
+            "line": 1,
+            "static": 1
+        },
+        "moodle-core-util": {
+            "name": "moodle-core-util",
+            "submodules": {},
+            "classes": {
+                "Util": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "js/util.js",
+            "line": 1,
+            "description": "Provides general utility modules for Moodle.",
+            "itemtype": "main"
+        }
+    },
+    "classes": {
+        "Util": {
+            "name": "Util",
+            "shortname": "Util",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "moodle-core-util",
+            "namespace": "",
+            "file": "js/util.js",
+            "line": 1,
+            "description": "Provides general utility modules for Moodle.",
+            "mainName": "",
+            "tag": "main",
+            "itemtype": "main",
+            "_main": true
+        }
+    },
+    "classitems": [
+        {
+            "file": "js/mask.js",
+            "line": 7,
+            "description": "Add or retrieve a mask for the current node.",
+            "itemtype": "method",
+            "name": "getMask",
+            "params": [
+                {
+                    "name": "customclass",
+                    "description": "A custom class applied to the mask.",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "The mask that was added.",
+                "type": "Node"
+            },
+            "class": "Util",
+            "module": "node",
+            "submodule": "node-mask"
+        }
+    ],
+    "warnings": []
+}

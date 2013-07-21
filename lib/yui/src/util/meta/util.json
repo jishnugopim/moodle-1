@@ -1,0 +1,7 @@
+{
+  "moodle-core-util-mask": {
+    "requires": [
+      "node"
+    ]
+  }
+}
