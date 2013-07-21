@@ -76,18 +76,10 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // Add the event listeners.
-        //Y.delegate('dragenter', this.dragenter, Y.config.doc, SELECTORS.sections, this);
-        //Y.delegate('dragleave', this.dragleave, Y.config.doc, SELECTORS.sections, this);
-        //Y.delegate('dragover',  this.dragover,  Y.config.doc, SELECTORS.sections, this);
-        //Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
-
-        Y.delegate('dragenter', function() {
-            Y.log('dragenter');
-        }, Y.config.doc, SELECTORS.sections, this);
-
-        Y.delegate('dragleave', function() {
-            Y.log('dragleave');
-        }, Y.config.doc, SELECTORS.sections, this);
+        Y.delegate('dragenter', this.dragenter, Y.config.doc, SELECTORS.sections, this);
+        Y.delegate('dragleave', this.dragleave, Y.config.doc, SELECTORS.sections, this);
+        Y.delegate('dragover',  this.dragover,  Y.config.doc, SELECTORS.sections, this);
+        Y.delegate('drop',      this.drop,      Y.config.doc, SELECTORS.sections, this);
 
         // Add the status message.
         if (this.get('showStatusMessage')) {
@@ -304,7 +296,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      */
     hideDropTarget: function() {
         if (this.currentsection) {
-            this.currentsection.getMask().hide();
+            //this.currentsection.getMask().hide();
         }
     },
 
@@ -352,9 +344,9 @@ Y.extend(DNDUPLOAD, Y.Base, {
         this.lastSection = section;
 
 Y.log("dragenter " + section.get('id'));
+        this.showDropTarget(section, type);
         if (section.one(SELECTORS.preview_element)) {
             this.entercount = 1;
-            this.showDropTarget(section, type);
             return;
         } else {
             // Add the preview to the current section.
@@ -387,7 +379,7 @@ Y.log("dragenter " + section.get('id'));
             Y.log(e.relatedTarget);
         }
 
-        section.getMask().hide();
+        //section.getMask().hide();
 
         this.entercount--;
         if (this.entercount === 0) {
