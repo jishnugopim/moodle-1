@@ -47,9 +47,9 @@ DNDUPLOAD = function() {
 
 Y.extend(DNDUPLOAD, Y.Base, {
     uploadqueue: [],
-    currentsection: null,
+    currentSection: null,
     lastSection: null,
-    entercount: 0,
+    enterCount: 0,
 
     // TODO fix
     previews_established: false,
@@ -294,9 +294,12 @@ Y.extend(DNDUPLOAD, Y.Base, {
      *
      * @method hideDropTarget
      */
-    hideDropTarget: function() {
-        if (this.currentsection) {
-            //this.currentsection.getMask().hide();
+    hideDropTarget: function(section) {
+        section = section || this.currentSection;
+        if (section) {
+            //Y.log("Hiding drop target for " + section.get('id') + " - " + this.enterCount);
+            // Hide the preview for the current section.
+            section.getMask().hide();
         }
     },
 
@@ -308,16 +311,11 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {String} type The type of file being uploaded.
      */
     showDropTarget: function(section, type) {
-        this.hideDropTarget();
-
+        //Y.log("Showing drop target for " + section.get('id') + " - " + this.enterCount);
         // Show the preview for the current section.
-        if (section) {
-            this.currentsection = section;
-            var mask = section.getMask();
-            mask.one('.mask-content').set('innerHTML', type.addmessage);
-            mask.show();
-        }
-
+        var mask = section.getMask();
+        mask.one('.mask-content').set('innerHTML', type.addmessage)
+            .show();
     },
 
     /**
@@ -338,28 +336,17 @@ Y.extend(DNDUPLOAD, Y.Base, {
             return;
         }
 
-        if (section === this.lastSection) {
-            return;
-        }
-        this.lastSection = section;
-
-Y.log("dragenter " + section.get('id'));
-        this.showDropTarget(section, type);
-        if (section.one(SELECTORS.preview_element)) {
-            this.entercount = 1;
-            return;
+        Y.log('dragenter: enterCount is now ' + this.enterCount);
+        if (section !== this.currentSection) {
+            this.currentSection = section;
+            this.enterCount = 1;
+            this.showDropTarget(section, type);
         } else {
-            // Add the preview to the current section.
-            this.add_preview_to_section(section);
-
-            this.entercount++;
-            if (this.entercount > 2) {
-                this.entercount = 2;
-                return;
+            this.enterCount++;
+            if (this.enterCount > 2) {
+                this.enterCount = 2;
             }
         }
-
-        return;
     },
 
     /**
@@ -373,26 +360,22 @@ Y.log("dragenter " + section.get('id'));
         if (!this.check_drag(e)) {
             return;
         }
-        var section = e.currentTarget.ancestor(SELECTORS.section_types, true);
-        if (this.lastSection !== section) {
-            Y.log("dragleave " + section.get('id'));
-            Y.log(e.relatedTarget);
+
+        this.enterCount--;
+        Y.log('dragleave: enterCount is now ' + this.enterCount);
+        if (this.enterCount >= 1) {
+            this.enterCount = 1;
+            return;
         }
+        this.enterCount = 0;
 
-        //section.getMask().hide();
-
-        this.entercount--;
-        if (this.entercount === 0) {
+        var section = e.currentTarget.ancestor(SELECTORS.section_types, true);
+        if (!section) {
             return;
         }
 
-        this.entercount = 0;
-        this.currentsection = null;
-
-        // Always hide the element to begin.
-        this.hideDropTarget();
-
-        return;
+        Y.log("dragleave hiding the drop target " + this.enterCount);
+        this.hideDropTarget(section);
     },
 
     /**
