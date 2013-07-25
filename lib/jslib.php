@@ -110,7 +110,9 @@ function js_minify($files) {
     if (0 === stripos(PHP_OS, 'win')) {
         Minify::setDocRoot(); // IIS may need help
     }
-    // disable all caching, we do it in moodle
+
+    // We have to ensure that Minify does not cache anything because we
+    // want Moodle to be entirely in control of its caching.
     Minify::setCache(null, false);
 
     $options = array(
@@ -119,8 +121,10 @@ function js_minify($files) {
         'bubbleCssImports' => false,
         // Don't gzip content we just want text for storage
         'encodeOutput' => false,
-        // Maximum age to cache, not used but required
-        'maxAge' => 1800,
+        // Maximum age to cache - it must be set but setting to 0 helps to disable the cache.
+        'maxAge' => 0,
+        // If we set a lastModifiedTime of null, then this also helps prevent caching.
+        'lastModifiedTime' => null,
         // The files to minify
         'files' => $files,
         // Turn orr URI rewriting
@@ -132,7 +136,7 @@ function js_minify($files) {
     $error = 'unknown';
     try {
         $result = Minify::serve('Files', $options);
-        if ($result['success']) {
+        if ($result['success'] && $result['statusCode'] == 200) {
             return $result['content'];
         }
     } catch (Exception $e) {
