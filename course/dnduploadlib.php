@@ -728,29 +728,14 @@ class dndupload_ajax_processor {
         global $OUTPUT, $PAGE;
         $courserenderer = $PAGE->get_renderer('core', 'course');
 
+        $course = $mod->get_course();
+        $completioninfo = new completion_info($course);
+        $modulehtml = $courserenderer->course_section_cm($course, $completioninfo,
+                $mod, null, array());
+
         $resp = new stdClass();
-        $resp->error = self::ERROR_OK;
-        $resp->icon = $mod->get_icon_url()->out();
-        $resp->name = $mod->name;
-        if ($mod->has_view()) {
-            $resp->link = $mod->get_url()->out();
-        } else {
-            $resp->link = null;
-        }
-        $resp->content = $mod->get_content();
-        $resp->elementid = 'module-'.$mod->id;
-        $actions = course_get_cm_edit_actions($mod, 0, $mod->sectionnum);
-        $resp->commands = ' '. $courserenderer->course_section_cm_edit_actions($actions, $mod);
-        $resp->onclick = $mod->get_on_click();
-        $resp->visible = $mod->visible;
-
-        // If using groupings, then display grouping name.
-        if (!empty($mod->groupingid) && has_capability('moodle/course:managegroups', $this->context)) {
-            $groupings = groups_get_all_groupings($this->course->id);
-            $resp->groupingname = format_string($groupings[$mod->groupingid]->name);
-        }
-
-        echo $OUTPUT->header();
+        $resp->fullcontent = $courserenderer->course_section_cm_item($mod, $modulehtml);
+        $resp->cmid = $mod->id;
         echo json_encode($resp);
         die();
     }
