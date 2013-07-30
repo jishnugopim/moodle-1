@@ -11,7 +11,9 @@
       "moodle-course-coursebase",
       "selector-css3",
       "file",
-      "moodle-core-util-mask"
+      "moodle-core-util-mask",
+      "promise",
+      "async-queue"
     ]
   },
   "moodle-course-dndupload-loader": {

@@ -1121,8 +1121,6 @@ class core_course_renderer extends plugin_renderer_base {
                         array('class' => 'movehere', 'title' => $strmovefull));
             }
         }
-
-        // Always output the section module list.
         $output .= html_writer::tag('ul', $sectionoutput, array('class' => 'section img-text'));
 
         return $output;
