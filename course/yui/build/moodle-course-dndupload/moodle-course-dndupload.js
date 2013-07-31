@@ -800,7 +800,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         // TODO Rewrite me
         if (type.handlers.length === 1 && type.handlers[0].noname) {
             // Only one handler and it doesn't need a name (i.e. a label).
-            this.upload_item('', type.type, contents, section, sectionnumber, type.get('handlers')[0].module);
+            this.upload_item('', type.type, contents, section, sectionnumber, type.handlers[0].module);
             this.check_upload_queue();
             return;
         }
@@ -825,18 +825,18 @@ Y.extend(DNDUPLOAD, Y.Base, {
         if (type.handlers.length > 1) {
             content += '<p>'+type.handlermessage+'</p>';
             content += '<div id="dndupload_handlers'+uploadid+'">';
-            var sel = type.get('handlers')[0].module;
-            for (var i=0; i<type.get('handlers').length; i++) {
-                var id = 'dndupload_handler'+uploadid+type.get('handlers')[i].module;
-                var checked = (type.get('handlers')[i].module === sel) ? 'checked="checked" ' : '';
+            var sel = type.handlers[0].module;
+            for (var i=0; i<type.handlers.length; i++) {
+                var id = 'dndupload_handler'+uploadid+type.handlers[i].module;
+                var checked = (type.handlers[i].module === sel) ? 'checked="checked" ' : '';
                 content += '<input type="radio" name="handler" value="'+i+'" id="'+id+'" '+checked+'/>';
                 content += ' <label for="'+id+'">';
-                content += type.get('handlers')[i].message;
+                content += type.handlers[i].message;
                 content += '</label><br/>';
             }
             content += '</div>';
         }
-        var disabled = (type.get('handlers')[0].noname) ? ' disabled = "disabled" ' : '';
+        var disabled = (type.handlers[0].noname) ? ' disabled = "disabled" ' : '';
         content += '<label for="'+nameid+'">'+type.namemessage+'</label>';
         content += ' <input type="text" id="'+nameid+'" value="" '+disabled+' />';
 
@@ -860,7 +860,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 panel.destroy(true);
                 self.check_upload_queue();
             }
-        });
+        }, this);
 
         var namefield = Y.one('#'+nameid);
         var submit = function(e) {
@@ -868,22 +868,22 @@ Y.extend(DNDUPLOAD, Y.Base, {
             var name = Y.Lang.trim(namefield.get('value'));
             var module = false;
             var noname = false;
-            if (type.get('handlers').length > 1) {
+            if (type.handlers.length > 1) {
                 // Find out which module was selected
                 var div = Y.one('#dndupload_handlers'+uploadid);
                 div.all('input').each(function(input) {
                     if (input.get('checked')) {
                         var idx = input.get('value');
-                        module = type.get('handlers')[idx].module;
-                        noname = type.get('handlers')[idx].noname;
+                        module = type.handlers[idx].module;
+                        noname = type.handlers[idx].noname;
                     }
                 });
                 if (!module) {
                     return;
                 }
             } else {
-                module = type.get('handlers')[0].module;
-                noname = type.get('handlers')[0].noname;
+                module = type.handlers[0].module;
+                noname = type.handlers[0].noname;
             }
             if (name === '' && !noname) {
                 return;
