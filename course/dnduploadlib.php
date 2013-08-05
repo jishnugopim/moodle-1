@@ -441,6 +441,8 @@ class dndupload_ajax_processor {
     /** @var string The name to give the new activity instance */
     protected $displayname = null;
 
+    protected $position = null;
+
     /**
      * Set up some basic information needed to handle the upload
      *
@@ -508,10 +510,14 @@ class dndupload_ajax_processor {
         $this->displayname = $displayname;
 
         if ($this->is_file_upload()) {
-            $this->handle_file_upload();
+            $this->handle_file_upload($position);
         } else {
             $this->handle_other_upload($content);
         }
+    }
+
+    public function set_target_position($position) {
+        $this->position = $position;
     }
 
     /**
@@ -674,15 +680,35 @@ class dndupload_ajax_processor {
             throw new moodle_exception('errorcreatingactivity', 'moodle', '', $this->module->name);
         }
 
+        $section = get_fast_modinfo($this->course)->get_section_info($this->section);
+
         // Note the section visibility
-        $visible = get_fast_modinfo($this->course)->get_section_info($this->section)->visible;
+        $visible = $section->visible;
 
         $DB->set_field('course_modules', 'instance', $instanceid, array('id' => $this->cm->id));
         // Rebuild the course cache after update action
+
         rebuild_course_cache($this->course->id, true);
         $this->course->modinfo = null; // Otherwise we will just get the old version back again.
 
         $sectionid = course_add_cm_to_section($this->course, $this->cm->id, $this->section);
+
+        if ($this->position) {
+            $sectionorder = $DB->get_field('course_sections', 'sequence', array('course' => $this->course->id, 'section' => $this->section));
+            $modulelist = explode(',', $sectionorder);
+            error_log("ARN: Count is " . count($modulelist) . " > " . $this->position);
+            error_log("ARN: " . print_r($modulelist, true));
+
+            if (count($modulelist) >= $this->position) {
+                $beforeid = $modulelist[$this->position - 1];
+                $beforemod = $DB->get_record('course_modules', array('id' => $beforeid));
+                error_log("ARN: Moving to {$beforeid}");
+                moveto_module($this->cm, $section, $beforemod);
+            }
+        }
+
+        rebuild_course_cache($this->course->id, true);
+        $this->course->modinfo = null; // Otherwise we will just get the old version back again.
 
         set_coursemodule_visible($this->cm->id, $visible);
         if (!$visible) {
