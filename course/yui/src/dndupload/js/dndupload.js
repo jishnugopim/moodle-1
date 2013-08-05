@@ -25,13 +25,11 @@
 Y.namespace('Moodle.course.dndupload');
 
 var SELECTORS = {
+        couremodule: 'li.activity',
         sections: 'li.section.main',
         section_mod: 'ul.section',
-        sections_mods: 'li.section.main ul.section',
         section_types: 'li.section, li.main',
-        preview_element: '.dndupload-preview',
-        dnduploader: '.dndupload-loaded',
-        progressbar: '.dndupload-progress-outer'
+        dnduploader: '.dndupload-loaded'
     },
     CSS = {
         dnduploader: 'dndupload-loaded',
@@ -47,13 +45,12 @@ DNDUPLOAD = function() {
 
 
 Y.extend(DNDUPLOAD, Y.Base, {
-    uploadQueue: new Y.AsyncQueue(),
+    processQueue: new Y.AsyncQueue(),
     currentSection: null,
-    lastSection: null,
     enterCount: 0,
 
-    // TODO fix
-    previews_established: false,
+    // We delay the dialogues until the end.
+    delayDialogues: true,
 
     initializer: function() {
         if (Y.one(Y.config.doc.body).hasClass(SELECTORS.dnduploader)) {
@@ -72,7 +69,8 @@ Y.extend(DNDUPLOAD, Y.Base, {
 
         // Nothing to upload to - exit early.
         if (!Y.one(SELECTORS.sections)) {
-            Y.log('Not sections to upload to. Exiting', 'warn', LOGNAME);
+            // Note - we may need to remove this if dynamic section creation is added.
+            Y.log('No sections to upload to. Exiting', 'warn', LOGNAME);
             return;
         }
 
@@ -84,91 +82,17 @@ Y.extend(DNDUPLOAD, Y.Base, {
 
         // Add the status message.
         if (this.get('showStatusMessage')) {
-            // TODO fix this.
-            this.add_status_div();
+            this.addStatusMessage();
         }
-    },
-
-    add_status_div: function() {
-        Y.log(this.get('statusMessage'));
-    },
-
-    add_preview_to_section: function(section) {
-        if (this.previews_established) {
-            return;
-        }
-
-        if (typeof this.previewnode === "undefined") {
-            Y.log("Creating new preview node", 'info', LOGNAME);
-            this.previewnode = Y.Node.create(
-                '<li class="dndupload-preview dndupload-hidden">' +
-                    '<div class="mod-indent">' +
-                        '<img src="' +
-                            M.util.image_url('t/addfile') +
-                            '"/>' +
-                        '<span class="instancename" />' +
-                    '</div>' +
-                '</li>');
-            this.previewnode.one('span').set('innerHTML',
-                    M.util.get_string('addfilehere', 'core'));
-        }
-
-        section.one('ul.section').append(this.previewnode);
-
-        return this.previewnode;
     },
 
     /**
-     * Set up preview elements for each section.
+     * Display a status message to inform users that drag-and-drop upload is available.
      *
-     * This is a potentially expensive operation which requires
-     * modification to the DOM. Try and leave it as late as possible.
-     *
-     * @method setup_section_previews
-     * @return {null}
+     * @method addStatusMessage
      */
-    setup_section_previews: function() {
-        if (this.previews_established) {
-            return;
-        }
-
-        var template = Y.Node.create(
-            '<li class="dndupload-preview dndupload-hidden">' +
-                '<div class="mod-indent">' +
-                    '<img src="' +
-                        M.util.image_url('t/addfile') +
-                        '"/>' +
-                    '<span class="instancename" />' +
-                '</div>' +
-            '</li>');
-
-        template.one('span').set('innerHTML', M.util.get_string('addfilehere', 'core'));
-
-        // Ensure that all sections have the relevant mod selectors - this
-        // makes the following code to add the previews easier.
-        // TODO - is this still required?
-        //this.setup_section_mod_elements();
-
-        Y.all(SELECTORS.sections_mods).each(function(node) {
-            node.appendChild(template.cloneNode(true));
-        });
-
-        this.previews_established = true;
-    },
-
-    // TODO Fixme - still required?
-    setup_section_mod_elements: function() {
-        var selectors = Y.all(SELECTORS.sections),
-            template = Y.Node.create('<ul class="section img-text"></ul>');
-
-        // Actually add the selectors now.
-        selectors.each(function() {
-            if (this.one(SELECTORS.section_mod)) {
-                // This section already has a section mod - no need to add another.
-                return;
-            }
-            this.appendChild(template.cloneNode(true));
-        });
+    addStatusMessage: function() {
+        Y.log(this.get('statusMessage'));
     },
 
     /**
@@ -192,6 +116,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         return false;
     },
 
+    // TODO rewrite
     dragtype: function(e) {
         // Check there is some data attached.
         if (e._event.dataTransfer === null) {
@@ -222,15 +147,17 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // Check each of the registered types.
-        var typekey;
-        for (typekey in this.get('handlers').types) {
-            if (!this.get('handlers').types.hasOwnProperty(typekey)) {
+        var types = this.get('handlers').types,
+            typekey;
+        for (typekey in types) {
+            if (!types.hasOwnProperty(typekey)) {
                 continue;
             }
 
             // Check each of the different identifiers for this type.
-            var dttypes = this.get('handlers').types[typekey].datatransfertypes,
+            var dttypes = types[typekey].datatransfertypes,
                 thistype;
+
             for (thistype in dttypes) {
                 if (!dttypes.hasOwnProperty(thistype)) {
                     continue;
@@ -238,11 +165,11 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 if (this.types_includes(e, dttypes[thistype])) {
                     return {
                         realtype: dttypes[thistype],
-                        addmessage:     this.get('handlers').types[typekey].addmessage,
-                        namemessage:    this.get('handlers').types[typekey].namemessage,
-                        handlermessage: this.get('handlers').types[typekey].handlermessage,
-                        type:           this.get('handlers').types[typekey].identifier,
-                        handlers:       this.get('handlers').types[typekey].handlers
+                        addmessage:     types[typekey].addmessage,
+                        namemessage:    types[typekey].namemessage,
+                        handlermessage: types[typekey].handlermessage,
+                        type:           types[typekey].identifier,
+                        handlers:       types[typekey].handlers
                     };
                 }
             }
@@ -256,11 +183,11 @@ Y.extend(DNDUPLOAD, Y.Base, {
     /**
      * Check the content of the drag/drop includes a type we can handle.
      *
-     * @method check_drag
+     * @method checkDrag
      * @param {EventFacade} e
      * @return {String|null} The type of the event, or null if no event found.
      */
-    check_drag: function(e) {
+    checkDrag: function(e) {
         var type = this.dragtype(e);
         if (type) {
             // Prevent this event being handled by any further listeners.
@@ -311,7 +238,6 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {String} type The type of file being uploaded.
      */
     showDropTarget: function(section, type) {
-        //Y.log("Showing drop target for " + section.get('id') + " - " + this.enterCount);
         // Show the preview for the current section.
         var mask = section.getMask();
         mask.one('.mask-content').set('innerHTML', type.addmessage);
@@ -325,7 +251,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {EventFacade} e
      */
     dragenter: function(e) {
-        var type = this.check_drag(e),
+        var type = this.checkDrag(e),
             section = e.currentTarget.ancestor(SELECTORS.section_types, true);
 
         if (!type) {
@@ -354,10 +280,11 @@ Y.extend(DNDUPLOAD, Y.Base, {
      */
     dragleave: function(e) {
         // Everything else must be file specific.
-        if (!this.check_drag(e)) {
+        if (!this.checkDrag(e)) {
             return;
         }
 
+        // TODO replace with Y.Moodle.course.util.section.get() ???
         var section = e.currentTarget.ancestor(SELECTORS.section_types, true);
         if (!section) {
             return;
@@ -385,7 +312,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {EventFacade} e
      */
     dragover: function(e) {
-        this.check_drag(e);
+        this.checkDrag(e);
     },
 
     /**
@@ -396,7 +323,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {EventFacade} e
      */
     drop: function(e) {
-        var type = this.check_drag(e),
+        var type = this.checkDrag(e),
             section = this.get_section(e.currentTarget);
 
         if (!type) {
@@ -420,23 +347,24 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 if (!files.hasOwnProperty(index)) {
                     continue;
                 }
-                Y.log("Item " + index + " in the queue was a file - adding to the upload queue", 'info', LOGNAME);
-                this.uploadQueue.add({
+                Y.log("Item " + index + " in the queue was a file - adding to the process queue", 'info', LOGNAME);
+                this.processQueue.add({
                     fn: this.handle_file,
                     context: this,
                     args: [
                         files[index],
                         section
                     ],
-                    // Set a timeout to ensure that this is process asynchronously - we have dialogue boxes.
+
+                    // Set a timeout to ensure that this is processed asynchronously - we have dialogue boxes.
                     timeout: -1
                 });
             }
         } else {
             contents = e._event.dataTransfer.getData(type.realtype);
             if (contents) {
-                Y.log("The submitted object was an item - adding to the upload queue", 'info', LOGNAME);
-                this.uploadQueue.add({
+                Y.log("The submitted object was an item - adding to the process queue", 'info', LOGNAME);
+                this.processQueue.add({
                     fn: this.handle_item,
                     context: this,
                     args: [
@@ -448,21 +376,29 @@ Y.extend(DNDUPLOAD, Y.Base, {
             }
         }
 
+        // We add an event to the end of the queue so that we know to stop demoting the
+        // dialogue boxes.
+        this.processQueue.add({
+            fn: function() {
+                this.delayDialogues = false;
+            },
+            context: this
+        });
+
         // Process the queue item by item.
-        this.uploadQueue.run();
+        this.processQueue.run();
     },
 
     /**
      * Find the registered handler for the given file type. If there is more than one, ask the
      * user which one to use. Then upload the file to the server
      *
-     * TODO Rewrite
      * @method handle_file
      * @param {Object} file the details of the file, taken from the FileList in the drop event
      * @param {Node} section the DOM element representing the selected course section
-     * @param {Integer} sectionnumber the number of the selected course section
+     * @param {Node} placeholder the DOM element representing the progress bar placeholder
      */
-    handle_file: function(file, section) {
+    handle_file: function(file, section, placeholder) {
         var handlers = [],
             handler = null,
             current = null,
@@ -471,6 +407,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
             dotpos = file.name.lastIndexOf('.');
 
         if (dotpos !== -1) {
+            // Attempt to determine the file extension.
             extension = file.name.substr(dotpos+1, file.name.length).toLowerCase();
         }
 
@@ -479,6 +416,8 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 continue;
             }
             current = filehandlers[handler];
+
+            // Add this handler to the list if it is an exact match, or a wildcard.
             if (current.extension === '*' || current.extension === extension) {
                 handlers.push(current);
             }
@@ -486,15 +425,44 @@ Y.extend(DNDUPLOAD, Y.Base, {
 
         if (handlers.length === 0) {
             // None of the file handlers were suitable for this file.
+            this.hideDropTarget();
             return;
+        }
+
+        // Add the progress placeholder to the display.
+        if (!placeholder) {
+            placeholder = this.addProgressBar(file.name, section);
         }
 
         if (handlers.length === 1) {
             // Only one handler - just upload using this handler.
-            return this.upload_file(file, section, handlers[0].module);
+            this.hideDropTarget();
+            return this.uploadFile(file, section, handlers[0].module, placeholder);
         }
 
-        return this.file_handler_dialog(file, section, handlers, extension);
+        // Push dialogues to the end of the queue until the queue has been cycled a full time.
+        if (this.delayDialogues) {
+            Y.log('Demoting this item until all file uploads have started', 'info', LOGNAME);
+            // TODO Fix the issue here where items are shown in the correct order but on
+            // refresh the order chnages. Need to add a afterId field to the upload?
+            this.processQueue.add({
+                fn: this.handle_file,
+                context: this,
+                args: [
+                    file,
+                    section,
+                    placeholder
+                ],
+
+                // Set a timeout to ensure that this is processed asynchronously - we have dialogue boxes.
+                timeout: -1
+            });
+        } else {
+            Y.log('Pausing the process queue whilst dialogue is shown', 'info', LOGNAME);
+            this.processQueue.pause();
+            // TODO Rewrite this?
+            return this.file_handler_dialog(file, section, handlers, placeholder);
+        }
     },
 
     /**
@@ -510,9 +478,15 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {Node} section the DOM element representing the selected course section
      * @param {String} module The modtype of the file being uploaded
      */
-    upload_file: function(file, section, module) {
+    uploadFile: function(file, section, module, placeholder) {
         // Ensure that the drop target is hidden.
         this.hideDropTarget(section);
+
+        // Process the next item in the queue.
+        if (!this.processQueue.isRunning()) {
+            Y.log('Process Queue is paused - restarting', 'info', LOGNAME);
+            this.processQueue.run();
+        }
 
         // Check that the file fits within the constraints.
         if (file.size > this.get('maxbytes')) {
@@ -524,8 +498,21 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // Add the progress placeholder to the display.
-        var placeholder = this.addProgressBar(file.name, section, module),
-            progress = placeholder.one('.dndupload-progress-inner');
+        if (!placeholder) {
+            Y.log("no placeholder was detected");
+            placeholder = this.addProgressBar(file.name, section);
+        }
+        var progress = placeholder.one('.dndupload-progress-inner');
+
+        // The upload options we'll use in a moment.
+        var uploadOptions = {
+            sesskey: M.cfg.sesskey,
+            course: this.get('courseid'),
+            // TODO change to use moodle-course-utils-section.getId()
+            section: this.get_section_id(section),
+            module: module,
+            type: 'Files'
+        };
 
         // Create the uploader mechanism.
         var uploader = new Y.File({
@@ -541,14 +528,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         uploader.on('uploadcomplete', this.handleUploadResponse, this, placeholder);
 
         // Actually upload the file.
-        uploader.startUpload(this.get('uploadURL'), {
-            sesskey: M.cfg.sesskey,
-            course: this.get('courseid'),
-            // TODO change to use moodle-course-utils-section.getId()
-            section: this.get_section_id(section),
-            module: module,
-            type: 'Files'
-        }, 'repo_upload_file');
+        uploader.startUpload(this.get('uploadURL'), uploadOptions, 'repo_upload_file');
 
         return uploader;
     },
@@ -561,7 +541,8 @@ Y.extend(DNDUPLOAD, Y.Base, {
      */
     handleUploadResponse: function(event, placeholder) {
         try {
-            responseobject = Y.JSON.parse(event.data);
+            var data = event.data || event.response;
+            responseobject = Y.JSON.parse(data);
             if (responseobject.error) {
                 // Remove the placeholder before displayng the error.
                 placeholder.remove(true);
@@ -582,35 +563,10 @@ Y.extend(DNDUPLOAD, Y.Base, {
         placeholder.replace(courseModule);
 
         // Ensure that we ajaxify the content.
-        this.add_editing(responseobject.cmid);
+        this.setupJSForCourseModule(responseobject.cmid);
 
         return;
     },
-
-    /**
-     * Check to see if there are any other dialog boxes to show, now that the current one has
-     * been dealt with
-     *
-     * TODO See if we can replace this with proper use of async-queue,
-     * and/or promises.
-     */
-    check_upload_queue: function() {
-        // FIXME uploaddialog is dirty?
-        this.uploaddialog = false;
-        if (this.uploadqueue.length === 0) {
-            // Nothing in the queue at the moment.
-            return;
-        }
-
-        var details = this.uploadqueue.shift();
-        if (details.isfile) {
-            // FIXME Why not handle_file ?
-            return this.file_handler_dialog(details.file, details.section, details.handlers, details.extension);
-        } else {
-            this.handle_item(details.type, details.contents, details.section, details.sectionnumber);
-        }
-    },
-
 
     /**
      * Show a dialog box, allowing the user to choose what to do with the file they are
@@ -623,8 +579,10 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param extension the extension of the file being uploaded
      *
      * TODO rewrite this
+     * TODO make sure that this calls
+     *     this.hideDropTarget();
      */
-    file_handler_dialog: function(file, section, handlers) {
+    file_handler_dialog: function(file, section, handlers, placeholder) {
         if (!this.uploaddialog) {
             this.uploaddialog = new M.core.dialogue({
                 visible: false,
@@ -655,8 +613,12 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // TODO find a better way of doing this.
+        // At present, the action argument to addButton does not accept argument.
+        // This is a nasty fudge - we shoudl convert to
+        // this.uploaddialog.uploadbutton.on('click', this.process_uploaddialog, this, args);
         this.uploaddialog.file = file;
         this.uploaddialog.section = section;
+        this.uploaddialog.placeholder = placeholder;
 
         var index,
             template = Y.Node.create(
@@ -702,6 +664,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      *
      * @method process_uploaddialog
      * @return void
+     * TODO Rewrite
      */
     process_uploaddialog: function() {
         // Find out which module was selected.
@@ -721,7 +684,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
 
         // Handle the upload.
         this.uploaddialog.hide();
-        this.upload_file(this.uploaddialog.file, this.uploaddialog.section, module);
+        this.uploadFile(this.uploaddialog.file, this.uploaddialog.section, module, this.uploaddialog.placeholder);
     },
 
     /**
@@ -731,7 +694,6 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @method addProgressBar
      * @param {String} name the label to show in the element
      * @param {Node} section the DOM element reperesenting the course section
-     * @param {String} modtype The type of activity module
      * @return {Node} element containing the new item
      */
     addProgressBar: function(name, section) {
@@ -763,8 +725,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
     },
 
     /**
-     * Find or create the 'ul' element that contains all of the module instances in this
-     * section.
+     * Find the element that contains all of the course module instances in this section.
      *
      * @method getSectionModuleList
      * @param {Node} section the DOM element representing the section
@@ -783,43 +744,40 @@ Y.extend(DNDUPLOAD, Y.Base, {
      *
      * @param {Number} cmid the course module ID
      */
-    add_editing: function(cmid) {
+    setupJSForCourseModule: function(cmid) {
         M.course.coursebase.invoke_function('setup_for_resource', '#module-' + cmid);
     },
+
     /**
      * Handle upload and creation of a new item.
+     *
+     * TODO Move handle_item and upload_item to a new submodule which is only loaded if
+     * and when used? Or not worth the overhead...
      *
      * @method handle_item
      * @param {Object} type the details of the type of content
      * @param {Object} contents the contents to be uploaded
      * @param {Object} section the DOM element for the section being uploaded to
-     * @param {Integer} sectionnumber the number of the section being uploaded to
      * @return void
      * @TODO rewrite
      */
     handle_item: function(type, contents, section) {
         if (type.handlers.length === 0) {
             // Nothing to handle this - should not have got here
-            Y.log("Item with no handlers was passed", "error", LOGNAME);
             return;
         }
+
+        // Add the progress placeholder to the display.
+        // TODO erm... a name would be good here
+        var placeholder = this.addProgressBar('', section);
+
 
         // TODO Rewrite me
         if (type.handlers.length === 1 && type.handlers[0].noname) {
             // Only one handler and it doesn't need a name (i.e. a label).
-            this.upload_item('', type.type, contents, section, sectionnumber, type.handlers[0].module);
-            this.check_upload_queue();
+            this.hideDropTarget();
+            this.upload_item('', type.type, contents, section, type.handlers[0].module, placeholder);
             return;
-        }
-
-        if (this.uploaddialog) {
-            var details = {
-                isfile: false,
-                type: type,
-                contents: contents,
-                section: section
-            };
-            return this.uploadqueue.push(details);
         }
 
         // FIXME WTF
@@ -865,7 +823,6 @@ Y.extend(DNDUPLOAD, Y.Base, {
             this.hideDropTarget(section);
             if (!panel.get('visible')) {
                 panel.destroy(true);
-                self.check_upload_queue();
             }
         }, this);
 
@@ -900,7 +857,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
             }
             panel.hide();
             // Do the upload
-            self.upload_item(name, type.type, contents, section, sectionnumber, module);
+            self.upload_item(name, type.type, contents, section, module, placeholder);
         };
 
         // Add the submit/cancel buttons to the bottom of the dialog.
@@ -916,6 +873,8 @@ Y.extend(DNDUPLOAD, Y.Base, {
             action: function(e) {
                 e.preventDefault();
                 panel.hide();
+                // TODO check context
+                this.processQueue.run();
             },
             section: Y.WidgetStdMod.FOOTER
         });
@@ -968,93 +927,49 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param type the details of the data type found in the drop event
      * @param contents the actual data that was dropped
      * @param section the DOM element representing the selected course section
-     * @param sectionnumber the number of the selected course section
      * @param module the module chosen to handle this upload
      * @return void;
      */
-    upload_item: function(name, type, contents, section, module) {
+    upload_item: function(name, type, contents, section, module, placeholder) {
+        // Ensure that the drop target is hidden.
+        this.hideDropTarget(section);
 
-        // This would be an ideal place to use the Y.io function
-        // however, this does not support data encoded using the
-        // FormData object, which is needed to transfer data from
-        // the DataTransfer object into an XMLHTTPRequest
-        // This can be converted when the YUI issue has been integrated:
-        // http://yuilibrary.com/projects/yui3/ticket/2531274
-        var xhr = new XMLHttpRequest();
-        var self = this;
+        if (!this.processQueue.isRunning()) {
+            Y.log('Process Queue is paused - restarting', 'info', LOGNAME);
+            this.processQueue.run();
+        }
 
-        // Add the item to the display
-        var resel = this.addProgressBar(name, section, module);
-        resel.removeClass(CSS.preview_hide);
+        // Add the progress placeholder to the display.
+        if (!placeholder) {
+            Y.log("no placeholder was detected");
+            placeholder = this.addProgressBar(file.name, section);
+        }
+        var progress = placeholder.one('.dndupload-progress-inner');
 
-        // Wait for the AJAX call to complete, then update the
-        // dummy element with the returned details
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    var result = JSON.parse(xhr.responseText);
-                    if (result) {
-                        if (result.error === 0) {
-                            // All OK - update the dummy element
-                            if (result.content) {
-                                // A label
-                                resel.indentdiv.innerHTML = '<div class="activityinstance" ></div>' + result.content + result.commands;
-                            } else {
-                                // Not a label
-                                resel.icon.src = result.icon;
-                                resel.a.href = result.link;
-                                resel.namespan.innerHTML = result.name;
-
-                                if (!parseInt(result.visible, 10)) {
-                                    resel.a.className = 'dimmed';
-                                }
-
-                                if (result.groupingname) {
-                                    resel.groupingspan.innerHTML = '(' + result.groupingname + ')';
-                                } else {
-                                    resel.div.removeChild(resel.groupingspan);
-                                }
-
-                                resel.div.removeChild(resel.progressouter);
-                                resel.div.innerHTML += result.commands;
-                                if (result.onclick) {
-                                    resel.a.onclick = result.onclick;
-                                }
-                                if (self.Y.UA.gecko > 0) {
-                                    // Fix a Firefox bug which makes sites with a '~' in their wwwroot
-                                    // log the user out when clicking on the link (before refreshing the page).
-                                    resel.div.innerHTML = unescape(resel.div.innerHTML);
-                                }
-                            }
-                            resel.li.id = result.elementid;
-                            // TODO - sectionnumber usage
-                            self.add_editing(result.elementid, sectionnumber);
-                        } else {
-                            // Error - remove the dummy element
-                            resel.parent.removeChild(resel.li);
-                            alert(result.error);
-                        }
-                    }
-                } else {
-                    // ICK TODO rewrite using moodle-core-dialogue
-                    alert(M.util.get_string('servererror', 'core'));
+        // The upload options we'll use in a moment.
+        var uploadOptions = {
+            data: {
+                sesskey: M.cfg.sesskey,
+                course: this.get('courseid'),
+                // TODO change to use moodle-course-utils-section.getId()
+                section: this.get_section_id(section),
+                module: module,
+                type: type,
+                contents: contents,
+                displayname: name
+            },
+            on: {
+                complete: function(tid, response) {
+                    this.handleUploadResponse(response, placeholder);
+                },
+                progress: function(tid, e) {
+                    progress.setStyle('width', e.percentLoaded + '%');
                 }
-            }
+            },
+            context: this
         };
 
-        // Prepare the data to send
-        var formData = new FormData();
-        formData.append('contents', contents);
-        formData.append('displayname', name);
-        formData.append('sesskey', M.cfg.sesskey);
-        formData.append('course', this.get('courseid'));
-        formData.append('section', sectionnumber);
-        formData.append('type', type);
-        formData.append('module', module);
-
-        // Send the data
-        xhr.open("POST", this.get('uploadURL'), true);
-        xhr.send(formData);
+        Y.io(this.get('uploadURL'), uploadOptions);
     }
 
 }, {
