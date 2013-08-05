@@ -179,7 +179,6 @@ Y.extend(DNDUPLOAD, Y.Base, {
 
         // There are no types that we can handle, return false here.
         return false;
-
     },
 
     /**
@@ -351,7 +350,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 }
                 Y.log("Item " + index + " in the queue was a file - adding to the process queue", 'info', LOGNAME);
                 this.processQueue.add({
-                    fn: this.handle_file,
+                    fn: this.handleFile,
                     context: this,
                     args: [
                         files[index],
@@ -395,12 +394,12 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * Find the registered handler for the given file type. If there is more than one, ask the
      * user which one to use. Then upload the file to the server
      *
-     * @method handle_file
+     * @method handleFile
      * @param {Object} file the details of the file, taken from the FileList in the drop event
      * @param {Node} section the DOM element representing the selected course section
      * @param {Node} placeholder the DOM element representing the progress bar placeholder
      */
-    handle_file: function(file, section, placeholder) {
+    handleFile: function(file, section) {
         var handlers = [],
             handler = null,
             current = null,
@@ -431,15 +430,10 @@ Y.extend(DNDUPLOAD, Y.Base, {
             return;
         }
 
-        // Add the progress placeholder to the display.
-        if (!placeholder) {
-            placeholder = this.addProgressBar(file.name, section);
-        }
-
         if (handlers.length === 1) {
             // Only one handler - just upload using this handler.
             this.hideDropTarget();
-            return this.uploadFile(file, section, handlers[0].module, placeholder);
+            return this.uploadFile(file, section, handlers[0].module);
         }
 
         // Push dialogues to the end of the queue until the queue has been cycled a full time.
@@ -448,12 +442,11 @@ Y.extend(DNDUPLOAD, Y.Base, {
             // TODO Fix the issue here where items are shown in the correct order but on
             // refresh the order chnages. Need to add a afterId field to the upload?
             this.processQueue.add({
-                fn: this.handle_file,
+                fn: this.handleFile,
                 context: this,
                 args: [
                     file,
-                    section,
-                    placeholder
+                    section
                 ],
 
                 // Set a timeout to ensure that this is processed asynchronously - we have dialogue boxes.
@@ -463,7 +456,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
             Y.log('Pausing the process queue whilst dialogue is shown', 'info', LOGNAME);
             this.processQueue.pause();
             // TODO Rewrite this?
-            return this.file_handler_dialog(file, section, handlers, placeholder);
+            return this.file_handler_dialog(file, section, handlers);
         }
     },
 
@@ -480,7 +473,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param {Node} section the DOM element representing the selected course section
      * @param {String} module The modtype of the file being uploaded
      */
-    uploadFile: function(file, section, module, placeholder) {
+    uploadFile: function(file, section, module) {
         // Ensure that the drop target is hidden.
         this.hideDropTarget(section);
 
@@ -492,28 +485,33 @@ Y.extend(DNDUPLOAD, Y.Base, {
 
         // Check that the file fits within the constraints.
         if (file.size > this.get('maxbytes')) {
-            // TODO convert to use moodle-core-notification-alert
-            return new M.core.alert({
-                title: M.util.get_string('fileuploaderror', 'core'),
-                message: M.util.get_string('filetoolarge', 'core', file.name)
+            return Y.use('moodle-core-notification-alert', function() {
+                return new M.core.alert({
+                    title: M.util.get_string('fileuploaderror', 'core'),
+                    message: M.util.get_string('filetoolarge', 'core', file.name)
+                });
             });
         }
 
-        // Add the progress placeholder to the display.
-        if (!placeholder) {
-            Y.log("no placeholder was detected");
-            placeholder = this.addProgressBar(file.name, section);
-        }
-        var progress = placeholder.one('.dndupload-progress-inner');
+        // Add the progress placeholder to the display and calculate its' relative position.
+        var placeholder = this.addProgressBar(file.name, section),
+            progress = placeholder.one('.dndupload-progress-inner'),
+            current = Y.one(placeholder),
+            position = 0;
+
+        do {
+            position++;
+            current = current.previous(SELECTORS.coursemodule);
+        } while (current);
 
         // The upload options we'll use in a moment.
         var uploadOptions = {
             sesskey: M.cfg.sesskey,
             course: this.get('courseid'),
-            // TODO change to use moodle-course-utils-section.getId()
             section: this.get_section_id(section),
             module: module,
-            type: 'Files'
+            type: 'Files',
+            position: position
         };
 
         // Create the uploader mechanism.
@@ -549,15 +547,17 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 // Remove the placeholder before displayng the error.
                 placeholder.remove(true);
 
-                // TODO use moodle-core-notification-ajaxexception
-                return new M.core.ajaxException(responseobject);
+                return Y.use('moodle-core-notification-ajaxexception', function() {
+                    new M.core.ajaxException(responseobject);
+                });
             }
         } catch (error) {
             // Remove the placeholder before displayng the error.
             placeholder.remove(true);
 
-            // TODO use moodle-core-notification-exception
-            return new M.core.exception(error);
+            return Y.use('moodle-core-notification-exception', function() {
+                new M.core.exception(error);
+            });
         }
 
         // Replace the place holder with the new content.
@@ -753,7 +753,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
     /**
      * Handle upload and creation of a new item.
      *
-     * TODO Move handle_item and upload_item to a new submodule which is only loaded if
+     * TODO Move handle_item and uploadItem to a new submodule which is only loaded if
      * and when used? Or not worth the overhead...
      *
      * @method handle_item
@@ -770,7 +770,6 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // Add the progress placeholder to the display.
-        // TODO erm... a name would be good here
         var placeholder = this.addProgressBar('', section);
 
 
@@ -778,7 +777,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         if (type.handlers.length === 1 && type.handlers[0].noname) {
             // Only one handler and it doesn't need a name (i.e. a label).
             this.hideDropTarget();
-            this.upload_item('', type.type, contents, section, type.handlers[0].module, placeholder);
+            this.uploadItem('', type.type, contents, section, type.handlers[0].module, placeholder);
             return;
         }
 
@@ -859,7 +858,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
             }
             panel.hide();
             // Do the upload
-            self.upload_item(name, type.type, contents, section, module, placeholder);
+            self.uploadItem(name, type.type, contents, section, module, placeholder);
         };
 
         // Add the submit/cancel buttons to the bottom of the dialog.
@@ -924,7 +923,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * <li>replacing the dummy element with real data.</li>
      * </ul>
      *
-     * @method upload_item
+     * @method uploadItem
      * @param name the display name for the resource / activity to create
      * @param type the details of the data type found in the drop event
      * @param contents the actual data that was dropped
@@ -932,7 +931,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @param module the module chosen to handle this upload
      * @return void;
      */
-    upload_item: function(name, type, contents, section, module, placeholder) {
+    uploadItem: function(name, type, contents, section, module, placeholder) {
         // Ensure that the drop target is hidden.
         this.hideDropTarget(section);
 
