@@ -106,6 +106,17 @@ switch($requestmethod) {
                         set_coursemodule_visible($cm->id, $value);
                         break;
 
+                    case 'duplicate':
+                        require_capability('moodle/course:manageactivities', $modcontext);
+                        require_capability('moodle/backup:backuptargetimport', $modcontext);
+                        require_capability('moodle/restore:restoretargetimport', $modcontext);
+                        if (!course_allowed_module($course, $cm->modname)) {
+                            throw new moodle('No permission to create that activity');
+                        }
+                        $result = mod_duplicate_activity($course, $cm);
+                        echo json_encode($result);
+                        break;
+
                     case 'groupmode':
                         require_capability('moodle/course:manageactivities', $modcontext);
                         set_coursemodule_groupmode($cm->id, $value);
@@ -200,3 +211,4 @@ switch($requestmethod) {
         }
         break;
 }
+// TODO surely we can get the course from the $cm?
