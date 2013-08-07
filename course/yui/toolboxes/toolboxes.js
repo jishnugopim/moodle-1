@@ -286,6 +286,10 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                     // The user is deleting the activity.
                     this.delete_with_confirmation(ev, node, activity, action);
                     break;
+                case 'duplicate' :
+                    // The user is duplicating the activity.
+                    this.duplicate(ev, node, activity, action);
+                    break;
                 case 'hide' :
                 case 'show' :
                     // The user is changing the visibility of the activity.
@@ -417,6 +421,44 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             this.send_request(data);
             if (M.core.actionmenu && M.core.actionmenu.instance) {
                 M.core.actionmenu.instance.hideMenu();
+            }
+        },
+
+        /**
+         * Duplicates the activity
+         *
+         * @protected
+         * @method duplicate
+         * @param {EventFacade} ev The event that was fired.
+         * @param {Node} button The button that triggered this action.
+         * @param {Node} activity The activity node that this action will be performed on.
+         * @return Boolean
+         */
+        duplicate : function(ev, button, activity) {
+            // Prevent the default button action
+            ev.preventDefault();
+
+            // Get the element we're working on
+            var element = activity;
+
+            // Send the request
+            var data = {
+                'class' : 'resource',
+                'field' : 'duplicate',
+                'id'    : this.get_element_id(element)
+            };
+            var response = this.send_request(data);
+            var newcm = Y.Node.create(response.fullcontent);
+
+            var section = activity.ancestor('ul.section');
+
+            // Append to the section?
+            section.appendChild(newcm);
+            Y.use('moodle-course-coursebase', function() {
+                M.course.register_new_module(newcm);
+            });
+            if (M.core.actionmenu && M.core.actionmenu.newDOMNode) {
+                M.core.actionmenu.newDOMNode(newcm);
             }
         },
 
