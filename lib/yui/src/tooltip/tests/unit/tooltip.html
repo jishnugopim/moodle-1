@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Page</title>
+    <script id="testheader" src="../../../../testheader.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="log"></div>
+<script>
+window.onload = function() {
+    YUI({
+        coverage: ['moodle-core-tooltip'],
+        filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'raw',
+        modules: {
+            'moodle-core-tooltip-test': {
+                fullpath: './assets/moodle-core-tooltip-test.js',
+                requires: ['node', 'moodle-core-tooltip', 'moodle-core-notification', 'test', 'node-event-simulate']
+            },
+            'moodle-core-tooltip': {
+                fullpath: findBuildDirectory('lib', 'tooltip'),
+                requires: ['base', 'io-base', 'moodle-core-notification', 'json-parse',
+                'widget-position', 'widget-position-align', 'event-outside', 'cache']
+            }
+        },
+    }).use('test-console', 'test', 'moodle-core-tooltip-test', function (Y) {
+        new Y.Test.Console().render();
+        Y.Test.Runner.setName('M.core.tooltip');
+        Y.Test.Runner.run();
+    });
+}
+</script>
+</body>
+</html>
