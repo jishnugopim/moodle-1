@@ -1,4 +1,4 @@
 {
     "basedir": ".",
-    "glob": "**/yui/*/tests/unit/*.html"
+    "glob": "**/yui/src/*/tests/unit/*.html"
 }
