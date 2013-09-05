@@ -1,5 +1,6 @@
 {
     "lint": "config",
+    "coverage": false,
     "istanbul": true,
     "coverageRelativeToConfig": true
 }
