@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Page</title>
+    <script id="testheader" src="../../../../../../../lib/yui/yuitest/testheader.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+  <div id="log"></div>
+  <script>
+  window.onload = function() {
+      YUI({
+          coverage: ['moodle-mod_quiz-autosave'],
+          modules: {
+              'moodle-mod_quiz-autosave-test': {
+                  fullpath: './assets/moodle-mod_quiz-autosave-test.js',
+                  requires: ['moodle-mod_quiz-autosave', 'test', 'node-event-simulate']
+              },
+              'moodle-mod_quiz-autosave': {
+                  fullpath: findBuildDirectory('mod_quiz', 'autosave')
+              }
+          },
+      }).use('test-console', 'moodle-mod_quiz-autosave-test', function (Y) {
+          new Y.Test.Console().render();
+          Y.Test.Runner.setName('M.mod_quiz.autosave');
+          Y.Test.Runner.run();
+      });
+  }
+  </script>
+</body>
+</html>
