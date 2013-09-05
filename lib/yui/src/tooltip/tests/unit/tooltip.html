@@ -12,7 +12,6 @@
 window.onload = function() {
     YUI({
         coverage: ['moodle-core-tooltip'],
-        filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'raw',
         modules: {
             'moodle-core-tooltip-test': {
                 fullpath: './assets/moodle-core-tooltip-test.js',
