@@ -214,7 +214,7 @@ class page_requirements_manager {
             'combine' => $this->yui3loader->combine,
             'comboBase' => $CFG->httpswwwroot . '/theme/yui_combo.php'.$sep,
             'ext' => false,
-            'root' => 'moodle/'.$jsrev.'/', // Add the rev to the root path so that we can control caching.
+            'root' => 'm/'.$jsrev.'/', // Add the rev to the root path so that we can control caching.
             'patterns' => array(
                 'moodle-' => array(
                     'group' => 'moodle',

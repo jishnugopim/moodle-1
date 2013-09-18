@@ -81,7 +81,7 @@ foreach ($parts as $part) {
     }
     //debug($bits);
     $version = array_shift($bits);
-    if ($version === 'moodle') {
+    if ($version === 'm' || $version === 'moodle') {
         if (count($bits) <= 3) {
             // This is an invalid module load attempt.
             $content .= "\n// Incorrect moodle module inclusion. Not enough component information in {$part}.\n";
@@ -98,7 +98,7 @@ foreach ($parts as $part) {
         $dir = core_component::get_component_directory($frankenstyle);
 
         // For shifted YUI modules, we need the YUI module name in frankenstyle format.
-        $frankenstylemodulename = join('-', array($version, $frankenstyle, $modulename));
+        $frankenstylemodulename = join('-', array('moodle', $frankenstyle, $modulename));
         $frankenstylefilename = preg_replace('/' . $modulename . '/', $frankenstylemodulename, $filename);
 
         // Submodules are stored in a directory with the full submodule name.
@@ -156,7 +156,7 @@ foreach ($parts as $part) {
     $sep = ($slasharguments ? '/' : '?file=');
 
     if ($mimetype === 'text/css') {
-        if ($version == 'moodle') {
+        if ($version == 'm') {
             // Search for all images in the file and replace with an appropriate link to the yui_image.php script
             $imagebits = array(
                 $sep . $version,

@@ -40,7 +40,7 @@ if ($slashargument = min_get_slash_argument()) {
 $etag = sha1($path);
 $parts = explode('/', $path);
 $version = array_shift($parts);
-if ($version == 'moodle' && count($parts) >= 3) {
+if (($version === 'm' || $version === 'moodle') && count($parts) >= 3) {
     $frankenstyle = array_shift($parts);
     $module = array_shift($parts);
     $image = array_pop($parts);
@@ -48,7 +48,7 @@ if ($version == 'moodle' && count($parts) >= 3) {
     $dir = core_component::get_component_directory($frankenstyle);
 
     // For shifted YUI modules, we need the YUI module name in frankenstyle format.
-    $frankenstylemodulename = join('-', array($version, $frankenstyle, $module));
+    $frankenstylemodulename = join('-', array('moodle', $frankenstyle, $module));
 
     // By default, try and use the /yui/build directory.
     $imagepath = $dir . '/yui/build/' . $frankenstylemodulename . '/assets/skins/sam/' . $image;
