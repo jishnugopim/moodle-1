@@ -1,7 +1,9 @@
 {
   "moodle-core-popuphelp": {
     "requires": [
-        "moodle-core-tooltip"
+        "base-base",
+        "base-build",
+        "node"
     ]
   }
 }
