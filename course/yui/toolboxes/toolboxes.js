@@ -724,7 +724,6 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          * Updates all span.commands with relevant handlers and other required changes
          */
         initializer : function(config) {
-            this.setup_for_section();
             M.course.coursebase.register_module(this);
             Y.log('Registered section toolbox to coursebase', 'debug', 'moodle-course-toolboxes');
 
@@ -732,24 +731,6 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             Y.delegate('click', this.toggle_highlight, SELECTOR.PAGECONTENT, SELECTOR.SECTIONLI + ' ' + SELECTOR.HIGHLIGHT, this);
             // Section Visibility
             Y.delegate('click', this.toggle_hide_section, SELECTOR.PAGECONTENT, SELECTOR.SECTIONLI + ' ' + SELECTOR.SHOWHIDE, this);
-        },
-        /**
-         * Update any section areas within the scope of the specified
-         * selector with AJAX equivelants
-         *
-         * @param baseselector The selector to limit scope to
-         * @return void
-         */
-        setup_for_section : function(baseselector) {
-            // Left here for potential future use - not currently needed due to YUI delegation in initializer()
-            /*if (!baseselector) {
-                var baseselector = SELECTOR.PAGECONTENT;
-            }
-
-            Y.all(baseselector).each(this._setup_for_section, this);*/
-        },
-        _setup_for_section : function(toolboxtarget) {
-            // Left here for potential future use - not currently needed due to YUI delegation in initializer()
         },
         toggle_hide_section : function(e) {
             // Prevent the default button action
