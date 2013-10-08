@@ -204,7 +204,21 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          */
         initializer : function(config) {
             M.course.coursebase.register_module(this);
+            Y.log('Registered resource toolbox to coursebase', 'debug', 'moodle-course-toolboxes');
             Y.delegate('click', this.handle_data_action, BODY, SELECTOR.ACTIVITYACTION, this);
+        },
+
+        /**
+         * Setup the resource toolbox for the specified node.
+         *
+         * @method setup_for_resource
+         * @param {Node} module The node to setup for.
+         */
+        setup_for_resource: function(module) {
+            // We need to convert to Node again in case the provided Node isn't enhanced
+            // with node-data.
+            Y.log('Setting up resource toolbox for new node', 'debug', 'moodle-course-toolboxes');
+            module = Y.one(module);
         },
 
         /**
@@ -712,6 +726,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         initializer : function(config) {
             this.setup_for_section();
             M.course.coursebase.register_module(this);
+            Y.log('Registered section toolbox to coursebase', 'debug', 'moodle-course-toolboxes');
 
             // Section Highlighting
             Y.delegate('click', this.toggle_highlight, SELECTOR.PAGECONTENT, SELECTOR.SECTIONLI + ' ' + SELECTOR.HIGHLIGHT, this);
@@ -870,18 +885,6 @@ YUI.add('moodle-course-toolboxes', function(Y) {
     M.course.init_section_toolbox = function(config) {
         return new SECTIONTOOLBOX(config);
     };
-
-    M.course.register_new_module = function(module) {
-        if (typeof module === 'string') {
-            module = Y.one(module);
-        }
-        if (M.course.resource_toolbox !== null) {
-            module.setData('toolbox', M.course.resource_toolbox);
-            module.all(SELECTOR.COMMANDSPAN+ ' ' + SELECTOR.ACTIVITYACTION).each(function(){
-                this.setData('activity', module);
-            });
-        }
-    }
 
 },
 '@VERSION@', {
