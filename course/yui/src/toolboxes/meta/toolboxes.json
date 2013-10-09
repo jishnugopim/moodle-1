@@ -1,0 +1,10 @@
+{
+    "moodle-course-toolboxes": {
+        "requires": [
+            "base",
+            "node",
+            "io",
+            "moodle-course-coursebase"
+        ]
+    }
+}
