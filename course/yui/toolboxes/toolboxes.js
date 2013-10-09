@@ -52,7 +52,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
      */
     var TOOLBOX = function() {
         TOOLBOX.superclass.constructor.apply(this, arguments);
-    }
+    };
 
     Y.extend(TOOLBOX, Y.Base, {
         /**
@@ -69,7 +69,8 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 data = {};
             }
             // Handle any variables which we must pass back through to
-            var pageparams = this.get('config').pageparams;
+            var pageparams = this.get('config').pageparams,
+                varname;
             for (varname in pageparams) {
                 data[varname] = pageparams[varname];
             }
@@ -93,7 +94,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                             }
                         } catch (e) {}
                         if (statusspinner) {
-                            window.setTimeout(function(e) {
+                            window.setTimeout(function() {
                                 statusspinner.hide();
                             }, 400);
                         }
@@ -107,7 +108,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 },
                 context: this,
                 sync: true
-            }
+            };
 
             // Apply optional config
             if (optionalconfig) {
@@ -154,7 +155,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
      */
     var RESOURCETOOLBOX = function() {
         RESOURCETOOLBOX.superclass.constructor.apply(this, arguments);
-    }
+    };
 
     Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         /**
@@ -202,7 +203,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          *
          * @method initializer
          */
-        initializer : function(config) {
+        initializer : function() {
             M.course.coursebase.register_module(this);
             Y.log('Registered resource toolbox to coursebase', 'debug', 'moodle-course-toolboxes');
             Y.delegate('click', this.handle_data_action, BODY, SELECTOR.ACTIVITYACTION, this);
@@ -275,10 +276,6 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                     callback = 'change_groupmode';
                     this.change_groupmode(ev, node, activity, action);
                     break;
-                case 'move' :
-                case 'update' :
-                case 'duplicate' :
-                case 'assignroles' :
                 default:
                     // Nothing to do here!
                     break;
@@ -302,16 +299,18 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             var direction = (action === 'moveleft') ? -1 : 1;
 
             // And we need to determine the current and new indent level
-            var indentdiv = activity.one(SELECTOR.MODINDENTDIV);
-            var indent = indentdiv.getAttribute('class').match(/mod-indent-(\d{1,})/);
+            var indentdiv = activity.one(SELECTOR.MODINDENTDIV),
+                indent = indentdiv.getAttribute('class').match(/mod-indent-(\d{1,})/),
+                oldindent,
+                newindent;
 
             if (indent) {
-                var oldindent = parseInt(indent[1]);
-                var newindent = Math.max(0, (oldindent + parseInt(direction)));
+                oldindent = parseInt(indent[1], 10);
+                newindent = Math.max(0, (oldindent + parseInt(direction, 10)));
                 indentdiv.removeClass(indent[0]);
             } else {
-                var oldindent = 0;
-                var newindent = 1;
+                oldindent = 0;
+                newindent = 1;
             }
 
             // Perform the move
@@ -335,9 +334,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             this.send_request(data, spinner);
 
             // Handle removal/addition of the moveleft button.
-            if (newindent == 0) {
+            if (newindent === 0) {
                 button.addClass('hidden');
-            } else if (newindent == 1 && oldindent == 0) {
+            } else if (newindent === 1 && oldindent === 0) {
                 button.ancestor('.menu').one('[data-action=moveleft]').removeClass('hidden');
             }
 
@@ -365,18 +364,18 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             ev.preventDefault();
 
             // Get the element we're working on
-            var element   = activity
+            var element   = activity,
 
             // Create confirm string (different if element has or does not have name)
-            var confirmstring = '';
-            var plugindata = {
-                type : M.util.get_string('pluginname', element.getAttribute('class').match(/modtype_([^\s]*)/)[1])
-            }
-            if (Y.Moodle.core_course.util.cm.getName(element) != null) {
-                plugindata.name = Y.Moodle.core_course.util.cm.getName(element)
+                confirmstring = '',
+                plugindata = {
+                    type : M.util.get_string('pluginname', element.getAttribute('class').match(/modtype_([^\s]*)/)[1])
+                };
+            if (Y.Moodle.core_course.util.cm.getName(element) !== null) {
+                plugindata.name = Y.Moodle.core_course.util.cm.getName(element);
                 confirmstring = M.util.get_string('deletechecktypename', 'moodle', plugindata);
             } else {
-                confirmstring = M.util.get_string('deletechecktype', 'moodle', plugindata)
+                confirmstring = M.util.get_string('deletechecktype', 'moodle', plugindata);
             }
 
             // Confirm element removal
@@ -461,7 +460,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             button.setData('action', nextaction);
 
             // If activity is conditionally hidden, then don't toggle.
-            if (Y.Moodle.core_course.util.cm.getName(activity) == null) {
+            if (Y.Moodle.core_course.util.cm.getName(activity) === null) {
                 toggleclass = CSS.DIMMEDTEXT;
                 dimarea = activity.all(SELECTOR.MODINDENTDIV + ' > div').item(1);
             }
@@ -489,7 +488,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          * @param {String} action The action that has been requested.
          * @return Boolean
          */
-        change_groupmode : function(ev, button, activity, action) {
+        change_groupmode : function(ev, button, activity) {
             // Prevent the default button action.
             ev.preventDefault();
 
@@ -516,7 +515,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 newtitle = 'groupsvisible';
                 iconsrc = M.util.image_url('t/groupv', 'moodle');
             }
-            newtitlestr = M.util.get_string(newtitle, 'moodle'),
+            newtitlestr = M.util.get_string(newtitle, 'moodle');
             newtitlestr = M.util.get_string('clicktochangeinbrackets', 'moodle', newtitlestr);
 
             // Change the UI
@@ -584,7 +583,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 'autocomplete' : 'off',
                 'aria-describedby' : 'id_editinstructions',
                 'maxLength' : '255'
-            })
+            });
 
             // Clear the existing content and put the editor in
             editform.appendChild(activity.one(SELECTOR.ACTIVITYICON).cloneNode());
@@ -624,7 +623,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             var newtitle = Y.Lang.trim(activity.one(SELECTOR.ACTIVITYFORM + ' ' + SELECTOR.ACTIVITYTITLE).get('value'));
             this.edit_title_clear(activity);
             var spinner = M.util.add_spinner(Y, activity.one(SELECTOR.INSTANCENAME));
-            if (newtitle != null && newtitle != "" && newtitle != originaltitle) {
+            if (newtitle !== null && newtitle !== "" && newtitle !== originaltitle) {
                 var data = {
                     'class'   : 'resource',
                     'field'   : 'updatetitle',
@@ -664,7 +663,8 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         edit_title_clear : function(activity) {
             // Detach all listen events to prevent duplicate triggers
             var thisevent;
-            while (thisevent = this.edittitleevents.shift()) {
+            while (this.edittitleevents.length > 0) {
+                thisevent = this.edittitleevents.shift();
                 thisevent.detach();
             }
             var editform = activity.one(SELECTOR.ACTIVITYFORM),
@@ -697,7 +697,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 buttonnode = element.one(SELECTOR.HIDE);
                 action = 'hide';
             }
-            if (visible != shouldbevisible) {
+            if (visible !== shouldbevisible) {
                 this.handle_resource_dim(buttonnode, element, action);
             }
         }
@@ -715,7 +715,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
 
     var SECTIONTOOLBOX = function() {
         SECTIONTOOLBOX.superclass.constructor.apply(this, arguments);
-    }
+    };
 
     Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         /**
@@ -723,7 +723,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          *
          * Updates all span.commands with relevant handlers and other required changes
          */
-        initializer : function(config) {
+        initializer : function() {
             M.course.coursebase.register_module(this);
             Y.log('Registered section toolbox to coursebase', 'debug', 'moodle-course-toolboxes');
 
@@ -781,16 +781,17 @@ YUI.add('moodle-course-toolboxes', function(Y) {
 
             var activities = section.all(SELECTOR.ACTIVITYLI);
             activities.each(function(node) {
+                var button;
                 if (node.one(SELECTOR.SHOW)) {
-                    var button = node.one(SELECTOR.SHOW);
+                    button = node.one(SELECTOR.SHOW);
                 } else {
-                    var button = node.one(SELECTOR.HIDE);
+                    button = node.one(SELECTOR.HIDE);
                 }
                 var activityid = Y.Moodle.core_course.util.cm.getId(node);
 
                 // NOTE: resourcestotoggle is returned as a string instead
                 // of a Number so we must cast our activityid to a String.
-                if (Y.Array.indexOf(response.resourcestotoggle, "" + activityid) != -1) {
+                if (Y.Array.indexOf(response.resourcestotoggle, "" + activityid) !== -1) {
                     M.course.resource_toolbox.handle_resource_dim(button, node, action);
                 }
             }, this);
@@ -819,8 +820,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 .set('src', M.util.image_url('i/marker'));
 
             // Remove the highlighting from all sections
-            var allsections = Y.one(SELECTOR.PAGECONTENT).all(M.course.format.get_section_selector(Y))
-                .removeClass('current');
+            Y.one(SELECTOR.PAGECONTENT).all(M.course.format.get_section_selector(Y)).removeClass('current');
 
             // Then add it if required to the selected section
             if (!togglestatus) {
