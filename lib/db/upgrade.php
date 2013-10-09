@@ -2689,5 +2689,12 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2013100901.00);
     }
 
+    if ($oldversion < 2013101500.01) {
+        unset_config('cachejs');
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2013101500.01);
+    }
+
     return true;
 }

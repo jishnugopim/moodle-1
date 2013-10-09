@@ -487,7 +487,8 @@ $CFG->admin = 'admin';
 // $CFG->themedesignermode = true; // NOT FOR PRODUCTION SERVERS!
 //
 // Prevent JS caching
-// $CFG->cachejs = false; // NOT FOR PRODUCTION SERVERS!
+// To prevent caching of JS files, set $CFG->debug to (E_ALL | E_STRICT),
+// or select a 'debug' setting of DEVELOPER in Site administration.
 //
 // Restrict which YUI logging statements are shown in the browser console.
 // For details see the upstream documentation:

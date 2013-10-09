@@ -331,16 +331,17 @@ class page_requirements_manager {
     protected function get_jsrev() {
         global $CFG;
 
-        if (empty($CFG->cachejs)) {
+        if ($CFG->debugdeveloper) {
             $jsrev = -1;
         } else if (empty($CFG->jsrev)) {
-            $jsrev = 1;
+            $jsrev = js_reset_all_caches();
         } else {
             $jsrev = $CFG->jsrev;
         }
 
         return $jsrev;
     }
+
 
     /**
      * Ensure that the specified JavaScript file is linked to from this page.
@@ -1613,7 +1614,7 @@ class YUI_config {
         // Attempt to get the metadata from the cache.
         $keyname = 'configfn_' . $file;
         $fullpath = $CFG->dirroot . '/' . $file;
-        if (!isset($CFG->jsrev) || $CFG->jsrev == -1) {
+        if ($CFG->debugdeveloper) {
             $cache->delete($keyname);
             $configfn = file_get_contents($fullpath);
         } else {
@@ -1704,7 +1705,7 @@ class YUI_config {
         }
 
         $cache = cache::make('core', 'yuimodules');
-        if (!isset($CFG->jsrev) || $CFG->jsrev == -1) {
+        if ($CFG->debugdeveloper) {
             $metadata = array();
             $metadata = $this->get_moodle_metadata();
             $cache->delete('metadata');
@@ -1791,6 +1792,8 @@ class YUI_config {
 
 /**
  * Invalidate all server and client side JS caches.
+ *
+ * @return Integer the new jsrev
  */
 function js_reset_all_caches() {
     global $CFG;
@@ -1804,4 +1807,5 @@ function js_reset_all_caches() {
     }
 
     set_config('jsrev', $next);
+    return $next;
 }

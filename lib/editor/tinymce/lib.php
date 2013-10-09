@@ -111,7 +111,7 @@ class tinymce_texteditor extends texteditor {
         $fontselectlist = empty($config->fontselectlist) ? '' : $config->fontselectlist;
 
         $langrev = -1;
-        if (!empty($CFG->cachejs)) {
+        if (!$CFG->debugdeveloper) {
             $langrev = get_string_manager()->get_revision();
         }
 

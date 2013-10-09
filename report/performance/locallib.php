@@ -84,7 +84,6 @@ class report_performance {
     public function get_issue_list() {
         return array(
             'report_performance_check_themedesignermode',
-            'report_performance_check_cachejs',
             'report_performance_check_debugmsg',
             'report_performance_check_automatic_backup',
             'report_performance_check_enablestats'
@@ -165,32 +164,6 @@ class report_performance {
 
         $issueresult->details = get_string('check_themedesignermode_details', 'report_performance');
         $issueresult->configlink = new moodle_url('/admin/search.php', array('query' => 'themedesignermode'));
-        return $issueresult;
-    }
-
-    /**
-     * Checks if javascript is cached.
-     *
-     * @return report_performance_issue result of cachejs issue.
-     */
-    public static function report_performance_check_cachejs() {
-        global $CFG;
-        $issueresult = new report_performance_issue();
-        $issueresult->issue = 'report_performance_check_cachejs';
-        $issueresult->name = get_string('cachejs', 'admin');
-
-        if (empty($CFG->cachejs)) {
-            $issueresult->statusstr = get_string('disabled', 'report_performance');
-            $issueresult->status = self::REPORT_PERFORMANCE_CRITICAL;
-            $issueresult->comment = get_string('check_cachejs_comment_disable', 'report_performance');
-        } else {
-            $issueresult->statusstr = get_string('enabled', 'report_performance');
-            $issueresult->status = self::REPORT_PERFORMANCE_OK;
-            $issueresult->comment = get_string('check_cachejs_comment_enable', 'report_performance');
-        }
-
-        $issueresult->details = get_string('check_cachejs_details', 'report_performance');
-        $issueresult->configlink = new moodle_url('/admin/search.php', array('query' => 'cachejs'));
         return $issueresult;
     }
 

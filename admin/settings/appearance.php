@@ -210,8 +210,6 @@ if ($hassiteconfig) { // speedup for non-admins, add all caps used on this page
     $temp->add(new admin_setting_configcheckbox('enableajax', new lang_string('enableajax', 'admin'), new lang_string('configenableajax', 'admin'), 1));
     $temp->add(new admin_setting_configcheckbox('useexternalyui', new lang_string('useexternalyui', 'admin'), new lang_string('configuseexternalyui', 'admin'), 0));
     $temp->add(new admin_setting_configcheckbox('yuicomboloading', new lang_string('yuicomboloading', 'admin'), new lang_string('configyuicomboloading', 'admin'), 1));
-    $setting = new admin_setting_configcheckbox('cachejs', new lang_string('cachejs', 'admin'), new lang_string('cachejs_help', 'admin'), 1);
-    $setting->set_updatedcallback('js_reset_all_caches');
     $temp->add($setting);
     $temp->add(new admin_setting_configcheckbox('modchooserdefault', new lang_string('modchooserdefault', 'admin'), new lang_string('configmodchooserdefault', 'admin'), 1));
     $temp->add(new admin_setting_configcheckbox('modeditingmenu', new lang_string('modeditingmenu', 'admin'), new lang_string('modeditingmenu_desc', 'admin'), 1));
