@@ -147,6 +147,15 @@ class behat_general extends behat_base {
     }
 
     /**
+     * Close the current window.
+     *
+     * @Then /^I close the current window$/
+     */
+    public function close_current_window() {
+        $this->getSession()->getDriver()->getWebDriverSession()->window();
+    }
+
+    /**
      * Switches to the main Moodle window. Useful when you finish interacting with popup windows.
      *
      * @Given /^I switch to the main window$/
