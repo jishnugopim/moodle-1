@@ -272,7 +272,7 @@
 
     if (!$show_all and $complete_sessions == 0) {
         echo $OUTPUT->heading(get_string('no_complete_sessions_found', 'chat') .
-                      '&nbsp;<a href="report.php?id='.$cm->id.'&amp;show_all=1">' .
+                      '&nbsp;<a href="report.php?id='.$cm->id.'&show_all=1">' .
                       get_string('list_all_sessions', 'chat') .
                       '</a>');
     }
