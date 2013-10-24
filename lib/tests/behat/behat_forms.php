@@ -335,4 +335,51 @@ class behat_forms extends behat_base {
         }
     }
 
+    /**
+     * I expect a form change dialogue.
+     *
+     * @Then /^I expect the form change dialogue to trigger$/
+     */
+    public function expect_form_change() {
+        $onbeforeunload = $this->getSession()->getDriver()->evaluateScript("
+            // Get the window's onbeforeunload result:
+            var onbeforeunload = window.onbeforeunload();
+
+            // Return the result to test
+            return onbeforeunload;
+        ");
+        if (empty($onbeforeunload)) {
+            throw new ExpectationException("The form change dialogue was not displayed in the browser.", $this->getSession());
+        }
+    }
+
+    /**
+     * I do not expect a form change dialogue.
+     *
+     * @Then /^I do not expect the form change dialogue to trigger$/
+     */
+    public function do_not_expect_form_change() {
+        $onbeforeunload = $this->getSession()->getDriver()->evaluateScript("
+            // Get the window's onbeforeunload result:
+            var onbeforeunload = window.onbeforeunload();
+
+            // Return the result to test
+            return onbeforeunload;
+        ");
+        if (!empty($onbeforeunload)) {
+            throw new ExpectationException("The form change dialogue was displayed in the browser.", $this->getSession());
+        }
+    }
+
+    /**
+     * Clear change checking system.
+     *
+     * @Then /^I clear the form change dialogue$/
+     */
+    public function clear_form_change() {
+        $this->getSession()->getDriver()->executeScript("
+            window.onbeforeunload = null;
+        ");
+    }
+
 }

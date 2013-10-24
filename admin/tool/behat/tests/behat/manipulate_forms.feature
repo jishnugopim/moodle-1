@@ -34,3 +34,26 @@ Feature: Forms manipulation
     And I should see "Grouping"
     And I should not see "Show more..." in the "region-main-box" "region"
     And I should see "Show less..."
+
+  @javascript
+  Scenario: Change detection does not fire when changes have not been made
+    Given I log in as "admin"
+    And I follow "Admin User"
+    And I follow "Edit profile"
+    Then I do not expect the form change dialogue to trigger
+
+  @javascript
+  Scenario: Change detection works when changes have been made to a Text box
+    Given I log in as "admin"
+    And I follow "Admin User"
+    And I follow "Edit profile"
+    When I fill in "First name" with "Field value"
+    Then I expect the form change dialogue to trigger
+
+  @javascript
+  Scenario: Change detection works when changes have been made to a Dropdown
+    Given I log in as "admin"
+    And I follow "Admin User"
+    And I follow "Edit profile"
+    And I select "Hide my email address from everyone" from "Email display"
+    Then I expect the form change dialogue to trigger
