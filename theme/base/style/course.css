@@ -29,6 +29,7 @@
 .course-content .section .activity .activityinstance,
 .sitetopic .section .activity .activityinstance div,
 .course-content .section .activity .activityinstance div { display: inline;}
+.course-content .section .activity .activityinstance form { display: inline;}
 .sitetopic .section .activity .activityinstance,
 .course-content .section .activity .activityinstance { padding-right: 1em; }
 .dir-rtl .sitetopic .section .activity .activityinstance,
