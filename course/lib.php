@@ -1949,7 +1949,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
 
     if (!isset($str)) {
         $str = get_strings(array('delete', 'move', 'moveright', 'moveleft',
-            'update', 'duplicate', 'hide', 'show', 'edittitle'), 'moodle');
+            'editsettings', 'duplicate', 'hide', 'show', 'edittitle'), 'moodle');
         $str->assign         = get_string('assignroles', 'role');
         $str->groupsnone     = get_string('clicktochangeinbrackets', 'moodle', get_string("groupsnone"));
         $str->groupsseparate = get_string('clicktochangeinbrackets', 'moodle', get_string("groupsseparate"));
@@ -2025,8 +2025,8 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
     if ($hasmanageactivities) {
         $actions['update'] = new action_menu_link_secondary(
             new moodle_url($baseurl, array('update' => $mod->id)),
-            new pix_icon('t/edit', $str->update, 'moodle', array('class' => 'iconsmall', 'title' => '')),
-            $str->update,
+            new pix_icon('t/edit', $str->editsettings, 'moodle', array('class' => 'iconsmall', 'title' => '')),
+            $str->editsettings,
             array('class' => 'editing_update', 'data-action' => 'update')
         );
     }
