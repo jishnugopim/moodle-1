@@ -2027,6 +2027,15 @@ img#persona_signin {
             display: inline; /** JS is enabled, we'll be using it so return display to normal **/
             .opacity(50);
         }
+        .toggle-display.textmenu {
+            display: block;
+            margin-left: 4px;
+            padding-left: 4px;
+
+            .iconsmall {
+                padding-left: 0;
+            }
+        }
     }
     .moodle-actionmenu[data-enhanced] {
         .toggle-display {
@@ -2034,6 +2043,7 @@ img#persona_signin {
         }
         .menu-action-text  {
             display:inline;
+            vertical-align: middle;
         }
     }
 }
@@ -2057,7 +2067,7 @@ img#persona_signin {
             white-space:nowrap;
             display: block;
             color: @dropdownLinkColor;
-            padding:2px 1em 2px 0.5em;
+            padding:4px 1em 4px 0.5em;
             &:hover,
             &:focus {
                 color: @dropdownLinkColorHover;
@@ -2077,7 +2087,7 @@ img#persona_signin {
             vertical-align: middle;
         }
         .iconsmall {
-            margin-right:8px;
+            margin: 4px;
         }
         > li {
             display:block;

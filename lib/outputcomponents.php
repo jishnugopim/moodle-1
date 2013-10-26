@@ -3109,9 +3109,15 @@ class action_menu implements renderable {
 
     /**
      * An icon to use for the toggling the secondary menu (dropdown).
-     * @var pix_icon
+     * @var actionicon
      */
     public $actionicon;
+
+    /**
+     * Any text to use for the toggling the secondary menu (dropdown).
+     * @var menutrigger
+     */
+    public $menutrigger = '';
 
     /**
      * Constructs the action menu with the given items.
@@ -3150,6 +3156,10 @@ class action_menu implements renderable {
         foreach ($actions as $action) {
             $this->add($action);
         }
+    }
+
+    public function set_menu_trigger($trigger) {
+        $this->menutrigger = $trigger;
     }
 
     /**
@@ -3227,7 +3237,21 @@ class action_menu implements renderable {
             $output = $OUTPUT;
         }
         $pixicon = $this->actionicon;
-        $title = new lang_string('actions', 'moodle');
+        $linkclasses = array('toggle-display');
+
+        if (!empty($this->menutrigger)) {
+            // Chagne the pixicon.
+            $pixicon = new pix_icon(
+                'i/down',
+                $this->menutrigger,
+                'moodle',
+                array('class' => 'iconsmall', 'title' => '')
+            );
+            $title = $this->menutrigger;
+            $linkclasses[] = 'textmenu';
+        } else {
+            $title = new lang_string('actions', 'moodle');
+        }
         if ($pixicon instanceof renderable) {
             $pixicon = $output->render($pixicon);
             if ($pixicon instanceof pix_icon && isset($pixicon->attributes['alt'])) {
@@ -3240,12 +3264,12 @@ class action_menu implements renderable {
         }
         $actions = $this->primaryactions;
         $attributes = array(
-            'class' => 'toggle-display',
+            'class' => implode(' ', $linkclasses),
             'title' => $title,
             'id' => 'action-menu-toggle-'.$this->instance,
             'role' => 'menuitem'
         );
-        $actions[] = html_writer::link('#', $string.$pixicon, $attributes);
+        $actions[] = html_writer::link('#', $string . $this->menutrigger . $pixicon, $attributes);
         return $actions;
     }
 
