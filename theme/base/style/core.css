@@ -1509,7 +1509,6 @@ img#persona_signin { cursor: pointer; }
     margin: 4px;
 }
 .moodle-actionmenu[data-enhanced].show .menu > li {display: block;}
-.action-menu-shown .moodle-actionmenu[data-enhanced] .toggle-display {background-color: #FFF;}
 .block .moodle-actionmenu {text-align: right;}
 
 .dir-rtl .block .moodle-actionmenu {text-align: right;}
