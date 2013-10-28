@@ -3146,12 +3146,6 @@ class action_menu implements renderable {
             'aria-labelledby' => 'action-menu-toggle-'.$this->instance,
             'role' => 'menu'
         );
-        $this->actionicon = new pix_icon(
-            't/contextmenu',
-            new lang_string('actions', 'moodle'),
-            'moodle',
-            array('class' => 'iconsmall', 'title' => '')
-        );
         $this->set_alignment(self::TR, self::BR);
         foreach ($actions as $action) {
             $this->add($action);
@@ -3242,8 +3236,8 @@ class action_menu implements renderable {
         if (!empty($this->menutrigger)) {
             // Chagne the pixicon.
             $pixicon = new pix_icon(
-                'i/down',
-                $this->menutrigger,
+                't/dropdown',
+                '',
                 'moodle',
                 array('class' => 'iconsmall', 'title' => '')
             );
@@ -3251,6 +3245,13 @@ class action_menu implements renderable {
             $linkclasses[] = 'textmenu';
         } else {
             $title = new lang_string('actions', 'moodle');
+            $this->actionicon = new pix_icon(
+                'i/dropdown',
+                $title,
+                'moodle',
+                array('class' => 'iconsmall', 'title' => '')
+            );
+            $pixicon = $this->actionicon;
         }
         if ($pixicon instanceof renderable) {
             $pixicon = $output->render($pixicon);
