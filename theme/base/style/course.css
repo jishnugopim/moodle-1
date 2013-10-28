@@ -65,6 +65,11 @@
     margin: 8px 8px 0 0;
 }
 
+.section .activity.editor_displayed a.editing_title,
+.section .activity.editor_displayed .moodle-actionmenu {
+    display: none;
+}
+
 .single-section h3.sectionname {text-align:center;clear:both;}
 .sitetopic .section li.activity,
 .course-content .section li.activity {padding: .2em;}
