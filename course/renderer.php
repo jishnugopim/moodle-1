@@ -403,6 +403,10 @@ class core_course_renderer extends plugin_renderer_base {
             $menu->add($action);
         }
         $menu->attributes['class'] .= ' section-cm-edit-actions commands';
+
+        // Prioritise the menu ahead of all other actions.
+        $menu->prioritise = true;
+
         return $this->render($menu);
     }
 

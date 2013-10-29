@@ -3120,6 +3120,12 @@ class action_menu implements renderable {
     public $menutrigger = '';
 
     /**
+     * Place the action menu before all other actions.
+     * @var prioritise
+     */
+    public $prioritise = false;
+
+    /**
      * Constructs the action menu with the given items.
      *
      * @param array $actions An array of actions.
@@ -3270,7 +3276,12 @@ class action_menu implements renderable {
             'id' => 'action-menu-toggle-'.$this->instance,
             'role' => 'menuitem'
         );
-        $actions[] = html_writer::link('#', $string . $this->menutrigger . $pixicon, $attributes);
+        $link = html_writer::link('#', $string . $this->menutrigger . $pixicon, $attributes);
+        if ($this->prioritise) {
+            array_unshift($actions, $link);
+        } else {
+            $actions[] = $link;
+        }
         return $actions;
     }
 
