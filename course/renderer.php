@@ -982,7 +982,7 @@ class core_course_renderer extends plugin_renderer_base {
             $output .= course_get_cm_move($mod);
         }
 
-        $output .= html_writer::start_tag('span', array('class' => $indentclasses));
+        $output .= html_writer::start_tag('div', array('class' => $indentclasses));
 
         // Start the div for the activity title, excluding the edit icons.
         $output .= html_writer::start_tag('div', array('class' => 'activityinstance'));
@@ -1011,13 +1011,18 @@ class core_course_renderer extends plugin_renderer_base {
             $output .= $contentpart;
         }
 
+        $modicons = '';
         if ($this->page->user_is_editing()) {
             $editactions = course_get_cm_edit_actions($mod, $mod->indent, $sectionreturn);
-            $output .= ' '. $this->course_section_cm_edit_actions($editactions, $mod, $displayoptions);
-            $output .= $mod->get_after_edit_icons();
+            $modicons .= ' '. $this->course_section_cm_edit_actions($editactions, $mod, $displayoptions);
+            $modicons .= $mod->get_after_edit_icons();
         }
 
-        $output .= $this->course_section_cm_completion($course, $completioninfo, $mod, $displayoptions);
+        $modicons .= $this->course_section_cm_completion($course, $completioninfo, $mod, $displayoptions);
+
+        if (!empty($modicons)) {
+            $output .= html_writer::span($modicons, 'actions');
+        }
 
         // If there is content AND a link, then display the content here
         // (AFTER any icons). Otherwise it was displayed before
