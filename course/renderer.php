@@ -609,6 +609,9 @@ class core_course_renderer extends plugin_renderer_base {
         }
         $completion = $completioninfo->is_enabled($mod);
         if ($completion == COMPLETION_TRACKING_NONE) {
+            if ($this->page->user_is_editing()) {
+                $output .= html_writer::span('&nbsp;', 'filler');
+            }
             return $output;
         }
 
