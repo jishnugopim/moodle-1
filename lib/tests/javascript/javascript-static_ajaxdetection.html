@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Page</title>
+    <script id="testheader" src="../../yuilib/3.13.0/yui/yui.js"></script>
+    <script>
+        window.M = {
+            yui: {
+            }
+        };
+    </script>
+    <script src="../../javascript-static.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="log"></div>
+<script>
+window.onload = function() {
+    YUI({
+        modules: {
+            'javascript-static_ajaxdetection-test': {
+                fullpath: './assets/javascript-static_ajaxdetection-test.js',
+                requires: ['test']
+            }
+        },
+    }).use('test-console', 'javascript-static_ajaxdetection-test', function (Y) {
+        new Y.Test.Console().render();
+        Y.Test.Runner.setName('javascript-static_ajaxdetection');
+        Y.Test.Runner.run();
+    });
+}
+</script>
+</body>
+</html>
