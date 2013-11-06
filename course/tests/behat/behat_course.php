@@ -658,8 +658,13 @@ class behat_course extends behat_base {
             $steps[] = new Given('I open "' . $activity . '" actions menu');
         }
         $steps[] = new Given('I click on "' . get_string('duplicate') . '" "link" in the "' . $activity . '" activity');
-        $steps[] = new Given('I press "' . get_string('continue') .'"');
-        $steps[] = new Given('I press "' . get_string('duplicatecontcourse') .'"');
+        if ($this->running_javascript()) {
+            // Temporary wait until MDL-41030 lands.
+            $steps[] = new Given('I wait "2" seconds');
+        } else {
+            $steps[] = new Given('I press "' . get_string('continue') .'"');
+            $steps[] = new Given('I press "' . get_string('duplicatecontcourse') .'"');
+        }
         return $steps;
     }
 
@@ -675,11 +680,21 @@ class behat_course extends behat_base {
         $steps = array();
         $activity = $this->escape($activityname);
         if ($this->running_javascript()) {
-            $steps[] = new Given('I open "' . $activity . '" actions menu');
+            $steps[] = new Given('I duplicate "' . $activity . '" activity');
+
+            // Determine the new activity.
+            $activitynode = $this->get_activity_node($activity);
+            $newactivity = $activitynode->find('xpath','/following-sibling::li');
+            $exception = new ElementNotFoundException($this->getSession(), '"argh"');
+            // This needs to be in a step because the duplication hasn't happened yet - hwo do I do this?
+            $menulink = $this->find('link', get_string('edit'), false, $newactivity);
+            $menulink->click();
+            $steps[] = new Given('I click on "' . get_string('editsettings') . '" "link" in the "' . $activity . '" activity');
+        } else {
+            $steps[] = new Given('I click on "' . get_string('duplicate') . '" "link" in the "' . $activity . '" activity');
+            $steps[] = new Given('I press "' . get_string('continue') .'"');
+            $steps[] = new Given('I press "' . get_string('duplicatecontedit') . '"');
         }
-        $steps[] = new Given('I click on "' . get_string('duplicate') . '" "link" in the "' . $activity . '" activity');
-        $steps[] = new Given('I press "' . get_string('continue') .'"');
-        $steps[] = new Given('I press "' . get_string('duplicatecontedit') . '"');
         $steps[] = new Given('I fill the moodle form with:', $data);
         $steps[] = new Given('I press "' . get_string('savechangesandreturntocourse') . '"');
         return $steps;
