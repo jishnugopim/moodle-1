@@ -345,15 +345,19 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             var spinner = this.add_spinner(activity);
             this.send_request(data, spinner);
 
+            var remainingmove;
+
             // Handle removal/addition of the moveleft button.
             if (newindent === INDENTLIMITS.MIN) {
                 button.addClass('hidden');
+                remainingmove = activity.one('.editing_moveright');
             } else if (newindent > INDENTLIMITS.MIN && oldindent === INDENTLIMITS.MIN) {
                 button.ancestor('.menu').one('[data-action=moveleft]').removeClass('hidden');
             }
 
             if (newindent === INDENTLIMITS.MAX) {
                 button.addClass('hidden');
+                remainingmove = activity.one('.editing_moveleft');
             } else if (newindent < INDENTLIMITS.MAX && oldindent === INDENTLIMITS.MAX) {
                 button.ancestor('.menu').one('[data-action=moveright]').removeClass('hidden');
             }
@@ -364,6 +368,10 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 indentdiv.addClass(CSS.MODINDENTHUGE);
             } else if (newindent <= 15 && hashugeclass) {
                 indentdiv.removeClass(CSS.MODINDENTHUGE);
+            }
+
+            if (remainingmove) {
+                remainingmove.focus();
             }
         },
 
@@ -509,14 +517,22 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 availabilityinfo = activity.one(CSS.AVAILABILITYINFODIV),
                 nextaction = (action === 'hide') ? 'show' : 'hide',
                 buttontext = button.one('span'),
-                newstring = M.util.get_string(nextaction, 'moodle');
+                newstring = M.util.get_string(nextaction, 'moodle'),
+                buttonimg = button.one('img');
 
             // Update button info.
-            button.one('img').setAttrs({
-                'alt' : newstring,
+            buttonimg.setAttrs({
                 'src'   : M.util.image_url('t/' + nextaction)
             });
-            button.set('title', newstring);
+
+            if (Y.Lang.trim(button.getAttribute('title'))) {
+                button.setAttribute('title', newstring);
+            }
+
+            if (Y.Lang.trim(buttonimg.getAttribute('alt'))) {
+                buttonimg.setAttribute('alt', newstring);
+            }
+
             button.replaceClass('editing_'+action, 'editing_'+nextaction);
             button.setData('action', nextaction);
             if (buttontext) {
@@ -564,7 +580,8 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 newtitlestr,
                 data,
                 spinner,
-                nextgroupmode = groupmode + 1;
+                nextgroupmode = groupmode + 1,
+                buttonimg = button.one('img');
 
             if (nextgroupmode > 2) {
                 nextgroupmode = 0;
@@ -584,11 +601,16 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             newtitlestr = M.util.get_string('clicktochangeinbrackets', 'moodle', newtitlestr);
 
             // Change the UI
-            button.one('img').setAttrs({
-                'alt' : newtitlestr,
+            buttonimg.setAttrs({
                 'src' : iconsrc
             });
-            button.setAttribute('title', newtitlestr).setData('action', newtitle).setData('nextgroupmode', nextgroupmode);
+            if (Y.Lang.trim(button.getAttribute('title'))) {
+                button.setAttribute('title', newtitlestr).setData('action', newtitle).setData('nextgroupmode', nextgroupmode);
+            }
+
+            if (Y.Lang.trim(buttonimg.getAttribute('alt'))) {
+                buttonimg.setAttribute('alt', newtitlestr);
+            }
 
             // And send the request
             data = {
