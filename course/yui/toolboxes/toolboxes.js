@@ -222,8 +222,9 @@ YUI.add('moodle-course-toolboxes', function(Y) {
          *
          * @method initializer
          */
-        initializer : function(config) {
+        initializer : function() {
             M.course.coursebase.register_module(this);
+            BODY.delegate('key', this.handle_data_action, 'down:enter', SELECTOR.ACTIVITYACTION, this);
             Y.delegate('click', this.handle_data_action, BODY, SELECTOR.ACTIVITYACTION, this);
         },
 
@@ -253,6 +254,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 // It wasn't a valid action node.
                 return;
             }
+            Y.log(ev.type);
 
             // Switch based upon the action and do the desired thing.
             switch (action) {
@@ -370,7 +372,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 indentdiv.removeClass(CSS.MODINDENTHUGE);
             }
 
-            if (remainingmove) {
+            if (ev.type && ev.type === "key" && remainingmove) {
                 remainingmove.focus();
             }
         },
@@ -999,6 +1001,6 @@ YUI.add('moodle-course-toolboxes', function(Y) {
 
 },
 '@VERSION@', {
-    requires : ['base', 'node', 'io', 'moodle-course-coursebase', 'moodle-course-util']
+    requires : ['base', 'event-key', 'node', 'io', 'moodle-course-coursebase', 'moodle-course-util']
 }
 );
