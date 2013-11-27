@@ -1,0 +1,8 @@
+{
+  "moodle-core-keynav": {
+    "requires": [
+        "plugin",
+        "base-build"
+    ]
+  }
+}

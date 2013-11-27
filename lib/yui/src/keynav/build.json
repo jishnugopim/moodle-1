@@ -1,0 +1,10 @@
+{
+  "name": "moodle-core-keynav",
+  "builds": {
+    "moodle-core-keynav": {
+      "jsfiles": [
+        "keynav.js"
+      ]
+    }
+  }
+}
