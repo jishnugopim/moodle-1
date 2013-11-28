@@ -1,0 +1,12 @@
+{
+  "name": "moodle-core-aria",
+  "builds": {
+    "moodle-core-aria": {
+    },
+    "moodle-core-aria-menubar": {
+      "jsfiles": [
+        "menubar.js"
+      ]
+    }
+  }
+}

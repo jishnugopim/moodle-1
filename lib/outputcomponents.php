@@ -3172,6 +3172,7 @@ class action_menu implements renderable {
         static $initialised = false;
         if (!$initialised) {
             $page->requires->yui_module('moodle-core-actionmenu', 'M.core.actionmenu.init');
+            $page->requires->yui_module('moodle-core-aria-menubar', 'arntemp');
             $initialised = true;
         }
     }
@@ -3268,7 +3269,8 @@ class action_menu implements renderable {
             'class' => implode(' ', $linkclasses),
             'title' => $title,
             'id' => 'action-menu-toggle-'.$this->instance,
-            'role' => 'menuitem'
+            'role' => 'menuitem',
+            'tabindex' => -1
         );
         $link = html_writer::link('#', $string . $this->menutrigger . $pixicon, $attributes);
         if ($this->prioritise) {

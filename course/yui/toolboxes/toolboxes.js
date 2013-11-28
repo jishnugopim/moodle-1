@@ -312,6 +312,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         change_indent : function(ev, button, activity, action) {
             // Prevent the default button action
             ev.preventDefault();
+            Y.log(ev);
 
             var direction = (action === 'moveleft') ? -1 : 1;
 
@@ -348,6 +349,11 @@ YUI.add('moodle-course-toolboxes', function(Y) {
             // Handle removal/addition of the moveleft button.
             if (newindent === INDENTLIMITS.MIN) {
                 button.addClass('hidden');
+
+                // Hide the menu if we're at the end of the road.
+                if (M.core.actionmenu && M.core.actionmenu.instance) {
+                    M.core.actionmenu.instance.hideMenu();
+                }
             } else if (newindent > INDENTLIMITS.MIN && oldindent === INDENTLIMITS.MIN) {
                 button.ancestor('.menu').one('[data-action=moveleft]').removeClass('hidden');
             }

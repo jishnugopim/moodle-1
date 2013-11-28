@@ -362,6 +362,7 @@ class core_course_renderer extends plugin_renderer_base {
         }
 
         $menu = new action_menu();
+        unset($menu->attributesprimary['role']);
         $menu->set_owner_selector($ownerselector);
         $menu->set_constraint($constraint);
         $menu->set_alignment(action_menu::TR, action_menu::BR);
@@ -807,7 +808,12 @@ class core_course_renderer extends plugin_renderer_base {
                 'class' => 'iconlarge activityicon', 'alt' => ' ', 'role' => 'presentation')) . $accesstext .
                 html_writer::tag('span', $instancename . $altname, array('class' => 'instancename'));
         if ($mod->uservisible) {
-            $output .= html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) .
+            if ($this->page->user_is_editing()) {
+                $tabindex = -1;
+            } else {
+                $tabindex = 0;
+            }
+            $output .= html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick, 'role' => 'menuitem', 'tabindex' => $tabindex)) .
                     $groupinglabel;
         } else {
             // We may be displaying this just in order to show information
@@ -977,7 +983,9 @@ class core_course_renderer extends plugin_renderer_base {
             }
         }
 
-        $output .= html_writer::start_tag('div');
+        $output .= html_writer::start_tag('div', array(
+            'role' => 'menubar',
+        ));
 
         if ($this->page->user_is_editing()) {
             $output .= course_get_cm_move($mod, $sectionreturn);

@@ -1,0 +1,12 @@
+{
+    "moodle-core-aria": {
+    },
+    "moodle-core-aria-menubar": {
+        "requires": [
+            "base",
+            "event",
+            "event-key",
+            "node"
+        ]
+    }
+}

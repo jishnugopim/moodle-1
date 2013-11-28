@@ -2067,7 +2067,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
                 new moodle_url($baseurl, array('id' => $mod->id, 'groupmode' => $nextgroupmode)),
                 new pix_icon($groupimage, $grouptitle, 'moodle', array('class' => 'iconsmall', 'title' => '')),
                 $grouptitle,
-                array('class' => 'editing_'. $actionname, 'data-action' => $actionname, 'data-nextgroupmode' => $nextgroupmode)
+                array('class' => 'editing_'. $actionname, 'data-action' => $actionname, 'data-nextgroupmode' => $nextgroupmode, 'tabindex' => -1)
             );
         } else {
             $actions['nogroupsupport'] = new action_menu_filler();
@@ -2137,6 +2137,8 @@ function course_get_cm_rename_action(cm_info $mod, $sr = null) {
                     'class' => 'editing_title',
                     'data-action' => 'edittitle',
                     'title' => $str->edittitle,
+                    'role' => 'menuitem',
+                    'tabindex' => -1,
                 )
             )
         );
@@ -2183,7 +2185,7 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
         return html_writer::link(
             new moodle_url($baseurl, array('copy' => $mod->id)),
             $OUTPUT->pix_icon($pixicon, $str->move, 'moodle', array('class' => 'iconsmall', 'title' => '')),
-            array('class' => 'editing_move', 'data-action' => 'move')
+            array('class' => 'editing_move', 'data-action' => 'move', 'role' => 'menuitem', 'tabindex' => 0)
         );
     }
     return '';

@@ -292,7 +292,6 @@ YUI.add('moodle-course-dragdrop', function(Y) {
                     container: '.'+CSS.COURSECONTENT,
                     nodes: nodeselector,
                     target: true,
-                    handles: ['.' + CSS.EDITINGMOVE],
                     dragConfig: {groups: this.groups}
                 });
                 del.dd.plug(Y.Plugin.DDProxy, {
@@ -305,6 +304,8 @@ YUI.add('moodle-course-dragdrop', function(Y) {
                     constrain: '#'+CSS.PAGECONTENT
                 });
                 del.dd.plug(Y.Plugin.DDWinScroll);
+
+                Y.log(nodeselector);
 
                 M.course.coursebase.register_module(this);
                 M.course.dragres = this;
@@ -349,7 +350,11 @@ YUI.add('moodle-course-dragdrop', function(Y) {
                 // Replace move icons
                 var move = resourcesnode.one('a.'+CSS.EDITINGMOVE);
                 if (move) {
-                    move.replace(this.resourcedraghandle.cloneNode(true));
+                    move.setAttrs({
+                        'data-draggroups': 'resource',
+                        'aria-grabbed': false
+                    });
+                    //move.replace(this.resourcedraghandle.cloneNode(true));
                 }
             }, this);
         },
