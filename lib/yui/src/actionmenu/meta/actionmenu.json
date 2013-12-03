@@ -3,7 +3,9 @@
     "requires": [
         "base",
         "event",
-        "node-event-simulate"
+        "node",
+        "node-event-simulate",
+        "event"
     ]
   }
 }
