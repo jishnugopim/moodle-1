@@ -132,8 +132,8 @@ if (empty($SITE->fullname)) {
     echo '</form>';
 }
 
-$PAGE->requires->yui_module('moodle-core-formchangechecker',
-        'M.core_formchangechecker.init',
+$PAGE->requires->yui_module('moodle-form-changechecker',
+        'Y.M.form_changechecker.init',
         array(array(
             'formid' => 'adminsettings'
         ))

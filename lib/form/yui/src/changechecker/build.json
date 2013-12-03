@@ -1,0 +1,10 @@
+{
+  "name": "moodle-form-changechecker",
+  "builds": {
+    "moodle-form-changechecker": {
+      "jsfiles": [
+        "changechecker.js"
+      ]
+    }
+  }
+}

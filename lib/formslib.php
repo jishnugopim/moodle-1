@@ -1418,7 +1418,7 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
      */
     var $_disableShortforms = false;
 
-    /** @var bool whether to automatically initialise M.formchangechecker for this form. */
+    /** @var bool whether to automatically initialise Y.M.form_changechecker for this form. */
     protected $_use_form_change_checker = true;
 
     /**
@@ -1591,7 +1591,7 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
     }
 
     /**
-     * Call this method if you don't want the formchangechecker JavaScript to be
+     * Call this method if you don't want the form-changechecker JavaScript to be
      * automatically initialised for this form.
      */
     public function disable_form_change_checker() {
@@ -1609,7 +1609,7 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
 
     /**
      * @return bool whether this form should automatically initialise
-     *      formchangechecker for itself.
+     *      form-changechecker for itself.
      */
     public function is_form_change_checker_enabled() {
         return $this->_use_form_change_checker;
@@ -2667,8 +2667,8 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
         }
 
         if ($form->is_form_change_checker_enabled()) {
-            $PAGE->requires->yui_module('moodle-core-formchangechecker',
-                    'M.core_formchangechecker.init',
+            $PAGE->requires->yui_module('moodle-form_changechecker',
+                    'Y.M.form_changechecker.init',
                     array(array(
                         'formid' => $formid
                     ))
