@@ -13,25 +13,82 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Auto-save functionality for during quiz attempts.
+//
+// @package   mod_quiz
+// @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
+// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 /**
  * Auto-save functionality for during quiz attempts.
  *
- * @package   mod_quiz
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @module moodle-mod_quiz-autosave
  */
 
+/**
+ * A class to help show and hide advanced form content.
+ *
+ * @class M.mod_quiz.autosave
+ * @constructor
+ */
 M.mod_quiz = M.mod_quiz || {};
 M.mod_quiz.autosave = {
-    /** Delays and repeat counts. */
+
+    /**
+     * The delay before starting TinyMCE detection.
+     *
+     * @property TINYMCE_DETECTION_DELAY
+     * @type Number
+     * @default 500
+     */
     TINYMCE_DETECTION_DELAY:  500,
+
+    /**
+     * The number of attempts to make looking for TinyMCE before giving up.
+     *
+     * @property TINYMCE_DETECTION_REPEATS
+     * @type Number
+     * @default 20
+     */
     TINYMCE_DETECTION_REPEATS: 20,
+
+    /**
+     * How frequently to check for changes on hidden fields.
+     *
+     * @property WATCH_HIDDEN_DELAY
+     * @type Number
+     * @default 1000
+     * @readOnly
+     */
     WATCH_HIDDEN_DELAY:      1000,
+
+    /**
+     * The number of failures before notifying the user.
+     *
+     * @property FAILURES_BEFORE_NOTIFY
+     * @type Number
+     * @default 1
+     * @readOnly
+     */
     FAILURES_BEFORE_NOTIFY:     1,
+
+    /**
+     * A constant for comparing the number of save failures.
+     *
+     * @property FIRST_SUCCESSFUL_SAVE
+     * @type Number
+     * @default -1
+     * @readOnly
+     */
     FIRST_SUCCESSFUL_SAVE:     -1,
 
-    /** Selectors. */
+    /**
+     * CSS Selectors used throughout this module.
+     *
+     * @property SELECTORS
+     * @type Object
+     * @readOnly
+     */
     SELECTORS: {
         QUIZ_FORM:             '#responseform',
         VALUE_CHANGE_ELEMENTS: 'input, textarea',
@@ -41,36 +98,93 @@ M.mod_quiz.autosave = {
         CONNECTION_OK:         '#connection-ok'
     },
 
-    /** Script that handles the auto-saves. */
+    /**
+     * The path to the script that handles the auto-saves.
+     *
+     * @property AUTOSAVE_HANDLER
+     * @type String
+     * @readOnly
+     */
     AUTOSAVE_HANDLER: M.cfg.wwwroot + '/mod/quiz/autosave.ajax.php',
 
-    /** The delay between a change being made, and it being auto-saved. */
+    /**
+     * The delay in milliseconds between a change being made, and it being auto-saved.
+     *
+     * @property delay
+     * @type Number
+     * @default 120000
+     * @readOnly
+     */
     delay: 120000,
 
-    /** The form we are monitoring. */
+    /**
+     * The form we are monitoring.
+     *
+     * @property form
+     * @type Node
+     * @default null
+     * @writeOnce
+     */
     form: null,
 
-    /** Whether the form has been modified since the last save started. */
+    /**
+     * Whether the form has been modified since the last save started.
+     *
+     * @property dirty
+     * @type Booelean
+     * @default false
+     */
     dirty: false,
 
-    /** Timer object for the delay between form modifaction and the save starting. */
+    /**
+     * Timer object for the delay between form modifaction and the save starting.
+     *
+     * @property delay_timer
+     * @type EventHandle
+     * @default null
+     */
     delay_timer: null,
 
-    /** Y.io transaction for the save ajax request. */
+    /**
+     * Y.io transaction for the save ajax request.
+     *
+     * @property save_transaction
+     * @type Object
+     * @default null
+     */
     save_transaction: null,
 
-    /** @property Failed saves count. */
+    /**
+     * Failed saves count.
+     *
+     * @property savefailures
+     * @type Number
+     * @default 0
+     */
     savefailures: 0,
 
-    /** Properly bound key change handler. */
+    /**
+     * Properly bound key change handler.
+     *
+     * @property editor_change_handler
+     * @type EventHandle
+     * @default null
+     */
     editor_change_handler: null,
 
-    /** Record of the value of all the hidden fields, last time they were checked. */
+    /**
+     * Record of the value of all the hidden fields, last time they were checked.
+     *
+     * @property hidden_field_values
+     * @type Object
+     */
     hidden_field_values: {},
 
     /**
      * Initialise the autosave code.
-     * @param delay the delay, in seconds, between a change being detected, and
+     *
+     * @method init
+     * @param {Number} delay the delay, in seconds, between a change being detected, and
      * a save happening.
      */
     init: function(delay) {
@@ -92,6 +206,11 @@ M.mod_quiz.autosave = {
         this.watch_hidden_fields();
     },
 
+    /**
+     * Save field values for hidden fields.
+     *
+     * @method save_hidden_field_values
+     */
     save_hidden_field_values: function() {
         this.form.all(this.SELECTORS.HIDDEN_INPUTS).each(function(hidden) {
             var name  = hidden.get('name');
@@ -102,11 +221,21 @@ M.mod_quiz.autosave = {
         }, this);
     },
 
+    /**
+     * Watch all hidden fields in the form for changes.
+     *
+     * @method watch_hidden_fields
+     */
     watch_hidden_fields: function() {
         this.detect_hidden_field_changes();
         Y.later(this.WATCH_HIDDEN_DELAY, this, this.watch_hidden_fields);
     },
 
+    /**
+     * Detect changes to hidden fields.
+     *
+     * @method detect_hidden_field_changes
+     */
     detect_hidden_field_changes: function() {
         this.form.all(this.SELECTORS.HIDDEN_INPUTS).each(function(hidden) {
             var name  = hidden.get('name'),
@@ -122,7 +251,10 @@ M.mod_quiz.autosave = {
     },
 
     /**
-     * @param repeatcount Because TinyMCE might load slowly, after us, we need
+     * Initialise watchers on all TinyMCE instances.
+     *
+     * @method init_tinymce
+     * @param {Number} repeatcount Because TinyMCE might load slowly, after us, we need
      * to keep trying every 10 seconds or so, until we detect TinyMCE is there,
      * or enough time has passed.
      */
@@ -131,43 +263,63 @@ M.mod_quiz.autosave = {
             if (repeatcount > 0) {
                 Y.later(this.TINYMCE_DETECTION_DELAY, this, this.init_tinymce, [repeatcount - 1]);
             } else {
-                Y.log('Gave up looking for TinyMCE.');
+                Y.log('Gave up looking for TinyMCE.', 'warn', 'moodle-mod_quiz-autosave');
             }
             return;
         }
 
-        Y.log('Found TinyMCE.');
+        Y.log('Found TinyMCE.', 'debug', 'moodle-mod_quiz-autosave');
         this.editor_change_handler = Y.bind(this.editor_changed, this);
         tinyMCE.onAddEditor.add(Y.bind(this.init_tinymce_editor, this));
     },
 
     /**
-     * @param repeatcount Because TinyMCE might load slowly, after us, we need
-     * to keep trying every 10 seconds or so, until we detect TinyMCE is there,
-     * or enough time has passed.
+     * Initialise the TinyMCE editor watchers.
+     *
+     * @method init_tinymce_editor
+     * @param {EventFacade} notused
+     * @param {Object} editor The TinyMCE editor instance
      */
     init_tinymce_editor: function(notused, editor) {
-        Y.log('Found TinyMCE editor ' + editor.id + '.');
+        Y.log('Found TinyMCE editor ' + editor.id + '.', 'debug',' moodle-mod_quiz-autosave');
         editor.onChange.add(this.editor_change_handler);
         editor.onRedo.add(this.editor_change_handler);
         editor.onUndo.add(this.editor_change_handler);
         editor.onKeyDown.add(this.editor_change_handler);
     },
 
+    /**
+     * Handle a value changed event.
+     *
+     * @method value_changed
+     * @param {EventFacade} e
+     */
     value_changed: function(e) {
         if (e.target.get('name') === 'thispage' || e.target.get('name') === 'scrollpos' ||
                 e.target.get('name').match(/_:flagged$/)) {
             return; // Not interesting.
         }
-        Y.log('Detected a value change in element ' + e.target.get('name') + '.');
+        Y.log('Detected a value change in element ' + e.target.get('name') + '.',
+                'debug', 'moodle-mod_quiz-autosave');
         this.start_save_timer_if_necessary();
     },
 
+    /**
+     * Handle an editor change.
+     *
+     * @method editor_changed
+     * @param {Object} editor The instance of the TinyMCE editor
+     */
     editor_changed: function(editor) {
         Y.log('Detected a value change in editor ' + editor.id + '.');
         this.start_save_timer_if_necessary();
     },
 
+    /**
+     * Start the save timer if necessary.
+     *
+     * @method start_save_timer_if_necessary
+     */
     start_save_timer_if_necessary: function() {
         this.dirty = true;
 
@@ -179,11 +331,21 @@ M.mod_quiz.autosave = {
         this.start_save_timer();
     },
 
+    /**
+     * Start the save timer.
+     *
+     * @method start_save_timer
+     */
     start_save_timer: function() {
         this.cancel_delay();
         this.delay_timer = Y.later(this.delay, this, this.save_changes);
     },
 
+    /**
+     * Cancel the delay timer.
+     *
+     * @method cancel_delay
+     */
     cancel_delay: function() {
         if (this.delay_timer && this.delay_timer !== true) {
             this.delay_timer.cancel();
@@ -191,17 +353,22 @@ M.mod_quiz.autosave = {
         this.delay_timer = null;
     },
 
+    /**
+     * Save changes to the form.
+     *
+     * @method save_changes
+     */
     save_changes: function() {
         this.cancel_delay();
         this.dirty = false;
 
         if (this.is_time_nearly_over()) {
-            Y.log('No more saving, time is nearly over.');
+            Y.log('No more saving, time is nearly over.', 'debug', 'moodle-mod_quiz-autosave');
             this.stop_autosaving();
             return;
         }
 
-        Y.log('Doing a save.');
+        Y.log('Doing a save.', 'debug', 'moodle-mod_quiz-autosave');
         if (typeof tinyMCE !== 'undefined') {
             tinyMCE.triggerSave();
         }
@@ -216,12 +383,17 @@ M.mod_quiz.autosave = {
         });
     },
 
+    /**
+     * Mark the current save as being completed successfully.
+     *
+     * @method save_done
+     */
     save_done: function() {
-        Y.log('Save completed.');
+        Y.log('Save completed.', 'debug', 'moodle-mod_quiz-autosave');
         this.save_transaction = null;
 
         if (this.dirty) {
-            Y.log('Dirty after save.');
+            Y.log('Dirty after save.', 'debug', 'moodle-mod_quiz-autosave');
             this.start_save_timer();
         }
 
@@ -235,8 +407,13 @@ M.mod_quiz.autosave = {
         }
     },
 
+    /**
+     * The handler for save failures.
+     *
+     * @method save_failed
+     */
     save_failed: function() {
-        Y.log('Save failed.');
+        Y.log('Save failed.', 'warn', 'moodle-mod_quiz-autosave');
         this.save_transaction = null;
 
         // We want to retry soon.
@@ -249,11 +426,24 @@ M.mod_quiz.autosave = {
         }
     },
 
+    /**
+     * Determine whether the timer is nearly over.
+     *
+     * This is defined as being two times delay.
+     *
+     * @method is_time_nearly_over
+     * @return {Boolean} Whether the timer has nearly finished counting down.
+     */
     is_time_nearly_over: function() {
         return M.mod_quiz.timer && M.mod_quiz.timer.endtime &&
-                (new Date().getTime() + 2*this.delay) > M.mod_quiz.timer.endtime;
+                (new Date().getTime() + 2 * this.delay) > M.mod_quiz.timer.endtime;
     },
 
+    /**
+     * Stop autosaving this form.
+     *
+     * @method stop_autosaving
+     */
     stop_autosaving: function() {
         this.cancel_delay();
         this.delay_timer = true;
