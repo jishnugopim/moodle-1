@@ -139,46 +139,46 @@ M.mod_quiz.autosave = {
     /**
      * Timer object for the delay between form modifaction and the save starting.
      *
-     * @property delay_timer
+     * @property delayTimer
      * @type EventHandle
      * @default null
      */
-    delay_timer: null,
+    delayTimer: null,
 
     /**
      * Y.io transaction for the save ajax request.
      *
-     * @property save_transaction
+     * @property saveTransaction
      * @type Object
      * @default null
      */
-    save_transaction: null,
+    saveTransaction: null,
 
     /**
      * Failed saves count.
      *
-     * @property savefailures
+     * @property saveFailures
      * @type Number
      * @default 0
      */
-    savefailures: 0,
+    saveFailures: 0,
 
     /**
      * Properly bound key change handler.
      *
-     * @property editor_change_handler
+     * @property editorChangeHandler
      * @type EventHandle
      * @default null
      */
-    editor_change_handler: null,
+    editorChangeHandler: null,
 
     /**
      * Record of the value of all the hidden fields, last time they were checked.
      *
-     * @property hidden_field_values
+     * @property hiddenFieldValues
      * @type Object
      */
-    hidden_field_values: {},
+    hiddenFieldValues: {},
 
     /**
      * Initialise the autosave code.
@@ -196,56 +196,56 @@ M.mod_quiz.autosave = {
 
         this.delay = delay * 1000;
 
-        this.form.delegate('valuechange', this.value_changed, this.SELECTORS.VALUE_CHANGE_ELEMENTS, this);
-        this.form.delegate('change',      this.value_changed, this.SELECTORS.CHANGE_ELEMENTS,       this);
-        this.form.on('submit', this.stop_autosaving, this);
+        this.form.delegate('valuechange', this.valueChanged, this.SELECTORS.VALUE_CHANGE_ELEMENTS, this);
+        this.form.delegate('change',      this.valueChanged, this.SELECTORS.CHANGE_ELEMENTS,       this);
+        this.form.on('submit', this.stopAutoSaving, this);
 
-        this.init_tinymce(this.TINYMCE_DETECTION_REPEATS);
+        this.initTinyMCE(this.TINYMCE_DETECTION_REPEATS);
 
-        this.save_hidden_field_values();
-        this.watch_hidden_fields();
+        this.saveHiddenFieldValues();
+        this.watchHiddenFields();
     },
 
     /**
      * Save field values for hidden fields.
      *
-     * @method save_hidden_field_values
+     * @method saveHiddenFieldValues
      */
-    save_hidden_field_values: function() {
+    saveHiddenFieldValues: function() {
         this.form.all(this.SELECTORS.HIDDEN_INPUTS).each(function(hidden) {
             var name  = hidden.get('name');
             if (!name) {
                 return;
             }
-            this.hidden_field_values[name] = hidden.get('value');
+            this.hiddenFieldValues[name] = hidden.get('value');
         }, this);
     },
 
     /**
      * Watch all hidden fields in the form for changes.
      *
-     * @method watch_hidden_fields
+     * @method watchHiddenFields
      */
-    watch_hidden_fields: function() {
-        this.detect_hidden_field_changes();
-        Y.later(this.WATCH_HIDDEN_DELAY, this, this.watch_hidden_fields);
+    watchHiddenFields: function() {
+        this.detectHiddenFieldChanges();
+        Y.later(this.WATCH_HIDDEN_DELAY, this, this.watchHiddenFields);
     },
 
     /**
      * Detect changes to hidden fields.
      *
-     * @method detect_hidden_field_changes
+     * @method detectHiddenFieldChanges
      */
-    detect_hidden_field_changes: function() {
+    detectHiddenFieldChanges: function() {
         this.form.all(this.SELECTORS.HIDDEN_INPUTS).each(function(hidden) {
             var name  = hidden.get('name'),
                 value = hidden.get('value');
             if (!name) {
                 return;
             }
-            if (!(name in this.hidden_field_values) || value !== this.hidden_field_values[name]) {
-                this.hidden_field_values[name] = value;
-                this.value_changed({target: hidden});
+            if (!(name in this.hiddenFieldValues) || value !== this.hiddenFieldValues[name]) {
+                this.hiddenFieldValues[name] = value;
+                this.valueChanged({target: hidden});
             }
         }, this);
     },
@@ -253,15 +253,15 @@ M.mod_quiz.autosave = {
     /**
      * Initialise watchers on all TinyMCE instances.
      *
-     * @method init_tinymce
+     * @method initTinyMCE
      * @param {Number} repeatcount Because TinyMCE might load slowly, after us, we need
      * to keep trying every 10 seconds or so, until we detect TinyMCE is there,
      * or enough time has passed.
      */
-    init_tinymce: function(repeatcount) {
+    initTinyMCE: function(repeatcount) {
         if (typeof tinyMCE === 'undefined') {
             if (repeatcount > 0) {
-                Y.later(this.TINYMCE_DETECTION_DELAY, this, this.init_tinymce, [repeatcount - 1]);
+                Y.later(this.TINYMCE_DETECTION_DELAY, this, this.initTinyMCE, [repeatcount - 1]);
             } else {
                 Y.log('Gave up looking for TinyMCE.', 'warn', 'moodle-mod_quiz-autosave');
             }
@@ -269,102 +269,102 @@ M.mod_quiz.autosave = {
         }
 
         Y.log('Found TinyMCE.', 'debug', 'moodle-mod_quiz-autosave');
-        this.editor_change_handler = Y.bind(this.editor_changed, this);
-        tinyMCE.onAddEditor.add(Y.bind(this.init_tinymce_editor, this));
+        this.editorChangeHandler = Y.bind(this.editorChanged, this);
+        tinyMCE.onAddEditor.add(Y.bind(this.initTinyMCEEditor, this));
     },
 
     /**
      * Initialise the TinyMCE editor watchers.
      *
-     * @method init_tinymce_editor
+     * @method initTinyMCEEditor
      * @param {EventFacade} notused
      * @param {Object} editor The TinyMCE editor instance
      */
-    init_tinymce_editor: function(notused, editor) {
+    initTinyMCEEditor: function(notused, editor) {
         Y.log('Found TinyMCE editor ' + editor.id + '.', 'debug',' moodle-mod_quiz-autosave');
-        editor.onChange.add(this.editor_change_handler);
-        editor.onRedo.add(this.editor_change_handler);
-        editor.onUndo.add(this.editor_change_handler);
-        editor.onKeyDown.add(this.editor_change_handler);
+        editor.onChange.add(this.editorChangeHandler);
+        editor.onRedo.add(this.editorChangeHandler);
+        editor.onUndo.add(this.editorChangeHandler);
+        editor.onKeyDown.add(this.editorChangeHandler);
     },
 
     /**
      * Handle a value changed event.
      *
-     * @method value_changed
+     * @method valueChanged
      * @param {EventFacade} e
      */
-    value_changed: function(e) {
+    valueChanged: function(e) {
         if (e.target.get('name') === 'thispage' || e.target.get('name') === 'scrollpos' ||
                 e.target.get('name').match(/_:flagged$/)) {
             return; // Not interesting.
         }
         Y.log('Detected a value change in element ' + e.target.get('name') + '.',
                 'debug', 'moodle-mod_quiz-autosave');
-        this.start_save_timer_if_necessary();
+        this.startSaveTimerIfNecessary();
     },
 
     /**
      * Handle an editor change.
      *
-     * @method editor_changed
+     * @method editorChanged
      * @param {Object} editor The instance of the TinyMCE editor
      */
-    editor_changed: function(editor) {
+    editorChanged: function(editor) {
         Y.log('Detected a value change in editor ' + editor.id + '.');
-        this.start_save_timer_if_necessary();
+        this.startSaveTimerIfNecessary();
     },
 
     /**
      * Start the save timer if necessary.
      *
-     * @method start_save_timer_if_necessary
+     * @method startSaveTimerIfNecessary
      */
-    start_save_timer_if_necessary: function() {
+    startSaveTimerIfNecessary: function() {
         this.dirty = true;
 
-        if (this.delay_timer || this.save_transaction) {
+        if (this.delayTimer || this.saveTransaction) {
             // Already counting down or daving.
             return;
         }
 
-        this.start_save_timer();
+        this.startSaveTimer();
     },
 
     /**
      * Start the save timer.
      *
-     * @method start_save_timer
+     * @method startSaveTimer
      */
-    start_save_timer: function() {
-        this.cancel_delay();
-        this.delay_timer = Y.later(this.delay, this, this.save_changes);
+    startSaveTimer: function() {
+        this.cancelDelay();
+        this.delayTimer = Y.later(this.delay, this, this.saveChanges);
     },
 
     /**
      * Cancel the delay timer.
      *
-     * @method cancel_delay
+     * @method cancelDelay
      */
-    cancel_delay: function() {
-        if (this.delay_timer && this.delay_timer !== true) {
-            this.delay_timer.cancel();
+    cancelDelay: function() {
+        if (this.delayTimer && this.delayTimer !== true) {
+            this.delayTimer.cancel();
         }
-        this.delay_timer = null;
+        this.delayTimer = null;
     },
 
     /**
      * Save changes to the form.
      *
-     * @method save_changes
+     * @method saveChanges
      */
-    save_changes: function() {
-        this.cancel_delay();
+    saveChanges: function() {
+        this.cancelDelay();
         this.dirty = false;
 
-        if (this.is_time_nearly_over()) {
+        if (this.isTimeNearlyOver()) {
             Y.log('No more saving, time is nearly over.', 'debug', 'moodle-mod_quiz-autosave');
-            this.stop_autosaving();
+            this.stopAutoSaving();
             return;
         }
 
@@ -372,12 +372,12 @@ M.mod_quiz.autosave = {
         if (typeof tinyMCE !== 'undefined') {
             tinyMCE.triggerSave();
         }
-        this.save_transaction = Y.io(this.AUTOSAVE_HANDLER, {
+        this.saveTransaction = Y.io(this.AUTOSAVE_HANDLER, {
             method:  'POST',
             form:    {id: this.form},
             on:      {
-                success: this.save_done,
-                failure: this.save_failed
+                success: this.saveDone,
+                failure: this.saveFailed
             },
             context: this
         });
@@ -386,41 +386,41 @@ M.mod_quiz.autosave = {
     /**
      * Mark the current save as being completed successfully.
      *
-     * @method save_done
+     * @method saveDone
      */
-    save_done: function() {
+    saveDone: function() {
         Y.log('Save completed.', 'debug', 'moodle-mod_quiz-autosave');
-        this.save_transaction = null;
+        this.saveTransaction = null;
 
         if (this.dirty) {
             Y.log('Dirty after save.', 'debug', 'moodle-mod_quiz-autosave');
-            this.start_save_timer();
+            this.startSaveTimer();
         }
 
-        if (this.savefailures > 0) {
+        if (this.saveFailures > 0) {
             Y.one(this.SELECTORS.CONNECTION_ERROR).hide();
             Y.one(this.SELECTORS.CONNECTION_OK).show();
-            this.savefailures = this.FIRST_SUCCESSFUL_SAVE;
-        } else if (this.savefailures === this.FIRST_SUCCESSFUL_SAVE) {
+            this.saveFailures = this.FIRST_SUCCESSFUL_SAVE;
+        } else if (this.saveFailures === this.FIRST_SUCCESSFUL_SAVE) {
             Y.one(this.SELECTORS.CONNECTION_OK).hide();
-            this.savefailures = 0;
+            this.saveFailures = 0;
         }
     },
 
     /**
      * The handler for save failures.
      *
-     * @method save_failed
+     * @method saveFailed
      */
-    save_failed: function() {
+    saveFailed: function() {
         Y.log('Save failed.', 'warn', 'moodle-mod_quiz-autosave');
-        this.save_transaction = null;
+        this.saveTransaction = null;
 
         // We want to retry soon.
-        this.start_save_timer();
+        this.startSaveTimer();
 
-        this.savefailures = Math.max(1, this.savefailures + 1);
-        if (this.savefailures === this.FAILURES_BEFORE_NOTIFY) {
+        this.saveFailures = Math.max(1, this.saveFailures + 1);
+        if (this.saveFailures === this.FAILURES_BEFORE_NOTIFY) {
             Y.one(this.SELECTORS.CONNECTION_ERROR).show();
             Y.one(this.SELECTORS.CONNECTION_OK).hide();
         }
@@ -431,10 +431,10 @@ M.mod_quiz.autosave = {
      *
      * This is defined as being two times delay.
      *
-     * @method is_time_nearly_over
+     * @method isTimeNearlyOver
      * @return {Boolean} Whether the timer has nearly finished counting down.
      */
-    is_time_nearly_over: function() {
+    isTimeNearlyOver: function() {
         return M.mod_quiz.timer && M.mod_quiz.timer.endtime &&
                 (new Date().getTime() + 2 * this.delay) > M.mod_quiz.timer.endtime;
     },
@@ -442,13 +442,13 @@ M.mod_quiz.autosave = {
     /**
      * Stop autosaving this form.
      *
-     * @method stop_autosaving
+     * @method stopAutoSaving
      */
-    stop_autosaving: function() {
-        this.cancel_delay();
-        this.delay_timer = true;
-        if (this.save_transaction) {
-            this.save_transaction.abort();
+    stopAutoSaving: function() {
+        this.cancelDelay();
+        this.delayTimer = true;
+        if (this.saveTransaction) {
+            this.saveTransaction.abort();
         }
     }
 };
