@@ -334,6 +334,7 @@ class page_requirements_manager {
             }
             // Strings for drag and drop.
             $this->strings_for_js(array('movecontent',
+                                        'afterblock',
                                         'tocontent',
                                         'emptydragdropregion'),
                                   'moodle');

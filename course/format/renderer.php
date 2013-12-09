@@ -177,7 +177,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
         if ($hasnamenotsecpg || $hasnamesecpg) {
             $classes = '';
         }
-        $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname' . $classes);
+        $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname' . $classes, 'section-' . $section->section . '-name');
 
         $o.= html_writer::start_tag('div', array('class' => 'summary'));
         $o.= $this->format_summary_text($section);
@@ -188,7 +188,12 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
             $o.= html_writer::link($url,
                 html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/settings'),
                     'class' => 'iconsmall edit', 'alt' => get_string('edit'))),
-                array('title' => get_string('editsummary')));
+                array(
+                        'title' => get_string('editsummary'),
+                        'role' => 'button',
+                        'aria-label' => get_string('editsummary'),
+                        'aria-describedby' => 'section-' . $section->section . '-name',
+                    ));
         }
         $o.= html_writer::end_tag('div');
 
@@ -243,15 +248,25 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                 $url->param('hide', $section->section);
                 $controls[] = html_writer::link($url,
                     html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/hide'),
-                    'class' => 'icon hide', 'alt' => $strhidefromothers)),
-                    array('title' => $strhidefromothers, 'class' => 'editing_showhide'));
+                    'class' => 'icon hide', 'alt' => $strhidefromothers)), array(
+                            'title' => $strhidefromothers,
+                            'class' => 'editing_showhide',
+                            'role' => 'button',
+                            'aria-label' => $strhidefromothers,
+                            'aria-describedby' => 'section-' . $section->section . '-name',
+                    ));
             } else {
                 $strshowfromothers = get_string('showfromothers', 'format_'.$course->format);
                 $url->param('show',  $section->section);
                 $controls[] = html_writer::link($url,
                     html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/show'),
-                    'class' => 'icon hide', 'alt' => $strshowfromothers)),
-                    array('title' => $strshowfromothers, 'class' => 'editing_showhide'));
+                    'class' => 'icon hide', 'alt' => $strshowfromothers)), array(
+                            'title' => $strshowfromothers,
+                            'class' => 'editing_showhide',
+                            'role' => 'button',
+                            'aria-label' => $strshowfromothers,
+                            'aria-describedby' => 'section-' . $section->section . '-name',
+                    ));
             }
         }
 
@@ -533,7 +548,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
         $o.= html_writer::tag('div', '', array('class' => 'left side'));
         $o.= html_writer::tag('div', '', array('class' => 'right side'));
         $o.= html_writer::start_tag('div', array('class' => 'content'));
-        $o.= $this->output->heading(get_string('orphanedactivitiesinsectionno', '', $sectionno), 3, 'sectionname');
+        $o.= $this->output->heading(get_string('orphanedactivitiesinsectionno', '', $sectionno), 3, 'sectionname', 'section-' . $sectionno . '-name');
         return $o;
     }
 
@@ -661,7 +676,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
         if (!$thissection->visible) {
             $classes .= ' dimmed_text';
         }
-        $sectiontitle .= $this->output->heading(get_section_name($course, $displaysection), 3, $classes);
+        $sectiontitle .= $this->output->heading(get_section_name($course, $displaysection), 3, $classes, 'section-' . $displaysection . '-name');
 
         $sectiontitle .= html_writer::end_tag('div');
         echo $sectiontitle;

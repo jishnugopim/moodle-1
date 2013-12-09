@@ -17,6 +17,11 @@ Y.extend(DRAGSECTION, M.core.dragdrop, {
         this.samenodeclass = M.course.format.get_sectionwrapperclass();
         this.parentnodeclass = M.course.format.get_containerclass();
 
+        this.samenodelabel = {
+            identifier: 'aftersection',
+            component: 'moodle'
+        };
+
         // Check if we are in single section mode
         if (Y.Node.one('.' + CSS.JUMPMENU)) {
             return false;
@@ -67,12 +72,14 @@ Y.extend(DRAGSECTION, M.core.dragdrop, {
                 var moveup = sectionnode.one('.' + CSS.RIGHT + ' a.' + CSS.MOVEUP);
 
                 // Add dragger icon
-                var title = M.util.get_string('movesection', 'moodle', sectionid);
+                var title = M.util.get_string('movecoursesection', 'moodle');
                 var cssleft = sectionnode.one('.' + CSS.LEFT);
 
                 if ((movedown || moveup) && cssleft) {
+                    var draghandle = this.get_drag_handle(title, CSS.SECTIONHANDLE, 'icon', true);
+                    draghandle.setAttribute('aria-describedby', sectionnode.one('.sectionname').get('id'));
                     cssleft.setStyle('cursor', 'move');
-                    cssleft.appendChild(this.get_drag_handle(title, CSS.SECTIONHANDLE, 'icon', true));
+                    cssleft.appendChild(draghandle);
 
                     if (moveup) {
                         moveup.remove();

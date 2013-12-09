@@ -103,14 +103,24 @@ class format_topics_renderer extends format_section_renderer_base {
                 $url->param('marker', 0);
                 $controls[] = html_writer::link($url,
                                     html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/marked'),
-                                        'class' => 'icon ', 'alt' => get_string('markedthistopic'))),
-                                    array('title' => get_string('markedthistopic'), 'class' => 'editing_highlight'));
+                                        'class' => 'icon ', 'alt' => get_string('markedthistopic'))), array(
+                                            'title' => get_string('markedthistopic'),
+                                            'aria-label' => get_string('markedthistopic'),
+                                            'class' => 'editing_highlight',
+                                            'role' => 'button',
+                                            'aria-describedby' => 'section-' . $section->section . '-name',
+                                        ));
             } else {
                 $url->param('marker', $section->section);
                 $controls[] = html_writer::link($url,
-                                html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/marker'),
-                                    'class' => 'icon', 'alt' => get_string('markthistopic'))),
-                                array('title' => get_string('markthistopic'), 'class' => 'editing_highlight'));
+                                    html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/marker'),
+                                        'class' => 'icon', 'alt' => get_string('markthistopic'))), array(
+                                            'title' => get_string('markthistopic'),
+                                            'aria-label' => get_string('markthistopic'),
+                                            'class' => 'editing_highlight',
+                                            'role' => 'button',
+                                            'aria-describedby' => 'section-' . $section->section . '-name',
+                                        ));
             }
         }
 

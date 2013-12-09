@@ -2142,6 +2142,7 @@ function course_get_cm_rename_action(cm_info $mod, $sr = null) {
                     'class' => 'editing_title',
                     'data-action' => 'edittitle',
                     'title' => $str->edittitle,
+                    'aria-describedby' => 'mod-name-' . $mod->id,
                 )
             )
         );
@@ -2166,7 +2167,7 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
     $hasmanageactivities = has_capability('moodle/course:manageactivities', $modcontext);
 
     if (!isset($str)) {
-        $str = get_strings(array('move'));
+        $str = get_strings(array('movecoursemodule'));
     }
 
     if (!isset($baseurl)) {
@@ -2187,7 +2188,11 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
 
         return html_writer::link(
             new moodle_url($baseurl, array('copy' => $mod->id)),
-            $OUTPUT->pix_icon($pixicon, $str->move, 'moodle', array('class' => 'iconsmall', 'title' => '')),
+            $OUTPUT->pix_icon($pixicon, $str->movecoursemodule, 'moodle', array(
+                'class' => 'iconsmall',
+                'title' => '',
+                'aria-describedby' => 'mod-name-' . $mod->id,
+            )),
             array('class' => 'editing_move', 'data-action' => 'move')
         );
     }
@@ -3238,11 +3243,14 @@ function include_course_ajax($course, $usedmodules = array(), $enabledmodules = 
             'clicktochangeinbrackets',
             'markthistopic',
             'markedthistopic',
-            'move',
-            'movesection',
+            'movecoursemodule',
+            'movecoursesection',
             'movecontent',
             'tocontent',
-            'emptydragdropregion'
+            'emptydragdropregion',
+            'afterresource',
+            'aftersection',
+            'totopofsection',
         ), 'moodle');
 
     // Include section-specific strings for formats which support sections.

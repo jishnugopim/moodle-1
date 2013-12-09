@@ -805,13 +805,18 @@ class core_course_renderer extends plugin_renderer_base {
                 'class' => 'iconlarge activityicon', 'alt' => ' ', 'role' => 'presentation')) . $accesstext .
                 html_writer::tag('span', $instancename . $altname, array('class' => 'instancename'));
         if ($mod->uservisible) {
-            $output .= html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) .
-                    $groupinglabel;
+            $output .= html_writer::link($url, $activitylink, array(
+                    'class' => $linkclasses,
+                    'onclick' => $onclick,
+                    'id' => 'mod-name-' . $mod->id,
+                )) .  $groupinglabel;
         } else {
             // We may be displaying this just in order to show information
             // about visibility, without the actual link ($mod->uservisible)
-            $output .= html_writer::tag('div', $activitylink, array('class' => $textclasses)) .
-                    $groupinglabel;
+            $output .= html_writer::tag('div', $activitylink, array(
+                    'class' => $textclasses,
+                    'id' => 'mod-name-' . $mod->id,
+                    )) .  $groupinglabel;
         }
         return $output;
     }

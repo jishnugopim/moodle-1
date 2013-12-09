@@ -546,7 +546,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             var editor = Y.Node.create('<input name="title" type="text" class="'+CSS.TITLEEDITOR+'" />').setAttrs({
                 'value': titletext,
                 'autocomplete': 'off',
-                'aria-describedby': 'id_editinstructions',
+                'aria-labelledby': 'id_editinstructions',
+                'aria-describedby': 'mod-name-' + activityid,
                 'maxLength': '255'
             });
 
