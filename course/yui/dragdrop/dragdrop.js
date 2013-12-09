@@ -347,9 +347,12 @@ YUI.add('moodle-course-dragdrop', function(Y) {
         setup_for_resource : function(baseselector) {
             Y.Node.all(baseselector).each(function(resourcesnode) {
                 // Replace move icons
-                var move = resourcesnode.one('a.'+CSS.EDITINGMOVE);
+                var move = resourcesnode.one('a.'+CSS.EDITINGMOVE),
+                    newicon;
                 if (move) {
-                    move.replace(this.resourcedraghandle.cloneNode(true));
+                    newicon = this.resourcedraghandle.cloneNode(true)
+                            .setAttribute('aria-describedby', move.one('img').getAttribute('aria-describedby'));
+                    move.replace(newicon);
                 }
             }, this);
         },

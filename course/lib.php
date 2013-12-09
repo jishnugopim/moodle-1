@@ -2190,7 +2190,11 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
 
         return html_writer::link(
             new moodle_url($baseurl, array('copy' => $mod->id)),
-            $OUTPUT->pix_icon($pixicon, $str->move, 'moodle', array('class' => 'iconsmall', 'title' => '')),
+            $OUTPUT->pix_icon($pixicon, $str->move, 'moodle', array(
+                'class' => 'iconsmall',
+                'title' => '',
+                'aria-describedby' => 'mod-name-' . $mod->id,
+            )),
             array('class' => 'editing_move', 'data-action' => 'move')
         );
     }
