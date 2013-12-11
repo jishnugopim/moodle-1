@@ -219,6 +219,7 @@ while (count($parts)) {
                 'core/popuphelp/popuphelp',
                 'core/dock/dock-loader',
                 'core/notification/notification-dialogue',
+                'block_navigation/navigation/navigation',
             );
 
             // Determine which version of this rollup should be used.
