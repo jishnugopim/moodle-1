@@ -93,7 +93,6 @@ $PAGE->set_title($heading);
 $PAGE->set_heading($heading);
 
 $renderer = $PAGE->get_renderer('core','backup');
-echo $OUTPUT->header();
 
 // Prepare a progress bar which can display optionally during long-running
 // operations while setting up the UI.
@@ -111,6 +110,8 @@ if ($backup->get_stage() == backup_ui::STAGE_SCHEMA && !$previous) {
 }
 $backup->get_controller()->set_progress($slowprogress);
 $backup->process();
+
+echo $OUTPUT->header();
 
 if ($backup->enforce_changed_dependencies()) {
     debugging('Your settings have been altered due to unmet dependencies', DEBUG_DEVELOPER);
