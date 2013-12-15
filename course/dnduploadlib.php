@@ -752,7 +752,8 @@ class dndupload_ajax_processor {
                 $mod, null, array());
 
         $resp = new stdClass();
-        $resp->fullcontent = $courserenderer->course_section_cm_item($mod, $modulehtml);
+        $resp->fullcontent = $courserenderer->course_section_cm_list_item($course,
+                $completioninfo, $mod);
         $resp->cmid = $mod->id;
         echo json_encode($resp);
         die();
