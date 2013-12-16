@@ -48,6 +48,7 @@ DNDUPLOAD = function() {
 
 Y.extend(DNDUPLOAD, Y.Base, {
     processQueue: new Y.AsyncQueue(),
+    dialogueQueue: new Y.AsyncQueue(),
     currentSection: null,
     enterCount: 0,
 
@@ -89,19 +90,22 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * Display a status message to inform users that drag-and-drop upload is available.
      *
      * @method addStatusMessage
+     * @chainable
      */
     addStatusMessage: function() {
+
+        return this;
     },
 
     /**
      * Check if the event includes data of the given type.
      *
-     * @method types_includes
+     * @method isUploadTypeValid
      * @param {EventFacade} e
      * @param {String} type The data type to check for.
      * @return {Boolean} Whether the data type is found in the event data.
      */
-    types_includes: function(e, type) {
+    isUploadTypeValid: function(e, type) {
         var paramkey;
         for (paramkey in e._event.dataTransfer.types) {
             if (!e._event.dataTransfer.types.hasOwnProperty(paramkey)) {
@@ -128,7 +132,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
         }
 
         // Check for files first.
-        if (this.types_includes(e, 'Files')) {
+        if (this.isUploadTypeValid(e, 'Files')) {
             if (e.type !== 'drop' || e._event.dataTransfer.files.length !== 0) {
                 if (this.get('handlers').filehandlers.length === 0) {
                     // No available file handlers - ignore this drag.
@@ -160,7 +164,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
                 if (!dttypes.hasOwnProperty(thistype)) {
                     continue;
                 }
-                if (this.types_includes(e, dttypes[thistype])) {
+                if (this.isUploadTypeValid(e, dttypes[thistype])) {
                     return {
                         realtype: dttypes[thistype],
                         addmessage:     types[typekey].addmessage,
@@ -218,6 +222,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * Hide the current preview element.
      *
      * @method hideDropTarget
+     * @chainable
      */
     hideDropTarget: function(section) {
         section = section || this.currentSection;
@@ -225,6 +230,8 @@ Y.extend(DNDUPLOAD, Y.Base, {
             // Hide the preview for the current section.
             section.getMask().hide();
         }
+
+        return this;
     },
 
     /**
@@ -233,12 +240,15 @@ Y.extend(DNDUPLOAD, Y.Base, {
      * @method showDropTarget
      * @param {Node} section The section being targetted.
      * @param {String} type The type of file being uploaded.
+     * @chainable
      */
     showDropTarget: function(section, type) {
         // Show the preview for the current section.
         var mask = section.getMask();
         mask.one('.mask-content').set('innerHTML', type.addmessage);
         mask.show();
+
+        return this;
     },
 
     /**
@@ -259,7 +269,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
             return;
         }
 
-        if (section !== this.currentSection) {
+        if (section !== this.currentSection || this.enterCount === 0) {
             // The section has changed - we've just entered for the first time.
             this.currentSection = section;
             this.enterCount = 1;
@@ -323,6 +333,10 @@ Y.extend(DNDUPLOAD, Y.Base, {
         var type = this.checkDrag(e),
             section = this.get_section(e.currentTarget);
 
+        // Clear the section tracking data.
+        this.enterCount = 0;
+        this.hideDropTarget(section);
+
         if (!type) {
             this.hideDropTarget();
             return false;
@@ -350,10 +364,7 @@ Y.extend(DNDUPLOAD, Y.Base, {
                     args: [
                         files[index],
                         section
-                    ],
-
-                    // Set a timeout to ensure that this is processed asynchronously - we have dialogue boxes.
-                    timeout: -1
+                    ]
                 });
             }
         } else {
@@ -371,16 +382,13 @@ Y.extend(DNDUPLOAD, Y.Base, {
             }
         }
 
-        // We add an event to the end of the queue so that we know to stop demoting the
-        // dialogue boxes.
+        // Kick off the dialogueQueue at the end of the processQueue's first run.
         this.processQueue.add({
-            fn: function() {
-                this.delayDialogues = false;
-            },
-            context: this
+            fn: this.dialogueQueue.run,
+            context: this.dialogueQueue
         });
 
-        // Process the queue item by item.
+        // Run the process queue.
         this.processQueue.run();
     },
 
@@ -430,26 +438,17 @@ Y.extend(DNDUPLOAD, Y.Base, {
             return this.uploadFile(file, section, handlers[0].module);
         }
 
-        // Push dialogues to the end of the queue until the queue has been cycled a full time.
-        if (this.delayDialogues) {
-            // TODO Fix the issue here where items are shown in the correct order but on
-            // refresh the order chnages. Need to add a afterId field to the upload?
-            this.processQueue.add({
-                fn: this.handleFile,
-                context: this,
-                args: [
-                    file,
-                    section
-                ],
+        this.dialogueQueue.add({
+            fn: this.queryFileType,
+            context: this,
+            args: [
+                file,
+                section,
+                handlers
+            ]
+        });
 
-                // Set a timeout to ensure that this is processed asynchronously - we have dialogue boxes.
-                timeout: -1
-            });
-        } else {
-            this.processQueue.pause();
-            // TODO Rewrite this?
-            return this.file_handler_dialog(file, section, handlers);
-        }
+        return this;
     },
 
     /**
@@ -562,122 +561,111 @@ Y.extend(DNDUPLOAD, Y.Base, {
     },
 
     /**
-     * Show a dialog box, allowing the user to choose what to do with the file they are
-     * uploading.
-     *
-     * @method file_handler_dialog
-     * @param file the File object being uploaded
-     * @param section the DOM element of the section being uploaded to
-     * @param handlers the available handlers to choose between
-     * @param extension the extension of the file being uploaded
-     *
-     * TODO rewrite this
-     * TODO make sure that this calls
-     *     this.hideDropTarget();
      */
-    file_handler_dialog: function(file, section, handlers, placeholder) {
-        if (!this.uploaddialog) {
-            this.uploaddialog = new M.core.dialogue({
+    queryFileType: function(file, section, handlers) {
+        // Pause the current queue.
+        this.dialogueQueue.pause();
+
+        var dialogue = this.getDialogue(),
+            bodyContent,
+            config;
+
+        // Set up the configuration used to build the template.
+        config = {
+            filemessage: M.util.get_string('filemessage', 'course', file),
+            items: []
+        };
+
+        Y.Array.each(handlers, function(handler) {
+            config.items.push({
+                modname: handler.module,
+                icon: M.util.image_url('icon', 'mod_' + handler.module),
+                message: handler.message
+            });
+        });
+
+        // Build the template and add it to the dialogue.
+        bodyContent = this.getDialogueTemplate(config);
+        dialogue.set('bodyContent', bodyContent);
+
+        var listener = dialogue.getButton('upload').on('click', function() {
+            var selection = dialogue.bodyNode.one('input[name="handler"]:checked');
+            if (selection) {
+                this.processQueue.add({
+                    fn: this.uploadFile,
+                    context: this,
+                    args: [
+                        file,
+                        section,
+                        selection.get('value')
+                    ]
+                });
+
+                // No need to restart the queue - that happens when the dialogue is closed.
+                dialogue.hide();
+            } else {
+            }
+        }, this);
+        dialogue.eventListeners.push(listener);
+
+
+        dialogue.show();
+    },
+
+    getDialogue: function() {
+        if (!this.uploadDialog) {
+            this.uploadDialog = new M.core.dialogue({
                 visible: false,
-                render: false,
                 centered: true,
                 modal: true,
                 draggable: true
             });
 
-            this.uploaddialog.uploadbutton = this.uploaddialog.addButton({
+            this.uploadDialog.addButton({
+                name: 'upload',
                 label: M.util.get_string('upload', 'core'),
-                context: this,
-                action: 'process_uploaddialog',
                 isDefault: true
             });
 
-            this.uploaddialog.closebutton = this.uploaddialog.addButton({
+            this.uploadDialog.addButton({
+                name: 'cancel',
                 label: M.util.get_string('cancel', 'core'),
-                context: this.uploaddialog,
                 action: function() {
                     this.hide();
                 }
             });
 
-            this.uploaddialog
-                .render()
-                .hide();
+            // When the dialogue resolves, restart the queue.
+            this.uploadDialog.on('visibleChange', function(e) {
+                if (e.prevVal && !e.newVal) {
+                    new Y.EventHandle(this.uploadDialog.eventListeners).detach();
+                    this.uploadDialog.eventListeners = null;
+                    this.processQueue.run();
+                    this.dialogueQueue.run();
+                }
+            }, this);
+
         }
-
-        // TODO find a better way of doing this.
-        // At present, the action argument to addButton does not accept argument.
-        // This is a nasty fudge - we shoudl convert to
-        // this.uploaddialog.uploadbutton.on('click', this.process_uploaddialog, this, args);
-        this.uploaddialog.file = file;
-        this.uploaddialog.section = section;
-        this.uploaddialog.placeholder = placeholder;
-
-        var index,
-            template = Y.Node.create(
-                '<div class="option">' +
-                    '<label>' +
-                        '<input type="radio" name="handler" />' +
-                        '<span class="modicon">' +
-                            '<img class="icon" />' +
-                        '</span>' +
-                        '<span class="typename" />' +
-                    '</label>' +
-                '</div>'
-            ),
-            newbody = Y.Node.create('<div><p /></div>'),
-            currentoption = null,
-            handler = null;
-
-        newbody.one('p').set('innerHTML', M.util.get_string('actionchoice', 'core', file.name));
-
-        // Add all of the handlers.
-        for (index = 0; index < handlers.length; index++) {
-            handler = handlers[index];
-            currentoption = template.cloneNode(true);
-            currentoption.one('img').setAttribute('src',
-                    M.util.image_url('icon', 'mod_' + handler.module));
-            currentoption.one('input').setAttribute('value', handler.module);
-            currentoption.one('span.typename').set('innerHTML', handler.message);
-            newbody.appendChild(currentoption);
-        }
-
-        this.uploaddialog.options = newbody;
-        this.uploaddialog.set('bodyContent', newbody);
-        this.uploaddialog.show();
-
-        // Focus on the first element to allow easier keyboard navigation.
-        newbody.one('input[type=radio]').focus();
-
-        return;
+        this.uploadDialog.eventListeners = [];
+        return this.uploadDialog;
     },
 
-    /**
-     * Process the values selected in the upload dialog.
-     *
-     * @method process_uploaddialog
-     * @return void
-     * TODO Rewrite
-     */
-    process_uploaddialog: function() {
-        // Find out which module was selected.
-        var module = null;
-
-        // Determine which module was selected.
-        this.uploaddialog.get('boundingBox').all('input').each(function(thisoption) {
-            if (thisoption.get('checked')) {
-                module = thisoption.get('value');
-            }
-        }, this);
-
-        if (module === null) {
-            // No option selected yet - return.
-            return;
+    getDialogueTemplate: function(config) {
+        if (!this.bodyContent) {
+            this.bodyContent = Y.Handlebars.compile(
+                    "<div class='option'>" +
+                    "{{#items}}" +
+                    "<label>" +
+                    "<input type='radio' name='handler' value={{modname}}>" +
+                    "<span class='modicon'><img class='icon' src={{icon}}></span>" +
+                    "<span class='typename'>{{message}}</span>" +
+                    "</label>" +
+                    "{{/items}}" +
+                    "</div>"
+            );
         }
 
-        // Handle the upload.
-        this.uploaddialog.hide();
-        this.uploadFile(this.uploaddialog.file, this.uploaddialog.section, module, this.uploaddialog.placeholder);
+        return this.bodyContent(config);
     },
 
     /**
@@ -739,6 +727,10 @@ Y.extend(DNDUPLOAD, Y.Base, {
      */
     setupJSForCourseModule: function(cmid) {
         M.course.coursebase.invoke_function('setup_for_resource', '#module-' + cmid);
+        var node = Y.one('#module-' + cmid);
+        if (node && M.core.actionmenu && M.core.actionmenu.newDOMNode) {
+            M.core.actionmenu.newDOMNode(node);
+        }
     },
 
     /**
@@ -1066,6 +1058,7 @@ Y.Moodle.course.dndupload.init = function(config) {
         "file",
         "moodle-core-util-mask",
         "promise",
-        "async-queue"
+        "async-queue",
+        "handlebars"
     ]
 });

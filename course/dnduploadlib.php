@@ -510,7 +510,7 @@ class dndupload_ajax_processor {
         $this->displayname = $displayname;
 
         if ($this->is_file_upload()) {
-            $this->handle_file_upload($position);
+            $this->handle_file_upload();
         } else {
             $this->handle_other_upload($content);
         }
@@ -753,7 +753,7 @@ class dndupload_ajax_processor {
 
         $resp = new stdClass();
         $resp->fullcontent = $courserenderer->course_section_cm_list_item($course,
-                $completioninfo, $mod);
+                $completioninfo, $mod, 0);
         $resp->cmid = $mod->id;
         echo json_encode($resp);
         die();

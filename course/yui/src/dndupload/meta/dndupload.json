@@ -13,7 +13,8 @@
       "file",
       "moodle-core-util-mask",
       "promise",
-      "async-queue"
+      "async-queue",
+      "handlebars"
     ]
   },
   "moodle-course-dndupload-loader": {
