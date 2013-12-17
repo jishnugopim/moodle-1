@@ -1397,9 +1397,6 @@ class page_requirements_manager {
         // Now theme CSS + custom CSS in this specific order.
         $output .= $this->get_css_code();
 
-        // Link our main JS file, all core stuff should be there.
-        $output .= html_writer::script('', $this->js_fix_url('/lib/javascript-static.js'));
-
         // Add variables.
         if ($this->jsinitvariables['head']) {
             $js = '';

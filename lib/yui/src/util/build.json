@@ -1,0 +1,13 @@
+{
+    "name": "moodle-core-util",
+    "builds": {
+        "moodle-core-util": {
+            "jsfiles": [
+                "empty.js"
+            ],
+            "appendfiles": [
+                "static.js"
+            ]
+        }
+    }
+}

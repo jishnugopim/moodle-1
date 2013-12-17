@@ -215,6 +215,7 @@ while (count($parts)) {
         // Handle the mcore rollup.
         if (strpos($rollupname, 'mcore') !== false) {
             $yuimodules = array(
+                'core/util/util',
                 'core/tooltip/tooltip',
                 'core/popuphelp/popuphelp',
                 'core/dock/dock-loader',
