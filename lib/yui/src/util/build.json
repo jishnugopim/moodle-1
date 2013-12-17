@@ -2,11 +2,29 @@
     "name": "moodle-core-util",
     "builds": {
         "moodle-core-util": {
+            "prependfiles": [
+                "util.js"
+            ],
             "jsfiles": [
                 "empty.js"
             ],
             "appendfiles": [
-                "static.js"
+                "misc.js",
+                "image_url.js",
+                "in_array.js",
+                "collapsible_region.js",
+                "user_preferences.js",
+                "show_confirm_dialog.js",
+                "frametop.js",
+                "toggle_class_on_click.js",
+                "init_maximised_embed.js",
+                "block_hider.js",
+                "pending.js",
+                "get_string.js",
+                "focus_login_form.js",
+                "lightbox.js",
+                "spinner.js",
+                "legacy.js"
             ]
         }
     }
