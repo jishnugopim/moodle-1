@@ -1,5 +1,5 @@
 @mod @mod_chat @_switch_window
-Feature: Past chat sessions
+Feature: Users can view Past Chat sessions if they posess the relevant capabilities or the activity allows it
   In order to prevent students from accessing past chat sessions
   As a teacher
   I need to change capabilities and settings
@@ -24,8 +24,9 @@ Feature: Past chat sessions
       | Description | This is a chat room |
       | Everyone can view past sessions | 1 |
     And I follow "Example chat room"
-    And I write in the chat session:
+    Then I write in the chat session:
       | Example message from teacher |
+    And I close the chat window
     And I log out
 
   @javascript
@@ -49,11 +50,11 @@ Feature: Past chat sessions
     And I press "Save and return to course"
     When I follow "Example chat room"
     Then I should see "View past chat sessions"
-    Then I log out
-    Then I log in as "student1"
-    Then I follow "Course 1"
-    Then I follow "Example chat room"
-    Then I should see past chat sessions with messages:
+    And I log out
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Example chat room"
+    And I should see past chat sessions with messages:
       | Example message from teacher |
 
   @javascript
@@ -72,11 +73,11 @@ Feature: Past chat sessions
     And I press "Save and return to course"
     When I follow "Example chat room"
     Then I should see "View past chat sessions"
-    Then I log out
-    Then I log in as "student1"
-    Then I follow "Course 1"
-    Then I follow "Example chat room"
-    Then I should not see "View past chat sessions"
+    And I log out
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Example chat room"
+    And I should not see "View past chat sessions"
 
   @javascript
   Scenario: Students should see past sessions without permission but with 'Everyone can view past sessions'
@@ -88,9 +89,9 @@ Feature: Past chat sessions
       | mod/chat:readlog | Prevent |
     When I follow "Example chat room"
     Then I should see "View past chat sessions"
-    Then I log out
-    Then I log in as "student1"
-    Then I follow "Course 1"
-    Then I follow "Example chat room"
-    Then I should see past chat sessions with messages:
+    And I log out
+    And I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Example chat room"
+    And I should see past chat sessions with messages:
       | Example message from teacher |

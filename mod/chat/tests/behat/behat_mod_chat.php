@@ -47,10 +47,11 @@ class behat_mod_chat extends behat_base {
      * When on the chat view page, and after opening a new chat window, switch to that newly opened chat window.
      *
      * @When /^I switch to the chat window$/
+     * @return When[]
      */
     public function i_switch_to_the_chat_window() {
         // Chat window names are currently in the format:
-        //   "chat<courseid><chatid>[<group>]
+        //   "chat<courseid>_<chatid>[<group>]
 
         // Get the course ID from the breadcrumb:
         $coursenode = $this->find('xpath', '//div[@class="breadcrumb"]//a[contains(@href, "/course/view.php?id=")]');
@@ -58,7 +59,7 @@ class behat_mod_chat extends behat_base {
         $courseid = $matches['courseid'];
 
         // Get the instance ID and group ID from the clickable link:
-        $enterlink = $this->find('xpath', '//div[@id="enterlink"]//a["' . get_string('enterchat', 'mod_chat') . '"]');
+        $enterlink = $this->find('xpath', '//div[@id="enterlink"]//a');
 
         preg_match('/^.*\.php\?id=(?P<instanceid>\d+)(&amp;group=(?P<groupid>\d+))?.*$/', $enterlink->getAttribute('href'), $matches);
 
@@ -67,13 +68,14 @@ class behat_mod_chat extends behat_base {
         }
 
         $windowname = 'chat' . $courseid . '_' . $matches['instanceid'] . $matches['groupid'];
-        return array(new Then('I switch to "' . $windowname . '" window'));
+        return array(new When('I switch to "' . $windowname . '" window'));
     }
 
     /**
      * When on the chat view page, open the chat window.
      *
      * @When /^I open the chat window$/
+     * @return Given[]
      */
     public function i_open_the_chat_window() {
         return array(
@@ -83,62 +85,37 @@ class behat_mod_chat extends behat_base {
     }
 
     /**
-     * Given I have an open chat popup window, write some messages into the chat.
+     * Given I have an open chat popup window, and I write some messages into the chat, then I should see my messages in the chat.
      *
-     * @When /^I write in the chat session:$/
+     * @Then /^I write in the chat session:$/
      * @param TableNode $table The chat messages
-     * @return Given[]
+     * @return Then[]
      */
     public function i_write_in_the_chat_session(TableNode $table) {
-
         $listofactions = array(
-            new Given('I open the chat window'),
+            new Then('I open the chat window'),
         );
 
         // The action depends on the field type.
         $rows = $table->getRows();
         foreach ($rows as $rowno => $data) {
             $value = $this->escape($data[0]);
-            $listofactions[] = new Given('I fill in "input-message" with "' . $value . '"');
-            $listofactions[] = new Given('I click on "' . get_string('send', 'mod_chat') . '" "button"');
-            $listofactions[] = new Given('I should see "' . $value . '"');
+            $listofactions[] = new Then('I fill in "input-message" with "' . $value . '"');
+            $listofactions[] = new Then('I click on "' . get_string('send', 'mod_chat') . '" "button"');
+            $listofactions[] = new Then('I should see "' . $value . '"');
         }
 
-        $listofactions[] = new Given('I close the current window');
-        $listofactions[] = new Given('I switch to the main window');
-
         return $listofactions;
-
     }
 
     /**
-     * Log in as the specified user, open the named course and chat, open the chat, and then enter some messages as that user.
+     * Given I am logged in as a user, and have a chat windo wopen, close the chat window.
      *
-     * @When /^I write in chat "(?P<chatname_string>(?:[^"]|\\")*)" of "(?P<course_string>(?:[^"]|\\")*)" as "(?P<username_string>(?:[^"]|\\")*)":$/
-     * @param String $chatname The name of the chat
-     * @param String $course The name of the course
-     * @param String $username The username to write as
-     * @param TableNode $table The chat messages
+     * @Then /^I close the chat window$/
      * @return Given[]
      */
-    public function i_write_in_a_chat_session_as_user($chatname, $course, $username, TableNode $table) {
-
-        $listofactions = array(
-            new Given('I log in as "' . $this->escape($username) . '"'),
-            new Given('I follow "' . $this->escape($course) . '"'),
-            new Given('I follow "' . $this->escape($chatname) . '"'),
-            new Given('I open the chat window'),
-        );
-
-        // The action depends on the field type.
-        $rows = $table->getRows();
-        foreach ($rows as $rowno => $data) {
-            $value = $data[0];
-
-            $listofactions[] = new Given('I fill in "input-message" with "' . $this->escape($value) . '"');
-            $listofactions[] = new Given('I click on "' . get_string('send') . '" "button"');
-            $listofactions[] = new Given('I should see "' . $this->escape($value) . '"');
-        }
+    public function i_close_the_chat_window() {
+        $listofactions = array();
 
         $listofactions[] = new Given('I close the current window');
         $listofactions[] = new Given('I switch to the main window');
@@ -151,6 +128,7 @@ class behat_mod_chat extends behat_base {
      *
      * @Then /^I should see past chat sessions with messages:$/
      * @param TableNode $table The chat messages
+     * @return Then[]
      */
     public function user_can_see_past_chats_with_content(TableNode $table) {
         $listofactions = array(
@@ -167,7 +145,7 @@ class behat_mod_chat extends behat_base {
         foreach ($rows as $rowno => $data) {
             $value = $data[0];
 
-            $listofactions[] = new Given('I should see "' . $this->escape($value) . '"');
+            $listofactions[] = new Then('I should see "' . $this->escape($value) . '"');
         }
 
         return $listofactions;
