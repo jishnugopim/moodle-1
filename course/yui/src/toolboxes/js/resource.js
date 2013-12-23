@@ -311,7 +311,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         var element = activity;
 
         // Add the lightbox.
-        var section = activity.ancestor(M.course.format.get_section_selector(Y)),
+        var section = activity.ancestor(this.get('sectionselector')),
             lightbox = M.util.add_lightbox(Y, section).show();
 
         // Build and send the request.
@@ -352,7 +352,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         ev.preventDefault();
 
         // Return early if the current section is hidden
-        var section = activity.ancestor(M.course.format.get_section_selector(Y));
+        var section = activity.ancestor(this.get('sectionselector'));
         if (section && section.hasClass(CSS.SECTIONHIDDENCLASS)) {
             return this;
         }

@@ -358,9 +358,11 @@ abstract class format_base {
     public function get_ajax_config() {
         $config = new stdClass();
         $config->sectionclass = 'section';
-        $config->sectionelement = 'ul';
+        $config->sectionelement = 'li';
+        $config->sectionselector = $config->sectionelement . '.' . $config->sectionclass;
         $config->containerclass = $this->format;
-        $config->containerelement = 'li';
+        $config->containerelement = 'ul';
+        $config->containerselector = $config->containerelement . '.' . $config->containerclass;
         $config->format = $this->format;
 
         return $config;

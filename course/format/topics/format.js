@@ -23,7 +23,7 @@ M.course.format.get_config = function() {
         section_node : 'li',
         section_class : 'section'
     };
-}
+};
 
 /**
  * Swap section
@@ -33,16 +33,17 @@ M.course.format.get_config = function() {
  * @param {string} node2 node to swap with
  * @return {NodeList} section list
  */
-M.course.format.swap_sections = function(Y, node1, node2) {
-    var CSS = {
-        COURSECONTENT : 'course-content',
-        SECTIONADDMENUS : 'section_add_menus'
-    };
+M.course.format.swap_sections = function(Y, node1, node2, sectionselector) {
+    var sectionlist,
+        CSS = {
+            COURSECONTENT : 'course-content',
+            SECTIONADDMENUS : 'section_add_menus'
+        };
 
-    var sectionlist = Y.Node.all('.'+CSS.COURSECONTENT+' '+M.course.format.get_section_selector(Y));
     // Swap menus.
+    sectionlist = Y.Node.all(sectionselector);
     sectionlist.item(node1).one('.'+CSS.SECTIONADDMENUS).swap(sectionlist.item(node2).one('.'+CSS.SECTIONADDMENUS));
-}
+};
 
 /**
  * Process sections after ajax response

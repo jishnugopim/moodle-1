@@ -108,13 +108,16 @@ YUI.add('moodle-course-coursebase', function(Y) {
     * @return {string} section selector
     */
     M.course.format.get_section_selector = M.course.format.get_section_selector || function(Y) {
+        Y.log('M.course.format.get_section_selector has been deprecated. ' +
+                'Please use the PHP function get_ajax_config in your format', 'warn', 'moodle-course-coursebase');
         var config = M.course.format.get_config();
         if (config.section_node && config.section_class) {
             return config.section_node + '.' + config.section_class;
         }
-        console.log('section_node and section_class are not defined in M.course.format.get_config');
+        Y.log('section_node and section_class are not defined in M.course.format.get_config',
+                'warn', 'moodle-course-coursebase');
         return null;
-    }
+    };
 
    /**
     * Get section wraper for this format (only used in case when each

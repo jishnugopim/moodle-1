@@ -197,6 +197,12 @@ Y.extend(TOOLBOX, Y.Base, {
          */
         pageparams: {
             'value': {}
+        },
+        containerselector: {
+            value: null
+        },
+        sectionselector: {
+            value: null
         }
     }
 }
@@ -515,7 +521,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         var element = activity;
 
         // Add the lightbox.
-        var section = activity.ancestor(M.course.format.get_section_selector(Y)),
+        var section = activity.ancestor(this.get('sectionselector')),
             lightbox = M.util.add_lightbox(Y, section).show();
 
         // Build and send the request.
@@ -556,7 +562,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         ev.preventDefault();
 
         // Return early if the current section is hidden
-        var section = activity.ancestor(M.course.format.get_section_selector(Y));
+        var section = activity.ancestor(this.get('sectionselector'));
         if (section && section.hasClass(CSS.SECTIONHIDDENCLASS)) {
             return this;
         }
@@ -951,7 +957,7 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         e.preventDefault();
 
         // Get the section we're working on.
-        var section = e.target.ancestor(M.course.format.get_section_selector(Y)),
+        var section = e.target.ancestor(this.get('sectionselector')),
             button = e.target.ancestor('a', true),
             hideicon = button.one('img'),
 
@@ -985,7 +991,7 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         var data = {
             'class' : 'section',
             'field' : 'visible',
-            'id'    : Y.Moodle.core_course.util.section.getId(section.ancestor(M.course.format.get_section_wrapper(Y), true)),
+            'id'    : Y.Moodle.core_course.util.section.getId(section.ancestor(this.get('sectionselector'), true)),
             'value' : value
         };
 
@@ -1023,7 +1029,7 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         e.preventDefault();
 
         // Get the section we're working on.
-        var section = e.target.ancestor(M.course.format.get_section_selector(Y));
+        var section = e.target.ancestor(this.get('sectionselector'));
         var button = e.target.ancestor('a', true);
         var buttonicon = button.one('img');
 
@@ -1034,15 +1040,15 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         // Set the current highlighted item text.
         var old_string = M.util.get_string('markthistopic', 'moodle');
         Y.one(SELECTOR.PAGECONTENT)
-            .all(M.course.format.get_section_selector(Y) + '.current ' + SELECTOR.HIGHLIGHT)
+            .all(this.get('sectionselector') + '.current ' + SELECTOR.HIGHLIGHT)
             .set('title', old_string);
         Y.one(SELECTOR.PAGECONTENT)
-            .all(M.course.format.get_section_selector(Y) + '.current ' + SELECTOR.HIGHLIGHT + ' img')
+            .all(this.get('sectionselector') + '.current ' + SELECTOR.HIGHLIGHT + ' img')
             .set('alt', old_string)
             .set('src', M.util.image_url('i/marker'));
 
         // Remove the highlighting from all sections.
-        Y.one(SELECTOR.PAGECONTENT).all(M.course.format.get_section_selector(Y))
+        Y.one(SELECTOR.PAGECONTENT).all(this.get('sectionselector'))
             .removeClass('current');
 
         // Then add it if required to the selected section.

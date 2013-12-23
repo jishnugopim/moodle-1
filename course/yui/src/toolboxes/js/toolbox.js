@@ -195,6 +195,12 @@ Y.extend(TOOLBOX, Y.Base, {
          */
         pageparams: {
             'value': {}
+        },
+        containerselector: {
+            value: null
+        },
+        sectionselector: {
+            value: null
         }
     }
 }
