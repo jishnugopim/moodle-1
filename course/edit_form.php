@@ -155,7 +155,9 @@ class course_edit_form extends moodleform {
         $courseformats = get_sorted_course_formats(true);
         $formcourseformats = array();
         foreach ($courseformats as $courseformat) {
-            $formcourseformats[$courseformat] = get_string('pluginname', "format_$courseformat");
+            if (course_format_available($courseformat)) {
+                $formcourseformats[$courseformat] = get_string('pluginname', "format_$courseformat");
+            }
         }
         if (isset($course->format)) {
             $course->format = course_get_format($course)->get_format(); // replace with default if not found

@@ -911,4 +911,17 @@ abstract class format_base {
         }
         return ($sectionnum && ($course = $this->get_course()) && $course->marker == $sectionnum);
     }
+
+    /**
+     * Return true if the course format is available for general use and
+     * not a hidden format.
+     *
+     * Note, this returns true even if a format is disabled.
+     *
+     * @return bool
+     */
+    public function is_available() {
+        return true;
+    }
+
 }

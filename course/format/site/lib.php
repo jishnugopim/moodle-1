@@ -85,4 +85,14 @@ class format_site extends format_base {
         }
         return $courseformatoptions;
     }
+
+    /**
+     * The site format is a stealth format and only available for courses
+     * which already have it set.
+     *
+     * @return bool
+     */
+    public function is_available() {
+        return false;
+    }
 }

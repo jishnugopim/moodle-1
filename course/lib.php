@@ -2221,6 +2221,12 @@ function course_format_ajax_config($format) {
     return course_get_format($course)->get_ajax_config();
 }
 
+function course_format_available($format) {
+    $course = new stdClass();
+    $course->format = $format;
+    return course_get_format($course)->is_available();
+}
+
 /**
  * Is the user allowed to add this type of module to this course?
  * @param object $course the course settings. Only $course->id is used.
