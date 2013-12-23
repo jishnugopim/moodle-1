@@ -260,8 +260,11 @@ YUI.add('moodle-course-dragdrop', function(Y) {
             courseid : {
                 value : null
             },
-            ajaxurl : {
-                'value' : 0
+            sectionurl: {
+                setter: function(value) {
+                    this.set('ajaxurl', value);
+                },
+                lazyAdd: false
             },
             config : {
                 'value' : 0
@@ -435,8 +438,11 @@ YUI.add('moodle-course-dragdrop', function(Y) {
             courseid : {
                 value : null
             },
-            ajaxurl : {
-                'value' : 0
+            resourceurl: {
+                setter: function(value) {
+                    this.set('ajaxurl', value);
+                },
+                lazyAdd: false
             },
             config : {
                 'value' : 0

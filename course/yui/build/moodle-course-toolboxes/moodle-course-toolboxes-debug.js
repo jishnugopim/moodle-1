@@ -93,7 +93,7 @@ Y.extend(TOOLBOX, Y.Base, {
             data = {};
         }
         // Handle any variables which we must pass back through to
-        var pageparams = this.get('config').pageparams,
+        var pageparams = this.get('pageparams'),
             varname;
         for (varname in pageparams) {
             data[varname] = pageparams[varname];
@@ -189,13 +189,13 @@ Y.extend(TOOLBOX, Y.Base, {
             'value': null
         },
         /**
-         * Any additional configuration passed when creating the instance.
+         * Any page parameters which will need to be passed to when making requests.
          *
          * @attribute config
          * @default {}
          * @type Object
          */
-        config: {
+        pageparams: {
             'value': {}
         }
     }
@@ -889,6 +889,12 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
 }, {
     NAME: 'course-resource-toolbox',
     ATTRS: {
+        resourceurl: {
+            setter: function(value) {
+                this.set('ajaxurl', value);
+            },
+            lazyAdd: false
+        }
     }
 });
 
@@ -1064,6 +1070,12 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
 }, {
     NAME : 'course-section-toolbox',
     ATTRS : {
+        resourceurl: {
+            setter: function(value) {
+                this.set('ajaxurl', value);
+            },
+            lazyAdd: false
+        }
     }
 });
 

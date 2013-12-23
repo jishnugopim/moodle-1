@@ -165,6 +165,12 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
 }, {
     NAME : 'course-section-toolbox',
     ATTRS : {
+        resourceurl: {
+            setter: function(value) {
+                this.set('ajaxurl', value);
+            },
+            lazyAdd: false
+        }
     }
 });
 

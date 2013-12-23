@@ -685,6 +685,12 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
 }, {
     NAME: 'course-resource-toolbox',
     ATTRS: {
+        resourceurl: {
+            setter: function(value) {
+                this.set('ajaxurl', value);
+            },
+            lazyAdd: false
+        }
     }
 });
 

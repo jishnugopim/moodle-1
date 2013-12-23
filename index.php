@@ -101,7 +101,9 @@
     echo $OUTPUT->header();
 
 /// Print Section or custom info
-    $siteformatoptions = course_get_format($SITE)->get_format_options();
+    $format = course_get_format($SITE);
+    $siteformatoptions = $format->get_format_options();
+    $formatrenderer = $format->get_renderer($PAGE);
     $modinfo = get_fast_modinfo($SITE);
     $modnames = get_module_types_names();
     $modnamesplural = get_module_types_names(true);
@@ -113,47 +115,21 @@
 
     } else if ($siteformatoptions['numsections'] > 0) {
         if ($editing) {
-            // make sure section with number 1 exists
+            // Make sure section 1 exists.
             course_create_sections_if_missing($SITE, 1);
-            // re-request modinfo in case section was created
+
+            // Re-request modinfo in case section was created.
             $modinfo = get_fast_modinfo($SITE);
         }
-        $section = $modinfo->get_section_info(1);
-        if (($section && (!empty($modinfo->sections[1]) or !empty($section->summary))) or $editing) {
-            echo $OUTPUT->box_start('generalbox sitetopic');
 
-            /// If currently moving a file then show the current clipboard
-            if (ismoving($SITE->id)) {
-                $stractivityclipboard = strip_tags(get_string('activityclipboard', '', $USER->activitycopyname));
-                echo '<p><font size="2">';
-                echo "$stractivityclipboard&nbsp;&nbsp;(<a href=\"course/mod.php?cancelcopy=true&amp;sesskey=".sesskey()."\">". get_string('cancel') .'</a>)';
-                echo '</font></p>';
-            }
+        // Course wrapper start.
+        echo html_writer::start_tag('div', array('class'=>'course-content'));
+        require($CFG->dirroot .'/course/format/site/format.php');
+        echo html_writer::end_tag('div');
 
-            $context = context_course::instance(SITEID);
-            $summarytext = file_rewrite_pluginfile_urls($section->summary, 'pluginfile.php', $context->id, 'course', 'section', $section->id);
-            $summaryformatoptions = new stdClass();
-            $summaryformatoptions->noclean = true;
-            $summaryformatoptions->overflowdiv = true;
-
-            echo format_text($summarytext, $section->summaryformat, $summaryformatoptions);
-
-            if ($editing && has_capability('moodle/course:update', $context)) {
-                $streditsummary = get_string('editsummary');
-                echo "<a title=\"$streditsummary\" ".
-                     " href=\"course/editsection.php?id=$section->id\"><img src=\"" . $OUTPUT->pix_url('t/edit') . "\" ".
-                     " class=\"iconsmall\" alt=\"$streditsummary\" /></a><br /><br />";
-            }
-
-            $courserenderer = $PAGE->get_renderer('core', 'course');
-            echo $courserenderer->course_section_cm_list($SITE, $section);
-
-            echo $courserenderer->course_section_add_cm_control($SITE, $section->section);
-            echo $OUTPUT->box_end();
-        }
+        // Include course AJAX
+        include_course_ajax($SITE, $modnamesused);
     }
-    // Include course AJAX
-    include_course_ajax($SITE, $modnamesused);
 
     if (isloggedin() and !isguestuser() and isset($CFG->frontpageloggedin)) {
         $frontpagelayout = $CFG->frontpageloggedin;

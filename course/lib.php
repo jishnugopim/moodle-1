@@ -2215,6 +2215,12 @@ function course_format_name ($course,$max=100) {
     }
 }
 
+function course_format_ajax_config($format) {
+    $course = new stdClass();
+    $course->format = $format;
+    return course_get_format($course)->get_ajax_config();
+}
+
 /**
  * Is the user allowed to add this type of module to this course?
  * @param object $course the course settings. Only $course->id is used.
@@ -3163,7 +3169,7 @@ function course_ajax_enabled($course) {
  *          * pageparams    Additional parameters to pass through in the post
  * @return bool
  */
-function include_course_ajax($course, $usedmodules = array(), $enabledmodules = null, $config = null) {
+function include_course_ajax($course, $usedmodules = array(), $enabledmodules = null, $extraconfig = array()) {
     global $CFG, $PAGE, $SITE;
 
     // Ensure that ajax should be included
@@ -3171,60 +3177,47 @@ function include_course_ajax($course, $usedmodules = array(), $enabledmodules = 
         return false;
     }
 
-    if (!$config) {
-        $config = new stdClass();
+    // Get the base configuration.
+    $config = course_format_ajax_config($course->format);
+
+    // Apply any extra configuration on top of it.
+    foreach ($extraconfig as $key => $value) {
+        $config->$key = $value;
     }
 
-    // The URL to use for resource changes
+    // The URL to use for resource changes.
     if (!isset($config->resourceurl)) {
         $config->resourceurl = '/course/rest.php';
     }
 
-    // The URL to use for section changes
+    // The URL to use for section changes.
     if (!isset($config->sectionurl)) {
         $config->sectionurl = '/course/rest.php';
     }
 
-    // Any additional parameters which need to be included on page submission
+    // Create a default for page parameters.
     if (!isset($config->pageparams)) {
         $config->pageparams = array();
     }
 
+    $config->courseid = $course->id;
+
     // Include toolboxes
     $PAGE->requires->yui_module('moodle-course-toolboxes',
             'M.course.init_resource_toolbox',
-            array(array(
-                'courseid' => $course->id,
-                'ajaxurl' => $config->resourceurl,
-                'config' => $config,
-            ))
-    );
+            array($config));
     $PAGE->requires->yui_module('moodle-course-toolboxes',
             'M.course.init_section_toolbox',
-            array(array(
-                'courseid' => $course->id,
-                'format' => $course->format,
-                'ajaxurl' => $config->sectionurl,
-                'config' => $config,
-            ))
-    );
+            array($config));
 
     // Include course dragdrop
     if (course_format_uses_sections($course->format)) {
         $PAGE->requires->yui_module('moodle-course-dragdrop', 'M.course.init_section_dragdrop',
-            array(array(
-                'courseid' => $course->id,
-                'ajaxurl' => $config->sectionurl,
-                'config' => $config,
-            )), null, true);
-
-        $PAGE->requires->yui_module('moodle-course-dragdrop', 'M.course.init_resource_dragdrop',
-            array(array(
-                'courseid' => $course->id,
-                'ajaxurl' => $config->resourceurl,
-                'config' => $config,
-            )), null, true);
+            array($config));
     }
+
+    $PAGE->requires->yui_module('moodle-course-dragdrop', 'M.course.init_resource_dragdrop',
+            array($config));
 
     // Require various strings for the command toolbox
     $PAGE->requires->strings_for_js(array(
