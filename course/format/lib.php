@@ -132,18 +132,15 @@ abstract class format_base {
      */
     protected static final function get_class_name($format) {
         global $CFG;
-        static $classnames = array('site' => 'format_site');
-        if (!isset($classnames[$format])) {
-            $plugins = core_component::get_plugin_list('format');
-            $usedformat = self::get_format_or_default($format);
-            if (file_exists($plugins[$usedformat].'/lib.php')) {
-                require_once($plugins[$usedformat].'/lib.php');
-            }
-            $classnames[$format] = 'format_'. $usedformat;
-            if (!class_exists($classnames[$format])) {
-                require_once($CFG->dirroot.'/course/format/formatlegacy.php');
-                $classnames[$format] = 'format_legacy';
-            }
+        $plugins = core_component::get_plugin_list('format');
+        $usedformat = self::get_format_or_default($format);
+        if (file_exists($plugins[$usedformat].'/lib.php')) {
+            require_once($plugins[$usedformat].'/lib.php');
+        }
+        $classnames[$format] = 'format_'. $usedformat;
+        if (!class_exists($classnames[$format])) {
+            require_once($CFG->dirroot.'/course/format/formatlegacy.php');
+            $classnames[$format] = 'format_legacy';
         }
         return $classnames[$format];
     }
@@ -356,6 +353,17 @@ abstract class format_base {
         $ajaxsupport->capable = false;
         $ajaxsupport->testedbrowsers = array();
         return $ajaxsupport;
+    }
+
+    public function get_ajax_config() {
+        $config = new stdClass();
+        $config->sectionclass = 'section';
+        $config->sectionelement = 'ul';
+        $config->containerclass = $this->format;
+        $config->containerelement = 'li';
+        $config->format = $this->format;
+
+        return $config;
     }
 
     /**
@@ -900,66 +908,5 @@ abstract class format_base {
             $sectionnum = $section;
         }
         return ($sectionnum && ($course = $this->get_course()) && $course->marker == $sectionnum);
-    }
-}
-
-/**
- * Pseudo course format used for the site main page
- *
- * @package    core_course
- * @copyright  2012 Marina Glancy
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class format_site extends format_base {
-
-    /**
-     * Returns the display name of the given section that the course prefers.
-     *
-     * @param int|stdClass $section Section object from database or just field section.section
-     * @return Display name that the course format prefers, e.g. "Topic 2"
-     */
-    function get_section_name($section) {
-        return get_string('site');
-    }
-
-    /**
-     * For this fake course referring to the whole site, the site homepage is always returned
-     * regardless of arguments
-     *
-     * @param int|stdClass $section
-     * @param array $options
-     * @return null|moodle_url
-     */
-    public function get_view_url($section, $options = array()) {
-        return new moodle_url('/');
-    }
-
-    /**
-     * Returns the list of blocks to be automatically added on the site frontpage when moodle is installed
-     *
-     * @return array of default blocks, must contain two keys BLOCK_POS_LEFT and BLOCK_POS_RIGHT
-     *     each of values is an array of block names (for left and right side columns)
-     */
-    public function get_default_blocks() {
-        return blocks_get_default_site_course_blocks();
-    }
-
-    /**
-     * Definitions of the additional options that site uses
-     *
-     * @param bool $foreditform
-     * @return array of options
-     */
-    public function course_format_options($foreditform = false) {
-        static $courseformatoptions = false;
-        if ($courseformatoptions === false) {
-            $courseformatoptions = array(
-                'numsections' => array(
-                    'default' => 1,
-                    'type' => PARAM_INT,
-                ),
-            );
-        }
-        return $courseformatoptions;
     }
 }
