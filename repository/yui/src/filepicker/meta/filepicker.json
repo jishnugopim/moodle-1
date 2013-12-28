@@ -1,0 +1,23 @@
+{
+    "moodle-repository-filepicker": {
+        "requires": [
+            "base",
+            "node",
+            "node-event-simulate",
+            "json",
+            "async-queue",
+            "io-base",
+            "io-upload-iframe",
+            "io-form",
+            "yui2-treeview",
+            "panel",
+            "cookie",
+            "datatable",
+            "datatable-sort",
+            "resize-plugin",
+            "dd-plugin",
+            "escape",
+            "moodle-core_filepicker"
+        ]
+    }
+}
