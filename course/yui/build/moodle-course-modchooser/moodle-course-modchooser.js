@@ -7,7 +7,7 @@ YUI.add('moodle-course-modchooser', function (Y, NAME) {
  */
 
 var CSS = {
-    PAGECONTENT : 'div#page-content',
+    PAGE : 'body',
     SECTION : 'li.section',
     SECTIONMODCHOOSER : 'span.section-modchooser-link',
     SITEMENU : 'div.block_site_main_menu',
@@ -56,7 +56,7 @@ Y.extend(MODCHOOSER, M.core.chooserdialogue, {
      */
     setup_for_section : function(baseselector) {
         if (!baseselector) {
-            baseselector = CSS.PAGECONTENT;
+            baseselector = CSS.PAGE;
         }
 
         // Setup for site topics
