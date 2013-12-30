@@ -19,5 +19,25 @@
             "escape",
             "moodle-core_filepicker"
         ]
+    },
+    "moodle-repository-filepicker-new": {
+        "requires": [
+            "base",
+            "moodle-core-notification-dialogue",
+            "node",
+            "handlebars",
+            "cache",
+            "io",
+            "moodle-repository-filepicker-filetree"
+        ]
+    },
+    "moodle-repository-filepicker-filetree": {
+        "requires": [
+            "tree",
+            "tree-openable",
+            "tree-labelable",
+            "tree-sortable",
+            "tree-selectable"
+        ]
     }
 }

@@ -1,10 +1,20 @@
 {
-  "name": "moodle-repository-filepicker",
-  "builds": {
-    "moodle-repository-filepicker": {
-      "jsfiles": [
-        "filepickerhelper.js"
-      ]
+    "name": "moodle-repository-filepicker",
+    "builds": {
+        "moodle-repository-filepicker": {
+            "jsfiles": [
+                "filepickerhelper.js"
+            ]
+        },
+        "moodle-repository-filepicker-new": {
+            "jsfiles": [
+                "filepicker.js"
+            ]
+        },
+        "moodle-repository-filepicker-filetree": {
+            "jsfiles": [
+                "filetree.js"
+            ]
+        }
     }
-  }
 }

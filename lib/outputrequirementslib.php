@@ -692,7 +692,8 @@ class page_requirements_manager {
                                     'requires' => array(
                                             'node',
                                             'yui2-treeview',
-                                            'moodle-repository-filepicker'
+                                            'moodle-repository-filepicker',
+                                            'moodle-repository-filepicker-new'
                                     ),
                                     'strings'  => array(array('lastmodified', 'moodle'), array('name', 'moodle'), array('type', 'repository'), array('size', 'repository'),
                                                         array('invalidjson', 'repository'), array('error', 'moodle'), array('info', 'moodle'),

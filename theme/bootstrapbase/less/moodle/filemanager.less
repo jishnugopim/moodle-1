@@ -98,6 +98,16 @@
 .file-picker .fp-repo-items {
     float: left;
     width: 693px;
+    &.noback .fp-tb-back,
+    &.norefresh .fp-tb-refresh,
+    &.nologin .fp-tb-logout,
+    &.nologin .fp-tb-login,
+    &.nomanage .fp-tb-manage,
+    &.nosearch .fp-tb-search,
+    &.nohelp .fp-tb-help,
+    &.norefresh .fp-tb-refresh {
+        display: none;
+    }
 }
 .dir-rtl .file-picker .fp-repo-items {
     float: right;
@@ -1184,4 +1194,10 @@ a.ygtvspacer:hover {
 }
 .dir-rtl .filepicker .yui-layout-unit-center {
     left: 0;
+}
+
+
+/* This stuff is new... */
+.yui3-filepicker-hidden {
+  display: none;
 }

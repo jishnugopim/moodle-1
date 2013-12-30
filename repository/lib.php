@@ -2344,6 +2344,55 @@ abstract class repository implements cacheable_object {
         if ($wasobject) {
             $listing = (object) $listing;
         }
+
+        return $listing;
+    }
+
+    public function sanitise_buttons($listing) {
+        $wasobject = false;
+        if (is_object($listing)) {
+            $listing = (array) $listing;
+            $wasobject = true;
+        }
+
+        // Sanitize the filepicker button options.
+        $listing['toolbar'] = (object) array(
+            'help' => false,
+            'manage' => false,
+            'login' => false,
+            'refresh' => true,
+            'message' => false,
+        );
+        if (isset($listing['help'])) {
+            $listing['toolbar']->help = $listing['help'];
+            unset($listing['help']);
+        }
+        if (isset($listing['nomanage'])) {
+            $listing['toolbar']->manage = !$listing['nomanage'];
+            unset($listing['nomanage']);
+        }
+        if (isset($listing['nologin'])) {
+            $listing['toolbar']->login = !$listing['nologin'];
+            unset($listing['nologin']);
+        }
+        if (isset($listing['norefresh'])) {
+            $listing['toolbar']->refresh = !$listing['norefresh'];
+            unset($listing['norefresh']);
+        }
+        if (isset($listing['manage'])) {
+            $listing['toolbar']->manage = $listing['manage'];
+            unset($listing['manage']);
+        }
+        if (isset($listing['nosearch'])) {
+            $listing['toolbar']->search = !$listing['nosearch'];
+            unset($listing['nosearch']);
+        }
+
+        // Convert back to an object.
+        if ($wasobject) {
+            $listing = (object) $listing;
+        }
+
         return $listing;
     }
 

@@ -525,7 +525,6 @@ class core_files_renderer extends plugin_renderer_base {
 <div tabindex="0" class="file-picker fp-generallayout" role="dialog" aria-live="assertive">
     <div class="fp-repo-area">
         <ul class="fp-list">
-            <li class="{!}fp-repo"><a href="#"><img class="{!}fp-repo-icon" alt=" " width="16" height="16" />&nbsp;<span class="{!}fp-repo-name"></span></a></li>
         </ul>
     </div>
     <div class="fp-repo-items" tabindex="0">
@@ -553,6 +552,7 @@ class core_files_renderer extends plugin_renderer_base {
         </div>
         <div class="{!}fp-content"></div>
     </div>
+    <div class="clearfix"></div>
 </div>';
         return preg_replace('/\{\!\}/', '', $rv);
     }
@@ -741,18 +741,24 @@ class core_files_renderer extends plugin_renderer_base {
         <form enctype="multipart/form-data" method="POST">
             <table >
                 <tr class="{!}fp-file">
-                    <td class="mdl-right"><label>'.get_string('attachment', 'repository').'</label>:</td>
-                    <td class="mdl-left"><input type="file"/></td></tr>
+                    <td class="mdl-right"><label for="{{client_id}}_{{file}}">'.get_string('attachment', 'repository').'</label>:</td>
+                    <td class="mdl-left"><input name="{{file}}" id="{{client_id}}_{{file}}" type="file"/></td></tr>
                 <tr class="{!}fp-saveas">
-                    <td class="mdl-right"><label>'.get_string('saveas', 'repository').'</label>:</td>
-                    <td class="mdl-left"><input type="text"/></td></tr>
+                    <td class="mdl-right"><label for="{{client_id}}_{{saveas}}">'.get_string('saveas', 'repository').'</label>:</td>
+                    <td class="mdl-left"><input name="{{saveas}}" id="{{client_id}}_{{saveas}}" type="text"/></td></tr>
                 <tr class="{!}fp-setauthor">
-                    <td class="mdl-right"><label>'.get_string('author', 'repository').'</label>:</td>
-                    <td class="mdl-left"><input type="text"/></td></tr>
+                    <td class="mdl-right"><label for="{{client_id}}_{{author}}">'.get_string('author', 'repository').'</label>:</td>
+                    <td class="mdl-left"><input name="{{author}}" id="{{client_id}}_{{author}}" type="text"/></td></tr>
                 <tr class="{!}fp-setlicense">
-                    <td class="mdl-right"><label>'.get_string('chooselicense', 'repository').'</label>:</td>
-                    <td class="mdl-left"><select></select></td></tr>
+                    <td class="mdl-right"><label for="{{client_id}}_{{license}}">'.get_string('chooselicense', 'repository').'</label>:</td>
+                    <td class="mdl-left"><select name="{{license}}" id="{{client_id}}_{{license}}">{{#licenses}}
+                        <option value="{{shortname}}" {{#if selectedlicense}}selected="1"{{/if}}>{{fullname}}</option>
+{{/licenses}}</select></td></tr>
             </table>
+        <input type="hidden" name="itemid"  value="{{itemid}}" />
+{{#types}}
+        <input type="hidden" name="accepted_types[]"  value="{{.}}" />
+{{/types}}
         </form>
         <div><button class="{!}fp-upload-btn">'.get_string('upload', 'repository').'</button></div>
     </div>
@@ -893,29 +899,75 @@ class core_files_renderer extends plugin_renderer_base {
         $rv = '
 <div class="fp-login-form">
     <div class="fp-content-center">
-        <form>
+        <form id="{{client_id}}">
             <table >
-                <tr class="{!}fp-login-popup">
-                    <td colspan="2">
-                        <label>'.get_string('popup', 'repository').'</label>
-                        <p class="fp-popup"><button class="{!}fp-login-popup-but">'.get_string('login', 'repository').'</button></p></td></tr>
-                <tr class="{!}fp-login-textarea">
-                    <td colspan="2"><p><textarea></textarea></p></td></tr>
-                <tr class="{!}fp-login-select">
-                    <td align="right"><label></label></td>
-                    <td align="left"><select></select></td></tr>
-                <tr class="{!}fp-login-input">
-                    <td class="label"><label></label></td>
-                    <td class="input"><input/></td></tr>
-                <tr class="{!}fp-login-radiogroup">
-                    <td align="right" width="30%" valign="top"><label></label></td>
-                    <td align="left" valign="top"><p class="{!}fp-login-radio"><input /> <label></label></p></td></tr>
             </table>
-            <p><button class="{!}fp-login-submit">'.get_string('submit', 'repository').'</button></p>
+            <p><button class="fp-login-submit">' . get_string('submit', 'repository') . '</button></p>
         </form>
     </div>
 </div>';
-        return preg_replace('/\{\!\}/', '', $rv);
+        return $rv;
+    }
+
+    private function fp_js_template_loginform_popup() {
+        $rv = '
+<tr class="fp-login-popup"><td colspan="2">
+    <label>' . get_string('popup', 'repository') . '</label>
+    <p class="fp-popup"><button data-loginurl="{{loginurl}} class="fp-login-popup-but">' . get_string('login', 'repository') . '</button></p>
+</td></tr>';
+    }
+
+    private function fp_js_template_loginform_textarea() {
+        return '
+<tr class="fp-login-textarea"><td colspan="2">
+    <label for="{{id}}">{{label}}</label>
+    <p><textarea id="{{id}}" name="{{name}}"></textarea></p>
+</td></tr>';
+    }
+
+    private function fp_js_template_loginform_select() {
+        return '
+<tr class="fp-login-select">
+    <td align="right"><label for="{{id}}">{{label}}</label></td>
+    <td align="left">
+        <select id="{{id}}" name="{{name}}">{{#options}}
+            <option value={{value}}>{{label}}</option>
+        {{/options}}</select>
+    </td>
+</tr>';
+    }
+
+    private function fp_js_template_loginform_input() {
+        return '
+<tr class="fp-login-input">
+    <td align="label"><label for="{{id}}">{{label}}</label></td>
+    <td align="input">
+        <input type="{{type}}" id="{{id}}" name="{{name}}" value="{{value}}" />
+    </td>
+</tr>';
+    }
+
+    private function fp_js_template_loginform_radio() {
+        return '
+<tr class="fp-login-radiogroup">
+    <td align="right" width="30%" valign="top"><label for="{{id}}">{{label}}</label></td>
+    <td align="left" valign="top">{{#options}}
+        <p class"fp-login-radio">
+            <input type="radio" id="{{id}}{{item}}" name="{{name}}" value="{{value}}"/>
+            <label for="{{id}}{{item}}>{{label}}</label>
+        </p>
+    {{/options}}</td>
+</tr>';
+    }
+
+    private function fp_js_template_repository() {
+        return '<li class="fp-repo" data-repositoryid="{{id}}">' .
+                    '<a href="#">' .
+                        '<img class="fp-repo-icon" alt="" src="{{icon}}">' .
+                        '&nbsp;' .
+                        '<span class="fp-repo-name">{{name}}</span>' .
+                    '</a>' .
+                '</li>';
     }
 
     /**

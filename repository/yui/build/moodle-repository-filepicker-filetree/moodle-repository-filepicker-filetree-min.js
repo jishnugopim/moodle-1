@@ -1,0 +1,1 @@
+YUI.add("moodle-repository-filepicker-filetree",function(e,t){e.namespace("M.repository.filepicker").FileTree=e.Base.create("fileTree",e.Tree,[e.Tree.Openable,e.Tree.Labelable,e.Tree.Selectable,e.Tree.Sortable])},"@VERSION@",{requires:["tree","tree-openable","tree-labelable","tree-sortable","tree-selectable"]});

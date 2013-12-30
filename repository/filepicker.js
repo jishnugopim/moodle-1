@@ -492,20 +492,23 @@ M.core_filepicker.loadedpreviews = M.core_filepicker.loadedpreviews || {};
 */
 M.core_filepicker.select_file = function(file) {
     M.core_filepicker.active_filepicker.select_file(file);
-}
+};
 
 /**
  * Init and show file picker
  */
 M.core_filepicker.show = function(Y, options) {
+
     if (!M.core_filepicker.instances[options.client_id]) {
-        M.core_filepicker.init(Y, options);
+        M.core_filepicker.instances[options.client_id] = new Y.M.repository.FilePicker(options);
     }
     M.core_filepicker.instances[options.client_id].show();
 };
 
 M.core_filepicker.set_templates = function(Y, templates) {
+    M.cfg.templates = M.cfg.templates || {};
     for (var templid in templates) {
+        M.cfg.templates[templid] = templates[templid];
         M.core_filepicker.templates[templid] = templates[templid];
     }
 };
