@@ -287,7 +287,7 @@ while (count($parts)) {
     } else if ($version === '2in3') {
         $contentfile = "$CFG->libdir/yuilib/$part";
 
-    } else if ($version == 'gallery') {
+    } else if ($version == 'g') {
         if (count($bits) <= 2) {
             // This is an invalid module load attempt.
             $content .= "\n// Incorrect moodle module inclusion. Not enough component information in {$part}.\n";
@@ -298,7 +298,14 @@ while (count($parts)) {
             // Revision -1 says please don't cache the JS
             $cache = false;
         }
-        $contentfile = "$CFG->libdir/yuilib/gallery/" . join('/', $bits);
+        $gallerytype = array_shift($bits);
+        if ($gallerytype == 'lg') {
+            $frankenstyle = array_shift($bits);
+            $plugindir = core_component::get_component_directory($frankenstyle);
+            $contentfile = "$plugindir/yui/gallery/build/" . join('/', $bits);
+        } else {
+            $contentfile = "$CFG->libdir/yuilib/gallery/" . join('/', $bits);
+        }
 
     } else if ($version == 'yuiuseall') {
         // Create global Y that is available in global scope,

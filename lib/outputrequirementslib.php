@@ -228,15 +228,15 @@ class page_requirements_manager {
 
         $this->YUI_config->add_group('gallery', array(
             'name' => 'gallery',
-            'base' => $CFG->httpswwwroot . '/lib/yuilib/gallery/',
+            'base' => $CFG->httpswwwroot . '/theme/yui_combo.php' . $sep . 'g/' . $jsrev . '/',
             'combine' => $this->yui3loader->combine,
             'comboBase' => $CFG->httpswwwroot . '/theme/yui_combo.php' . $sep,
             'ext' => false,
-            'root' => 'gallery/' . $jsrev . '/',
+            'root' => 'g/' . $jsrev . '/',
             'patterns' => array(
                 'gallery-' => array(
                     'group' => 'gallery',
-                )
+                ),
             )
         ));
 
@@ -271,6 +271,9 @@ class page_requirements_manager {
 
         // Add the moodle group's module data.
         $this->YUI_config->add_moodle_metadata();
+
+        // Add the gallery module data.
+        $this->YUI_config->add_gallery_modules();
 
         // Every page should include definition of following modules.
         $this->js_module($this->find_module('core_filepicker'));
@@ -1804,6 +1807,145 @@ class YUI_config {
         }
         return $modules;
     }
+
+    /**
+     * Add the gallery YUI module metadata for the gallery group to the YUI_config instance.
+     *
+     * The cache is only cleared on upgrade, or when a user manually clears
+     * the cache. The values of cachejs and jsrev have no effect on caching
+     * of the gallery data.
+     *
+     * If metadata does not exist it will be created and stored in a MUC entry.
+     *
+     * @return void
+     */
+    public function add_gallery_modules() {
+        global $CFG;
+        if (!isset($this->groups['gallery'])) {
+            throw new coding_exception('The Gallery YUI module does not exist. You must define the gallery module config using YUI_config->add_module_config first.');
+        }
+
+        if (!isset($this->groups['gallery']['modules'])) {
+            $this->groups['gallery']['modules'] = array();
+        }
+
+        $cache = cache::make('core', 'yuimodules');
+        // Attempt to get the metadata from the cache.
+        if (!$metadata = $cache->get('gallerydata')) {
+            $metadata = $this->get_gallery_modules();
+            $cache->set('gallerydata', $metadata);
+        }
+
+        // Merge with any metadata added specific to this page which was added manually.
+        $this->groups['gallery']['modules'] = array_merge($this->groups['gallery']['modules'],
+                $metadata);
+    }
+
+    /**
+     * Determine the module metadata for all gallery YUI modules.
+     *
+     * This function works through all modules looking for a yuigallery.php
+     * file which defines any gallery modules which are to be included.
+     *
+     * @return Array of module metadata
+     */
+    private function get_gallery_modules() {
+        $gallerymodules = array();
+
+        // Handle plugins.
+        $plugintypes = core_component::get_plugin_types();
+        foreach ($plugintypes as $plugintype => $pathroot) {
+            $pluginlist = core_component::get_plugin_list($plugintype);
+            foreach ($pluginlist as $plugin => $path) {
+                $frankenstyle = $plugintype . '_' . $plugin;
+                if ($module = $this->get_gallery_path_modules($path, $frankenstyle)) {
+                    $gallerymodules = array_merge($gallerymodules, $module);
+                }
+            }
+        }
+
+        // Handle core here too. Core should take precedence over modules
+        // included in a plugin.
+        if ($module = $this->get_gallery_path_modules(core_component::get_component_directory('core'))) {
+            $gallerymodules = array_merge($gallerymodules, $module);
+        }
+
+        return $gallerymodules;
+    }
+
+    /**
+     * Helper function to process and return the module list for any gallery modules defined.
+     *
+     * @param String $path the UNC path to the plugin directory.
+     * @return Array the complete array for frankenstyle directory.
+     */
+    private function get_gallery_path_modules($path, $plugin = null) {
+        global $CFG;
+        if ($plugin) {
+            $baseyui = $path . '/yui/gallery/build';
+            $pluginpath = $plugin . '/';
+            $gallerytype = 'lg/';
+        } else {
+            $baseyui = $path . '/yuilib/gallery';
+            $pluginpath = '';
+            $gallerytype = 'cg/';
+        }
+        $modules = array();
+        if (is_dir($baseyui)) {
+            $items = new DirectoryIterator($baseyui);
+            foreach ($items as $item) {
+                if ($item->isDot() or !$item->isDir()) {
+                    continue;
+                }
+                $modulename = $item->getFilename();
+                $module = array(
+                    'name' => $modulename,
+                    'path' => $gallerytype . $pluginpath . $modulename . '/' . $modulename . '-min.js',
+                );
+
+                // Attempt to read the metadata file.
+                $metafile = realpath($baseyui . '/' . $modulename . '/meta.json');
+                if (is_readable($metafile)) {
+                    $metadatacontent = file_get_contents($metafile);
+                    $metadata = json_decode($metadatacontent);
+
+                    foreach ($metadata as $modname => $moddata) {
+                        if (isset($moddata->skinnable) && $moddata->skinnable) {
+                            //$skinmod = (object) $moddata;
+                            //$skinmod->skinnable = false;
+                            $skinmod = new stdClass();
+                            $skinmod->skin = true;
+                            $skinmod->name = 'skin-sam-' . $modname;
+                            $skinmod->type = 'css';
+                            if (isset($moddata->after)) {
+                                $skinmod->after = $moddata->after;
+                            }
+                            $skinmod->path = $gallerytype . $pluginpath . $modname . '/assets/skins/sam/' . $modname . '.css';
+                            if (isset($moddata->ext)) {
+                                $skinmod->ext = $moddata->ext;
+                            }
+                            if (isset($moddata->base)) {
+                                $skinmod->base = $moddata->base;
+                            }
+                            if (isset($moddata->configFn)) {
+                                $skinmod->configFn = $moddata->configFn;
+                            }
+                            $modules[$skinmod->name] = $skinmod;
+                        }
+                    }
+
+                    if (isset($metadata->$modulename)) {
+                        // Merge with the module name and path taking precedence.
+                        $module = array_merge((array) $metadata->$modulename, $module);
+                    }
+                }
+
+                $modules[$module['name']] = $module;
+            }
+        }
+        return $modules;
+    }
+
 }
 
 /**
