@@ -81,13 +81,13 @@ echo $OUTPUT->header(); // send headers
 switch ($action) {
     case 'add':
         if ($manager->can_post()) {
-            $result = $manager->add($content);
-            if (!empty($result) && is_object($result)) {
-                $result->count = $manager->count();
-                $result->client_id = $client_id;
-                echo json_encode($result);
-                die();
-            }
+            $result = new stdClass();
+            $result->comments = $manager->add($content);
+            $result->count = $manager->count();
+            $result->action = 'add';
+            $result->appendOnly = true;
+            echo json_encode($result);
+            die();
         }
         break;
     case 'delete':
@@ -95,8 +95,9 @@ switch ($action) {
         if ($manager->can_delete($commentid) || $comment_record->userid == $USER->id) {
             if ($manager->delete($commentid)) {
                 $result = array(
-                    'client_id' => $client_id,
-                    'commentid' => $commentid
+                    'action'    => 'remove',
+                    'commentid' => $commentid,
+                    'count' => $manager->count(),
                 );
                 echo json_encode($result);
                 die();
@@ -106,12 +107,13 @@ switch ($action) {
     case 'get':
     default:
         if ($manager->can_view()) {
-            $comments = $manager->get_comments($page);
+            $comments = $manager->print_comments($page, true, false);
             $result = array(
-                'list'       => $comments,
+                'comments'   => $comments,
                 'count'      => $manager->count(),
                 'pagination' => $manager->get_pagination($page),
-                'client_id'  => $client_id
+                'client_id'  => $client_id,
+                'action'     => 'update'
             );
             echo json_encode($result);
             die();

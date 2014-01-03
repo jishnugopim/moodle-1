@@ -150,19 +150,14 @@ td.eventskey {
     border-color: #f3f8ed;
 }
 
-.block_comments textarea {
+.block_comments .comment-container .comment-area textarea {
     width: 95%;
     margin-bottom: 1em;
 }
 
-.block_comments .comment-area a {
+.block_comments .comment-container .comment-area a {
     background: #fff;
-    padding: 5px;
     border: 1px solid #e5e5e5;
-}
-
-.comment-delete-confirm {
-    background: #fff;
 }
 
 .block_messages .content {

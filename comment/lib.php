@@ -66,8 +66,6 @@ class comment {
     protected $autostart = false;
     /** @var bool If set to true the total count of comments is displayed when displaying comments. */
     protected $displaytotalcount = false;
-    /** @var bool If set to true a cancel button will be shown on the form used to submit comments. */
-    protected $displaycancel = false;
     /** @var int The number of comments associated with this comments params */
     protected $totalcommentcount = null;
 
@@ -98,7 +96,6 @@ class comment {
      *            client_id => string an unique id to identify comment area
      *            autostart => boolean automatically expend comments
      *            showcount => boolean display the number of comments
-     *            displaycancel => boolean display cancel button
      *            notoggle => boolean don't show/hide button
      *            linktext => string title of show/hide button
      * }
@@ -185,11 +182,6 @@ class comment {
         // setup notoggle
         if (!empty($options->autostart)) {
             $this->set_autostart($options->autostart);
-        }
-
-        // setup displaycancel
-        if (!empty($options->displaycancel)) {
-            $this->set_displaycancel($options->displaycancel);
         }
 
         // setup displaytotalcount
@@ -333,30 +325,6 @@ class comment {
     }
 
     /**
-     * Sets the value of the autostart option.
-     *
-     * If set to true then the comments will be loaded during page load.
-     * Normally this happens only once the user expands the comment section.
-     *
-     * @param bool $newvalue
-     */
-    public function set_autostart($newvalue = true) {
-        $this->autostart = (bool)$newvalue;
-    }
-
-    /**
-     * Sets the displaycancel option
-     *
-     * If set to true then a cancel button will be shown when using the form
-     * to post comments.
-     *
-     * @param bool $newvalue
-     */
-    public function set_displaycancel($newvalue = true) {
-        $this->displaycancel = (bool)$newvalue;
-    }
-
-    /**
      * Sets the displaytotalcount option
      *
      * If set to true then the total number of comments will be displayed
@@ -369,27 +337,34 @@ class comment {
     }
 
     /**
+     * Sets the value of the autostart option.
+     *
+     * If set to true then the comments will be loaded during page load.
+     * Normally this happens only once the user expands the comment section.
+     *
+     * @param bool $newvalue
+     */
+    public function set_autostart($newvalue = true) {
+        $this->autostart = (bool)$newvalue;
+    }
+
+    /**
      * Initialises the JavaScript that enchances the comment API.
      *
      * @param moodle_page $page The moodle page object that the JavaScript should be
      *                          initialised for.
      */
     public function initialise_javascript(moodle_page $page) {
+        static $jsincluded = false;
 
-        $options = new stdClass;
-        $options->client_id   = $this->cid;
-        $options->commentarea = $this->commentarea;
-        $options->itemid      = $this->itemid;
-        $options->page        = 0;
-        $options->courseid    = $this->courseid;
-        $options->contextid   = $this->contextid;
-        $options->component   = $this->component;
-        $options->notoggle    = $this->notoggle;
-        $options->autostart   = $this->autostart;
-
-        $page->requires->js_init_call('M.core_comment.init', array($options), true);
-
-        return true;
+        if (!$jsincluded) {
+            $page->requires->yui_module('moodle-comment-comment', 'Y.M.comment.comment');
+            $page->requires->strings_for_js(array(
+                'commentscount',
+                'deletecommentcheck',
+            ), 'moodle');
+            $jsincluded = true;
+        }
     }
 
     /**
@@ -409,76 +384,74 @@ class comment {
         }
 
         $html = '';
-
-        // print html template
-        // Javascript will use the template to render new comments
-        if (empty($template_printed) && $this->can_view()) {
-            $html .= html_writer::tag('div', $this->template, array('style' => 'display:none', 'id' => 'cmt-tmpl'));
-            $template_printed = true;
-        }
-
         if ($this->can_view()) {
             // print commenting icon and tooltip
-            $html .= html_writer::start_tag('div', array('class' => 'mdl-left'));
             $html .= html_writer::link($this->get_nojslink($PAGE), get_string('showcommentsnonjs'), array('class' => 'showcommentsnonjs'));
 
+            // The classes for the main comment area.
+            $classes = array('comment-container');
+
+            $toggle = '';
+
             if (!$this->notoggle) {
-                // If toggling is enabled (notoggle=false) then print the controls to toggle
-                // comments open and closed
+                // If toggling is enabled (notoggle=false) then print the controls to toggle comments open and closed.
                 $countstring = '';
                 if ($this->displaytotalcount) {
-                    $countstring = '('.$this->count().')';
-                }
-                $collapsedimage= 't/collapsed';
-                if (right_to_left()) {
-                    $collapsedimage= 't/collapsed_rtl';
+                    $countdata = new stdClass();
+                    $countdata->linktext = $this->linktext;
+                    $countdata->count = $this->count();
+                    $countstring = get_string('commentscount', 'moodle', $countdata);
                 } else {
-                    $collapsedimage= 't/collapsed';
+                    $countstring = $this->linktext;
                 }
-                $html .= html_writer::start_tag('a', array('class' => 'comment-link', 'id' => 'comment-link-'.$this->cid, 'href' => '#'));
-                $html .= html_writer::empty_tag('img', array('id' => 'comment-img-'.$this->cid, 'src' => $OUTPUT->pix_url($collapsedimage), 'alt' => $this->linktext, 'title' => $this->linktext));
-                $html .= html_writer::tag('span', $this->linktext.' '.$countstring, array('id' => 'comment-link-text-'.$this->cid));
-                $html .= html_writer::end_tag('a');
+                $toggle .= html_writer::tag('a', $countstring, array(
+                        'class' => 'comment-toggle',
+                        'href' => '#',
+                ));
+                $classes[] = 'collapsed';
             }
 
-            $html .= html_writer::start_tag('div', array('id' => 'comment-ctrl-'.$this->cid, 'class' => 'comment-ctrl'));
+            $html .= html_writer::start_tag('div', array(
+                'class'             => implode(' ', $classes),
+                'data-clientid'     => $this->cid,
+                'data-commentarea'  => $this->commentarea,
+                'data-itemid'       => $this->itemid,
+                'data-page'         => 0,
+                'data-courseid'     => $this->courseid,
+                'data-contextid'    => $this->contextid,
+                'data-component'    => $this->component,
+                'data-linktext'     => $this->linktext,
+            ));
+
+            $html .= $toggle;
+            $html .= html_writer::start_tag('div', array('class' => 'comment-area'));
 
             if ($this->autostart) {
-                // If autostart has been enabled print the comments list immediatly
-                $html .= html_writer::start_tag('ul', array('id' => 'comment-list-'.$this->cid, 'class' => 'comment-list comments-loaded'));
-                $html .= html_writer::tag('li', '', array('class' => 'first'));
+                // If autostart has been enabled print the comments list immediately
+                $html .= html_writer::start_tag('ul', array('class' => 'comment-list comments-loaded'));
                 $html .= $this->print_comments(0, true, false);
                 $html .= html_writer::end_tag('ul'); // .comment-list
-                $html .= $this->get_pagination(0);
             } else {
-                $html .= html_writer::start_tag('ul', array('id' => 'comment-list-'.$this->cid, 'class' => 'comment-list'));
-                $html .= html_writer::tag('li', '', array('class' => 'first'));
-                $html .= html_writer::end_tag('ul'); // .comment-list
-                $html .= html_writer::tag('div', '', array('id' => 'comment-pagination-'.$this->cid, 'class' => 'comment-pagination'));
+                $html .= html_writer::tag('ul', '', array('class' => 'comment-list'));
             }
+            $html .= $this->get_pagination(0);
 
             if ($this->can_post()) {
                 // print posting textarea
-                $html .= html_writer::start_tag('div', array('class' => 'comment-area'));
-                $html .= html_writer::start_tag('div', array('class' => 'db'));
-                $html .= html_writer::tag('textarea', '', array('name' => 'content', 'rows' => 2, 'cols' => 20, 'id' => 'dlg-content-'.$this->cid));
-                $html .= html_writer::end_tag('div'); // .db
+                $html .= html_writer::tag('textarea', '', array(
+                    'name' => 'content',
+                    'rows' => 2,
+                    'cols' => 20,
+                    'placeholder' => get_string('addcomment'),
+                ));
 
-                $html .= html_writer::start_tag('div', array('class' => 'fd', 'id' => 'comment-action-'.$this->cid));
-                $html .= html_writer::link('#', get_string('savecomment'), array('id' => 'comment-action-post-'.$this->cid));
+                $html .= html_writer::link('#', get_string('savecomment'), array('class' => 'comment-save'));
 
-                if ($this->displaycancel) {
-                    $html .= html_writer::tag('span', ' | ');
-                    $html .= html_writer::link('#', get_string('cancel'), array('id' => 'comment-action-cancel-'.$this->cid));
-                }
-
-                $html .= html_writer::end_tag('div'); // .fd
                 $html .= html_writer::end_tag('div'); // .comment-area
-                $html .= html_writer::tag('div', '', array('class' => 'clearer'));
+                $html .= html_writer::tag('div', '', array('class' => 'clearfix'));
             }
 
-            $html .= html_writer::end_tag('div'); // .comment-ctrl
-            $html .= html_writer::end_tag('div'); // .mdl-left
+            $html .= html_writer::end_tag('div'); // .comment-container
         } else {
             $html = '';
         }
@@ -579,7 +552,7 @@ class comment {
         $perpage = (!empty($CFG->commentsperpage))?$CFG->commentsperpage:15;
         $pages = (int)ceil($count/$perpage);
         if ($pages == 1 || $pages == 0) {
-            return html_writer::tag('div', '', array('id' => 'comment-pagination-'.$this->cid, 'class' => 'comment-pagination'));
+            return '<div class="comment-pagination"></div>';
         }
         if (!empty(self::$nonjs)) {
             // used in non-js interface
@@ -587,14 +560,13 @@ class comment {
         } else {
             // return ajax paging bar
             $str = '';
-            $str .= '<div class="comment-paging" id="comment-pagination-'.$this->cid.'">';
+            $str .= '<div class="comment-paging">';
             for ($p=0; $p<$pages; $p++) {
+                $class = 'pageno';
                 if ($p == $page) {
-                    $class = 'curpage';
-                } else {
-                    $class = 'pageno';
+                    $class .= ' curpage';
                 }
-                $str .= '<a href="#" class="'.$class.'" id="comment-page-'.$this->cid.'-'.$p.'">'.($p+1).'</a> ';
+                $str .= "<a href='#' class='{$class}' data-pageno='{$p}'>" . ($p + 1) . "</a>";
             }
             $str .= '</div>';
         }
@@ -602,7 +574,7 @@ class comment {
     }
 
     /**
-     * Add a new comment
+     * Add a new comment based on user-supplied content.
      *
      * @global moodle_database $DB
      * @param string $content
@@ -623,6 +595,8 @@ class comment {
         $newcmt->format       = $format;
         $newcmt->userid       = $USER->id;
         $newcmt->timecreated  = $now;
+        // This is the ability to delete a comment. A user can delete their own comments.
+        $newcmt->delete       = true;
 
         // This callback allow module to modify the content of comment, such as filter or replacement
         plugin_callback($this->plugintype, $this->pluginname, 'comment', 'add', array(&$newcmt, $this->comment_param));
@@ -669,7 +643,7 @@ class comment {
                 $event->trigger();
             }
 
-            return $newcmt;
+            return $this->print_comment($newcmt, false);
         } else {
             throw new comment_exception('dbupdatefailed');
         }
@@ -764,9 +738,7 @@ class comment {
         }
 
         $html = '';
-        if (!(self::$comment_itemid == $this->itemid &&
-            self::$comment_context == $this->context->id &&
-            self::$comment_area == $this->commentarea)) {
+        if (!is_numeric($page)) {
             $page = 0;
         }
         $comments = $this->get_comments($page);
@@ -778,7 +750,7 @@ class comment {
         }
         // Reverse the comments array to display them in the correct direction
         foreach (array_reverse($comments) as $cmt) {
-            $html .= html_writer::tag('li', $this->print_comment($cmt, $nonjs), array('id' => 'comment-'.$cmt->id.'-'.$this->cid));
+            $html .= $this->print_comment($cmt, $nonjs);
         }
         if ($nonjs) {
             $html .= html_writer::end_tag('ul');
@@ -832,8 +804,11 @@ class comment {
         $replacements = array();
 
         if (!empty($cmt->delete) && empty($nonjs)) {
-            $deletelink  = html_writer::start_tag('div', array('class'=>'comment-delete'));
-            $deletelink .= html_writer::start_tag('a', array('href' => '#', 'id' => 'comment-delete-'.$this->cid.'-'.$cmt->id));
+            $deletelink  = html_writer::start_tag('div');
+            $deletelink .= html_writer::start_tag('a', array(
+                'href' => '#',
+                'class' => 'comment-delete'
+            ));
             $deletelink .= $OUTPUT->pix_icon('t/delete', get_string('delete'));
             $deletelink .= html_writer::end_tag('a');
             $deletelink .= html_writer::end_tag('div');
@@ -849,7 +824,12 @@ class comment {
         $replacements[] = $cmt->time;
 
         // use html template to format a single comment.
-        return str_replace($patterns, $replacements, $this->template);
+        $comment = str_replace($patterns, $replacements, $this->template);
+
+        return html_writer::tag('li', $comment, array(
+            'class' => 'comment',
+            'data-commentid' => $cmt->id,
+        ));
     }
 
     /**

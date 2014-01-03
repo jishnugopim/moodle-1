@@ -1,0 +1,9 @@
+{
+    "moodle-comment-comment": {
+        "requires": [
+            "base",
+            "io",
+            "event-key"
+        ]
+    }
+}

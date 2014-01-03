@@ -33,10 +33,11 @@ Feature: Comment on a blog entry
     And I follow "Comments (0)"
     When I fill in "content" with "$My own >nasty< \"string\"!"
     And I follow "Save comment"
+    And I should see "Comments (1)" in the ".comment-toggle" "css_element"
     Then I should see "$My own >nasty< \"string\"!"
     And I fill in "content" with "Another $Nasty <string?>"
     And I follow "Save comment"
-    And I should see "Comments (2)" in the ".comment-link" "css_element"
+    And I should see "Comments (2)" in the ".comment-toggle" "css_element"
 
   @javascript
   Scenario: Deleting my own comment
@@ -51,14 +52,14 @@ Feature: Comment on a blog entry
     And I follow "Comments (0)"
     And I fill in "content" with "$My own >nasty< \"string\"!"
     And I follow "Save comment"
-    When I click on ".comment-delete a" "css_element"
-    # Waiting for the animation to finish.
-    And I wait "4" seconds
+    When I click on "a.comment-delete" "css_element"
+    And I click on ".confirmation-buttons input[value='Yes']" "css_element"
     Then I should not see "$My own >nasty< \"string\"!"
+    And I should see "Comments (0)" in the ".comment-toggle" "css_element"
     And I follow "Blog post from user 1"
-    And I click on ".comment-link" "css_element"
+    And I click on ".comment-toggle" "css_element"
     And I should not see "$My own >nasty< \"string\"!"
-    And I should see "Comments (0)" in the ".comment-link" "css_element"
+    And I should see "Comments (0)" in the ".comment-toggle" "css_element"
 
   @javascript
   Scenario: Commenting on someone's blog post

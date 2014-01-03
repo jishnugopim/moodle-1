@@ -1,0 +1,10 @@
+{
+  "name": "moodle-comment-comment",
+  "builds": {
+    "moodle-comment-comment": {
+      "jsfiles": [
+        "comment.js"
+      ]
+    }
+  }
+}
