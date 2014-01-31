@@ -21,11 +21,12 @@ YUI.add('moodle-mod_quiz-autosave-test', function (Y) {
 
         'Should instantiate correctly': function() {
             Y.use('moodle-mod_quiz-autosave', function() {
-                createTestForm();
-                M.mod_quiz.autosave.WATCH_HIDDEN_DELAY = 1;
-                M.mod_quiz.autosave.init(10);
-                Y.Assert.isObject(M.mod_quiz.autosave.form);
-                Y.Assert.areEqual(Y.one('form#responseform'), M.mod_quiz.autosave.form);
+                if (createTestForm()) {
+                    M.mod_quiz.autosave.WATCH_HIDDEN_DELAY = 1;
+                    M.mod_quiz.autosave.init(10);
+                    Y.Assert.isObject(M.mod_quiz.autosave.form);
+                    Y.Assert.areEqual(Y.one('form#responseform'), M.mod_quiz.autosave.form);
+                }
             });
         },
         'Should not die if the form could not be found': function() {
