@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+target=`pwd`
+rm -Rf build
+mkdir build
+
+cd ../../../
+for d in `find . -type d -name 'build' | grep -v -e '^./vendor/' -e '^./admin/tests/yuitest/build' -e '^./lib/yuilib' `
+  do
+  echo "$d"
+  cp -Rf "$d"/* admin/tests/yuitest/build/
+done
+
+rm -Rf "$target"/tests
+mkdir "$target"/tests
+for d in `find . -type d -name 'src' | grep 'yui' | grep -v -e '^./vendor/' -e '^./admin/tests/yuitest/src' -e '^./lib/yuilib' `
+do
+  newpath="$d"
+  for m in "$newpath"/*
+  do
+    if [ -d "$m"/tests ]
+    then
+      echo "Found tests in $m"
+      mkdir -p "$target"/tests/"$m"/tests
+      cp -rf "$m"/tests "$target"/tests/"$m"
+    fi
+  done
+done
