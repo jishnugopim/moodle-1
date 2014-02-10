@@ -39,6 +39,24 @@ class core_ajaxlib_testcase extends advanced_testcase {
         $this->assertEmpty($result);
     }
 
+    protected function helper_test_allowed_characters() {
+        $this->resetAfterTest();
+
+        // Keep track of the content we will output.
+        $content = " \t\n\r";
+
+        $result = ajax_capture_output();
+
+        // ob_start should normally return without issue.
+        $this->assertTrue($result);
+
+        // Fill the output buffer.
+        echo $content;
+
+        $result = ajax_check_captured_output();
+        $this->assertEquals($result, "");
+    }
+
     protected function helper_test_dirty_output($expectexception = false) {
         $this->resetAfterTest();
 
@@ -66,24 +84,28 @@ class core_ajaxlib_testcase extends advanced_testcase {
         // In normal conditions, and with DEBUG_NONE set, we should not receive any output or throw any exceptions.
         set_debugging(DEBUG_NONE);
         $this->helper_test_clean_output();
+        $this->helper_test_allowed_characters();
     }
 
     public function test_output_capture_normal_debug_normal() {
         // In normal conditions, and with DEBUG_NORMAL set, we should not receive any output or throw any exceptions.
         set_debugging(DEBUG_NORMAL);
         $this->helper_test_clean_output();
+        $this->helper_test_allowed_characters();
     }
 
     public function test_output_capture_normal_debug_all() {
         // In normal conditions, and with DEBUG_ALL set, we should not receive any output or throw any exceptions.
         set_debugging(DEBUG_ALL);
         $this->helper_test_clean_output();
+        $this->helper_test_allowed_characters();
     }
 
     public function test_output_capture_normal_debugdeveloper() {
         // In normal conditions, and with DEBUG_DEVELOPER set, we should not receive any output or throw any exceptions.
         set_debugging(DEBUG_DEVELOPER);
         $this->helper_test_clean_output();
+        $this->helper_test_allowed_characters();
     }
 
     public function test_output_capture_error_debug_none() {

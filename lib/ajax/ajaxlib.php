@@ -66,6 +66,9 @@ function ajax_check_captured_output() {
 
     // Retrieve the output - there should be none.
     $output = ob_get_contents();
+
+    // We can allow characters which are acceptable to the JSON specification.
+    $output = trim($output, " \t\n\r");
     ob_end_clean();
 
     if ($CFG->debugdeveloper && !empty($output)) {
