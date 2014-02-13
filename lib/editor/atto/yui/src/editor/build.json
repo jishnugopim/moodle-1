@@ -11,6 +11,11 @@
             "jsfiles": [
                 "editor-plugin.js"
             ]
+        },
+        "moodle-editor_atto-pluginmenu": {
+            "jsfiles": [
+                "editor-pluginmenu.js"
+            ]
         }
     }
 }

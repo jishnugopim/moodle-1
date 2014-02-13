@@ -18,5 +18,10 @@
             "escape",
             "event"
         ]
+    },
+    "moodle-editor_atto-pluginmenu": {
+        "requires": [
+            "base-build"
+        ]
     }
 }
