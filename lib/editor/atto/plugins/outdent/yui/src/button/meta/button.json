@@ -1,5 +1,7 @@
 {
-  "moodle-atto_outdent-button": {
-    "requires": ["node"]
-  }
+    "moodle-atto_outdent-button": {
+        "requires": [
+            "moodle-editor_atto-plugin"
+        ]
+    }
 }
