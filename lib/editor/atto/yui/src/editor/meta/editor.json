@@ -1,13 +1,22 @@
 {
-  "moodle-editor_atto-editor": {
-    "requires": [
-        "node",
-        "io",
-        "overlay",
-        "escape",
-        "event",
-        "event-simulate",
-        "moodle-core-notification"
-      ]
-  }
+    "moodle-editor_atto-editor": {
+        "requires": [
+            "node",
+            "base",
+            "io",
+            "overlay",
+            "escape",
+            "event",
+            "event-simulate",
+            "moodle-core-notification"
+        ]
+    },
+    "moodle-editor_atto-editor-plugin": {
+        "requires": [
+            "node",
+            "base",
+            "escape",
+            "event"
+        ]
+    }
 }

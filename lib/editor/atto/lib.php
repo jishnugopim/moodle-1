@@ -123,7 +123,7 @@ class atto_texteditor extends texteditor {
         }
 
         $PAGE->requires->yui_module($modules,
-                                    'M.editor_atto.init',
+                                    'Y.M.editor_atto.editor.init',
                                     array($this->get_init_params($elementid, $options, $fpoptions, $jsplugins)));
 
     }
@@ -145,6 +145,9 @@ class atto_texteditor extends texteditor {
         $contentcss     = $PAGE->theme->editor_css_url()->out(false);
 
         $params = array(
+            'textarea' => $elementid,
+
+
             'elementid' => $elementid,
             'content_css' => $contentcss,
             'language' => $lang,

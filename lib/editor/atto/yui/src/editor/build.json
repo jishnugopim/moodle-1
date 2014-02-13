@@ -1,11 +1,12 @@
 {
-  "name": "moodle-editor_atto-editor",
-  "builds": {
-    "moodle-editor_atto-editor": {
-      "jsfiles": [
-        "editor.js",
-        "controlmenu.js"
-      ]
+    "name": "moodle-editor_atto-editor",
+    "builds": {
+        "moodle-editor_atto-editor": {
+            "jsfiles": [
+                "editor.js",
+                "editor-plugin.js",
+                "controlmenu.js"
+            ]
+        }
     }
-  }
 }
