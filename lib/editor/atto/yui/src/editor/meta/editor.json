@@ -11,7 +11,7 @@
             "moodle-core-notification"
         ]
     },
-    "moodle-editor_atto-editor-plugin": {
+    "moodle-editor_atto-plugin": {
         "requires": [
             "node",
             "base",
