@@ -531,6 +531,11 @@ $CFG->admin = 'admin';
 //     'moodle-core-notification' => true,
 // );
 //
+// Split YUI module loading into separate HTTP transactions.
+// Setting this to true disables the combo loading used by YUI but keeps using the combo
+// loader in Moodle. This setting can be useful when debugging YUI modules.
+// $CFG->yuisplitmodulefiles => false; // Not intended for production servers.
+//
 // Set the minimum log level for YUI logging statements.
 // For details see the upstream documentation:
 //   http://yuilibrary.com/yui/docs/api/classes/config.html#property_logLevel

@@ -169,8 +169,8 @@ class page_requirements_manager {
         }
 
         // Set up some loader options.
-        $this->yui3loader->local_base = $CFG->httpswwwroot . '/lib/yuilib/'. $CFG->yui3version . '/';
         $this->yui3loader->local_comboBase = $CFG->httpswwwroot . '/theme/yui_combo.php'.$sep;
+        $this->yui3loader->local_base = $this->yui3loader->local_comboBase . $CFG->yui3version . '/';
 
         if (!empty($CFG->useexternalyui)) {
             $this->yui3loader->base = 'http://yui.yahooapis.com/' . $CFG->yui3version . '/';
@@ -180,10 +180,11 @@ class page_requirements_manager {
             $this->yui3loader->comboBase = $this->yui3loader->local_comboBase;
         }
 
-        // Enable combo loader? This significantly helps with caching and performance!
-        $this->yui3loader->combine = !empty($CFG->yuicomboloading);
-
         $jsrev = $this->get_jsrev();
+
+        // Disable combo loading? By default this is true in the YUI configuration.
+        // We should only disable this in development environments.
+        $this->yui3loader->combine = empty($CFG->yuisplitmodulefiles);
 
         // Set up JS YUI loader helper object.
         $this->YUI_config->base         = $this->yui3loader->base;
@@ -202,7 +203,7 @@ class page_requirements_manager {
         $configname = $this->YUI_config->set_config_source('lib/yui/config/yui2.js');
         $this->YUI_config->add_group('yui2', array(
             // Loader configuration for our 2in3, for now ignores $CFG->useexternalyui.
-            'base' => $CFG->httpswwwroot . '/lib/yuilib/2in3/' . $CFG->yui2version . '/build/',
+            'base' => $CFG->httpswwwroot . '/theme/yui_combo.php' . $sep . '2in3/' . $CFG->yui2version . '/build/',
             'comboBase' => $CFG->httpswwwroot . '/theme/yui_combo.php'.$sep,
             'combine' => $this->yui3loader->combine,
             'ext' => false,
@@ -218,8 +219,8 @@ class page_requirements_manager {
         $this->YUI_config->add_group('moodle', array(
             'name' => 'moodle',
             'base' => $CFG->httpswwwroot . '/theme/yui_combo.php' . $sep . 'm/' . $jsrev . '/',
-            'combine' => $this->yui3loader->combine,
             'comboBase' => $CFG->httpswwwroot . '/theme/yui_combo.php'.$sep,
+            'combine' => $this->yui3loader->combine,
             'ext' => false,
             'root' => 'm/'.$jsrev.'/', // Add the rev to the root path so that we can control caching.
             'patterns' => array(
@@ -232,9 +233,9 @@ class page_requirements_manager {
 
         $this->YUI_config->add_group('gallery', array(
             'name' => 'gallery',
-            'base' => $CFG->httpswwwroot . '/lib/yuilib/gallery/',
-            'combine' => $this->yui3loader->combine,
+            'base' => $CFG->httpswwwroot . '/theme/yui_combo.php' . $sep . 'gallery/' . $jsrev . '/',
             'comboBase' => $CFG->httpswwwroot . '/theme/yui_combo.php' . $sep,
+            'combine' => $this->yui3loader->combine,
             'ext' => false,
             'root' => 'gallery/' . $jsrev . '/',
             'patterns' => array(
@@ -1501,7 +1502,7 @@ class YUI_config {
     public $debug = false;
     public $base;
     public $comboBase;
-    public $combine;
+    public $combine = true;
     public $filter = null;
     public $insertBefore = 'firstthemesheet';
     public $groups = array();

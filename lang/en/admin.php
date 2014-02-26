@@ -350,7 +350,6 @@ $string['configvariables'] = 'Variables';
 $string['configverifychangedemail'] = 'Enables verification of changed email addresses using allowed and denied email domains settings. If this setting is disabled the domains are enforced only when creating new users.';
 $string['configvisiblecourses'] = 'Display courses in hidden categories normally';
 $string['configwarning'] = 'Be careful modifying these settings - strange values could cause problems.';
-$string['configyuicomboloading'] = 'This options enables combined file loading optimisation for YUI libraries. This setting should be enabled on production sites for performance reasons.';
 $string['confirmation'] = 'Confirmation';
 $string['confirmdeletecomments'] = 'You are about to delete comments, are you sure?';
 $string['confirmed'] = 'Confirmed';
@@ -1098,7 +1097,6 @@ $string['warningiconvbuggy'] = 'Your version of the iconv library does not suppo
 $string['webproxy'] = 'Web proxy';
 $string['webproxyinfo'] = 'Fill in following options if your Moodle server can not access internet directly. Internet access is required for download of environment data, language packs, RSS feeds, timezones, etc.<br /><em>PHP cURL extension is highly recommended.</em>';
 $string['xmlrpcrecommended'] = 'The xmlrpc extension is needed for hub communication, and useful for web services and Moodle networking';
-$string['yuicomboloading'] = 'YUI combo loading';
 $string['ziprequired'] = 'The Zip PHP extension is now required by Moodle, info-ZIP binaries or PclZip library are not used anymore.';
 
 

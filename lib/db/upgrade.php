@@ -3069,5 +3069,10 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2014021900.03);
     }
 
+    if ($oldversion < 2014022000.01) {
+        unset_config('yuicomboloading');
+        upgrade_main_savepoint(true, 2014022000.01);
+    }
+
     return true;
 }
