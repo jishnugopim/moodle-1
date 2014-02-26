@@ -246,31 +246,39 @@ class page_requirements_manager {
 
         // Set some more loader options applying to groups too.
         if ($CFG->debugdeveloper) {
-            // When debugging is enabled, we want to load the non-minified (RAW) versions of YUI library modules rather
-            // than the DEBUG versions as these generally generate too much logging for our purposes.
-            // However we do want the DEBUG versions of our Moodle-specific modules.
-            // To debug a YUI-specific issue, change the yui3loader->filter value to DEBUG.
-            $this->YUI_config->filter = 'RAW';
-            $this->YUI_config->groups['moodle']['filter'] = 'DEBUG';
+            $this->YUI_config->filter = 'DEBUG';
 
             // We use the yui3loader->filter setting when writing the YUI3 seed scripts into the header.
             $this->yui3loader->filter = $this->YUI_config->filter;
             $this->YUI_config->debug = true;
+
+            // By default we only get warnings.
+            // If a logExclude, or logInclude has been set, then this is increaed to 'debug'.
+            $this->YUI_config->logLevel = 'warn';
+
+            // Include the YUI config log filters.
+            if (!empty($CFG->yuilogexclude) && is_array($CFG->yuilogexclude)) {
+                $this->YUI_config->logExclude = $CFG->yuilogexclude;
+                $this->YUI_config->logLevel = 'debug';
+            }
+
+            if (!empty($CFG->yuiloginclude) && is_array($CFG->yuiloginclude)) {
+                $this->YUI_config->logInclude = $CFG->yuiloginclude;
+                if (!array_key_exists('', $this->YUI_config->logInclude)) {
+                    // Include the empty log setting if it hasn't already been included.
+                    $this->YUI_config->logInclude[''] = true;
+                }
+                $this->YUI_config->logLevel = 'debug';
+            }
+
+            // If we have actively specified the YUI log level, then use that instead.
+            if (!empty($CFG->yuiloglevel)) {
+                $this->YUI_config->logLevel = $CFG->yuiloglevel;
+            }
+
         } else {
             $this->yui3loader->filter = null;
-            $this->YUI_config->groups['moodle']['filter'] = null;
             $this->YUI_config->debug = false;
-        }
-
-        // Include the YUI config log filters.
-        if (!empty($CFG->yuilogexclude) && is_array($CFG->yuilogexclude)) {
-            $this->YUI_config->logExclude = $CFG->yuilogexclude;
-        }
-        if (!empty($CFG->yuiloginclude) && is_array($CFG->yuiloginclude)) {
-            $this->YUI_config->logInclude = $CFG->yuiloginclude;
-        }
-        if (!empty($CFG->yuiloglevel)) {
-            $this->YUI_config->logLevel = $CFG->yuiloglevel;
         }
 
         // Add the moodle group's module data.
@@ -1215,18 +1223,13 @@ class page_requirements_manager {
 
         $jsrev = $this->get_jsrev();
 
-        $yuiformat = '-min';
-        if ($this->yui3loader->filter === 'RAW') {
-            $yuiformat = '';
-        }
-
         $format = '-min';
-        if ($this->YUI_config->groups['moodle']['filter'] === 'DEBUG') {
+        if ($this->YUI_config->filter === 'DEBUG') {
             $format = '-debug';
         }
 
         $baserollups = array(
-            'rollup/' . $CFG->yui3version . "/yui-moodlesimple{$yuiformat}.js",
+            'rollup/' . $CFG->yui3version . "/yui-moodlesimple{$format}.js",
             'rollup/' . $jsrev . "/mcore{$format}.js",
         );
 
@@ -1238,7 +1241,7 @@ class page_requirements_manager {
                 }
                 $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->comboBase.implode('&amp;', $modules).'" />';
             }
-            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->local_comboBase.'rollup/'.$CFG->yui3version.'/yui-moodlesimple' . $yuiformat . '.css" />';
+            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->local_comboBase.'rollup/'.$CFG->yui3version.'/yui-moodlesimple' . $format . '.css" />';
             $code .= '<script type="text/javascript" src="'.$this->yui3loader->local_comboBase
                     . implode('&amp;', $baserollups) . '"></script>';
 
@@ -1248,7 +1251,7 @@ class page_requirements_manager {
                     $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->base.$module.'/'.$module.'-min.css" />';
                 }
             }
-            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->local_comboBase.'rollup/'.$CFG->yui3version.'/yui-moodlesimple' . $yuiformat . '.css" />';
+            $code .= '<link rel="stylesheet" type="text/css" href="'.$this->yui3loader->local_comboBase.'rollup/'.$CFG->yui3version.'/yui-moodlesimple' . $format . '.css" />';
             foreach ($baserollups as $rollup) {
                 $code .= '<script type="text/javascript" src="'.$this->yui3loader->local_comboBase.$rollup.'"></script>';
             }
