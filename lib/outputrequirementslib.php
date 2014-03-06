@@ -1510,7 +1510,17 @@ class YUI_config {
     public $filter = null;
     public $insertBefore = 'firstthemesheet';
     public $groups = array();
-    public $modules = array();
+    public $core = array(
+        'get',
+        'features',
+        'intl-base',
+        'yui-log',
+        'moodle-core-log',
+        'yui-later',
+        'loader-base',
+        'loader-rollup',
+        'loader-yui3',
+    );
 
     /**
      * @var array List of functions used by the YUI Loader group pattern recognition.

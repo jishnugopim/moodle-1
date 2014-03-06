@@ -87,138 +87,7 @@ while (count($parts)) {
         $revision = $yuipatchedversion[0];
         $rollupname = array_shift($bits);
 
-        if (strpos($rollupname, 'yui-moodlesimple') !== false) {
-            if (substr($rollupname, -3) === '.js') {
-                // Determine which version of this rollup should be used.
-                $filesuffix = '.js';
-                preg_match('/(-(debug|min))?\.js/', $rollupname, $matches);
-                if (isset($matches[1])) {
-                    $filesuffix = $matches[0];
-                }
-
-                $type = 'js';
-            } else if (substr($rollupname, -4) === '.css') {
-                $type = 'css';
-            } else {
-                continue;
-            }
-
-            // Allow support for revisions on YUI between official releases.
-            // We can just discard the subrevision since it is only used to invalidate the browser cache.
-            $yuipatchedversion = explode('_', $revision);
-            $yuiversion = $yuipatchedversion[0];
-
-            $yuimodules = array(
-                'yui',
-                'oop',
-                'event-custom-base',
-                'dom-core',
-                'dom-base',
-                'color-base',
-                'dom-style',
-                'selector-native',
-                'selector',
-                'node-core',
-                'node-base',
-                'event-base',
-                'event-base-ie',
-                'pluginhost-base',
-                'pluginhost-config',
-                'event-delegate',
-                'node-event-delegate',
-                'node-pluginhost',
-                'dom-screen',
-                'node-screen',
-                'node-style',
-                'querystring-stringify-simple',
-                'io-base',
-                'json-parse',
-                'transition',
-                'selector-css2',
-                'selector-css3',
-                'dom-style-ie',
-
-                // Some extras we use everywhere.
-                'escape',
-
-                'attribute-core',
-                'event-custom-complex',
-                'base-core',
-                'attribute-base',
-                'attribute-extras',
-                'attribute-observable',
-                'base-observable',
-                'base-base',
-                'base-pluginhost',
-                'base-build',
-                'event-synthetic',
-
-                'attribute-complex',
-                'event-mouseenter',
-                'event-key',
-                'event-outside',
-                'event-autohide',
-                'event-focus',
-                'classnamemanager',
-                'widget-base',
-                'widget-htmlparser',
-                'widget-skin',
-                'widget-uievents',
-                'widget-stdmod',
-                'widget-position',
-                'widget-position-align',
-                'widget-stack',
-                'widget-position-constrain',
-                'overlay',
-
-                'widget-autohide',
-                'button-core',
-                'button-plugin',
-                'widget-buttons',
-                'widget-modality',
-                'panel',
-                'yui-throttle',
-                'dd-ddm-base',
-                'dd-drag',
-                'dd-plugin',
-
-                // Cache is used by moodle-core-tooltip which we include everywhere.
-                'cache-base',
-            );
-
-            // We need to add these new parts to the beginning of the $parts list, not the end.
-            if ($type === 'js') {
-                $newparts = array();
-                foreach ($yuimodules as $module) {
-                    $newparts[] = $yuiversion . '/' . $module . '/' . $module . $filesuffix;
-                }
-                $newparts[] = 'yuiuseall/yuiuseall';
-                $parts = array_merge($newparts, $parts);
-            } else {
-                $newparts = array();
-                foreach ($yuimodules as $module) {
-                    $candidate =  $yuiversion . '/' . $module . '/assets/skins/sam/' . $module . '.css';
-                    if (!file_exists("$CFG->libdir/yuilib/$candidate")) {
-                        continue;
-                    }
-                    $newparts[] = $candidate;
-                }
-                if ($newparts) {
-                    $parts = array_merge($newparts, $parts);
-                }
-            }
-        }
-
-        // Handle the mcore rollup.
-        if (strpos($rollupname, 'mcore') !== false) {
-            $yuimodules = array(
-                'core/tooltip/tooltip',
-                'core/popuphelp/popuphelp',
-                'core/widget-focusafterclose/widget-focusafterclose',
-                'core/dock/dock-loader',
-                'core/notification/notification-dialogue',
-            );
-
+        if (substr($rollupname, -3) === '.js') {
             // Determine which version of this rollup should be used.
             $filesuffix = '.js';
             preg_match('/(-(debug|min))?\.js/', $rollupname, $matches);
@@ -226,13 +95,157 @@ while (count($parts)) {
                 $filesuffix = $matches[0];
             }
 
-            // We need to add these new parts to the beginning of the $parts list, not the end.
+            $type = 'js';
+        } else if (substr($rollupname, -4) === '.css') {
+            $type = 'css';
+        } else {
+            continue;
+        }
+
+        if (strpos($rollupname, 'yui-moodlesimple') !== false) {
+
+            // Allow support for revisions on YUI between official releases.
+            // We can just discard the subrevision since it is only used to invalidate the browser cache.
+            $yuipatchedversion = explode('_', $revision);
+            $yuiversion = $yuipatchedversion[0];
+
+            $yuimodules = array(
+                // Include everything from original SimpleYUI,
+                // this list can be built using http://yuilibrary.com/yui/configurator/ by selecting all modules
+                // listed in https://github.com/yui/yui3/blob/v3.12.0/build/simpleyui/simpleyui.js#L21327
+                'yui/yui',
+                'yui/oop',
+                'yui/event-custom-base',
+                'yui/dom-core',
+                'yui/dom-base',
+                'yui/color-base',
+                'yui/dom-style',
+                'yui/selector-native',
+                'yui/selector',
+                'yui/node-core',
+                'yui/node-base',
+                'yui/event-base',
+                'yui/event-base-ie',
+                'yui/pluginhost-base',
+                'yui/pluginhost-config',
+                'yui/event-delegate',
+                'yui/node-event-delegate',
+                'yui/node-pluginhost',
+                'yui/dom-screen',
+                'yui/node-screen',
+                'yui/node-style',
+                'yui/querystring-stringify-simple',
+                'yui/io-base',
+                'yui/json-parse',
+                'yui/transition',
+                'yui/selector-css2',
+                'yui/selector-css3',
+                'yui/dom-style-ie',
+
+                // Some extras we use everywhere.
+                'yui/escape',
+
+                'yui/attribute-core',
+                'yui/event-custom-complex',
+                'yui/base-core',
+                'yui/attribute-base',
+                'yui/attribute-extras',
+                'yui/attribute-observable',
+                'yui/base-observable',
+                'yui/base-base',
+                'yui/base-pluginhost',
+                'yui/base-build',
+                'yui/event-synthetic',
+
+                'yui/attribute-complex',
+                'yui/event-mouseenter',
+                'yui/event-key',
+                'yui/event-outside',
+                'yui/event-autohide',
+                'yui/event-focus',
+                'yui/classnamemanager',
+                'yui/widget-base',
+                'yui/widget-htmlparser',
+                'yui/widget-skin',
+                'yui/widget-uievents',
+                'yui/widget-stdmod',
+                'yui/widget-position',
+                'yui/widget-position-align',
+                'yui/widget-stack',
+                'yui/widget-position-constrain',
+                'yui/overlay',
+
+                'yui/widget-autohide',
+                'yui/button-core',
+                'yui/button-plugin',
+                'yui/widget-buttons',
+                'yui/widget-modality',
+                'yui/panel',
+                'yui/yui-throttle',
+                'yui/dd-ddm-base',
+                'yui/dd-drag',
+                'yui/dd-plugin',
+
+                // Cache is used by moodle-core-tooltip which we include everywhere.
+                'yui/cache-base',
+
+                'moodle/core/log/log',
+                'yuiuseall/yuiuseall',
+            );
+
+        }
+
+        // Handle the mcore rollup.
+        if (strpos($rollupname, 'mcore') !== false) {
+            $yuimodules = array(
+                'moodle/core/log/log',
+                'moodle/core/tooltip/tooltip',
+                'moodle/core/popuphelp/popuphelp',
+                'moodle/core/widget-focusafterclose/widget-focusafterclose',
+                'moodle/core/dock/dock-loader',
+                'moodle/core/notification/notification-dialogue',
+            );
+        }
+
+        // We need to add these new parts to the beginning of the $parts list, not the end.
+        if ($type === 'js') {
+            // Determine which version of this rollup should be used.
+            $filesuffix = '.js';
+            preg_match('/(-(debug|min))?\.js/', $rollupname, $matches);
+            if (isset($matches[1])) {
+                $filesuffix = $matches[0];
+            }
+
             $newparts = array();
             foreach ($yuimodules as $module) {
-                $newparts[] = 'm/' . $revision . '/' . $module . $filesuffix;
+                if (strpos($module, 'moodle/') === 0) {
+                    $module = substr($module, 7);
+                    $newparts[] = 'm/' . $revision . '/' . $module . $filesuffix;
+                } else if (strpos($module, 'yuiuseall/') === 0) {
+                    $module = substr($module, 11);
+                    $newparts[] = 'yuiuseall/yuiuseall';
+                } else if (strpos($module, 'yui/') === 0) {
+                    $module = substr($module, 4);
+                    $newparts[] = $yuiversion . '/' . $module . '/' . $module . $filesuffix;
+                }
             }
+
             $parts = array_merge($newparts, $parts);
+        } else {
+            $newparts = array();
+            foreach ($yuimodules as $module) {
+                $candidate =  $yuiversion . '/' . $module . '/assets/skins/sam/' . $module . '.css';
+                if (!file_exists("$CFG->libdir/yuilib/$candidate")) {
+                    continue;
+                }
+                $newparts[] = $candidate;
+            }
+            if ($newparts) {
+                $parts = array_merge($newparts, $parts);
+            }
         }
+
+
         continue;
     }
     if ($version === 'm') {

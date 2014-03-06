@@ -1,0 +1,10 @@
+{
+    "name": "moodle-core-log",
+    "builds": {
+        "moodle-core-log": {
+            "jsfiles": [
+                "log.js"
+            ]
+        }
+    }
+}
