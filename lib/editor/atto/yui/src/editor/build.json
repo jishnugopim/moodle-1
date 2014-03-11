@@ -4,6 +4,7 @@
     "moodle-editor_atto-editor": {
       "jsfiles": [
         "editor.js",
+        "selection.js",
         "controlmenu.js",
         "clean.js"
       ]
