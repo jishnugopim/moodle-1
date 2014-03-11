@@ -38,7 +38,7 @@ require_once($CFG->libdir."/formslib.php");
 class atto_managefiles_manage_form extends moodleform {
 
     function definition() {
-        global $PAGE;
+        global $PAGE, $USER;
         $mform = $this->_form;
 
         $mform->setDisableShortforms(true);
@@ -87,7 +87,12 @@ class atto_managefiles_manage_form extends moodleform {
         $mform->addElement('submit', 'delete', get_string('deleteselected', 'atto_managefiles'));
 
         $PAGE->requires->yui_module('moodle-atto_managefiles-usedfiles', 'M.atto_managefiles.usedfiles.init',
-            array(array_flip($files)));
+            array(array(
+                'files' => array_flip($files),
+                'usercontext' => context_user::instance($USER->id)->id,
+                'itemid' => $itemid,
+                'elementid' => $options['elementid'],
+            )));
 
         $this->set_data(array(
             'files_filemanager' => $itemid,

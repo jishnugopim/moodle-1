@@ -34,6 +34,7 @@ $accepted_types = optional_param('accepted_types', '*', PARAM_RAW); // TODO Not 
 $return_types = optional_param('return_types', null, PARAM_INT);
 $areamaxbytes = optional_param('areamaxbytes', FILE_AREA_MAX_BYTES_UNLIMITED, PARAM_INT);
 $contextid = optional_param('context', SYSCONTEXTID, PARAM_INT);
+$elementid = optional_param('elementid', '', PARAM_TEXT);
 
 $context = context::instance_by_id($contextid);
 if ($context->contextlevel == CONTEXT_MODULE) {
@@ -74,7 +75,8 @@ $options = array(
     'accepted_types' => $accepted_types,
     'areamaxbytes' => $areamaxbytes,
     'return_types' => $return_types,
-    'context' => $context
+    'context' => $context,
+    'elementid' => $elementid,
 );
 
 $usercontext = context_user::instance($USER->id);
