@@ -123,7 +123,7 @@ class atto_texteditor extends texteditor {
         }
 
         $PAGE->requires->yui_module($modules,
-                                    'M.editor_atto.init',
+                                    'Y.M.editor_atto.Editor.init',
                                     array($this->get_init_params($elementid, $options, $fpoptions, $jsplugins)));
 
     }

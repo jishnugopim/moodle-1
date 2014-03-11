@@ -1,24 +1,33 @@
 {
-  "moodle-editor_atto-editor": {
-    "requires": [
-        "node",
-        "io",
-        "overlay",
-        "escape",
-        "event",
-        "event-simulate",
-        "event-custom",
-        "yui-throttle",
-        "moodle-core-notification-dialogue",
-        "moodle-editor_atto-rangy"
-      ]
-  },
-  "moodle-editor_atto-editor-shortcut": {
-      "requires": [
-          "node",
-          "event",
-          "event-custom",
-          "moodle-editor_atto-editor"
-      ]
-  }
+    "moodle-editor_atto-editor": {
+        "requires": [
+            "node",
+            "io",
+            "overlay",
+            "escape",
+            "event",
+            "event-simulate",
+            "event-custom",
+            "yui-throttle",
+            "moodle-core-notification-dialogue",
+            "moodle-editor_atto-rangy",
+            "handlebars"
+        ]
+    },
+    "moodle-editor_atto-plugin": {
+        "requires": [
+            "node",
+            "base",
+            "escape",
+            "event"
+        ]
+    },
+    "moodle-editor_atto-editor-shortcut": {
+        "requires": [
+            "node",
+            "event",
+            "event-custom",
+            "moodle-editor_atto-editor"
+        ]
+    }
 }

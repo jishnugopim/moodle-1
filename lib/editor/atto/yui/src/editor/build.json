@@ -3,13 +3,17 @@
     "builds": {
         "moodle-editor_atto-editor": {
             "jsfiles": [
-                "editor.js",
-                "selection.js",
-                "filepicker.js",
+                "editor-new.js",
+                "textarea.js",
+                "clean.js",
                 "toolbar.js",
-                "styling.js",
-                "controlmenu.js",
-                "clean.js"
+                "selection.js",
+                "styling.js"
+            ]
+        },
+        "moodle-editor_atto-plugin": {
+            "jsfiles": [
+                "editor-plugin.js"
             ]
         },
         "moodle-editor_atto-editor-shortcut": {
