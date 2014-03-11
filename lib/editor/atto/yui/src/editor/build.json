@@ -6,6 +6,7 @@
         "editor.js",
         "selection.js",
         "filepicker.js",
+        "toolbar.js",
         "controlmenu.js",
         "clean.js"
       ]
