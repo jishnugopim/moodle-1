@@ -5,6 +5,7 @@
       "jsfiles": [
         "editor.js",
         "selection.js",
+        "filepicker.js",
         "controlmenu.js",
         "clean.js"
       ]
