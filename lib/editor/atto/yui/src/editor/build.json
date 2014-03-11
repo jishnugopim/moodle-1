@@ -1,21 +1,21 @@
 {
-  "name": "moodle-editor_atto-editor",
-  "builds": {
-    "moodle-editor_atto-editor": {
-      "jsfiles": [
-        "editor.js",
-        "selection.js",
-        "filepicker.js",
-        "toolbar.js",
-        "styling.js",
-        "controlmenu.js",
-        "clean.js"
-      ]
-    },
-    "moodle-editor_atto-editor-shortcut": {
-      "jsfiles": [
-        "shortcut.js"
-      ]
+    "name": "moodle-editor_atto-editor",
+    "builds": {
+        "moodle-editor_atto-editor": {
+            "jsfiles": [
+                "editor.js",
+                "selection.js",
+                "filepicker.js",
+                "toolbar.js",
+                "styling.js",
+                "controlmenu.js",
+                "clean.js"
+            ]
+        },
+        "moodle-editor_atto-editor-shortcut": {
+            "jsfiles": [
+                "shortcut.js"
+            ]
+        }
     }
-  }
 }
