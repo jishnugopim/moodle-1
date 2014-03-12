@@ -13,7 +13,8 @@
         },
         "moodle-editor_atto-plugin": {
             "jsfiles": [
-                "editor-plugin.js"
+                "editor-plugin.js",
+                "editor-plugin-dialogue.js"
             ]
         },
         "moodle-editor_atto-editor-shortcut": {
