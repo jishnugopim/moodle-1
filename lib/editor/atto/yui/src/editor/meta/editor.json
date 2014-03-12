@@ -11,7 +11,7 @@
             "yui-throttle",
             "moodle-core-notification-dialogue",
             "moodle-editor_atto-rangy",
-            "handlebars"
+            "moodle-core-handlebars"
         ]
     },
     "moodle-editor_atto-plugin": {
@@ -19,7 +19,8 @@
             "node",
             "base",
             "escape",
-            "event"
+            "event",
+            "moodle-core-handlebars"
         ]
     },
     "moodle-editor_atto-editor-shortcut": {
