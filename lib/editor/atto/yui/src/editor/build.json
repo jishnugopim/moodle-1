@@ -8,7 +8,8 @@
                 "clean.js",
                 "toolbar.js",
                 "selection.js",
-                "styling.js"
+                "styling.js",
+                "filepicker.js"
             ]
         },
         "moodle-editor_atto-plugin": {
