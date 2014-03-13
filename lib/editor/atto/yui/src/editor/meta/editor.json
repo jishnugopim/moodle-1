@@ -20,7 +20,9 @@
             "base",
             "escape",
             "event",
-            "handlebars"
+            "event-outside",
+            "handlebars",
+            "event-custom"
         ]
     },
     "moodle-editor_atto-editor-shortcut": {
