@@ -1,4 +1,18 @@
-filepicker
-toolbar menu
-keyboard navigation
-plugins with dialogues - simplify
+plugins with dialogues - simplify:
+* accessibilityhelper
+* accessibilitychecker
+* equation
+* table
+
+toolbar menus:
+* backcolor
+* fontcolor
+* title
+
+keyboard navigation:
+* toolbar left/right
+* toolbar menu (new feature)
+
+selection bugs:
+* open image plugin before clicking in editor
+* click on editor before fully set up
