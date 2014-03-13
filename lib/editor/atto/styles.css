@@ -208,3 +208,53 @@ div.editor_atto_content:hover .atto_control {
     min-width:24px;
     min-height:24px;
 }
+
+.editor_atto_menu .moodle-dialogue-bd {
+    position: absolute;
+    text-align:left;
+    z-index: 1000;
+    display: block;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 5px 5px 20px 0 #666666;
+    -moz-box-shadow: 5px 5px 20px 0 #666666;
+    box-shadow: 5px 5px 20px 0 #666666;
+}
+
+.editor_atto_menu .menu a {
+    display: block;
+    padding: 4px 1em 4px 28px;
+    color: #333333;
+}
+
+.editor_atto_menu .menu a:hover {
+    color: #ffffff;background-color: #0088cc;
+}
+.editor_atto_menu .menu a:first-child {
+    -webkit-border-top-right-radius: 4px;
+    border-top-right-radius: 4px;
+    -webkit-border-top-left-radius: 4px;
+    border-top-left-radius: 4px;
+    -moz-border-radius-topright: 4px;
+    -moz-border-radius-topleft: 4px;
+}
+.editor_atto_menu .menu a:last-child {
+    -webkit-border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    -webkit-border-bottom-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    -moz-border-radius-bottomright: 4px;
+    -moz-border-radius-bottomleft: 4px;
+}
+.editor_atto_menu .menu a.hidden {
+    display: none;
+}
+.editor_atto_menu .menu img {
+    vertical-align: middle;
+}
+.editor_atto_menu .menu > li {
+    display: block;
+}
