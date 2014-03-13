@@ -1,18 +1,13 @@
 plugins with dialogues - simplify:
 * accessibilityhelper
-* accessibilitychecker
 * equation
 * table
 
-toolbar menus:
-* backcolor
-* fontcolor
-* title
+Others
+* undo
 
 keyboard navigation:
 * toolbar menu (new feature)
 
 selection bugs:
-* open image plugin before clicking in editor
-* click on editor before fully set up
 * toggle bold off, then on (or others)
