@@ -1,10 +1,9 @@
 {
-  "moodle-atto_table-button": {
-    "requires": [
-        "node",
-        "escape",
-        "event",
-        "event-valuechange"
-    ]
-  }
+    "moodle-atto_table-button": {
+        "requires": [
+            "moodle-editor_atto-plugin",
+            "event",
+            "event-valuechange"
+        ]
+    }
 }

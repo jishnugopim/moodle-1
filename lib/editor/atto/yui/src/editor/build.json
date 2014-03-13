@@ -16,6 +16,7 @@
         "moodle-editor_atto-plugin": {
             "jsfiles": [
                 "editor-plugin.js",
+                "editor-plugin-buttons.js",
                 "editor-plugin-dialogue.js"
             ]
         },
