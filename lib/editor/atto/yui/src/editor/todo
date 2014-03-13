@@ -15,3 +15,4 @@ keyboard navigation:
 selection bugs:
 * open image plugin before clicking in editor
 * click on editor before fully set up
+* toggle bold off, then on (or others)
