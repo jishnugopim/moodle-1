@@ -25,12 +25,12 @@
             "event-custom"
         ]
     },
-    "moodle-editor_atto-editor-shortcut": {
+    "moodle-editor_atto-menu": {
         "requires": [
+            "moodle-core-notification-dialogue",
             "node",
             "event",
-            "event-custom",
-            "moodle-editor_atto-editor"
+            "event-custom"
         ]
     }
 }
