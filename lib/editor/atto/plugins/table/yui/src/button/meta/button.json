@@ -2,6 +2,7 @@
     "moodle-atto_table-button": {
         "requires": [
             "moodle-editor_atto-plugin",
+            "moodle-editor_atto-menu",
             "event",
             "event-valuechange"
         ]
