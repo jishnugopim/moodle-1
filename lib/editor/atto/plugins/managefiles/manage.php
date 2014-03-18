@@ -76,7 +76,6 @@ $options = array(
     'areamaxbytes' => $areamaxbytes,
     'return_types' => $return_types,
     'context' => $context,
-    'elementid' => $elementid,
 );
 
 $usercontext = context_user::instance($USER->id);
@@ -88,7 +87,7 @@ foreach ($files as $file) {
 }
 
 $mform = new atto_managefiles_manage_form(null,
-    array('options' => $options, 'draftitemid' => $itemid, 'files' => $filenames),
+    array('options' => $options, 'draftitemid' => $itemid, 'files' => $filenames, 'elementid' => $elementid),
     'post', '', array('id' => 'atto_managefiles_manageform'));
 
 if ($data = $mform->get_data()) {
@@ -104,7 +103,7 @@ if ($data = $mform->get_data()) {
         }
         $filenames = array_diff_key($filenames, $data->deletefile);
         $mform = new atto_managefiles_manage_form(null,
-            array('options' => $options, 'draftitemid' => $itemid, 'files' => $filenames),
+            array('options' => $options, 'draftitemid' => $itemid, 'files' => $filenames, 'elementid' => $data->elementid),
             'post', '', array('id' => 'atto_managefiles_manageform'));
     }
 }

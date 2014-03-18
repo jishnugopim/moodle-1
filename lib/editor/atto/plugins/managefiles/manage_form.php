@@ -44,6 +44,7 @@ class atto_managefiles_manage_form extends moodleform {
         $mform->setDisableShortforms(true);
 
         $itemid = $this->_customdata['draftitemid'];
+        $elementid = $this->_customdata['elementid'];
         $options = $this->_customdata['options'];
         $files = $this->_customdata['files'];
 
@@ -63,6 +64,8 @@ class atto_managefiles_manage_form extends moodleform {
         $mform->setType('context', PARAM_INT);
         $mform->addElement('hidden', 'areamaxbytes');
         $mform->setType('areamaxbytes', PARAM_INT);
+        $mform->addElement('hidden', 'elementid');
+        $mform->setType('elementid', PARAM_TEXT);
 
         $mform->addElement('filemanager', 'files_filemanager', '', null, $options);
 
@@ -91,12 +94,13 @@ class atto_managefiles_manage_form extends moodleform {
                 'files' => array_flip($files),
                 'usercontext' => context_user::instance($USER->id)->id,
                 'itemid' => $itemid,
-                'elementid' => $options['elementid'],
+                'elementid' => $elementid,
             )));
 
         $this->set_data(array(
             'files_filemanager' => $itemid,
             'itemid' => $itemid,
+            'elementid' => $elementid,
             'subdirs' => $options['subdirs'],
             'maxbytes' => $options['maxbytes'],
             'areamaxbytes' => $options['areamaxbytes'],
