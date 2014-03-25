@@ -190,6 +190,13 @@
     <licenseversion></licenseversion>
   </library>
   <library>
+    <location>yui/src/beautify</location>
+    <name>JS Beautifier</name>
+    <license>MIT</license>
+    <version>1.4.2</version>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
     <location>jquery</location>
     <name>jQuery</name>
     <license>MIT</license>
