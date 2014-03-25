@@ -104,10 +104,16 @@ class atto_texteditor extends texteditor {
                     continue;
                 }
 
+                $pluginname = 'moodle-atto_' . $plugin . '-button';
+                if (in_array($pluginname, $modules)) {
+                    // Skip this plugin - it's a duplicate of one we have already included.
+                    continue;
+                }
+                $modules[] = $pluginname;
+
                 $jsplugin = array();
                 $jsplugin['name'] = $plugin;
                 $jsplugin['params'] = array();
-                $modules[] = 'moodle-atto_' . $plugin . '-button';
 
                 component_callback('atto_' . $plugin, 'strings_for_js');
                 $extra = component_callback('atto_' . $plugin, 'params_for_js', array($elementid, $options, $fpoptions));
