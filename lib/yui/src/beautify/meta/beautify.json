@@ -1,7 +1,4 @@
 {
     "moodle-core-beautify": {
-        "requires": [
-            "moodle-core-beautify"
-        ]
     }
 }
