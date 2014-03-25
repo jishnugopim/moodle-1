@@ -22,6 +22,13 @@
     <licenseversion>2.1+</licenseversion>
   </library>
   <library>
+    <location>yui/src/codemirror/js/CodeMirror</location>
+    <name>CodeMirror</name>
+    <license>Custom</license>
+    <version>4.0.4</version>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
     <location>dragmath</location>
     <name>DragMath</name>
     <license>GPL</license>
@@ -190,7 +197,7 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>yui/src/beautify</location>
+    <location>yui/src/beautify/js/beautify*.js</location>
     <name>JS Beautifier</name>
     <license>MIT</license>
     <version>1.4.2</version>
