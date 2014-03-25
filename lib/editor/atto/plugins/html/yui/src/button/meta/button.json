@@ -3,6 +3,7 @@
         "requires": [
             "moodle-editor_atto-plugin",
             "moodle-core-beautify",
+            "moodle-core-codemirror",
             "event-valuechange"
         ]
     }
