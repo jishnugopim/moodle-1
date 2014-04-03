@@ -428,6 +428,7 @@ $string['nopermissiontoviewpage'] = 'You are not allowed to look at this page';
 $string['nosite'] = 'Could not find a top-level course!';
 $string['nositeid'] = 'No site ID';
 $string['nostatstodisplay'] = 'Sorry, there is no available data to display';
+$string['notallowedtofetchprefremotely'] = 'You are not allowed to fetch this user preference';
 $string['notallowedtoupdateprefremotely'] = 'You are not allowed to update this user preference remotely';
 $string['notavailable'] = 'That is not currently available';
 $string['notlocalisederrormessage'] = '{$a}';

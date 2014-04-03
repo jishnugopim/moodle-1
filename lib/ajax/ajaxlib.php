@@ -41,6 +41,19 @@ function user_preference_allow_ajax_update($name, $paramtype) {
 }
 
 /**
+ * To retrieve a user preference using the get_user_preference function, you must specify that it can be retrieved.
+ *
+ * @param    string $name The name of the user preference we should allow to be retrieved by remote calls.
+ * @return   null
+ */
+function user_preference_allow_ajax_fetch($name) {
+    global $USER;
+
+    // Record in the session that this user_preference is allowed to retrieved remotely.
+    $USER->ajax_fetchable_user_prefs[$name] = true;
+}
+
+/**
  * Starts capturing output whilst processing an AJAX request.
  *
  * This should be used in combination with ajax_check_captured_output to
