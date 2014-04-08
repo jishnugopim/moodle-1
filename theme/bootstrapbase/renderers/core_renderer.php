@@ -35,16 +35,16 @@ class theme_bootstrapbase_core_renderer extends core_renderer {
         $message = clean_text($message);
         $type = '';
 
-        if (($classes == 'notifyproblem') || ($classes == 'notifytiny')) {
+        if (strpos($classes, 'notifyproblem') !== false || strpos($classes, 'notifytiny') !== false) {
             $type = 'alert alert-error';
         }
-        if ($classes == 'notifysuccess') {
+        if (strpos($classes, 'notifysuccess') !== false) {
             $type = 'alert alert-success';
         }
-        if ($classes == 'notifymessage') {
+        if (strpos($classes, 'notifymessage') !== false) {
             $type = 'alert alert-info';
         }
-        if ($classes == 'redirectmessage') {
+        if (strpos($classes, 'redirectmessage') !== false) {
             $type = 'alert alert-block alert-info';
         }
         return "<div class=\"$type\">$message</div>";

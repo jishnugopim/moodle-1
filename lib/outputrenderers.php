@@ -2590,13 +2590,13 @@ EOD;
             if (!empty($debuginfo)) {
                 $debuginfo = s($debuginfo); // removes all nasty JS
                 $debuginfo = str_replace("\n", '<br />', $debuginfo); // keep newlines
-                $output .= $this->notification('<strong>Debug info:</strong> '.$debuginfo, 'notifytiny');
+                $output .= $this->notification('<strong>Debug info:</strong> '.$debuginfo, 'notifytiny alert alert-error');
             }
             if (!empty($backtrace)) {
-                $output .= $this->notification('<strong>Stack trace:</strong> '.format_backtrace($backtrace), 'notifytiny');
+                $output .= $this->notification('<strong>Stack trace:</strong> '.format_backtrace($backtrace), 'notifytiny alert alert-error');
             }
             if ($obbuffer !== '' ) {
-                $output .= $this->notification('<strong>Output buffer:</strong> '.s($obbuffer), 'notifytiny');
+                $output .= $this->notification('<strong>Output buffer:</strong> '.s($obbuffer), 'notifytiny alert alert-error');
             }
         }
 
@@ -2622,7 +2622,7 @@ EOD;
      * @param string $classes normally 'notifyproblem' or 'notifysuccess'.
      * @return string the HTML to output.
      */
-    public function notification($message, $classes = 'notifyproblem') {
+    public function notification($message, $classes = 'notifyproblem alert alert-error') {
         return html_writer::tag('div', clean_text($message), array('class' => renderer_base::prepare_classes($classes)));
     }
 
@@ -3533,7 +3533,7 @@ class core_renderer_ajax extends core_renderer {
      * @param string $message
      * @param string $classes
      */
-    public function notification($message, $classes = 'notifyproblem') {}
+    public function notification($message, $classes = 'notifyproblem alert alert-error') {}
 
     /**
      * Used to display a redirection message.
