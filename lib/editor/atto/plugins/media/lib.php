@@ -34,3 +34,21 @@ function atto_media_strings_for_js() {
                                           'browserepositories'),
                                     'atto_media');
 }
+
+/**
+ * Set params for this plugin.
+ *
+ * @param string $elementid
+ * @param stdClass $options - the options for the editor, including the context.
+ * @param stdClass $fpoptions - unused.
+ */
+function atto_media_params_for_js($elementid, $options, $fpoptions) {
+    $context = $options['context'];
+    if (!$context) {
+        $context = context_system::instance();
+    }
+
+    return array(
+        'contextid' => $context->id
+    );
+}
