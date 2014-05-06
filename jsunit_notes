@@ -1,0 +1,85 @@
+Status
+============================================================================
+* build mostly completed but needs tidying up
+  * missing assets folder
+* test does not exec yeti yet
+* no coverage (istanbul)
+
+Seems that yeti *must* be run from a parent of the target directory. You cannot pass it an absolute URL.
+
+TODO
+============================================================================
+  * add assets folders to build
+* error checking
+* --test
+* * yeti --server forking (if possible)
+* * yeti
+* * connection to a hub/selenium/saucelabs/hudson/etc.
+* coverage reporting
+  * change build location to new jsunit_path
+
+Original notes
+============================================================================
+Look for all **/tests/unit/config.json and open to parse with a structure:
+```
+{
+    "YUI module name": {
+        "testSuiteName": {
+            "suites": [
+                "list.js",
+                "of.js",
+                "js.js",
+                "files.js"
+            ],
+            "html": "optionanMustacheSnippetForHTMLBody.mustache"
+        }
+    }
+}
+```
+* For each object in the testSuite object:
+** Compile a testSuite including:
+*** all of the JS for each suites/[file.js] from tests/unit/suites/[file.js]
+*** a sandwich of the header and footer from lib/yui/common/tests/*.mustache
+*** any mustache content in html/[file.mustache] located in tests/unit/mustache/[file.mustache]
+*** all content from tests/unit/assets into the build directory
+** Build into ../../build/[moduleName]/tests/[testSuiteName]/index.html (complete with assets)
+** Open the build.json file, and for each built file, build an istanbul instrumented version using the -debug.js version
+
+Should cowtest be written in PHP or JavaScript?
+* PHP:
+** No special tools required to write most of the files (except istanbul which is optional)
+** can make use of Moodle configuration files
+** can make exec call to istanbul
+** CLI only
+** can be used to update a specific file only
+** can fork yeti with all files or just those listed
+** cache configuration in lib/yui/common/tests/YUI_config.js
+
+cowtest [-b|--build] [-t|--test] [-c|--with-coverage] [-r|--reset-configuration] [frankenstyle-module-name]
+
+jsunit?
+cowtest?
+cowunit?
+moonit?
+moojsunit
+
+* copy all built JS + test files to new location?:
+/dataroot/jsunit
+    /sources
+        /config
+            /config.js
+        /build
+            /[module-name]
+            /moodle-core-tooltip
+    /tests
+        /unit
+            /[module-name]
+                /[testSuite]
+                    /index.html
+            /moodle-core-tooltip
+                /tooltip
+                    /index.html
+
+
+http://localhost:3000/
+?coverage=moodle-core-tooltip&coverage=moodle-core-notification

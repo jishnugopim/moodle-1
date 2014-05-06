@@ -1,0 +1,18 @@
+{
+    "moodle-core-tooltip": {
+        "tests": {
+            "main": {
+                "suites": [
+                    "tooltip.js",
+                    "extra.js"
+                ],
+                "requires": [
+                    "moodle-core-tooltip"
+                ],
+                "ahtml": [
+                    "somecontent.html"
+                ]
+            }
+        }
+    }
+}

@@ -1740,7 +1740,7 @@ class YUI_config {
      * @param String $path the UNC path to the YUI src directory.
      * @return Array the complete array for frankenstyle directory.
      */
-    private function get_moodle_path_metadata($path) {
+    protected function get_moodle_path_metadata($path) {
         // Add module metadata is stored in frankenstyle_modname/yui/src/yui_modname/meta/yui_modname.json.
         $baseyui = $path . '/yui/src';
         $modules = array();
@@ -1755,7 +1755,11 @@ class YUI_config {
                     continue;
                 }
                 $metadata = file_get_contents($metafile);
-                $modules = array_merge($modules, (array) json_decode($metadata));
+                $data = (array) json_decode($metadata);
+                foreach ($data as $module) {
+                    $module->sourcemodule = $item->getFilename();
+                }
+                $modules = array_merge($modules, (array) $data);
             }
         }
         return $modules;
