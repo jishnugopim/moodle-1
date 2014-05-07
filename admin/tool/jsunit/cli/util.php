@@ -90,6 +90,7 @@ require_once($CFG->libdir . '/filelib.php');
 $CFG->jsunit_root = '/tmp/jsunit';
 
 $runner = new tool_jsunit_runner($targetmodules, $options['reset']);
+$runner->instrument_modules($options['coverage']);
 
 // Always build when resetting.
 if ($options['reset']) {

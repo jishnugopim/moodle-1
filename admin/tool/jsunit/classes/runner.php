@@ -63,6 +63,13 @@ class tool_jsunit_runner {
     private $YUI_config;
 
     /**
+     * Whether to run coverage reports for the modules being compiled and tested.
+     *
+     * @var boolean $coverage
+     */
+    private $coverage = false;
+
+    /**
      * Build a new test runner.
      *
      * @param array $targetmodules An optional list of the moodle-YUI modules to build
@@ -94,13 +101,15 @@ class tool_jsunit_runner {
 
         if (!$initialised) {
             $this->build_moodle_config();
-            $this->copy_moodle_modules();
 
             if (empty($this->module_run_list)) {
-                    foreach ($this->YUI_config->jsunit_test_list as $modulename => $source) {
-                        $this->module_run_list[] = $modulename;
-                    }
+                foreach ($this->YUI_config->jsunit_test_list as $modulename => $source) {
+                    $this->module_run_list[] = $modulename;
+                }
             }
+
+            // We need the module run list for coverage to happen nicely here.
+            $this->copy_moodle_modules();
 
             $initialised = true;
         }
@@ -112,7 +121,7 @@ class tool_jsunit_runner {
         $YUI_config->add_group('moodle', array(
             'name' => 'moodle',
             'base' => '../../../../moodle/',
-            'filter' => 'DEBUG',
+            'filter' => '',
             'ext' => false,
             'patterns' => array(
                 'moodle-' => array(
@@ -165,7 +174,23 @@ class tool_jsunit_runner {
 
         foreach ($this->YUI_config->jsunit_module_list as $modulename => $source) {
             // Need to perform a recursive copy here... :(
-            tool_jsunit_util::recursive_copy($source, $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename);
+            $targetdir = $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename;
+            tool_jsunit_util::recursive_copy($source, $targetdir);
+        }
+
+        foreach ($this->module_run_list as $modulename) {
+            $istanbul = escapeshellcmd("/usr/local/bin/istanbul");
+            if ($this->coverage && $istanbul && is_file($istanbul) && is_executable($istanbul)) {
+                $targetdir = $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename;
+                $debugfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-debug.js';
+                $instrumentedfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-coverage.js';
+                if (file_exists($debugfile)) {
+                    exec($istanbul . ' instrument ' . escapeshellarg($debugfile) . ' > ' . escapeshellarg($instrumentedfile));
+                } else {
+                    // Stop at the first sign of trouble.
+                    throw new tool_jsunit_exception('Unable to find a -debug file to build coverage for ' . $debugfile);
+                }
+            }
         }
         mtrace("Completed build copy");
     }
@@ -283,6 +308,7 @@ class tool_jsunit_runner {
 
             $instanceconfig = new stdClass();
             $instanceconfig->coverage = array($modulename);
+            $instanceconfig->filter = ($this->coverage) ? 'COVERAGE' : 'DEBUG';
             $instanceconfig = json_encode($instanceconfig);
             $script =<<<EOF
     YUI({$instanceconfig}).use('{$requirements}', function(Y) {
@@ -355,10 +381,15 @@ EOF;
         // TODO Switch this to using composer?
         $yeti = escapeshellcmd("/usr/local/bin/yeti");
 
-        exec($yeti . ' ' . implode(" ", $runlist), $output, $return);
+        exec($yeti . ' -c ' . implode(" ", $runlist), $output, $return);
 
         mtrace(implode("\n", $output));
 
         exit($return);
     }
+
+    public function instrument_modules($attemptcoverage = false) {
+        $this->coverage = $attemptcoverage;
+    }
+
 }

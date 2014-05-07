@@ -2,8 +2,8 @@ Status
 ============================================================================
 * build mostly completed but needs tidying up
   * missing assets folder
-* test does not exec yeti yet
-* no coverage (istanbul)
+  * test does not exec yeti yet
+  * no coverage (istanbul)
 
 Seems that yeti *must* be run from a parent of the target directory. You cannot pass it an absolute URL.
 
@@ -11,9 +11,9 @@ TODO
 ============================================================================
   * add assets folders to build
 * error checking
-* --test
+  * --test
 * * yeti --server forking (if possible)
-* * yeti
+  * * yeti
 * * connection to a hub/selenium/saucelabs/hudson/etc.
 * coverage reporting
   * change build location to new jsunit_path
