@@ -44,8 +44,8 @@ class tool_jsunit_renderer extends plugin_renderer_base {
     <title>JavaScript Unit Tests for "$modulename:$suitename"</title>
 EOF;
         $return .= html_writer::script("var M = {};");
-        $return .= html_writer::script('', '../../../../sources/config/config.js');
-        $return .= html_writer::script('', "../../../../sources/build/yui3/$CFG->yui3version/yui/yui.js");
+        $return .= html_writer::script('', '../../../../config/config.js');
+        $return .= html_writer::script('', "../../../../yuilib/$CFG->yui3version/yui/yui.js");
         $return .= <<<EOF
 <script id="firstthemesheet" type="text/css">/** Required in order to fix style inclusion problems in IE with YUI **/</script>
 </head>

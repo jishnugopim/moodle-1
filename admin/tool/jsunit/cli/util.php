@@ -91,6 +91,11 @@ $CFG->jsunit_root = '/tmp/jsunit';
 
 $runner = new tool_jsunit_runner($targetmodules, $options['reset']);
 
+// Always build when resetting.
+if ($options['reset']) {
+    $options['build'] = true;
+}
+
 if ($options['build']) {
     $runner->compile_testsuites();
 }

@@ -69,18 +69,17 @@ class tool_jsunit_runner {
      * @param boolean $fullbuild Whether to run a full build. If true, the
      * YUI module cache is removed and reset.
      */
-    public function __construct($targetmodules = array(), $fullbuild) {
+    public function __construct($targetmodules = array(), $fullbuild = false) {
         $this->directories = new stdClass();
 
         // Create a new directory in dataroot
-        $this->jsunit_root = tool_jsunit_util::check_dir_exists('jsunit');
-        $this->directories->sources = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/sources');
+        $this->jsunit_root = tool_jsunit_util::check_dir_exists('jsunit', $fullbuild);
 
         // Clear up the old directory first and create a new directory.
-        $this->directories->moodlebuild = tool_jsunit_util::check_dir_exists($this->directories->sources . '/moodle', true);
+        $this->directories->moodlebuild = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/moodle', true);
 
         // And create somewhere to store the unit tests we will then run.
-        $this->directories->tests = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/tests/unit', true);
+        $this->directories->tests = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/tests/unit', $fullbuild);
 
         // Set the list of modules to run - we'll deal with this later once
         // we've parsed the YUI configuration.
@@ -108,6 +107,32 @@ class tool_jsunit_runner {
         return true;
     }
 
+    private function get_yui_config() {
+        $YUI_config = new tool_jsunit_yuiconfig();
+        $YUI_config->add_group('moodle', array(
+            'name' => 'moodle',
+            'base' => '../../../../moodle/',
+            'filter' => 'DEBUG',
+            'ext' => false,
+            'patterns' => array(
+                'moodle-' => array(
+                    'group' => 'moodle',
+                )
+            )
+        ));
+        $YUI_config->add_moodle_metadata();
+
+        // Unset various things we override for standard Moodle but need for/ testing.
+        unset($YUI_config->base);
+        unset($YUI_config->combine);
+        unset($YUI_config->comboBase);
+        unset($YUI_config->debug);
+        unset($YUI_config->filter);
+        $YUI_config->filter = 'RAW';
+
+        return $YUI_config;
+    }
+
     private function build_moodle_config() {
         // We always build  a fresh YUI configuration.
         mtrace("Starting configuration build and copy");
@@ -118,11 +143,11 @@ class tool_jsunit_runner {
          * The generated configuration is stored inthe build directory so that
          * it can be easily updated and loaded separately to the built test files.
          */
-        $configdir = tool_jsunit_util::check_dir_exists($this->directories->moodlebuild . '/config');
+        $configdir = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/config');
 
-        $this->YUI_config = tool_jsunit_util::get_yui_config();
+        $this->YUI_config = $this->get_yui_config();
         $fh = fopen($configdir . "/config.js", "w");
-        $config = js_writer::set_variable('this->YUI_config', $this->YUI_config);
+        $config = js_writer::set_variable('YUI_config', $this->YUI_config);
         if (!fwrite($fh, $config)) {
             throw new tool_jsunit_exception('Unable to write YUI configuration');
         }
@@ -151,7 +176,9 @@ class tool_jsunit_runner {
      * @param boolean $force Whether to clear the cache and force a fresh copy
      */
     public function compile_yui_content($force = false) {
-        $yuidir = $this->directories->sources . '/build/yui';
+        global $CFG;
+
+        $yuidir = $this->jsunit_root . '/yuilib';
         if ($force || !is_dir($yuidir)) {
             mtrace("Copying YUI build directories in place");
             tool_jsunit_util::check_dir_exists($yuidir, true);
