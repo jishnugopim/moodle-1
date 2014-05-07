@@ -1,22 +1,18 @@
 Status
 ============================================================================
 * build mostly completed but needs tidying up
-  * missing assets folder
-  * test does not exec yeti yet
-  * no coverage (istanbul)
-
-Seems that yeti *must* be run from a parent of the target directory. You cannot pass it an absolute URL.
 
 TODO
 ============================================================================
-  * add assets folders to build
 * error checking
-  * --test
-* * yeti --server forking (if possible)
-  * * yeti
-* * connection to a hub/selenium/saucelabs/hudson/etc.
+* yeti --server forking (if possible)
+* connection to a hub/selenium/saucelabs/hudson/etc.
 * coverage reporting
-  * change build location to new jsunit_path
+* tidy up CLI arguments (abuse of $unrecognized is mean)
+* support globs and/or paths: -u mod/forum (etc)
+* web interface? is it worthwhile doing this?
+* documentation
+* some proper tests
 
 Original notes
 ============================================================================
