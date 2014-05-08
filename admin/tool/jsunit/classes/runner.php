@@ -123,6 +123,7 @@ class tool_jsunit_runner {
 
             $initialised = true;
         }
+
         return true;
     }
 
@@ -378,8 +379,6 @@ EOF;
      */
     public function run_tests() {
         $this->check_initialisation();
-
-        // TODO add some check to make sure that we compiled the test suites.
 
         $testdir = str_replace($this->jsunit_root . '/', '', $this->directories->tests);
 

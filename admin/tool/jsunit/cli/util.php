@@ -101,8 +101,8 @@ require_once($CFG->libdir . '/filelib.php');
 $runner = new tool_jsunit_runner($targetmodules, $options['reset']);
 $runner->instrument_modules($options['coverage'], $options['manual-coverage']);
 
-// Always build when resetting.
-if ($options['reset']) {
+// Always build when resetting, or running any tests.
+if ($options['reset'] || $options['test']) {
     $options['build'] = true;
 }
 
