@@ -15,11 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for tool_jsunit
+ * JSUnit inteegration
  *
  * @package    tool_jsunit
  * @copyright  2014 Andrew Robert Nicols
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'JSUnit tests';
+
+defined('MOODLE_INTERNAL') || die;
+
+if ($hassiteconfig) {
+    $ADMIN->add('development', new admin_externalpage('tooljsunit', get_string('pluginname', 'tool_jsunit'), "$CFG->wwwroot/$CFG->admin/tool/jsunit/index.php"));
+}
