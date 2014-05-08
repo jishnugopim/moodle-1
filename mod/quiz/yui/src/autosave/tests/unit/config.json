@@ -1,0 +1,13 @@
+{
+    "moodle-mod_quiz-autosave": {
+        "tests": {
+            "autosave": {
+                "suites": [
+                    "autosave.js"
+                ],
+                "requires": [
+                ]
+            }
+        }
+    }
+}
