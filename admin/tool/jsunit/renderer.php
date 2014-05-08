@@ -43,7 +43,11 @@ class tool_jsunit_renderer extends plugin_renderer_base {
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>JavaScript Unit Tests for "$modulename:$suitename"</title>
 EOF;
-        $return .= html_writer::script("var M = {};");
+        $return .= html_writer::script("var M = {
+    cfg: {
+        wwwroot: ''
+    }
+};");
         $return .= html_writer::script('', '../../../../config/config.js');
         $return .= html_writer::script('', "../../../../yuilib/$CFG->yui3version/yui/yui.js");
         $return .= <<<EOF
