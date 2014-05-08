@@ -210,28 +210,35 @@ class tool_jsunit_runner {
         }
 
         mtrace("Starting copy of latest module build");
-
         foreach ($this->YUI_config->jsunit_module_list as $modulename => $source) {
             // Need to perform a recursive copy here... :(
             $targetdir = $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename;
             tool_jsunit_util::recursive_copy($source, $targetdir);
         }
+        mtrace("Completed build copy");
 
-        foreach ($this->module_run_list as $modulename) {
-            $istanbul = escapeshellcmd($this->istanbul);
-            if ($this->manualcoverage && $istanbul && is_file($istanbul) && is_executable($istanbul)) {
+        if ($this->manualcoverage) {
+            mtrace("Starting creation of instrumented debug files");
+            // Check that istanbul exists.
+            if (!(is_file($this->istanbul) && is_executable($this->istanbul))) {
+                throw new tool_jsunit_exception('Istanbul could not be found in order to run tests');
+            }
+
+            foreach ($this->YUI_config->jsunit_module_list as $modulename => $buildpath) {
+                $istanbul = escapeshellcmd($this->istanbul);
                 $targetdir = $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename;
                 $debugfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-debug.js';
                 $instrumentedfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-coverage.js';
                 if (file_exists($debugfile)) {
                     exec($istanbul . ' instrument ' . escapeshellarg($debugfile) . ' > ' . escapeshellarg($instrumentedfile));
                 } else {
+                    echo $debugfile . "\n";
                     // Stop at the first sign of trouble.
                     throw new tool_jsunit_exception('Unable to find a -debug file to build coverage for ' . $debugfile);
                 }
             }
+            mtrace("Completed build copy");
         }
-        mtrace("Completed build copy");
     }
 
     /**
