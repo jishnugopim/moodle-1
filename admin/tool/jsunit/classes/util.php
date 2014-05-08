@@ -69,27 +69,24 @@ class tool_jsunit_util {
     }
 
     public static function recursive_copy($source, $destination) {
-        // TODO Check if this is a directory.
         if (!is_dir($source) || !is_readable($source)) {
+            throw new tool_jsunit_exception("Invalid source directory '$source'");
         }
-        if (!is_dir($destination) || !is_readable($destination)) {
-        }
-        // TODO Check that the destination directory exists.
         if (!is_dir($destination)) {
             mkdir($destination);
+        }
+        if (!is_dir($destination) || !is_readable($destination)) {
+            throw new tool_jsunit_exception("Invalid destination directory '$source'");
         }
         $directoryiterator = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
         $iterator = new RecursiveIteratorIterator($directoryiterator,  RecursiveIteratorIterator::SELF_FIRST);
         foreach ($iterator as $item) {
             $path = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
-            // TODO add error checking.
-            // TODO permissions.
             if ($item->isDir()) {
                 mkdir($path);
             } else {
                 copy($item, $path);
             }
         }
-        // TODO determine the best return value.
     }
 }
