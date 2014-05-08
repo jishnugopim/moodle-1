@@ -77,6 +77,20 @@ class tool_jsunit_runner {
     private $manualcoverage = false;
 
     /**
+     * The path to yeti.
+     *
+     * @var string $yeti
+     */
+    private $yeti = "/usr/local/bin/yeti";
+
+    /**
+     * The path to istanbul.
+     *
+     * @var string $istanbul
+     */
+    private $istanbul = "/usr/local/bin/istanbul";
+
+    /**
      * Build a new test runner.
      *
      * @param array $targetmodules An optional list of the moodle-YUI modules to build
@@ -84,6 +98,8 @@ class tool_jsunit_runner {
      * YUI module cache is removed and reset.
      */
     public function __construct($targetmodules = array(), $fullbuild = false) {
+        global $CFG;
+
         $this->directories = new stdClass();
 
         // Create a new directory in dataroot
@@ -104,6 +120,14 @@ class tool_jsunit_runner {
 
         // Copy all of the YUI content in place.
         $this->compile_yui_content($fullbuild);
+
+        if (!empty($CFG->path_yeti)) {
+            $this->yeti = $CFG->path_yeti;
+        }
+
+        if (!empty($CFG->path_istanbul)) {
+            $this->istanbul = $CFG->path_istanbul;
+        }
     }
 
     private function check_initialisation() {
@@ -174,12 +198,17 @@ class tool_jsunit_runner {
         mtrace("Completed configuration build and copy");
     }
 
+    /**
+     * Create a copy of all of the moodle modules.
+     *
+     * We always copy a fresh version of all YUI modules in place for testing.
+     */
     private function copy_moodle_modules() {
-        /*
-         * Create a copy of all of the moodle modules.
-         *
-         * We always copy a fresh version of all YUI modules in place for testing.
-         */
+        // Check that yeti exists.
+        if (!(is_file($this->yeti) && is_executable($this->yeti))) {
+            throw new tool_jsunit_exception('Yeti could not be found in order to run tests');
+        }
+
         mtrace("Starting copy of latest module build");
 
         foreach ($this->YUI_config->jsunit_module_list as $modulename => $source) {
@@ -189,7 +218,7 @@ class tool_jsunit_runner {
         }
 
         foreach ($this->module_run_list as $modulename) {
-            $istanbul = escapeshellcmd("/usr/local/bin/istanbul");
+            $istanbul = escapeshellcmd($this->istanbul);
             if ($this->manualcoverage && $istanbul && is_file($istanbul) && is_executable($istanbul)) {
                 $targetdir = $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename;
                 $debugfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-debug.js';
@@ -380,6 +409,11 @@ EOF;
     public function run_tests() {
         $this->check_initialisation();
 
+        // Check that yeti exists.
+        if (!(is_file($this->yeti) && is_executable($this->yeti))) {
+            throw new tool_jsunit_exception('Yeti could not be found in order to run tests');
+        }
+
         $testdir = str_replace($this->jsunit_root . '/', '', $this->directories->tests);
 
         $runlist = array();
@@ -392,7 +426,7 @@ EOF;
         chdir($this->jsunit_root);
 
         // TODO Switch this to using composer version of yeti
-        $yeti = escapeshellcmd("/usr/local/bin/yeti");
+        $yeti = escapeshellcmd($this->yeti);
         if ($this->automatedcoverage) {
             $coverage = '--coverage --instrument-exclude **/jsunit/yuilib/** --instrument-exclude **/jsunit/config/** --coverage-report html';
             if ($this->manualcoverage) {
