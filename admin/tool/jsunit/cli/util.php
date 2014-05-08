@@ -99,7 +99,7 @@ require_once(dirname(__DIR__) . '/locallib.php');
 require_once($CFG->libdir . '/filelib.php');
 
 $runner = new tool_jsunit_runner($targetmodules, $options['reset']);
-$runner->instrument_modules($options['coverage'], $options['manual-coverage']);
+$runner->configure_coverage($options['coverage'], $options['manual-coverage']);
 
 // Always build when resetting, or running any tests.
 if ($options['reset'] || $options['test']) {

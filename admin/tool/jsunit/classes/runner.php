@@ -443,7 +443,7 @@ EOF;
         exit($return);
     }
 
-    public function instrument_modules($automatedcoverage = false, $manualcoverage = false) {
+    public function configure_coverage($automatedcoverage = false, $manualcoverage = false) {
         $this->automatedcoverage = $automatedcoverage;
         $this->manualcoverage = $manualcoverage;
     }
