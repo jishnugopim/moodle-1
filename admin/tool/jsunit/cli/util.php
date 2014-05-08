@@ -38,6 +38,7 @@ list($options, $targetmodules) = cli_get_params(
         'build'                 => false,
         'test'                  => false,
         'coverage'              => false,
+        'manual-coverage'       => false,
         'reset'                 => false,
     ),
     array(
@@ -61,9 +62,19 @@ jsunit [-b|--build] [-t|--test] [-c|--coverage] <[yui-module-name] [yui-module-n
 
 Options:
 --help                  Displays this help text
+
+Testing options:
 --build                 Build the testing files
 --test                  Run tests
---with-coverage         Use coverage instrumentation to report code coverage
+
+Coverage options:
+--coverage              Use istanbul to report code coverage with yeti
+--manual-coverage       Manually generate coverage instrumentation.
+
+                        This will enable you to obtain coverage reports for
+                        tests you run in your browser, but in doing so only
+                        the modules that are directly working on will
+                        feature in the coverage reports.
 
 Example from Moodle root directory:
 
@@ -90,7 +101,7 @@ require_once($CFG->libdir . '/filelib.php');
 $CFG->jsunit_root = '/tmp/jsunit';
 
 $runner = new tool_jsunit_runner($targetmodules, $options['reset']);
-$runner->instrument_modules($options['coverage']);
+$runner->instrument_modules($options['coverage'], $options['manual-coverage']);
 
 // Always build when resetting.
 if ($options['reset']) {

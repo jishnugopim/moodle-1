@@ -7,7 +7,6 @@ TODO
 * error checking
 * yeti --server forking (if possible)
 * connection to a hub/selenium/saucelabs/hudson/etc.
-* coverage reporting
 * tidy up CLI arguments (abuse of $unrecognized is mean)
 * support globs and/or paths: -u mod/forum (etc)
 * web interface? is it worthwhile doing this?

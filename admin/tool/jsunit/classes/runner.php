@@ -63,11 +63,18 @@ class tool_jsunit_runner {
     private $YUI_config;
 
     /**
-     * Whether to run coverage reports for the modules being compiled and tested.
+     * Whether to generate coverage reports for the modules being compiled and tested from YETI.
      *
-     * @var boolean $coverage
+     * @var boolean $automatedcoverage
      */
-    private $coverage = false;
+    private $automatedcoverage = false;
+
+    /**
+     * Whether to generate coverage reports for the modules being compiled and tested manually.
+     *
+     * @var boolean $manualcoverage
+     */
+    private $manualcoverage = false;
 
     /**
      * Build a new test runner.
@@ -84,6 +91,9 @@ class tool_jsunit_runner {
 
         // Clear up the old directory first and create a new directory.
         $this->directories->moodlebuild = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/moodle', true);
+
+        // Clear the old coverage directory away.
+        remove_dir($this->jsunit_root . '/coverage');
 
         // And create somewhere to store the unit tests we will then run.
         $this->directories->tests = tool_jsunit_util::check_dir_exists($this->jsunit_root . '/tests/unit', $fullbuild);
@@ -121,7 +131,6 @@ class tool_jsunit_runner {
         $YUI_config->add_group('moodle', array(
             'name' => 'moodle',
             'base' => '../../../../moodle/',
-            'filter' => '',
             'ext' => false,
             'patterns' => array(
                 'moodle-' => array(
@@ -180,7 +189,7 @@ class tool_jsunit_runner {
 
         foreach ($this->module_run_list as $modulename) {
             $istanbul = escapeshellcmd("/usr/local/bin/istanbul");
-            if ($this->coverage && $istanbul && is_file($istanbul) && is_executable($istanbul)) {
+            if ($this->manualcoverage && $istanbul && is_file($istanbul) && is_executable($istanbul)) {
                 $targetdir = $this->directories->moodlebuild . DIRECTORY_SEPARATOR . $modulename;
                 $debugfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-debug.js';
                 $instrumentedfile = $targetdir . DIRECTORY_SEPARATOR . $modulename . '-coverage.js';
@@ -299,6 +308,9 @@ class tool_jsunit_runner {
             }
 
             // Build the full list of requirements.
+            if (!isset($configuration->requires)) {
+                $configuration->requires = array();
+            }
             $requirements = implode("', '", array_merge($configuration->requires, array(
                 $modulename,
                 "node",
@@ -308,7 +320,7 @@ class tool_jsunit_runner {
 
             $instanceconfig = new stdClass();
             $instanceconfig->coverage = array($modulename);
-            $instanceconfig->filter = ($this->coverage) ? 'COVERAGE' : 'DEBUG';
+            $instanceconfig->filter = ($this->manualcoverage) ? 'COVERAGE' : 'DEBUG';
             $instanceconfig = json_encode($instanceconfig);
             $script =<<<EOF
     YUI({$instanceconfig}).use('{$requirements}', function(Y) {
@@ -378,18 +390,27 @@ EOF;
         // Yeti must be run from the tests directory.
         chdir($this->jsunit_root);
 
-        // TODO Switch this to using composer?
+        // TODO Switch this to using composer version of yeti
         $yeti = escapeshellcmd("/usr/local/bin/yeti");
+        if ($this->automatedcoverage) {
+            $coverage = '--coverage --instrument-exclude **/jsunit/yuilib/** --instrument-exclude **/jsunit/config/** --coverage-report html';
+            if ($this->manualcoverage) {
+                $coverage .= ' --no-instrument';
+            }
+        } else {
+            $coverage = '';
+        }
 
-        exec($yeti . ' -c ' . implode(" ", $runlist), $output, $return);
+        exec($yeti . " $coverage " . implode(" ", $runlist), $output, $return);
 
         mtrace(implode("\n", $output));
 
         exit($return);
     }
 
-    public function instrument_modules($attemptcoverage = false) {
-        $this->coverage = $attemptcoverage;
+    public function instrument_modules($automatedcoverage = false, $manualcoverage = false) {
+        $this->automatedcoverage = $automatedcoverage;
+        $this->manualcoverage = $manualcoverage;
     }
 
 }
