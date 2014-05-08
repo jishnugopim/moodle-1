@@ -28,7 +28,6 @@ require_once($CFG->libdir.'/adminlib.php');
 admin_externalpage_setup('tooljsunit');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('pluginname', 'tool_jsunit'));
 echo $OUTPUT->box_start();
 
 $info = file_get_contents(__DIR__ . "/readme.md");

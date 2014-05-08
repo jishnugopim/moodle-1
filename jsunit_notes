@@ -11,7 +11,7 @@ TODO
 * tidy up CLI arguments (abuse of $unrecognized is mean)
 * support globs and/or paths: -u mod/forum (etc)
 * web interface? is it worthwhile doing this?
-* documentation
+* dev documentation on docs.moodle.org
 * some proper tests
 
 Original notes
