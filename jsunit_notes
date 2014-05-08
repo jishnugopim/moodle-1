@@ -4,6 +4,7 @@ Status
 
 TODO
 ============================================================================
+* Check whether we have a compiled version of suites before running tests.
 * error checking
 * yeti --server forking (if possible)
 * connection to a hub/selenium/saucelabs/hudson/etc.
