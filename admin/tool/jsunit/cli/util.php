@@ -98,8 +98,6 @@ require_once(__DIR__ . '/../../../../config.php');
 require_once(dirname(__DIR__) . '/locallib.php');
 require_once($CFG->libdir . '/filelib.php');
 
-$CFG->jsunit_root = '/tmp/jsunit';
-
 $runner = new tool_jsunit_runner($targetmodules, $options['reset']);
 $runner->instrument_modules($options['coverage'], $options['manual-coverage']);
 
