@@ -40,6 +40,7 @@ list($options, $targetmodules) = cli_get_params(
         'coverage'              => false,
         'manual-coverage'       => false,
         'reset'                 => false,
+        'yetioptions'           => false,
     ),
     array(
         'h' => 'help',
@@ -111,7 +112,7 @@ if ($options['build']) {
 }
 
 if ($options['test']) {
-    $runner->run_tests();
+    $runner->run_tests($options['yetioptions']);
 }
 
 if (!$options['build'] && !$options['test']) {

@@ -437,7 +437,7 @@ EOF;
     /**
      * Run all required test suites.
      */
-    public function run_tests() {
+    public function run_tests($yetioptions = '') {
         $this->check_initialisation();
 
         // Check that yeti exists.
@@ -467,7 +467,7 @@ EOF;
             $coverage = '';
         }
 
-        exec($yeti . " $coverage " . implode(" ", $runlist), $output, $return);
+        exec($yeti . " $coverage $yetioptions " . " " . implode(" ", $runlist), $output, $return);
 
         mtrace(implode("\n", $output));
 
