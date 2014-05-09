@@ -145,6 +145,9 @@ class tool_jsunit_runner {
             // We need the module run list for coverage to happen nicely here.
             $this->copy_moodle_modules();
 
+            // We also need a few other JS components.
+            $this->copy_core_js();
+
             $initialised = true;
         }
 
@@ -196,6 +199,27 @@ class tool_jsunit_runner {
         }
         fclose($fh);
         mtrace("Completed configuration build and copy");
+    }
+
+    /**
+     * Create a copy of all of the moodle modules.
+     *
+     * We always copy a fresh version of all YUI modules in place for testing.
+     */
+    private function copy_core_js() {
+        global $CFG;
+
+        mtrace("Starting copy of core JS components");
+        $corejs = array(
+            'lib/javascript-static.js' => 'javascript-static.js',
+        );
+        $targetdir = $this->jsunit_root . '/config';
+        tool_jsunit_util::check_dir_exists($targetdir);
+        foreach ($corejs as $source => $destination) {
+            copy($CFG->dirroot . DIRECTORY_SEPARATOR . $source,
+                    $targetdir . DIRECTORY_SEPARATOR . $destination);
+        }
+        mtrace("Completed core JS copy");
     }
 
     /**

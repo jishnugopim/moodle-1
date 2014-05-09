@@ -36,6 +36,84 @@ class tool_jsunit_renderer extends plugin_renderer_base {
     public function test_header($modulename, $suitename, $configuration) {
         global $CFG;
 
+        $simpleyuimodules = array(
+            'yui',
+            'oop',
+            'event-custom-base',
+            'dom-core',
+            'dom-base',
+            'color-base',
+            'dom-style',
+            'selector-native',
+            'selector',
+            'node-core',
+            'node-base',
+            'event-base',
+            'event-base-ie',
+            'pluginhost-base',
+            'pluginhost-config',
+            'event-delegate',
+            'node-event-delegate',
+            'node-pluginhost',
+            'dom-screen',
+            'node-screen',
+            'node-style',
+            'querystring-stringify-simple',
+            'io-base',
+            'json-parse',
+            'transition',
+            'selector-css2',
+            'selector-css3',
+            'dom-style-ie',
+
+            // Some extras we use everywhere.
+            'escape',
+
+            'attribute-core',
+            'event-custom-complex',
+            'base-core',
+            'attribute-base',
+            'attribute-extras',
+            'attribute-observable',
+            'base-observable',
+            'base-base',
+            'base-pluginhost',
+            'base-build',
+            'event-synthetic',
+
+            'attribute-complex',
+            'event-mouseenter',
+            'event-key',
+            'event-outside',
+            'event-autohide',
+            'event-focus',
+            'classnamemanager',
+            'widget-base',
+            'widget-htmlparser',
+            'widget-skin',
+            'widget-uievents',
+            'widget-stdmod',
+            'widget-position',
+            'widget-position-align',
+            'widget-stack',
+            'widget-position-constrain',
+            'overlay',
+
+            'widget-autohide',
+            'button-core',
+            'button-plugin',
+            'widget-buttons',
+            'widget-modality',
+            'panel',
+            'yui-throttle',
+            'dd-ddm-base',
+            'dd-drag',
+            'dd-plugin',
+
+            // Cache is used by moodle-core-tooltip which we include everywhere.
+            'cache-base',
+        );
+
         $return = <<<EOF
 <!DOCTYPE html>
 <html>
@@ -46,12 +124,15 @@ EOF;
         $return .= html_writer::script("var M = {
     cfg: {
         wwwroot: ''
-    }
+    },
+    yui: {}
 };");
         $return .= html_writer::script('', '../../../../config/config.js');
         $return .= html_writer::script('', "../../../../yuilib/$CFG->yui3version/yui/yui.js");
+        $return .= html_writer::script('', '../../../../config/javascript-static.js');
+        $return .= '<script id="firstthemesheet" type="text/css">/** Required in order to fix style inclusion problems in IE with YUI **/</script>';
+        $return .= html_writer::script('var Y = YUI().use("' . implode('", "', $simpleyuimodules) . '");');
         $return .= <<<EOF
-<script id="firstthemesheet" type="text/css">/** Required in order to fix style inclusion problems in IE with YUI **/</script>
 </head>
 <body class="yui3-skin-sam">
 <div id="log"></div>
