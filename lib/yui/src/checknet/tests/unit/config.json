@@ -1,0 +1,11 @@
+{
+    "moodle-core-checknet": {
+        "tests": {
+            "main": {
+                "suites": [
+                    "checknet.js"
+                ]
+            }
+        }
+    }
+}
