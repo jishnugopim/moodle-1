@@ -108,11 +108,20 @@ function add_moduleinfo($moduleinfo, $course, $mform = null) {
         $moduleinfo->introformat = $introeditor['format'];
     }
 
-    $addinstancefunction    = $moduleinfo->modulename."_add_instance";
-    try {
-        $returnfromfunc = $addinstancefunction($moduleinfo, $mform);
-    } catch (moodle_exception $e) {
-        $returnfromfunc = $e;
+    $moduleclass = 'mod_' . $moduleinfo->modulename . '_module';
+    if (class_exists($moduleclass, 'add_instance')) {
+        try {
+            $returnfromfunc = $moduleclass::add_instance($moduleinfo, $mform);
+        } catch (moodle_exception $e) {
+            $returnfromfunc = $e;
+        }
+    } else {
+        $addinstancefunction    = $moduleinfo->modulename."_add_instance";
+        try {
+            $returnfromfunc = $addinstancefunction($moduleinfo, $mform);
+        } catch (moodle_exception $e) {
+            $returnfromfunc = $e;
+        }
     }
     if (!$returnfromfunc or !is_number($returnfromfunc)) {
         // Undo everything we can. This is not necessary for databases which
@@ -503,9 +512,17 @@ function update_moduleinfo($cm, $moduleinfo, $course, $mform = null) {
         $moduleinfo->introformat = $moduleinfo->introeditor['format'];
         unset($moduleinfo->introeditor);
     }
-    $updateinstancefunction = $moduleinfo->modulename."_update_instance";
-    if (!$updateinstancefunction($moduleinfo, $mform)) {
-        print_error('cannotupdatemod', '', course_get_url($course, $cw->section), $moduleinfo->modulename);
+
+    $moduleclass = 'mod_' . $moduleinfo->modulename . '_module';
+    if (class_exists($moduleclass, 'update_instance')) {
+        if (!$moduleclass::add_instance($moduleinfo, $mform)) {
+            print_error('cannotupdatemod', '', course_get_url($course, $cw->section), $moduleinfo->modulename);
+        }
+    } else {
+        $updateinstancefunction = $moduleinfo->modulename."_update_instance";
+        if (!$updateinstancefunction($moduleinfo, $mform)) {
+            print_error('cannotupdatemod', '', course_get_url($course, $cw->section), $moduleinfo->modulename);
+        }
     }
 
     // Make sure visibility is set correctly (in particular in calendar).
