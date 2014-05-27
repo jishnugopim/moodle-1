@@ -5628,8 +5628,12 @@ function forum_print_discussion($course, $cm, $forum, $discussion, $post, $mode,
 
     $postread = !empty($post->postread);
 
-    forum_print_post($post, $discussion, $forum, $cm, $course, $ownpost, $reply, false,
-                         '', '', $postread, true, $forumtracked);
+    $options = new stdClass();
+    $options->ownpost = $ownpost;
+    $options->reply = $reply;
+    $options->postisread = $postread;
+    $options->istracked = $forumtracked;
+    echo forum_display_post($post, $discussion, $forum, $cm, $course, $options);
 
     switch ($mode) {
         case FORUM_MODE_FLATOLDEST :
@@ -5643,7 +5647,7 @@ function forum_print_discussion($course, $cm, $forum, $discussion, $post, $mode,
             break;
 
         case FORUM_MODE_NESTED :
-            forum_print_posts_nested($course, $cm, $forum, $discussion, $post, $reply, $forumtracked, $posts, 1);
+            forum_print_posts_nested($course, $cm, $forum, $discussion, $post, $reply, $forumtracked, $posts);
             break;
     }
 }
@@ -5758,7 +5762,7 @@ function forum_print_posts_threaded($course, &$cm, $forum, $discussion, $parent,
  * @global object
  * @return void
  */
-function forum_print_posts_nested($course, &$cm, $forum, $discussion, $parent, $reply, $forumtracked, $posts, $depth = 0) {
+function forum_print_posts_nested($course, &$cm, $forum, $discussion, $parent, $reply, $forumtracked, $posts, $depth = 1) {
     global $USER, $CFG;
 
     $link  = false;
