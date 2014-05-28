@@ -130,7 +130,6 @@ $adminediting = optional_param('adminedit', -1, PARAM_BOOL);
 if ($PAGE->user_allowed_editing() && $adminediting != -1) {
     $USER->editing = $adminediting;
 }
-session_get_instance()->write_close();
 
 if (!empty($chooselog)) {
     $userinfo = get_string('allparticipants');
@@ -170,6 +169,7 @@ if (!empty($chooselog)) {
             }
             break;
         case 'downloadascsv':
+            session_get_instance()->write_close();
             if (!print_log_csv($course, $user, $date, 'l.time DESC', $modname,
                     $modid, $modaction, $group)) {
                 echo $OUTPUT->notification("No logs found!");
@@ -177,6 +177,7 @@ if (!empty($chooselog)) {
             }
             exit;
         case 'downloadasods':
+            session_get_instance()->write_close();
             if (!print_log_ods($course, $user, $date, 'l.time DESC', $modname,
                     $modid, $modaction, $group)) {
                 echo $OUTPUT->notification("No logs found!");
@@ -184,6 +185,7 @@ if (!empty($chooselog)) {
             }
             exit;
         case 'downloadasexcel':
+            session_get_instance()->write_close();
             if (!print_log_xls($course, $user, $date, 'l.time DESC', $modname,
                     $modid, $modaction, $group)) {
                 echo $OUTPUT->notification("No logs found!");
