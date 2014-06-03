@@ -120,6 +120,7 @@ $string['aftersection'] = 'After section "{$a}"';
 $string['again'] = 'again';
 $string['aimid'] = 'AIM ID';
 $string['ajaxuse'] = 'AJAX and Javascript';
+$string['alert'] = 'Alert';
 $string['all'] = 'All';
 $string['allactions'] = 'All actions';
 $string['allactivities'] = 'All activities';
