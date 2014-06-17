@@ -7611,23 +7611,27 @@ function forum_get_posts_by_user($user, array $courses, $musthaveaccess = false,
  *
  * @param stdClass $forum The forum to set the option for.
  * @param int $maildigest The maildigest option.
- * @param stdClass $user The user object. This defaults to the global $USER object.
- * @throws invalid_digest_setting thrown if an invalid maildigest option is provided.
+ * @param stdClass $user The user object of th user to set the mail digest for. This defaults to the global $USER object.
+ * @param context_module $context The Module context
+ * @throws moodle_exception thrown if an invalid maildigest option is provided.
  */
-function forum_set_user_maildigest($forum, $maildigest, $user = null) {
-    global $DB, $USER;
-
-    if (is_number($forum)) {
-        $forum = $DB->get_record('forum', array('id' => $forum));
-    }
+function forum_set_user_maildigest($forum, $maildigest, $user = null, $context = null) {
+    global $DB, $USER, $PAGE;
 
     if ($user === null) {
         $user = $USER;
     }
 
-    $course  = $DB->get_record('course', array('id' => $forum->course), '*', MUST_EXIST);
-    $cm      = get_coursemodule_from_instance('forum', $forum->id, $course->id, false, MUST_EXIST);
-    $context = context_module::instance($cm->id);
+    if (!$context) {
+        // Find out forum context. First try to take current page context to save on DB query.
+        if ($PAGE->cm && $PAGE->cm->modname === 'forum' && $PAGE->cm->instance == $forum->id
+                && $PAGE->context->contextlevel == CONTEXT_MODULE && $PAGE->context->instanceid == $PAGE->cm->id) {
+            $context = $PAGE->context;
+        } else {
+            $cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course, false, MUST_EXIST);
+            $context = context_module::instance($cm->id);
+        }
+    }
 
     // User must be allowed to see this forum.
     require_capability('mod/forum:viewdiscussion', $context, $user->id);
