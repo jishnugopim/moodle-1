@@ -184,6 +184,10 @@ while (count($parts)) {
 
                 // Cache is used by moodle-core-tooltip which we include everywhere.
                 'cache-base',
+
+                // Include the proxy modules to help users behind keyword filters.
+                'dd-proxy',
+                'resize-proxy',
             );
 
             // We need to add these new parts to the beginning of the $parts list, not the end.
