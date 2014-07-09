@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,24 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * MOODLE VERSION INFORMATION
- *
- * This file defines the current version of the core Moodle code being used.
- * This is compared against the values stored in the database to determine
- * whether upgrades should be performed (see lib/db/*.php)
+ * Fixtures for VERP tests.
  *
  * @package    core
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
+ * @category   phpunit
+ * @copyright  2014 Andrew Nicols
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace core\test;
 defined('MOODLE_INTERNAL') || die();
 
-$version  = 2014071100.01;              // YYYYMMDD      = weekly release date of this DEV branch.
-                                        //         RR    = release increments - 00 in DEV branches.
-                                        //           .XX = incremental changes.
+class handler_base extends \core\verp\handler {
+    public function get_description() {}
+    public function process_message(\stdClass $data, $headers, $body, $attachments) {}
+}
 
-$release  = '2.8dev (Build: 20140711)'; // Human-friendly version name
-
-$branch   = '28';                       // This version's branch.
-$maturity = MATURITY_ALPHA;             // This version's maturity level.
+class handler_one extends handler_base {}
+class handler_two extends handler_base {}
+class handler_three extends handler_base {}
+class handler_four extends handler_base {}

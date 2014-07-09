@@ -3709,5 +3709,53 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2014070101.00);
     }
 
+    if ($oldversion < 2014070300.01) {
+
+        // Define table verp_handlers to be created.
+        $table = new xmldb_table('verp_handlers');
+
+        // Adding fields to table verp_handlers.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('component', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('classname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('validateaddress', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table verp_handlers.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('classname', XMLDB_KEY_UNIQUE, array('classname'));
+
+        // Conditionally launch create table for verp_handlers.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table verp_datakeys to be created.
+        $table = new xmldb_table('verp_datakeys');
+
+        // Adding fields to table verp_datakeys.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('handler', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('datavalue', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('datakey', XMLDB_TYPE_CHAR, '64', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('expires', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table verp_datakeys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('handler_datavalue', XMLDB_KEY_UNIQUE, array('handler', 'datavalue'));
+        $table->add_key('handler', XMLDB_KEY_FOREIGN, array('handler'), 'verp_handlers', array('id'));
+
+        // Conditionally launch create table for verp_datakeys.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2014070300.01);
+    }
+
+
+
     return true;
 }

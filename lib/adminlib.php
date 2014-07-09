@@ -202,6 +202,9 @@ function uninstall_plugin($type, $name) {
     // Delete scheduled tasks.
     $DB->delete_records('task_scheduled', array('component' => $pluginname));
 
+    // Delete VERP handlers.
+    $DB->delete_records('verp_handlers', array('component' => $pluginname));
+
     // delete all the logs
     $DB->delete_records('log', array('module' => $pluginname));
 
