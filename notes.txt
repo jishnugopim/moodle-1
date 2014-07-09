@@ -1,0 +1,26 @@
+| id | class        | shortname   | handler             | require_validation | description                                   | enabled |
+| XX | \mod_forum   | reply       | process_post_reply  | 1                  | Process replies to forum posts automatically. | 1       |
+
+
+verp_datakeys
+id | handler | datavalue | datakey | timecreated | expiry
+
+<?php
+
+// Generate an address.
+$processor = new core_verp();
+$processor->set_handler('mod_forum', 'reply');
+$processor->set_data($dataid, $datakey);
+$address = $processor->generate_address($user->id);
+
+// Another way.
+$processor = new core_verp();
+$processor->set_handler('mod_forum', 'reply');
+$processor->set_data($dataid);
+$userkey = get_user_key('verp_handler', $user->id);
+$address = $processor->generate_address($user->id, $userkey);
+
+
+// Process a handler.
+$processor = new core_verp();
+$processor->handle_message($recipient, $originator, $headers, $body, $attachments);
