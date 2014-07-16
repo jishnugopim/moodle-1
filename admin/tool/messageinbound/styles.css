@@ -1,0 +1,11 @@
+#page-admin-tool-messageinbound-messageinbound .handler-function {
+    display: block;
+    padding: 0 0.5em;
+    color: #888;
+    font-size: 0.75em;
+}
+
+#page-admin-tool-messageinbound-messageinbound .state,
+#page-admin-tool-messageinbound-messageinbound .edit {
+    text-align: center;
+}
