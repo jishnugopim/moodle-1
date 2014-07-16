@@ -487,3 +487,4 @@ $string['warnformorepost'] = 'Warning! There is more than one discussion in this
 $string['yournewquestion'] = 'Your new question';
 $string['yournewtopic'] = 'Your new discussion topic';
 $string['yourreply'] = 'Your reply';
+$string['reply_handler'] = 'Reply to forum posts using e-mail.';
