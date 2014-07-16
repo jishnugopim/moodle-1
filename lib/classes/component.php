@@ -67,6 +67,8 @@ class core_component {
     protected static $version = null;
     /** @var array list of the files to map. */
     protected static $filestomap = array('lib.php', 'settings.php');
+    /** @var array list of all known third party library class that can be autoloaded */
+    protected static $librarymaps = null;
 
     /**
      * Class loader for Frankenstyle named classes in standard locations.
@@ -85,6 +87,7 @@ class core_component {
      * @param string $classname
      */
     public static function classloader($classname) {
+        global $CFG;
         self::init();
 
         if (isset(self::$classmap[$classname])) {
@@ -100,6 +103,22 @@ class core_component {
             debugging(sprintf($debugging, $classname, $newclassname), DEBUG_DEVELOPER);
             class_alias($newclassname, $classname);
             return;
+        }
+
+        // Attempt to load libraries.
+        foreach (self::$librarymaps as $vendor => $frameworks) {
+            $matchname = str_replace(array('\\', '/'), '_', $classname);
+            if (strpos($matchname, $vendor . '_') === 0) {
+                foreach ($frameworks as $name) {
+                    $frameworkname = $vendor . '_' . $name;
+                    $path = $CFG->libdir . DIRECTORY_SEPARATOR . strtolower($vendor) . DIRECTORY_SEPARATOR . $frameworkname;
+                    if (strpos($matchname, $frameworkname) === 0) {
+                        $path .= DIRECTORY_SEPARATOR . str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $classname) . '.php';
+                        include_once($path);
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -142,6 +161,7 @@ class core_component {
                 self::$classmap         = $cache['classmap'];
                 self::$classmaprenames  = $cache['classmaprenames'];
                 self::$filemap          = $cache['filemap'];
+                self::$librarymaps      = $cache['librarymaps'];
                 return;
             }
 
@@ -182,6 +202,7 @@ class core_component {
                     self::$classmap         = $cache['classmap'];
                     self::$classmaprenames  = $cache['classmaprenames'];
                     self::$filemap          = $cache['filemap'];
+                    self::$librarymaps      = $cache['librarymaps'];
                     return;
                 }
                 // Note: we do not verify $CFG->admin here intentionally,
@@ -268,6 +289,7 @@ class core_component {
             'classmap'          => self::$classmap,
             'classmaprenames'   => self::$classmaprenames,
             'filemap'           => self::$filemap,
+            'librarymaps'       => self::$librarymaps,
             'version'           => self::$version,
         );
 
@@ -292,6 +314,7 @@ $cache = '.var_export($cache, true).';
         self::fill_classmap_cache();
         self::fill_classmap_renames_cache();
         self::fill_filemap_cache();
+        self::fill_librarymap_cache();
         self::fetch_core_version();
     }
 
@@ -620,6 +643,33 @@ $cache = '.var_export($cache, true).';
             }
         }
     }
+
+    /**
+     * Add 
+     */
+    protected static function fill_librarymap_cache() {
+        global $CFG;
+
+        self::$librarymaps = array();
+
+        self::$librarymaps['Horde'] = array(
+            'Crypt_Blowfish',
+            'Exception',
+            'Imap_Client',
+            'Mail',
+            'Mime',
+            'Secret',
+            'Socket_Client',
+            'Stream',
+            'Stream_Filter',
+            'Stream_Wrapper',
+            'Support',
+            'Text_Flowed',
+            'Translation',
+            'Util',
+        );
+    }
+
 
     /**
      * Find classes in directory and recurse to subdirs.
