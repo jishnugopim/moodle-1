@@ -123,6 +123,7 @@
 /**
  * The footer's header.
  */
+.gradeparent .range .header,
 .gradeparent .avg .header {
     font-weight: bold;
 }
@@ -174,6 +175,8 @@
 .dir-rtl .gradeparent .excludedfloater {
     float: right;
 }
+
+.path-grade-report .gradeparent .floater .controls.cell,
 .gradeparent .controls {
     background-color: #f3ead8;
 }
