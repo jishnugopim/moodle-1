@@ -75,6 +75,16 @@ if ($mform->is_cancelled()) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->box_start('generalbox');
+
+// Attempt to generate an inbound message address to support e-mail to private files.
+$generator = new \core\message\inbound\address_manager();
+$generator->set_handler('\core\message\inbound\private_files_handler');
+$generator->set_data(-1);
+if ($address = $generator->generate($USER->id)) {
+    $emaillink = html_writer::link(new moodle_url('mailto:' . $address), $address);
+    echo html_writer::tag('span', get_string('emailtoprivatefiles', 'moodle', $emaillink));
+}
+
 $mform->display();
 echo $OUTPUT->box_end();
 echo $OUTPUT->footer();
