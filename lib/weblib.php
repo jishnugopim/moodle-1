@@ -3454,7 +3454,7 @@ function print_password_policy() {
  *            CSS classes to apply to that link. Only present if $ajax = false.
  * - completedoclink: A text representation of the doclink. Only present if $ajax = true.
  */
-function get_formatted_help_string($identifier, $component, $ajax = false) {
+function get_formatted_help_string($identifier, $component, $a = null, $ajax = false) {
     global $CFG, $OUTPUT;
     $sm = get_string_manager();
 
@@ -3464,7 +3464,7 @@ function get_formatted_help_string($identifier, $component, $ajax = false) {
     $data = new stdClass();
 
     if ($sm->string_exists($identifier, $component)) {
-        $data->heading = format_string(get_string($identifier, $component));
+        $data->heading = format_string(get_string($identifier, $component, $a));
     } else {
         // Gracefully fall back to an empty string.
         $data->heading = '';
@@ -3481,7 +3481,7 @@ function get_formatted_help_string($identifier, $component, $ajax = false) {
         $options->overflowdiv = !$ajax;
 
         // Should be simple wiki only MDL-21695.
-        $data->text =  format_text(get_string($identifier.'_help', $component), FORMAT_MARKDOWN, $options);
+        $data->text =  format_text(get_string($identifier.'_help', $component, $a), FORMAT_MARKDOWN, $options);
 
         $helplink = $identifier . '_link';
         if ($sm->string_exists($helplink, $component)) {  // Link to further info in Moodle docs.
