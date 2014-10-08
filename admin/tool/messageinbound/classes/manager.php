@@ -334,6 +334,13 @@ class manager {
             // Now pass it through the Inbound Message processor.
             $status = $this->addressmanager->process_envelope($recipient, $sender);
 
+            if ($status & ~ \core\message\inbound\address_manager::VALIDATION_DISABLED_HANDLER !== 0) {
+                // The handler is disabled.
+                $this->inform_user_of_error(get_string('handlerdisabled', 'tool_messageinbound',
+                        $this->currentmessagedata), $message);
+                return;
+            }
+
             // Check the validation status early. No point processing garbage messages, but we do need to process it
             // for some validation failure types.
             if (!$this->passes_key_validation($status, $messageid)) {
@@ -368,7 +375,8 @@ class manager {
                     mtrace("--- Original message retained on mail server and confirmation message sent to user.");
                 } else {
                     mtrace("--- Invalid Recipient Handler - unable to save. Informing the user of the failure.");
-                    $this->inform_user_of_error(get_string('invalidrecipientfinal', 'tool_messageinbound', $this->currentmessagedata));
+                    $this->inform_user_of_error(get_string('invalidrecipientfinal', 'tool_messageinbound',
+                            $this->currentmessagedata), $message);
                 }
 
                 // Returning to normal cron user.
@@ -388,7 +396,7 @@ class manager {
             } catch (\core\message\inbound\processing_failed_exception $e) {
                 // We know about these kinds of errors and they should result in the user being notified of the
                 // failure. Send the user a notification here.
-                $this->inform_user_of_error($e->getMessage());
+                $this->inform_user_of_error($e->getMessage(), $message);
 
                 // Returning to normal cron user.
                 mtrace("-- Returning to the original user.");
@@ -842,7 +850,7 @@ class manager {
      *
      * @param string $error The error message
      */
-    private function inform_user_of_error($error) {
+    private function inform_user_of_error($error, $message = null) {
         global $USER;
 
         // The message will be sent from the intended user.
@@ -872,8 +880,16 @@ class manager {
 
         if (message_send($eventdata)) {
             mtrace("---> Notification sent to {$USER->email}.");
+            return true;
         } else {
             mtrace("---> Unable to send notification.");
+            if ($message) {
+                mtrace("--- Attempting to reset message state.");
+                $this->remove_flag_to_message($message->getUid(), array(
+                    self::MESSAGE_SEEN,
+                    self::MESSAGE_FLAGGED,
+                ));
+            }
         }
     }
 
