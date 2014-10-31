@@ -68,25 +68,24 @@ class reply_handler extends inbound_handler {
     public function process_message(\stdClass $record, \stdClass $messagedata) {
         global $DB, $USER;
 
-        // Load the post being replied to.
-        $post = $DB->get_record('forum_posts', array('id' => $record->datavalue));
-        if (!$post) {
-            mtrace("--> Unable to find a post matching with id {$record->datavalue}");
-            return false;
-        }
-
-        // Load the discussion that this post is in.
-        $discussion = $DB->get_record('forum_discussions', array('id' => $post->discussion));
-        if (!$post) {
-            mtrace("--> Unable to find the discussion for post {$record->datavalue}");
+        // Load the forum.
+        $forum = $DB->get_record('forum', array('id' => $record->datavalue));
+        if (!$forum) {
+            mtrace("--> Unable to find a forum matching with id {$forum->datavalue}");
             return false;
         }
 
         // Process and create the message.
         $for = new \stdClass();
         $for->forum = $forum;
-        $for->discussion = $discussion;
-        $for->post = $post;
+        $for->group = 1;
+        if ($groups = groups_get_all_groups($forum->course, $USER->id)) {
+            if (count($groups) > 1) {
+                // throw here.
+                return false;
+            }
+            $for->group = $groups[0]->id;
+        }
         $addpost = parent::process_message($record, $messagedata, $for);
 
         // Log the new post creation.
