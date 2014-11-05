@@ -1237,6 +1237,7 @@ function forum_make_mail_text($course, $cm, $forum, $discussion, $post, $userfro
     $posttext .= ": {$CFG->wwwroot}/mod/forum/index.php?id={$forum->course}\n";
 
     if ($replyaddress) {
+        $posttext .= "\n--" . get_string('deleteoriginalonreply', 'mod_forum') . "--\n";
         $posttext .= "\n\n" . get_string('replytoforumpost', 'mod_forum', $replyaddress);
     }
 
@@ -1295,6 +1296,7 @@ function forum_make_mail_html($course, $cm, $forum, $discussion, $post, $userfro
     $posthtml .= forum_make_mail_post($course, $cm, $forum, $discussion, $post, $userfrom, $userto, false, $canreply, true, false);
 
     if ($replyaddress) {
+        $posttext .= "<p><em>--" . get_string('deleteoriginalonreply', 'mod_forum') . "--</em></p>";
         $posthtml .= "<p>" . get_string('replytoforumpost_html', 'mod_forum', $replyaddress) . "</p>";
     }
 
