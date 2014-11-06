@@ -428,20 +428,17 @@ class subscriptions {
                 $params['dforumid'] = $forum->id;
                 $params['unsubscribed'] = self::FORUM_DISCUSSION_UNSUBSCRIBED;
 
-                $sql = "SELECT $fields
+                $sql = "SELECT DISTINCT $fields
                         FROM {user} u
-                        WHERE u.id IN (
-                            SELECT u2.id FROM
-                            {user} u2
-                            JOIN ($esql) je ON je.id = u2.id
-                            LEFT JOIN {forum_subscriptions} s ON s.userid = u2.id
-                            LEFT JOIN {forum_discussion_subs} ds ON ds.userid = u2.id
-                            WHERE
-                              s.forum = :forumid
-                            OR
-                              (ds.forum = :dforumid AND ds.preference <> :unsubscribed)
-                        )
+                        JOIN ($esql) je ON je.id = u.id
+                        LEFT JOIN {forum_subscriptions} s ON s.userid = u.id
+                        LEFT JOIN {forum_discussion_subs} ds ON ds.userid = u.id
+                        WHERE
+                          s.forum = :forumid
+                        OR
+                        (ds.forum = :dforumid AND ds.preference <> :unsubscribed)
                         ORDER BY u.email ASC";
+
             } else {
                 $sql = "SELECT $fields
                         FROM {user} u
