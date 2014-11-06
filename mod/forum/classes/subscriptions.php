@@ -425,18 +425,22 @@ class subscriptions {
             $params['forumid'] = $forum->id;
 
             if ($includediscussionsubscriptions) {
-                $params['dforumid'] = $forum->id;
+                $params['sforumid'] = $forum->id;
+                $params['dsforumid'] = $forum->id;
                 $params['unsubscribed'] = self::FORUM_DISCUSSION_UNSUBSCRIBED;
 
-                $sql = "SELECT DISTINCT $fields
-                        FROM {user} u
+                $sql = "SELECT $fields
+                        FROM (
+                            SELECT userid FROM {forum_subscriptions} s
+                            WHERE
+                                s.forum = :sforumid
+                                UNION
+                            SELECT userid FROM {forum_discussion_subs} ds
+                            WHERE
+                                ds.forum = :dsforumid AND ds.preference <> :unsubscribed
+                        ) subscriptions
+                        JOIN {user} u ON u.id = subscriptions.userid
                         JOIN ($esql) je ON je.id = u.id
-                        LEFT JOIN {forum_subscriptions} s ON s.userid = u.id
-                        LEFT JOIN {forum_discussion_subs} ds ON ds.userid = u.id
-                        WHERE
-                          s.forum = :forumid
-                        OR
-                        (ds.forum = :dforumid AND ds.preference <> :unsubscribed)
                         ORDER BY u.email ASC";
 
             } else {
