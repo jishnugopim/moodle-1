@@ -158,14 +158,6 @@ function message_send($eventdata) {
         }
         unset($componentdir);
         unset($messageproviders);
-        // Now ask phpunit if it wants to catch this message.
-        if (phpunit_util::is_redirecting_messages()) {
-            $savemessage->timeread = time();
-            $messageid = $DB->insert_record('message_read', $savemessage);
-            $message = $DB->get_record('message_read', array('id'=>$messageid));
-            phpunit_util::message_sent($message);
-            return $messageid;
-        }
     }
 
     // Fetch enabled processors

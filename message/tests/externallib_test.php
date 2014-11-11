@@ -408,12 +408,21 @@ class core_message_externallib_testcase extends externallib_advanced_testcase {
 
         $course = self::getDataGenerator()->create_course();
 
-        // Send a message from one user to another.
+        // Send a message from one user to another and mark as read.
         message_post_message($user1, $user2, 'some random text 1', FORMAT_MOODLE);
+        message_mark_messages_read($user2->id, $user1->id);
+
         message_post_message($user1, $user3, 'some random text 2', FORMAT_MOODLE);
+        message_mark_messages_read($user3->id, $user1->id);
+
         message_post_message($user2, $user3, 'some random text 3', FORMAT_MOODLE);
+        message_mark_messages_read($user3->id, $user2->id);
+
         message_post_message($user3, $user2, 'some random text 4', FORMAT_MOODLE);
+        message_mark_messages_read($user2->id, $user3->id);
+
         message_post_message($user3, $user1, 'some random text 5', FORMAT_MOODLE);
+        message_mark_messages_read($user1->id, $user3->id);
 
         $this->setUser($user1);
         // Get read conversations from user1 to user2.

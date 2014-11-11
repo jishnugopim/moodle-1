@@ -422,8 +422,8 @@ class core_message_messagelib_testcase extends advanced_testcase {
         $conversations = message_get_recent_conversations($USER);
 
         // Confirm that we have received the messages with the maximum timecreated, rather than the max id.
-        $this->assertEquals('Message 2', $conversations[0]->fullmessage);
-        $this->assertEquals('Message 5', $conversations[1]->smallmessage);
+        $this->assertEquals('Message 2', $conversations[1]->fullmessage);
+        $this->assertEquals('Message 5', $conversations[0]->smallmessage);
     }
 
     /**
@@ -440,16 +440,22 @@ class core_message_messagelib_testcase extends advanced_testcase {
 
         // Add two messages - will mark them as notifications later.
         $m1 = message_post_message($user1, $USER, 'Message 1', FORMAT_PLAIN);
+        $message1 = $DB->get_record('message', array('id' => $m1));
+        $mr1 = message_mark_message_read($message1, time());
+
         $m2 = message_post_message($user1, $USER, 'Message 2', FORMAT_PLAIN);
+        $message2 = $DB->get_record('message', array('id' => $m2));
+        $mr2 = message_mark_message_read($message2, time());
 
         // Mark the second message as a notification.
         $updatemessage = new stdClass();
-        $updatemessage->id = $m2;
+        $updatemessage->id = $mr2;
         $updatemessage->notification = 1;
         $DB->update_record('message_read', $updatemessage);
 
         // Mark the first message as a notification and change the timecreated to 0.
-        $updatemessage->id = $m1;
+        $updatemessage = new stdClass();
+        $updatemessage->id = $mr1;
         $updatemessage->notification = 1;
         $updatemessage->timecreated = 0;
         $DB->update_record('message_read', $updatemessage);

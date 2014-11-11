@@ -131,17 +131,21 @@ class manager {
             // unread. To prevent this mark the message read if messaging is disabled.
             $messageid = message_mark_message_read($savemessage, time());
 
+            self::send_to_message_sink($savemessage);
         } else if ($failed) {
             // Something failed, better keep it as unread then.
             $messageid = $savemessage->id;
+            self::send_to_message_sink($savemessage);
 
         } else if ($DB->count_records('message_working', array('unreadmessageid' => $savemessage->id)) == 0) {
             // If there is no more processors that want to process this we can move message to message_read.
             $messageid = message_mark_message_read($savemessage, time(), true);
 
+            self::send_to_message_sink($savemessage);
         } else {
             // Some processor is still working on the data, let's keep it unread.
             $messageid = $savemessage->id;
+            self::send_to_message_sink($savemessage);
         }
 
         return $messageid;
@@ -181,4 +185,17 @@ class manager {
             self::send_message_to_processors($eventdata, $savemessage, $processorlist);
         }
     }
+
+    /**
+     * Pass messages to the unit testing message sink for processing.
+     *
+     * @param \stdClass $message The message to be saved to the message sink.
+     */
+    protected static function send_to_message_sink(\stdClass $message) {
+        // Now ask phpunit if it wants to catch this message.
+        if (\phpunit_util::is_redirecting_messages()) {
+            \phpunit_util::message_sent($message);
+        }
+    }
+
 }

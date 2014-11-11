@@ -376,6 +376,42 @@ class core_messagelib_testcase extends advanced_testcase {
         $user2->emailstop = '0';
     }
 
+    public function test_send_message_redirection_multiple() {
+        global $DB;
+        $this->preventResetByRollback();
+        $this->resetAfterTest();
+        unset_config('noemailever');
+
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        // Test basic message redirection.
+        $message = new stdClass();
+        $message->component = 'moodle';
+        $message->name = 'instantmessage';
+        $message->userfrom = $user1;
+        $message->userto = $user2;
+        $message->subject = 'message subject 1';
+        $message->fullmessage = 'message body';
+        $message->fullmessageformat = FORMAT_MARKDOWN;
+        $message->fullmessagehtml = '<p>message body</p>';
+        $message->smallmessage = 'small message';
+        $message->notification = 0;
+
+        $messagesink = $this->redirectMessages();
+        $mailsink = $this->redirectEmails();
+
+        message_send($message);
+
+        $savedmessages = $messagesink->get_messages();
+        $this->assertCount(1, $savedmessages);
+        $messagesink->close();
+
+        $savedmessages = $mailsink->get_messages();
+        $this->assertCount(1, $savedmessages);
+        $mailsink->close();
+    }
+
     public function test_send_message() {
         global $DB, $CFG;
         $this->preventResetByRollback();
