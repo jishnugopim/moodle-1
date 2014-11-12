@@ -260,7 +260,7 @@ class core_user_externallib_testcase extends externallib_advanced_testcase {
 
             // Expected result differ following the searched field
             // Admin user in the PHPunit framework doesn't have email or idnumber.
-            if ($fieldtosearch == 'email' or $fieldtosearch == 'idnumber') {
+            if ($fieldtosearch == 'idnumber') {
                 $expectedreturnedusers = 2;
             } else {
                 $expectedreturnedusers = 3;
