@@ -29,6 +29,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 class filter_mathjaxloader extends moodle_text_filter {
 
+    /** The start wrapper picked up by the JS. */
+    const START_WRAPPER = '<span class="nolink"><span class="filter_mathjaxloader_equation">';
+
+    /** The end wrapper picked up by the JS. */
+    const END_WRAPPER = '</span></span>';
+
     /*
      * Perform a mapping of the moodle language code to the equivalent for MathJax.
      *
@@ -163,8 +169,66 @@ class filter_mathjaxloader extends moodle_text_filter {
         }
         if ($hasinline || $hasdisplay || $hasextra) {
             $PAGE->requires->yui_module('moodle-filter_mathjaxloader-loader', 'M.filter_mathjaxloader.typeset');
-            return '<span class="nolink"><span class="filter_mathjaxloader_equation">' . $text . '</span></span>';
+            if ($hasextra) {
+                // Custom delimeters may not have a matching start and end tag that can be captured in the same way.
+                // Revert to wrapping the entire content.
+                // These must be handled before the matched-pair delimeters to ensure that the spans are not double-wrapped.
+                return self::START_WRAPPER . $text . self::END_WRAPPER;
+            } else {
+                $length = strlen($text);
+                $pos = strlen($text);
+
+                while ($pos > 0) {
+                    // Favour the \( \) delimeter first.
+                    if ($newpos = self::replace_delimeter($text, '\\(', '\\)', $pos)) {
+                        $pos = $newpos - 1;
+                    } else if ($newpos = self::replace_delimeter($text, '\\[', '\\]', $pos)) {
+                        $pos = $newpos - 1;
+                    } else if ($newpos = self::replace_delimeter($text, '$$', '$$', $pos)) {
+                        // Note. $$ is deemed a legacy delimeter, but support for it was not correctly phased out.
+                        // Therefore it's use must be supported here, even though if legacy mode is enabled, it will be
+                        // replaced with inline delimeter markings.
+                        $pos = $newpos - 1;
+                    } else {
+                        // If neither delimeter was found, break here and stop searching.
+                        break;
+                    }
+                }
+            }
         }
+
         return $text;
+    }
+
+    /**
+     * Search for and replace the specified delimeter pair with the start and end wrapper.
+     *
+     * @param string $text The text to search within.
+     * @param string $opendelim The opening delimeter to search for
+     * @param string $closedelim The closing delimeter to search for
+     * @param int $pos The position in the string to perform the reverse search from.
+     * @param int $opendelimsize The size of the opening delimeter.
+     * @param int $closedelimsize The size of the closing delimeter.
+     * @return int The position of the matching open delimeter if a close delimiter was found.
+     */
+    protected function replace_delimeter(&$text, $opendelim, $closedelim, $pos, $opendelimsize = 2, $closedelimsize = 2) {
+        // For strrpos to work backwards, we need to provide it with an offset from the end. Calculate the negative position.
+        $totallength = strlen($text);
+        $startat = $pos - $totallength;
+
+        // Search for a close delimeter, and if found, then try to find a matching open delimeter.
+        if ($closepos = strrpos($text, $closedelim, $startat)) {
+            if ($openpos = strrpos($text, $opendelim, $closepos - $closedelimsize - $totallength)) {
+                // Both an open and close delimeter were found. Insert the wrapper around them.
+                $text = substr($text, 0, $openpos) .
+                        self::START_WRAPPER .
+                        substr($text, $openpos, $closepos - $openpos + $closedelimsize) .
+                        self::END_WRAPPER .
+                        substr($text, $closepos + $closedelimsize);
+
+                // The string is passed by reference. Only return the position of the opening delimeter.
+                return $openpos;
+            }
+        }
     }
 }
