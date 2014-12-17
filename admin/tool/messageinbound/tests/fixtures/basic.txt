@@ -1,0 +1,14 @@
+Return-Path: <__FROM__>
+Delivered-To: __TO__
+Received: from test1.example.com (test1.example.com [192.168.10.10])
+    by test2.example.com (Postfix) with ESMTP id E6F7890AF
+    for <__TO__>; __DATE__
+Message-ID: <abcd1234efgh5678@test1.example.com>
+Date: __DATE__
+From: <__FROM__>
+To: __TO__
+Subject: __SUBJECT__
+Mime-Version: 1.0
+Content-Type: text/plain
+
+Test.
