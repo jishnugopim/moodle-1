@@ -182,10 +182,21 @@ $CFG->dbpass    = isset($CFG->phpunit_dbpass) ? $CFG->phpunit_dbpass : $CFG->dbp
 $CFG->prefix    = isset($CFG->phpunit_prefix) ? $CFG->phpunit_prefix : $CFG->prefix;
 $CFG->dboptions = isset($CFG->phpunit_dboptions) ? $CFG->phpunit_dboptions : $CFG->dboptions;
 
+$CFG->messageinbound_enabled = isset($CFG->phpunit_messageinbound_enabled) ? $CFG->phpunit_messageinbound_enabled : null;
+$CFG->messageinbound_mailbox = isset($CFG->phpunit_messageinbound_mailbox) ? $CFG->phpunit_messageinbound_mailbox : null;
+$CFG->messageinbound_domain = isset($CFG->phpunit_messageinbound_domain) ? $CFG->phpunit_messageinbound_domain : null;
+$CFG->messageinbound_ssl = isset($CFG->phpunit_messageinbound_ssl) ? $CFG->phpunit_messageinbound_ssl : null;
+$CFG->messageinbound_host = isset($CFG->phpunit_messageinbound_host) ? $CFG->phpunit_messageinbound_host : null;
+$CFG->messageinbound_hostuser = isset($CFG->phpunit_messageinbound_hostuser) ? $CFG->phpunit_messageinbound_hostuser : null;
+$CFG->messageinbound_hostpass = isset($CFG->phpunit_messageinbound_hostpass) ? $CFG->phpunit_messageinbound_hostpass : null;
+
 $allowed = array('wwwroot', 'dataroot', 'dirroot', 'admin', 'directorypermissions', 'filepermissions',
                  'dbtype', 'dblibrary', 'dbhost', 'dbname', 'dbuser', 'dbpass', 'prefix', 'dboptions',
                  'proxyhost', 'proxyport', 'proxytype', 'proxyuser', 'proxypassword', 'proxybypass', // keep proxy settings from config.php
-                 'altcacheconfigpath', 'pathtogs', 'pathtoclam', 'pathtodu', 'aspellpath', 'pathtodot'
+                 'altcacheconfigpath', 'pathtogs', 'pathtoclam', 'pathtodu', 'aspellpath', 'pathtodot',
+                 // Add messageinbound settings to allow testing against an IMAP server.
+                 'messageinbound_enabled', 'messageinbound_mailbox', 'messageinbound_domain', 'messageinbound_ssl',
+                 'messageinbound_host', 'messageinbound_hostuser', 'messageinbound_hostpass',
                 );
 $productioncfg = (array)$CFG;
 $CFG = new stdClass();
