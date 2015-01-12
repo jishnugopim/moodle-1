@@ -5023,28 +5023,7 @@ function forum_user_can_post($forum, $discussion, $user=NULL, $cm=NULL, $course=
         return false;
     }
 
-    if (!$groupmode = groups_get_activity_groupmode($cm, $course)) {
-        return true;
-    }
-
-    if (has_capability('moodle/site:accessallgroups', $context)) {
-        return true;
-    }
-
-    if ($groupmode == VISIBLEGROUPS) {
-        if ($discussion->groupid == -1) {
-            // allow students to reply to all participants discussions - this was not possible in Moodle <1.8
-            return true;
-        }
-        return groups_is_member($discussion->groupid);
-
-    } else {
-        //separate groups
-        if ($discussion->groupid == -1) {
-            return false;
-        }
-        return groups_is_member($discussion->groupid);
-    }
+    return true;
 }
 
 /**

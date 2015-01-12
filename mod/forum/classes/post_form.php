@@ -177,7 +177,25 @@ class mod_forum_post_form extends moodleform {
                 $groupcount++;
             }
 
-            $contextcheck = has_capability('mod/forum:movediscussions', $modulecontext) && empty($post->parent) && $groupcount > 1;
+            $contextcheck = $groupcount > 1;
+
+            // Check if this is a reply or a new discussion.
+            if (isset($post->parent)) {
+                if (!empty($post->parentgroup) && $post->parentgroup != -1) {
+                    // The parent post was not to 'All participants' - restrict it to the same group.
+                    $contextcheck = false;
+
+                    // Ovewrite the discussion group to use the parent posts group.
+                    $post->groupid = $post->parentgroup;
+                } else if ($groupcount <= 1) {
+                    if ($post->groupid == 0 || $post->groupid == -1) {
+                        // User only has access to this one group and is replying to an all-users post.
+                        $firstgroup = reset($groupdata);
+                        $post->groupid = $firstgroup->id;
+                    }
+                }
+            }
+
             if ($contextcheck) {
                 foreach ($groupdata as $grouptemp) {
                     $groupinfo[$grouptemp->id] = $grouptemp->name;
@@ -186,7 +204,7 @@ class mod_forum_post_form extends moodleform {
                 $mform->setDefault('groupinfo', $post->groupid);
                 $mform->setType('groupinfo', PARAM_INT);
             } else {
-                if (empty($post->groupid)) {
+                if (empty($post->groupid) || $post->groupid == -1) {
                     $groupname = get_string('allparticipants');
                 } else {
                     $groupname = format_string($groupdata[$post->groupid]->name);

@@ -194,11 +194,13 @@ if (!empty($forum)) {      // User is starting a new discussion in a forum
     }
 
     // Make sure user can post here
+    /*
     if (isset($cm->groupmode) && empty($course->groupmodeforce)) {
         $groupmode =  $cm->groupmode;
     } else {
         $groupmode = $course->groupmode;
     }
+
     if ($groupmode == SEPARATEGROUPS and !has_capability('moodle/site:accessallgroups', $modcontext)) {
         if ($discussion->groupid == -1) {
             print_error('nopostforum', 'forum');
@@ -208,6 +210,7 @@ if (!empty($forum)) {      // User is starting a new discussion in a forum
             }
         }
     }
+     */
 
     if (!$cm->visible and !has_capability('moodle/course:viewhiddenactivities', $modcontext)) {
         print_error("activityiscurrentlyhidden");
@@ -220,11 +223,20 @@ if (!empty($forum)) {      // User is starting a new discussion in a forum
     $post->forum       = $forum->id;
     $post->discussion  = $parent->discussion;
     $post->parent      = $parent->id;
+    $post->parentgroup = $parent->groupid;
+    $post->firstpost   = $discussion->firstpost;
     $post->subject     = $parent->subject;
     $post->userid      = $USER->id;
     $post->message     = '';
 
     $post->groupid = ($discussion->groupid == -1) ? 0 : $discussion->groupid;
+    if (isset($parent->groupid)) {
+        $post->groupid = $parent->groupid;
+    } else if ($discussion->groupid == -1) {
+        $post->groupid = 0;
+    } else {
+        $post->groupid = $discussion->groupid;
+    }
 
     $strre = get_string('re', 'forum');
     if (!(substr($post->subject, 0, strlen($strre)) == $strre)) {
