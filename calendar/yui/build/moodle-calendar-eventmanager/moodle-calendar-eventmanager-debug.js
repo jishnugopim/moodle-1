@@ -136,7 +136,12 @@ Y.augment(EVENT, Y.EventTarget);
 
 EVENTMANAGER = {
     add_event : function(config) {
+        console.log("Adding new event");
+        console.log(config);
         new EVENT(config);
+    },
+    add_events: function(events) {
+        Y.Array.each(events, this.add_event);
     }
 };
 

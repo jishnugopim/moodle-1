@@ -179,6 +179,15 @@ function calendar_get_starting_weekday() {
  */
 function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyear = false, $placement = false,
     $courseid = false, $time = 0) {
+    global $PAGE;
+    $data = calendar_get_mini_content($courses, $groups, $users, $calmonth, $calyear, $placement, $courseid, $time);
+
+    $PAGE->requires->yui_module('moodle-calendar-eventmanager', 'M.core_calendar.add_events', array($data->popupdata));
+
+    return $data->content;
+}
+
+function calendar_get_mini_content($courses, $groups, $users, $calmonth, $calyear, $placement, $courseid, $time) {
     global $CFG, $OUTPUT;
 
     // Get the calendar type we are using.
@@ -190,6 +199,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
     $display->thismonth = false;
 
     $content = '';
+    $popupdata = array();
 
     // Do this check for backwards compatibility. The core should be passing a timestamp rather than month and year.
     // If a month and year are passed they will be in Gregorian.
@@ -383,9 +393,13 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
 
             //Accessibility: functionality moved to calendar_get_popup.
             if($display->thismonth && $day == $d) {
-                $popupid = calendar_get_popup(true, $events[$eventid]->timestart, $popupcontent);
+                $popup = calendar_get_popup(true, $events[$eventid]->timestart, $popupcontent);
+                $popupid = $popup['eventId'];
+                $popupdata[] = $popup;
             } else {
-                $popupid = calendar_get_popup(false, $events[$eventid]->timestart, $popupcontent);
+                $popup = calendar_get_popup(false, $events[$eventid]->timestart, $popupcontent);
+                $popupid = $popup['eventId'];
+                $popupdata[] = $popup;
             }
 
             // Class and cell content
@@ -440,7 +454,9 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
 
             if(! isset($eventsbyday[$day])) {
                 $class .= ' eventnone';
-                $popupid = calendar_get_popup(true, false);
+                $popup = calendar_get_popup(true, false);
+                $popupid = $popup['eventId'];
+                $popupdata[] = $popup;
                 $cell = html_writer::link('#', $day, array('id' => $popupid));
             }
             $cell = get_accesshide($today.' ').$cell;
@@ -461,7 +477,10 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
 
     $content .= '</table>'; // Tabular display of days ends
 
-    return $content;
+    $return = new stdClass();
+    $return->content = $content;
+    $return->popupdata = $popupdata;
+    return $return;
 }
 
 /**
@@ -476,27 +495,26 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
  * @return string eventid for the calendar_tooltip popup window/layout.
  */
 function calendar_get_popup($is_today, $event_timestart, $popupcontent='') {
-    global $PAGE;
-    static $popupcount;
-    if ($popupcount === null) {
-        $popupcount = 1;
-    }
+    static $popupcount = 0;
     $popupcaption = '';
-    if($is_today) {
-        $popupcaption = get_string('today', 'calendar').' ';
+    if ($is_today) {
+        $popupcaption = get_string('today', 'calendar') . ' ';
     }
     if (false === $event_timestart) {
         $popupcaption .= userdate(time(), get_string('strftimedayshort'));
         $popupcontent = get_string('eventnone', 'calendar');
-
     } else {
         $popupcaption .= get_string('eventsfor', 'calendar', userdate($event_timestart, get_string('strftimedayshort')));
     }
-    $id = 'calendar_tooltip_'.$popupcount;
-    $PAGE->requires->yui_module('moodle-calendar-eventmanager', 'M.core_calendar.add_event', array(array('eventId'=>$id,'title'=>$popupcaption, 'content'=>$popupcontent)));
-
+    $popuptime = (int) (microtime(true) * 100);
+    $id = 'calendar_tooltip_' . $popuptime . '_' . $popupcount;
     $popupcount++;
-    return $id;
+
+    return array(
+        'eventId'   => $id,
+        'title'     => $popupcaption,
+        'content'   => $popupcontent,
+    );
 }
 
 /**
