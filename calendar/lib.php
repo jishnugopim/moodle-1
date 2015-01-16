@@ -179,7 +179,7 @@ function calendar_get_starting_weekday() {
  */
 function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyear = false, $placement = false,
     $courseid = false, $time = 0) {
-    global $CFG, $OUTPUT;
+    global $CFG, $OUTPUT, $PAGE;
 
     // Get the calendar type we are using.
     $calendartype = \core_calendar\type_factory::get_calendar_instance();
@@ -190,6 +190,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
     $display->thismonth = false;
 
     $content = '';
+    $id = 'foo1234';
 
     // Do this check for backwards compatibility. The core should be passing a timestamp rather than month and year.
     // If a month and year are passed they will be in Gregorian.
@@ -289,7 +290,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
 
     // Accessibility: added summary and <abbr> elements.
     $summary = get_string('calendarheading', 'calendar', userdate($display->tstart, get_string('strftimemonthyear')));
-    $content .= '<table class="minicalendar calendartable" summary="'.$summary.'">'; // Begin table.
+    $content .= '<table id="' . $id . '" class="minicalendar calendartable" summary="'.$summary.'">'; // Begin table.
     if (($placement !== false) && ($courseid !== false)) {
         $content .= '<caption>'. calendar_top_controls($placement, array('id' => $courseid, 'time' => $time)) .'</caption>';
     }
@@ -320,6 +321,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
     // Now display all the calendar
     $daytime = strtotime('-1 day', $display->tstart);
     for($day = 1; $day <= $display->maxdays; ++$day, ++$dayweek) {
+        $cellattributes = array();
         $daytime = strtotime('+1 day', $daytime);
         if($dayweek > $display->maxwday) {
             // We need to change week (table row)
@@ -336,8 +338,8 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
             $class = 'day';
         }
 
-        // Special visual fx if an event is defined
-        if(isset($eventsbyday[$day])) {
+        if (isset($eventsbyday[$day])) {
+            // There is at least one event on this day.
 
             $class .= ' hasevent';
             $hrefparams['view'] = 'day';
@@ -381,11 +383,12 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
                 $popupcontent .= html_writer::end_tag('div');
             }
 
-            //Accessibility: functionality moved to calendar_get_popup.
-            if($display->thismonth && $day == $d) {
-                $popupid = calendar_get_popup(true, $events[$eventid]->timestart, $popupcontent);
+            if ($display->thismonth && $day == $d) {
+                $popupdata = calendar_get_popup(true, $events[$eventid]->timestart, $popupcontent);
+                $cellattributes = array_merge($cellattributes, $popupdata);
             } else {
-                $popupid = calendar_get_popup(false, $events[$eventid]->timestart, $popupcontent);
+                $popupdata = calendar_get_popup(false, $events[$eventid]->timestart, $popupcontent);
+                $cellattributes = array_merge($cellattributes, $popupdata);
             }
 
             // Class and cell content
@@ -398,7 +401,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
             } else if(isset($typesbyday[$day]['startuser'])) {
                 $class .= ' calendar_event_user';
             }
-            $cell = html_writer::link($dayhref, $day, array('id' => $popupid));
+            $cell = html_writer::link($dayhref, $day);
         } else {
             $cell = $day;
         }
@@ -440,17 +443,16 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
 
             if(! isset($eventsbyday[$day])) {
                 $class .= ' eventnone';
-                $popupid = calendar_get_popup(true, false);
-                $cell = html_writer::link('#', $day, array('id' => $popupid));
+                $popupdata = calendar_get_popup(true, false);
+                $cellattributes = array_merge($cellattributes, $popupdata);
+                $cell = html_writer::link('#', $day);
             }
             $cell = get_accesshide($today.' ').$cell;
         }
 
         // Just display it
-        if(!empty($class)) {
-            $class = ' class="'.$class.'"';
-        }
-        $content .= '<td'.$class.'>'.$cell."</td>\n";
+        $cellattributes['class'] = $class;
+        $content .= html_writer::tag('td', $cell, $cellattributes);
     }
 
     // Paddding (the last week may have blank days at the end)
@@ -461,6 +463,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
 
     $content .= '</table>'; // Tabular display of days ends
 
+    $PAGE->requires->yui_module('moodle-calendar-info', 'Y.M.calendar.info.init', array(array('calendarNode' => $id)));
     return $content;
 }
 
@@ -475,28 +478,26 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
  * @param string $popupcontent content for the popup window/layout.
  * @return string eventid for the calendar_tooltip popup window/layout.
  */
-function calendar_get_popup($is_today, $event_timestart, $popupcontent='') {
+function calendar_get_popup($today = false, $timestart, $popupcontent = '') {
     global $PAGE;
-    static $popupcount;
-    if ($popupcount === null) {
-        $popupcount = 1;
-    }
+
     $popupcaption = '';
-    if($is_today) {
-        $popupcaption = get_string('today', 'calendar').' ';
+    if ($today) {
+        $popupcaption = get_string('today', 'calendar') . ' ';
     }
-    if (false === $event_timestart) {
+
+    if (false === $timestart) {
         $popupcaption .= userdate(time(), get_string('strftimedayshort'));
         $popupcontent = get_string('eventnone', 'calendar');
 
     } else {
-        $popupcaption .= get_string('eventsfor', 'calendar', userdate($event_timestart, get_string('strftimedayshort')));
+        $popupcaption .= get_string('eventsfor', 'calendar', userdate($timestart, get_string('strftimedayshort')));
     }
-    $id = 'calendar_tooltip_'.$popupcount;
-    $PAGE->requires->yui_module('moodle-calendar-eventmanager', 'M.core_calendar.add_event', array(array('eventId'=>$id,'title'=>$popupcaption, 'content'=>$popupcontent)));
 
-    $popupcount++;
-    return $id;
+    return array(
+        'data-title' => $popupcaption,
+        'data-popupcontent' => $popupcontent,
+    );
 }
 
 /**
