@@ -4006,6 +4006,29 @@ function forum_move_attachments($discussion, $forumfrom, $forumto) {
 }
 
 /**
+ * Fetch a standardised list of attachments to the forum post.
+ *
+ * @param object $post The forum post to retrieve attachments for.
+ * @param context_module $context The context for the forum.
+ * @return array of attachments for this forum post.
+ */
+function forum_get_attachments(stdClass $post, context_module $context) {
+    $attachments = array();
+
+    if (empty($post->attachment)) {
+        // No attachments are present in the post.
+        return $attachments;
+    }
+
+    // We retrieve all files according to the time that they were created.  In the case that several files were uploaded
+    // at the sametime (e.g. in the case of drag/drop upload) we revert to using the filename.
+    $fs = get_file_storage();
+    $attachments = $fs->get_area_files($context->id, 'mod_forum', 'attachment', $post->id, "filename", false);
+
+    return $attachments;
+}
+
+/**
  * Returns attachments as formated text/html optionally with separate images
  *
  * @global object
@@ -4032,8 +4055,6 @@ function forum_print_attachments($post, $cm, $type) {
     }
     $strattachment = get_string('attachment', 'forum');
 
-    $fs = get_file_storage();
-
     $imagereturn = '';
     $output = '';
 
@@ -4043,9 +4064,7 @@ function forum_print_attachments($post, $cm, $type) {
         require_once($CFG->libdir.'/portfoliolib.php');
     }
 
-    // We retrieve all files according to the time that they were created.  In the case that several files were uploaded
-    // at the sametime (e.g. in the case of drag/drop upload) we revert to using the filename.
-    $files = $fs->get_area_files($context->id, 'mod_forum', 'attachment', $post->id, "filename", false);
+    $files = forum_get_attachments($post, $context);
     if ($files) {
         if ($canexport) {
             $button = new portfolio_add_button();
