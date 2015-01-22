@@ -62,21 +62,38 @@ class message_output_email extends message_output {
         }
 
         // Check if we have attachments to send.
-        $attachment = '';
-        $attachname = '';
-        if (!empty($CFG->allowattachments) && !empty($eventdata->attachment)) {
-            if (empty($eventdata->attachname)) {
-                // Attachment needs a file name.
-                debugging('Attachments should have a file name. No attachments have been sent.', DEBUG_DEVELOPER);
-            } else if (!($eventdata->attachment instanceof stored_file)) {
-                // Attachment should be of a type stored_file.
-                debugging('Attachments should be of type stored_file. No attachments have been sent.', DEBUG_DEVELOPER);
-            } else {
-                // Copy attachment file to a temporary directory and get the file path.
-                $attachment = $eventdata->attachment->copy_content_to_temp();
+        $attachments = array();
+        if (!empty($CFG->allowattachments)) {
+            // Normalise the attachment data.
+            if (!empty($eventdata->attachment)) {
+                debugging('The attachment and attachname parameters have been deprecated. ' .
+                          'Please place attachments into the attachments array instead.', DEBUG_DEVELOPER);
 
-                // Get attachment file name.
-                $attachname = clean_filename($eventdata->attachname);
+                if (empty($eventdata->attachname)) {
+                    // Attachment needs a file name.
+                    debugging('Attachments should have a file name. Attachment has not been added.', DEBUG_DEVELOPER);
+                } else {
+                    // Add the attachment to the attachments array.
+                    $eventdata->attachments = array($eventdata->attachment => $eventdata->attachname);
+                }
+            }
+
+            if (!empty($eventdata->attachments)) {
+                foreach ($eventdata->attachments as $attachname => $attachment) {
+                    if (!$attachment instanceof stored_file) {
+                        // Attachment should be of a type stored_file.
+                        debugging('Attachments should be of type stored_file. Attachment has not been added.', DEBUG_DEVELOPER);
+                    } else {
+                        // Copy attachment file to a temporary directory and get the file path.
+                        $attachment = $attachment->copy_content_to_temp();
+
+                        // Get attachment file name.
+                        $attachname = clean_filename($attachname);
+
+                        // Add the attachment details to the array.
+                        $attachments[$attachname] = $attachment;
+                    }
+                }
             }
         }
 
@@ -91,7 +108,7 @@ class message_output_email extends message_output {
         }
 
         $result = email_to_user($recipient, $eventdata->userfrom, $eventdata->subject, $eventdata->fullmessage,
-                                $eventdata->fullmessagehtml, $attachment, $attachname, true, $replyto, $replytoname);
+                                $eventdata->fullmessagehtml, $attachments, null, true, $replyto, $replytoname);
 
         // Remove an attachment file if any.
         if (!empty($attachment) && file_exists($attachment)) {

@@ -1,6 +1,13 @@
 This files describes API changes in /message/ messaging system,
 information provided here is intended especially for developers.
 
+=== 2.9 ===
+* Message processor now supports multiple attachments.  Message processors that can support
+  attachments can now use the attachment parameter as a part of $eventdata.
+  To send attachments, $eventdata->attachments should contain an array whose index is the attachment name, and whose
+  value is a stored_file containing the attachment. The $eventdata->attachment parameter has been deprecated.
+  Note: Currently, the email message processor is the only one to support attachments.
+
 === 2.6 ===
 * Message processor extending message_output, should return true in can_send_to_any_users()
   if it supports message sending to internal (noreply/support) users.

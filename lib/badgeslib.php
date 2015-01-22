@@ -696,8 +696,8 @@ function badges_notify_badge_award(badge $badge, $userid, $issued, $filepathhash
     if (!empty($CFG->allowattachments) && $badge->attachment && is_string($filepathhash)) {
         $fs = get_file_storage();
         $file = $fs->get_file_by_hash($filepathhash);
-        $eventdata->attachment = $file;
-        $eventdata->attachname = str_replace(' ', '_', $badge->name) . ".png";
+        $attachname = str_replace(' ', '_', $badge->name) . ".png";
+        $eventdata->attachments = array($attachname => $file);
 
         message_send($eventdata);
     } else {

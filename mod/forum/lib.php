@@ -1108,10 +1108,9 @@ function forum_cron() {
                     $posthtml = '';
                 }
 
-                $attachment = $attachname='';
                 // Directly email forum digests rather than sending them via messaging, use the
                 // site shortname as 'from name', the noreply address will be used by email_to_user.
-                $mailresult = email_to_user($userto, $site->shortname, $postsubject, $posttext, $posthtml, $attachment, $attachname);
+                $mailresult = email_to_user($userto, $site->shortname, $postsubject, $posttext, $posthtml);
 
                 if (!$mailresult) {
                     mtrace("ERROR: mod/forum/cron.php: Could not send out digest mail to user $userto->id ".

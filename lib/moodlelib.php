@@ -5747,8 +5747,9 @@ function get_mailer($action='get') {
  * @param string $subject plain text subject line of the email
  * @param string $messagetext plain text version of the message
  * @param string $messagehtml complete html version of the message (optional)
- * @param string $attachment a file on the filesystem, either relative to $CFG->dataroot or a full path to a file in $CFG->tempdir
- * @param string $attachname the name of the file (extension indicates MIME)
+ * @param string $attachments an array of filenames to files on the filesystem.
+ * Files should either be relative to $CFG->dataroot, or a full path to a file in $CFG->tempdir.
+ * @param string $attachname the name of the file (extension indicates MIME) Deprecated since Moodle 2.9.
  * @param bool $usetrueaddress determines whether $from email address should
  *          be sent out. Will be overruled by user profile setting for maildisplay
  * @param string $replyto Email address to reply to
@@ -5756,7 +5757,7 @@ function get_mailer($action='get') {
  * @param int $wordwrapwidth custom word wrap width, default 79
  * @return bool Returns true if mail was sent OK and false if there was an error.
  */
-function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', $attachment = '', $attachname = '',
+function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', $attachments = null, $attachname = null,
                        $usetrueaddress = true, $replyto = '', $replytoname = '', $wordwrapwidth = 79) {
 
     global $CFG;
@@ -5774,6 +5775,11 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
     if (!empty($user->deleted)) {
         debugging('Can not send email to deleted user: '.$user->id, DEBUG_DEVELOPER);
         return false;
+    }
+
+    if (!empty($attachname)) {
+        debugging('The attachname parameter has been deprecated. Names should be specified in the attachments parameter.',
+                DEBUG_DEVELOPER);
     }
 
     if (defined('BEHAT_SITE_RUNNING')) {
@@ -5910,29 +5916,37 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
         $mail->Body =  "\n$messagetext\n";
     }
 
-    if ($attachment && $attachname) {
-        if (preg_match( "~\\.\\.~" , $attachment )) {
-            // Security check for ".." in dir path.
-            $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
-            $mail->addStringAttachment('Error in attachment.  User attempted to attach a filename with a unsafe name.', 'error.txt', '8bit', 'text/plain');
-        } else {
-            require_once($CFG->libdir.'/filelib.php');
-            $mimetype = mimeinfo('type', $attachname);
+    if ($attachments) {
+        if (!is_array($attachments) && $attachname) {
+            $attachments = array($attachment => $attachname);
+        }
 
-            $attachmentpath = $attachment;
+        foreach ($attachments as $attachname => $attachment) {
+            if (preg_match('/' . preg_quote('..') . '/' , $attachment)) {
+                // Security check for ".." in dir path.
+                $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
+                $mail->addStringAttachment('Error in attachment.  User attempted to attach a filename with an unsafe name.',
+                        'error.txt', '8bit', 'text/plain');
+            } else {
+                require_once($CFG->libdir . '/filelib.php');
+                $mimetype = mimeinfo('type', $attachname);
 
-            // Before doing the comparison, make sure that the paths are correct (Windows uses slashes in the other direction).
-            $attachpath = str_replace('\\', '/', $attachmentpath);
-            // Make sure both variables are normalised before comparing.
-            $temppath = str_replace('\\', '/', $CFG->tempdir);
+                $attachmentpath = $attachment;
 
-            // If the attachment is a full path to a file in the tempdir, use it as is,
-            // otherwise assume it is a relative path from the dataroot (for backwards compatibility reasons).
-            if (strpos($attachpath, $temppath) !== 0) {
-                $attachmentpath = $CFG->dataroot . '/' . $attachmentpath;
+                // Before doing the comparison, make sure that the paths are correct (Windows uses slashes in the other direction).
+                $attachpath = str_replace('\\', '/', $attachmentpath);
+
+                // Make sure both variables are normalised before comparing.
+                $temppath = str_replace('\\', '/', $CFG->tempdir);
+
+                // If the attachment is a full path to a file in the tempdir, use it as is,
+                // otherwise assume it is a relative path from the dataroot (for backwards compatibility reasons).
+                if (strpos($attachpath, $temppath) !== 0) {
+                    $attachmentpath = $CFG->dataroot . '/' . $attachmentpath;
+                }
+
+                $mail->addAttachment($attachmentpath, $attachname, 'base64', $mimetype);
             }
-
-            $mail->addAttachment($attachmentpath, $attachname, 'base64', $mimetype);
         }
     }
 
