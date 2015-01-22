@@ -615,6 +615,7 @@ function forum_cron() {
                 $forum      = $forums[$discussion->forum];
                 $course     = $courses[$forum->course];
                 $cm         =& $coursemodules[$forum->id];
+                $modcontext = context_module::instance($cm->id);
 
                 // Do some checks to see if we can bail out now.
 
@@ -673,11 +674,9 @@ function forum_cron() {
 
                 // Fill caches.
                 if (!isset($userto->viewfullnames[$forum->id])) {
-                    $modcontext = context_module::instance($cm->id);
                     $userto->viewfullnames[$forum->id] = has_capability('moodle/site:viewfullnames', $modcontext);
                 }
                 if (!isset($userto->canpost[$discussion->id])) {
-                    $modcontext = context_module::instance($cm->id);
                     $userto->canpost[$discussion->id] = forum_user_can_post($forum, $discussion, $userto, $cm, $course, $modcontext);
                 }
                 if (!isset($userfrom->groups[$forum->id])) {
@@ -786,6 +785,15 @@ function forum_cron() {
                 $eventdata->fullmessagehtml     = $posthtml;
                 $eventdata->notification        = 1;
                 $eventdata->replyto             = $replyaddress;
+
+                // Add the forum attachments to the e-mail.
+                $attachments = forum_get_attachments($post, $modcontext);
+                if (!empty($attachments)) {
+                    $eventdata->attachments = array();
+                    foreach ($attachments as $file) {
+                        $eventdata->attachments[$file->get_filename()] = $file;
+                    }
+                }
 
                 // If forum_replytouser is not set then send mail using the noreplyaddress.
                 if (empty($CFG->forum_replytouser)) {
