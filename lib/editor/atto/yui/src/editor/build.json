@@ -26,6 +26,11 @@
             "jsfiles": [
                 "menu.js"
             ]
+        },
+        "moodle-editor_atto-manager": {
+            "jsfiles": [
+                "manager.js"
+            ]
         }
     }
 }

@@ -135,7 +135,7 @@ class atto_texteditor extends texteditor {
                 'info'
             ), 'moodle');
         $PAGE->requires->yui_module($modules,
-                                    'Y.M.editor_atto.Editor.init',
+                                    'YUI.M.editor_atto.createEditor',
                                     array($this->get_init_params($elementid, $options, $fpoptions, $jsplugins)));
 
     }
