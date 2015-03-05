@@ -106,10 +106,15 @@ class lock {
             // Always release the lock.
             $this->release();
 
+            $message  = '\core\lock\lock(' . $this->key . ') has fallen out of scope without being released.' . "\n";
+            $message .= 'Locks must ALWAYS be released by calling $mylock->release().';
             if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
-                throw new \coding_exception('\core\lock\lock(' . $this->key . ') has fallen out of scope ' .
-                                            'without being released.' . "\n" .
-                                            'Locks must ALWAYS be released by calling $mylock->release().');
+                // Throw an exception for phpunit. It's possible that the debugging may be missed if the debugging
+                // output is being captured and discarded.
+                throw new \coding_exception($message);
+            } else {
+                debugging($message, DEBUG_DEVELOPER);
+            }
             }
         }
     }
