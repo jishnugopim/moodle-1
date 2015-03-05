@@ -106,15 +106,18 @@ class lock {
             // Always release the lock.
             $this->release();
 
-            $message  = '\core\lock\lock(' . $this->key . ') has fallen out of scope without being released.' . "\n";
-            $message .= 'Locks must ALWAYS be released by calling $mylock->release().';
-            if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
-                // Throw an exception for phpunit. It's possible that the debugging may be missed if the debugging
-                // output is being captured and discarded.
-                throw new \coding_exception($message);
-            } else {
-                debugging($message, DEBUG_DEVELOPER);
-            }
+            // If this is a fatal error, there is no point warning about the lock closure. This is a side-effect of an
+            // early termination. Only display warnings and errors on non-fatal closure.
+            if (!\core_shutdown_manager::is_fatal_shutdown()) {
+                $message  = '\core\lock\lock(' . $this->key . ') has fallen out of scope without being released.' . "\n";
+                $message .= 'Locks must ALWAYS be released by calling $mylock->release().';
+                if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+                    // Throw an exception for phpunit. It's possible that the debugging may be missed if the debugging
+                    // output is being captured and discarded.
+                    throw new \coding_exception($message);
+                } else {
+                    debugging($message, DEBUG_DEVELOPER);
+                }
             }
         }
     }
