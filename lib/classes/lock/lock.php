@@ -102,11 +102,15 @@ class lock {
      * Print debugging if this lock falls out of scope before being released.
      */
     public function __destruct() {
-        if (!$this->released && defined('PHPUNIT_TEST')) {
+        if (!$this->released) {
+            // Always release the lock.
             $this->release();
-            throw new \coding_exception('\core\lock\lock(' . $this->key . ') has fallen out of scope ' .
-                                        'without being released.' . "\n" .
-                                        'Locks must ALWAYS be released by calling $mylock->release().');
+
+            if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+                throw new \coding_exception('\core\lock\lock(' . $this->key . ') has fallen out of scope ' .
+                                            'without being released.' . "\n" .
+                                            'Locks must ALWAYS be released by calling $mylock->release().');
+            }
         }
     }
 
