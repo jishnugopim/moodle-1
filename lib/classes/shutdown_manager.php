@@ -157,4 +157,20 @@ class core_shutdown_manager {
             }
         }
     }
+
+    /**
+     * Determine whether this is a fatal shutdown.
+     *
+     * @return bool
+     */
+    public static function is_fatal_shutdown() {
+        $error = error_get_last();
+        if ($error) {
+            // Check for any of the fatal shutdown types.
+            if ($error['type'] & (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
