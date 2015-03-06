@@ -605,16 +605,10 @@ BRANCH.prototype = {
      * @return Bool
      */
     ajaxLoad : function(e) {
-        if (e.type === 'actionkey' && e.action !== 'enter') {
-            e.halt();
-        } else {
-            e.stopPropagation();
-        }
-        if ((e.type === 'actionkey' && e.action === 'enter') || e.target.test('a')) {
-            // No ajaxLoad for enter.
-            this.node.setAttribute('data-expandable', '0');
-            this.node.setAttribute('data-loaded', '1');
-            return true;
+        if (e.target.test('a') && (e.action === 'enter' || e.type === 'click')) {
+            // Do not perform an ajaxLoad when the link is clicked or the return key is pressed on it.
+            // Links should still behave like links. We must not halt here.
+            return;
         }
 
         if (this.node.hasClass('loadingbranch')) {
