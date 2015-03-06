@@ -590,6 +590,7 @@ class completion_info {
         // If changed, update
         if ($newstate != $current->completionstate) {
             $current->completionstate = $newstate;
+            sleep(1);
             $current->timemodified    = time();
             $this->internal_set_data($cm, $current);
         }
