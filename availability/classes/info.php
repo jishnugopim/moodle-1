@@ -647,8 +647,11 @@ abstract class info {
      * @param int|\stdClass $courseorid
      * @return string Correctly formatted info string
      */
-    public static function format_info($info, $courseorid) {
+    public static function format_info($inforenderable, $courseorid) {
+        global $PAGE;
         // Don't waste time if there are no special tags.
+        $renderer = $PAGE->get_renderer('core', 'availability');
+        $info = $renderer->render($inforenderable);
         if (strpos($info, '<AVAILABILITY_') === false) {
             return $info;
         }

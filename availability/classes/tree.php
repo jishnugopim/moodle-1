@@ -504,8 +504,8 @@ class tree extends tree_node {
         }
 
         // Format output for display.
-        $renderer = $PAGE->get_renderer('core', 'availability');
-        return $renderer->multiple_messages($root, $andoperator, $treehidden, $items);
+        global $CFG;
+        return new \core_availability_multiple_messages($root, $andoperator, $treehidden, $items);
     }
 
     /**
