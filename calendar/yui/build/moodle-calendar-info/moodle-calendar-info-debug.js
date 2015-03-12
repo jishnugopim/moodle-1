@@ -189,9 +189,6 @@ Y.extend(Info, Y.Base, {
                 ])
             // Show it.
             .show();
-
-        bb.setAttribute('tabindex', '0')
-          .focus();
     },
 
     /**
