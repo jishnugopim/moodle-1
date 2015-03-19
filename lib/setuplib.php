@@ -1344,6 +1344,42 @@ function check_dir_exists($dir, $create = true, $recursive = true) {
 }
 
 /**
+ * Create a new unique directory within the specified directory.
+ *
+ * @param string $basedir The directory to create your new unique directory within.
+ * @return string The created directory
+ * @throws invalid_dataroot_permissions
+ */
+function make_unique_writable_directory($basedir, $exceptiononerror = true) {
+    if (!is_dir($basedir) || !is_writable($basedir)) {
+        // The basedir is not writable. We will not be able to create the child directory.
+        if ($exceptiononerror) {
+            throw new invalid_dataroot_permissions($basedir . ' is not writable. Unable to create a unique directory within it.');
+        } else {
+            return false;
+        }
+    }
+
+    do {
+        $uniquedir = $basedir . DIRECTORY_SEPARATOR . uniqid();
+        $exists = file_exists($uniquedir);
+    } while (!$exists &&
+             is_writable($basedir) &&
+             !make_writable_directory($uniquedir, $exceptiononerror));
+
+    // Check that the directory was correctly created.
+    if (!file_exists($uniquedir) || !is_dir($uniquedir) || !is_writable($uniquedir)) {
+        if ($exceptiononerror) {
+            throw new invalid_dataroot_permissions('Unique directory creation failed.');
+        } else {
+            return false;
+        }
+    }
+
+    return $uniquedir;
+}
+
+/**
  * Create a directory and make sure it is writable.
  *
  * @private
@@ -1432,6 +1468,51 @@ function make_upload_directory($directory, $exceptiononerror = true) {
 
     protect_directory($CFG->dataroot);
     return make_writable_directory("$CFG->dataroot/$directory", $exceptiononerror);
+}
+
+/**
+ * Get a per-request storage directory in the tempdir.
+ *
+ * The directory is automatically cleaned up during the shutdown handler.
+ *
+ * @param bool $exceptiononerror throw exception if error encountered
+ * @return string|false Returns full path to directory if successful, false if not; may throw exception
+ */
+function get_request_storage_directory($exceptiononerror = true) {
+    global $CFG;
+
+    static $requestdir = null;
+
+    if (!$requestdir || !file_exists($requestdir) || !is_dir($requestdir) || !is_writable($requestdir)) {
+        if ($CFG->localcachedir !== "$CFG->dataroot/localcache") {
+            check_dir_exists($CFG->localcachedir, true, true);
+            protect_directory($CFG->localcachedir);
+        } else {
+            protect_directory($CFG->dataroot);
+        }
+
+        if ($requestdir = make_unique_writable_directory($CFG->localcachedir, $exceptiononerror)) {
+            // Register a shutdown handler to remove the directory.
+            \core_shutdown_manager::register_function('remove_dir', array($requestdir));
+        }
+    }
+
+    return $requestdir;
+}
+
+/**
+ * Create a per-request directory and make sure it is writable.
+ * This can only be used during the current request and will be tidied away
+ * automatically afterwards.
+ *
+ * A new, unique directory is always created within the current request directory.
+ *
+ * @param bool $exceptiononerror throw exception if error encountered
+ * @return string full path to directory if successful, false if not; may throw exception
+ */
+function make_request_directory($exceptiononerror = true) {
+    $basedir = get_request_storage_directory($exceptiononerror);
+    return make_unique_writable_directory($basedir, $exceptiononerror);
 }
 
 /**
