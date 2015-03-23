@@ -279,26 +279,46 @@ function process_new_icon($context, $component, $filearea, $itemid, $originalfil
  * @return string|bool false if a problem occurs, the thumbnail image data otherwise
  */
 function generate_image_thumbnail($filepath, $width, $height) {
-    global $CFG;
-
     if (empty($filepath) or empty($width) or empty($height)) {
         return false;
     }
 
-    $imageinfo = getimagesize($filepath);
+    $filedata = file_get_contents($filepath);
+    return generate_image_thumbnail_from_string($filedata, $width, $height);
+}
 
+/**
+ * Generates a thumbnail for the given image string.
+ *
+ * If the GD library has at least version 2 and PNG support is available, the returned data
+ * is the content of a transparent PNG file containing the thumbnail. Otherwise, the function
+ * returns contents of a JPEG file with black background containing the thumbnail.
+ *
+ * @param   string $filedata The image content as a string
+ * @param   int $width the width of the requested thumbnail
+ * @param   int $height the height of the requested thumbnail
+ * @return  string|bool false if a problem occurs, the thumbnail image data otherwise
+ */
+function generate_image_thumbnail_from_string($filedata, $width, $height) {
+    global $CFG;
+
+    if (empty($filedata) or empty($width) or empty($height)) {
+        return false;
+    }
+
+    $imageinfo = @getimagesizefromstring($filedata);
     if (empty($imageinfo)) {
         return false;
     }
 
-    $originalwidth = $imageinfo[0];
+    $originalwidth  = $imageinfo[0];
     $originalheight = $imageinfo[1];
 
     if (empty($originalwidth) or empty($originalheight)) {
         return false;
     }
 
-    $original = imagecreatefromstring(file_get_contents($filepath));
+    $original = @imagecreatefromstring($filedata);
 
     if (function_exists('imagepng')) {
         $imagefnc = 'imagepng';
@@ -327,12 +347,12 @@ function generate_image_thumbnail($filepath, $width, $height) {
     $ratio = min($width / $originalwidth, $height / $originalheight);
 
     if ($ratio < 1) {
-        $targetwidth = floor($originalwidth * $ratio);
-        $targetheight = floor($originalheight * $ratio);
+        $targetwidth    = floor($originalwidth * $ratio);
+        $targetheight   = floor($originalheight * $ratio);
     } else {
-        // do not enlarge the original file if it is smaller than the requested thumbnail size
-        $targetwidth = $originalwidth;
-        $targetheight = $originalheight;
+        // Do not enlarge the original file if it is smaller than the requested thumbnail size.
+        $targetwidth    = $originalwidth;
+        $targetheight   = $originalheight;
     }
 
     $dstx = floor(($width - $targetwidth) / 2);
@@ -340,6 +360,7 @@ function generate_image_thumbnail($filepath, $width, $height) {
 
     imagecopybicubic($thumbnail, $original, $dstx, $dsty, 0, 0, $targetwidth, $targetheight, $originalwidth, $originalheight);
 
+    // Capture the image as a string object, rather than straight to file.
     ob_start();
     if (!$imagefnc($thumbnail, null, $quality, $filters)) {
         ob_end_clean();

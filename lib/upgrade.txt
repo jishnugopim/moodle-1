@@ -27,6 +27,8 @@ information provided here is intended especially for developers.
   set $CFG->usezipbackups to store them in zip format. This does not affect the restore process, which continues accepting both.
 * Added support for custom string manager implementations via $CFG->customstringmanager
   directive in the config.php. See MDL-49361 for details.
+* Added generate_image_thumbnail_from_string. This can be used instead of generate_image_thumbnail when the source is a
+  string. Doing so saves writing a temporary file to disk unnecessarily.
 
 === 2.8 ===
 
