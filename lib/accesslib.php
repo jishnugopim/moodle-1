@@ -2510,8 +2510,8 @@ function get_cached_capabilities($component = 'moodle') {
     $caps = get_all_capabilities();
     $componentcaps = array();
     foreach ($caps as $cap) {
-        if ($cap->component == $component) {
-            $componentcaps[] = $cap;
+        if ($cap['component'] == $component) {
+            $componentcaps[] = (object) $cap;
         }
     }
     return $componentcaps;
@@ -2536,9 +2536,9 @@ function get_default_capabilities($archetype) {
     $allcaps = get_all_capabilities();
 
     foreach ($allcaps as $cap) {
-        if (!in_array($cap->component, $components)) {
-            $components[] = $cap->component;
-            $alldefs = array_merge($alldefs, load_capability_def($cap->component));
+        if (!in_array($cap['component'], $components)) {
+            $components[] = $cap['component'];
+            $alldefs = array_merge($alldefs, load_capability_def($cap['component']));
         }
     }
     foreach($alldefs as $name=>$def) {
@@ -2947,7 +2947,7 @@ function get_capability_info($capabilityname) {
         return null;
     }
 
-    return $caps[$capabilityname];
+    return (object) $caps[$capabilityname];
 }
 
 /**
@@ -2961,13 +2961,11 @@ function get_all_capabilities() {
     if (!$allcaps = $cache->get('core_capabilities')) {
         $allcaps = $DB->get_records('capabilities', null, '', 'name as uniquename, *');
         foreach ($allcaps as $k => $v) {
+            unset($v->uniquename);
             $v->riskbitmask = (int) $v->riskbitmask;
+            $allcaps[$k] = (array) $v;
         }
         $cache->set('core_capabilities', $allcaps);
-    }
-    // Convert back to objects to emulate get_records. Loop is faster than the MUC unref.
-    foreach ($allcaps as $k => $v) {
-        $allcaps[$k] = clone $v;
     }
     return $allcaps;
 }
