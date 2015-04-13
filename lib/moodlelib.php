@@ -5480,11 +5480,25 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
         return false;
     }
 
-    // TLD .invalid  is specifically reserved for invalid domain names.
-    // For More information, see {@link http://tools.ietf.org/html/rfc2606#section-2}.
-    if (substr($user->email, -8) == '.invalid') {
-        debugging("email_to_user: User $user->id (".fullname($user).") email domain ($user->email) is invalid! Not sending.");
-        return true; // This is not an error.
+    // Silently drop mail for RFC-2606 domains.
+    // These are valid domains which can be used for testing, documentation, and examples.
+    // They should never actually deliver messages so it is safe to blackhole them here.
+    // For More information, see {@link http://tools.ietf.org/html/rfc2606#section-2} and
+    // {@link http://tools.ietf.org/html/rfc2606#section-3}.
+    $rfc2606 = array(
+            '.test',
+            '.invalid',
+            '.example',
+            '.localhost',
+            'example.com',
+            'example.net',
+            'example.org',
+        );
+
+    foreach ($rfc2606 as $nomaildomain) {
+        if (substr($user->email, 0 - strlen($nomaildomain)) === $nomaildomain) {
+            return true;
+        }
     }
 
     // If the user is a remote mnet user, parse the email text for URL to the
