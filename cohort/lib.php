@@ -509,9 +509,9 @@ function cohort_edit_controls(context $context, moodle_url $currenturl) {
 }
 
 /**
- * Get cohorts where the given user is member of
+ * Get cohorts where the given user is member of.
  *
- * Capability to view or mange cohorts on each cohort level is required regardless of cohort visibility
+ * Capability to view or manage cohorts on each cohort level is required regardless of cohort visibility.
  *
  * @param int $userid
  * @return array $cohorts
@@ -520,7 +520,7 @@ function cohort_get_user_cohorts($userid) {
     global $DB;
 
     $sql = "SELECT DISTINCT c.*, " . context_helper::get_preload_record_columns_sql('ctx') . "
-             FROM {cohort} c, {cohort_members} cm, {context} ctx
+              FROM {cohort} c, {cohort_members} cm, {context} ctx
              WHERE c.id = cm.cohortid AND cm.userid = :userid AND c.contextid = ctx.id
              ORDER BY c.name ASC, c.idnumber ASC";
     $params = array('userid' => $userid);
@@ -539,7 +539,7 @@ function cohort_get_user_cohorts($userid) {
 
 
 /**
- * Get cohorts where the given user is member of that are defined course parent categories' contexts
+ * Get cohorts where the given user is a member of the specified context, or the parent category's context.
  *
  * @param int $userid
  * @param context $coursecontext
@@ -556,9 +556,9 @@ function cohort_get_user_course_cohorts($userid, $coursecontext) {
     list($contextsql, $contextparams) = $DB->get_in_or_equal($parentcontexts, SQL_PARAMS_NAMED);
 
     $sql = "SELECT DISTINCT c.*, " . context_helper::get_preload_record_columns_sql('ctx') . "
-             FROM {cohort} c, {cohort_members} cm, {context} ctx
+              FROM {cohort} c, {cohort_members} cm, {context} ctx
              WHERE c.id = cm.cohortid AND cm.userid = :userid AND c.contextid = ctx.id
-             AND c.contextid " . $contextsql . "
+               AND c.contextid " . $contextsql . "
              ORDER BY c.name ASC, c.idnumber ASC";
     $params = array_merge(array('userid' => $userid), $contextparams);
 
@@ -573,4 +573,3 @@ function cohort_get_user_course_cohorts($userid, $coursecontext) {
 
     return $cohorts;
 }
-
