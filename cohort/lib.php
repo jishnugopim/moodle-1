@@ -555,11 +555,13 @@ function cohort_get_user_course_cohorts($userid, $coursecontext) {
     $parentcontexts = $coursecontext->get_parent_context_ids();
     list($contextsql, $contextparams) = $DB->get_in_or_equal($parentcontexts, SQL_PARAMS_NAMED);
 
-    $sql = "SELECT DISTINCT c.*, " . context_helper::get_preload_record_columns_sql('ctx') . "
-              FROM {cohort} c, {cohort_members} cm, {context} ctx
-             WHERE c.id = cm.cohortid AND cm.userid = :userid AND c.contextid = ctx.id
-               AND c.contextid " . $contextsql . "
-             ORDER BY c.name ASC, c.idnumber ASC";
+    $sql = "SELECT DISTINCT c.id, " .
+                            context_helper::get_preload_record_columns_sql('ctx') . "
+              FROM {cohort} c
+              JOIN {cohort_members} cm ON cm.cohortid = c.id
+              JOIN {context} ctx ON ctx.id = c.contextid
+             WHERE cm.userid = :userid";
+
     $params = array_merge(array('userid' => $userid), $contextparams);
 
     $records = $DB->get_records_sql($sql, $params);
