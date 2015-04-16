@@ -30,49 +30,33 @@ define(['jquery', 'core/ajax', 'core/log', 'core/notification', 'core/templates'
      * @param {String} templateName The template name
      * @param {String} source The template source
      */
-    var templateLoaded = function(templateName, source) {
+    var templateLoaded = function(templateName, baseSource, themeSource) {
         str.get_string('templateselected', 'tool_templatelibrary', templateName).done(function(s) {
             $('[data-region="displaytemplateheader"]').text(s);
         }).fail(notification.exception);
 
-        // Find the comment section marked with @template component/template.
-        var marker = "@template " + templateName;
+        var themeSections   = findSections(templateName, themeSource),
+            baseSections,
+            example;
 
-        var sections = source.match(/{{!([\s\S]*?)}}/g);
-        var i = 0;
-
-        // If no sections match - show the entire file.
-        if (sections !== null) {
-            for (i = 0; i < sections.length; i++) {
-                var section = sections[i];
-                var start = section.indexOf(marker);
-                if (start !== -1) {
-                    // Remove {{! and }} from start and end.
-                    var offset = start + marker.length + 1;
-                    section = section.substr(offset, section.length - 2 - offset);
-                    source = section;
-                    break;
-                }
-            }
+        if (themeSections.example) {
+            example = themeSections.example;
         }
 
-        $('[data-region="displaytemplatesource"]').text(source);
+        if (themeSource === baseSource) {
+            baseSections = themeSections;
+        } else {
+            // This theme has overridden a template. Process the parent template.
+            baseSections = findSections(templateName, baseSource);
+            example = baseSections.example;
+        }
 
-        // Now search the text for a json example.
+        // Update the template source to show the current template's source.
+        $('[data-region="displaytemplatedocs"]').text(baseSections.documentation);
+        $('[data-region="displaytemplatesource"]').text(themeSections.source);
 
-        var example = source.match(/Example context \(json\):([\s\S]*)/);
-        var context = false;
         if (example) {
-            var rawJSON = example[1].trim();
-            try {
-                context = $.parseJSON(rawJSON);
-            } catch (e) {
-                log.debug('Could not parse json example context for template.');
-                log.debug(e);
-            }
-        }
-        if (context) {
-            templates.render(templateName, context).done(function(html, js) {
+            templates.render(templateName, example).done(function(html, js) {
                 $('[data-region="displaytemplateexample"]').empty();
                 $('[data-region="displaytemplateexample"]').append(html);
                 templates.runTemplateJS(js);
@@ -82,6 +66,56 @@ define(['jquery', 'core/ajax', 'core/log', 'core/notification', 'core/templates'
                 $('[data-region="displaytemplateexample"]').text(s);
             }).fail(notification.exception);
         }
+    };
+
+    var findSections = function(templateName, source) {
+        // Find the comment section marked with @template component/template.
+        var marker = "@template " + templateName;
+
+        var sections = source.match(/{{!([\s\S]*?)}}/g);
+        var i = 0;
+
+        var output = {
+                'documentation':    '',
+                'example':          null,
+                'source':           ''
+            };
+
+        if (sections === null) {
+            // If no sections match - show the entire file.
+            output.source = source;
+        } else {
+            var section, start;
+            for (i = 0; i < sections.length; i++) {
+                section = sections[i];
+                start = section.indexOf(marker);
+                if (start !== -1) {
+                    // Remove {{! and }} from start and end.
+                    var offset = start + marker.length + 1;
+                    section = section.substr(offset, section.length - 2 - offset);
+                    output.documentation = section;
+                    break;
+                }
+            }
+            // TODO Strip out the {{! content }} and set this to be the source.
+        }
+
+        if (output.documentation) {
+            // Now search the text for a json example.
+
+            var example = output.documentation.match(/Example context \(json\):([\s\S]*)/);
+            if (example) {
+                var rawJSON = example[1].trim();
+                try {
+                    output.example = $.parseJSON(rawJSON);
+                } catch (e) {
+                    log.debug('Could not parse json example context for template.');
+                    log.debug(e);
+                }
+            }
+        }
+
+        return output;
     };
 
     /**
@@ -98,9 +132,22 @@ define(['jquery', 'core/ajax', 'core/log', 'core/notification', 'core/templates'
             args:{
                     component: component,
                     template: name,
-                    themename: config.theme
+                    themename: 'clean'
             },
-            done: function(source) { templateLoaded(templateName, source); },
+            done: function(baseSource) {
+                ajax.call([{
+                    methodname: 'core_output_load_template',
+                    args:{
+                            component: component,
+                            template: name,
+                            themename: config.theme
+                    },
+                    done: function(themeSource) {
+                        templateLoaded(templateName, baseSource, themeSource);
+                    },
+                    fail: notification.exception
+                }]);
+            },
             fail: notification.exception
         }]);
     };
