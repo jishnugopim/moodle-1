@@ -1539,7 +1539,7 @@ class page_requirements_manager {
      * @return string the HTML code to to at the end of the page.
      */
     public function get_end_code() {
-        global $CFG;
+        global $CFG, $SITE;
         $output = '';
 
         // Set the log level for the JS logging.
@@ -1604,6 +1604,14 @@ class page_requirements_manager {
         $js = "YUI().use('node', function(Y) {\n{$inyuijs}{$ondomreadyjs}{$jsinit}{$handlersjs}\n});";
 
         $output .= html_writer::script($js);
+
+        $schemadata = array(
+                '@context'  => 'http://schema.org',
+                '@type'     => 'WebSite',
+                'name'      => $SITE->fullname,
+                'url'       => $CFG->wwwroot,
+            );
+        $output .= html_writer::tag('script', json_encode($schemadata), array('type' => 'application/ld+json'));
 
         return $output;
     }
