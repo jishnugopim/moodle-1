@@ -32,20 +32,22 @@ class theme_bootstrapbase_core_renderer extends core_renderer {
      * Uses bootstrap compatible html.
      */
     public function navbar() {
-        $items = $this->page->navbar->get_items();
+        // We specify a custom divider for Bootstrap.
+        $divider = '<span class="divider">' . get_separator() . '</span>';
+
+        // Fetch the items.
+        $items = $this->navbar_items($divider);
         if (empty($items)) {
             return '';
         }
 
-        $breadcrumbs = array();
-        foreach ($items as $item) {
-            $item->hideicon = true;
-            $breadcrumbs[] = $this->render($item);
-        }
-        $divider = '<span class="divider">'.get_separator().'</span>';
-        $list_items = '<li>'.join(" $divider</li><li>", $breadcrumbs).'</li>';
-        $title = '<span class="accesshide">'.get_string('pagepath').'</span>';
-        return $title . "<ul class=\"breadcrumb\">$list_items</ul>";
+        // Display the title followd by the navbar.
+        $navbarcontent  = html_writer::tag('span', get_string('pagepath'), array('class' => 'accesshide'));
+
+        // We also add a class to the UL.
+        $navbarcontent .= html_writer::tag('ul', implode('', $items), array('class' => 'breadcrumb'));
+
+        return $navbarcontent;
     }
 
     /*

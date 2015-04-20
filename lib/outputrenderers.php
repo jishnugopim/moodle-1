@@ -3382,31 +3382,61 @@ EOD;
      * @return string XHTML navbar
      */
     public function navbar() {
-        $items = $this->page->navbar->get_items();
-        $itemcount = count($items);
-        if ($itemcount === 0) {
+        // Fetch the items.
+        $items = $this->navbar_items();
+        if (empty($items)) {
             return '';
         }
 
-        $htmlblocks = array();
-        // Iterate the navarray and display each node
-        $separator = get_separator();
-        for ($i=0;$i < $itemcount;$i++) {
-            $item = $items[$i];
-            $item->hideicon = true;
-            if ($i===0) {
-                $content = html_writer::tag('li', $this->render($item));
-            } else {
-                $content = html_writer::tag('li', $separator.$this->render($item));
-            }
-            $htmlblocks[] = $content;
+        // Display the title followd by the navbar.
+        $navbarcontent  = html_writer::tag('span', get_string('pagepath'), array('class' => 'accesshide'));
+        $navbarcontent .= html_writer::tag('nav', html_writer::tag('ul', join('', $htmlblocks)));
+
+        return $navbarcontent;
+    }
+
+    public function navbar_items($separator = null, $items = null) {
+        $navbaritems = array();
+
+        if (null == $items) {
+            $items = $this->page->navbar->get_items();
         }
 
-        //accessibility: heading for navbar list  (MDL-20446)
-        $navbarcontent = html_writer::tag('span', get_string('pagepath'), array('class'=>'accesshide'));
-        $navbarcontent .= html_writer::tag('nav', html_writer::tag('ul', join('', $htmlblocks)));
-        // XHTML
-        return $navbarcontent;
+        $itemcount = count($items);
+        if ($itemcount === 0) {
+            return $navbaritems;
+        }
+
+        if (null === $separator) {
+            $separator = get_separator();
+        }
+
+        for ($i = 0; $i < $itemcount; $i++) {
+            $item = $items[$i];
+            $item->hideicon = true;
+            $attributes = array(
+                    // These fields are defined by Schema.org.
+                    'itemtype'  => 'http://data-vocabulary.org/Breadcrumb',
+                    'itemscope' => '',
+                    'id'        => 'navbar-itemid-' . $i,
+                );
+
+            $itemref = $i + 1;
+            if ($itemref < $itemcount) {
+                $attributes['itemref'] = 'navbar-itemid-' . $itemref;
+                $itemseparator = $separator;
+            } else {
+                $itemseparator = '';
+            }
+
+            if ($i !== 0) {
+                $attributes['itemprop'] = 'child';
+            }
+
+            $navbaritems[] = html_writer::tag('li', $this->render($item) . $itemseparator, $attributes);
+        }
+
+        return $navbaritems;
     }
 
     /**
@@ -3416,6 +3446,8 @@ EOD;
      * @return string HTML fragment
      */
     protected function render_navigation_node(navigation_node $item) {
+        global $CFG;
+
         $content = $item->get_content();
         $title = $item->get_title();
         if ($item->icon instanceof renderable && !$item->hideicon) {
@@ -3439,6 +3471,7 @@ EOD;
             }
             $content = $this->render($link);
         } else if ($item->action instanceof moodle_url) {
+            $content = html_writer::span($item->get_content(), '', array('itemprop' => 'title'));
             $attributes = array();
             if ($title !== '') {
                 $attributes['title'] = $title;
@@ -3446,17 +3479,28 @@ EOD;
             if ($item->hidden) {
                 $attributes['class'] = 'dimmed_text';
             }
+            $attributes['itemprop'] = 'url';
             $content = html_writer::link($item->action, $content, $attributes);
 
         } else if (is_string($item->action) || empty($item->action)) {
-            $attributes = array('tabindex'=>'0'); //add tab support to span but still maintain character stream sequence.
+            // Add tab support to span but still maintain character stream sequence.
+            $attributes = array(
+                    'tabindex'  => '0',
+                    'itemprop'  => 'title',
+                );
             if ($title !== '') {
                 $attributes['title'] = $title;
             }
             if ($item->hidden) {
                 $attributes['class'] = 'dimmed_text';
             }
-            $content = html_writer::tag('span', $content, $attributes);
+
+            // Schemas require a URL in breadcrumbs. Add a link to wwwroot.
+            // TODO - find a better way of doing this.
+            $urltag = html_writer::span(html_writer::link($CFG->wwwroot) . $content, '', array(
+                    'itemprop' => 'url',
+                ));
+            $content = html_writer::tag('span', $urltag, $attributes);
         }
         return $content;
     }
