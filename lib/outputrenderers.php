@@ -3411,32 +3411,55 @@ EOD;
             $separator = get_separator();
         }
 
+        $itemrefs = array();
         for ($i = 0; $i < $itemcount; $i++) {
             $item = $items[$i];
             $item->hideicon = true;
-            $attributes = array(
-                    // These fields are defined by Schema.org.
-                    'itemtype'  => 'http://data-vocabulary.org/Breadcrumb',
-                    'itemscope' => '',
-                    'id'        => 'navbar-itemid-' . $i,
-                );
 
-            $itemref = $i + 1;
-            if ($itemref < $itemcount) {
-                $attributes['itemref'] = 'navbar-itemid-' . $itemref;
+            $itemcontent = $item->get_content();
+
+            if ($i < ($itemcount - 1)) {
                 $itemseparator = $separator;
             } else {
                 $itemseparator = '';
             }
 
-            if ($i !== 0) {
-                $attributes['itemprop'] = 'child';
+            $attributes = array();
+            if ($this->is_navbar_item_link($item)) {
+                // These fields are defined by Schema.org.
+                $attributes['itemtype']     = 'http://data-vocabulary.org/Breadcrumb';
+                $attributes['itemscope']    = '';
+                $attributes['id']           = 'navbar-itemid-' . $i;
+
+                if ($navchild = $this->get_next_navbar_itemid($items, $i)) {
+                    $attributes['itemref'] = 'navbar-itemid-' . $navchild;
+                }
+
+                if ($i !== 0) {
+                    $attributes['itemprop'] = 'child';
+                }
             }
 
             $navbaritems[] = html_writer::tag('li', $this->render($item) . $itemseparator, $attributes);
         }
 
         return $navbaritems;
+    }
+
+    public function is_navbar_item_link($item) {
+        if (is_string($item->action) || empty($item->action)) {
+            return false;
+        }
+        return true;
+    }
+
+    public function get_next_navbar_itemid($items, $current = 0) {
+        for ($i = $current + 1; $i < count($items); $i++) {
+            if ($this->is_navbar_item_link($items[$i])) {
+                return $i;
+            }
+        }
+        return null;
     }
 
     /**
@@ -3486,21 +3509,12 @@ EOD;
             // Add tab support to span but still maintain character stream sequence.
             $attributes = array(
                     'tabindex'  => '0',
-                    'itemprop'  => 'title',
                 );
-            if ($title !== '') {
-                $attributes['title'] = $title;
-            }
             if ($item->hidden) {
                 $attributes['class'] = 'dimmed_text';
             }
 
-            // Schemas require a URL in breadcrumbs. Add a link to wwwroot.
-            // TODO - find a better way of doing this.
-            $urltag = html_writer::span(html_writer::link($CFG->wwwroot) . $content, '', array(
-                    'itemprop' => 'url',
-                ));
-            $content = html_writer::tag('span', $urltag, $attributes);
+            $content = html_writer::tag('span', $content, $attributes);
         }
         return $content;
     }
