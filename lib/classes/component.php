@@ -1084,9 +1084,9 @@ $cache = '.var_export($cache, true).';
 
         // The problem here is tha the component cache might be stable,
         // we want this to work also on frontpage without resetting the component cache.
-        $usecache = false;
+        $usecache = true;
         if (CACHE_DISABLE_ALL or (defined('IGNORE_COMPONENT_CACHE') and IGNORE_COMPONENT_CACHE)) {
-            $usecache = true;
+            $usecache = false;
         }
 
         // Now all plugins.
