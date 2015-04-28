@@ -54,7 +54,7 @@ class core_messageinbound_testcase extends advanced_testcase {
 
         if ($html) {
             if ($htmllinecount) {
-                $actualhtml = test_handler::remove_quoted_text(html_to_text($html, $htmllinecount));
+                $actualhtml = test_handler::remove_quoted_text(html_to_text($html), $htmllinecount);
             } else {
                 $actualhtml = test_handler::remove_quoted_text(html_to_text($html));
             }
@@ -131,11 +131,13 @@ class core_messageinbound_testcase extends advanced_testcase {
             'HTML'              => false,
             'HTMLLINECOUNT'     => false,
             'EXPECTEDHTML'      => false,
+            'FULLSOURCE'        => false,
         );
         $section = null;
+        $data = array();
         foreach ($tokens as $i => $token) {
             if (null === $section && empty($token)) {
-                continue; // skip leading blank
+                continue; // Skip leading blank.
             }
             if (null === $section) {
                 if (!isset($sections[$token])) {
@@ -165,7 +167,10 @@ class core_messageinbound_testcase extends advanced_testcase {
     }
 }
 
-class test_handler extends \mod_forum\message\inbound\reply_handler {
+/**
+ * Class test_handler
+ */
+class test_handler extends \core\message\inbound\handler {
 
     public static function remove_quoted_text($text, $linecount = 1) {
         return parent::remove_quoted_text($text, $linecount);
@@ -174,4 +179,10 @@ class test_handler extends \mod_forum\message\inbound\reply_handler {
     public static function get_linecount_to_remove($messagedata) {
         return parent::get_linecount_to_remove($messagedata);
     }
+
+    public function get_name() {}
+
+    public function get_description() {}
+
+    public function process_message(stdClass $record, stdClass $messagedata) {}
 }
