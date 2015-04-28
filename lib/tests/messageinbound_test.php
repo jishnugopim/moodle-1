@@ -40,7 +40,7 @@ class core_messageinbound_testcase extends advanced_testcase {
     /**
      * @dataProvider message_inbound_handler_trim_testprovider
      */
-    public function test_messageinbound_handler_trim($file,
+    public function test_messageinbound_handler_trim($file, $fullsource,
             $plain, $plainlinecount, $expectedplain,
             $html, $htmllinecount, $expectedhtml) {
 
@@ -62,6 +62,30 @@ class core_messageinbound_testcase extends advanced_testcase {
         }
     }
 
+    /**
+     * @dataProvider message_inbound_handler_trim_testprovider
+     */
+    public function test_something($file, $source, $expectedplain, $expectedhtml) {
+        $this->resetAfterTest();
+
+        $mime = Horde_Mime_Part::parseMessage($source);
+        if ($plainpartid = $mime->findBody('plain')) {
+            $messagedata = $mime->getPart($plainpartid)->getContents();
+
+            $linecount = test_handler::get_linecount_to_remove($messagedata);
+            $actual = test_handler::remove_quoted_text($messagedata, $linecount);
+            $this->assertEquals($expectedplain, $actual);
+        }
+
+        if ($htmlpartid = $mime->findBody('html')) {
+            $messagedata = html_to_text($mime->getPart($htmlpartid)->getContents());
+
+            $linecount = test_handler::get_linecount_to_remove($messagedata);
+            $actual = test_handler::remove_quoted_text($messagedata, $linecount);
+            $this->assertEquals($expectedhtml, $actual);
+        }
+    }
+
     public function message_inbound_handler_trim_testprovider() {
         $fixturesdir = realpath(__DIR__ . '/fixtures/messageinbound/');
         $tests = array();
@@ -80,38 +104,16 @@ class core_messageinbound_testcase extends advanced_testcase {
                 die($e->getMessage());
             }
 
-            if (!isset($testdata['PLAINLINECOUNT'])) {
-                $testdata['PLAINLINECOUNT'] = null;
-            }
-
-            if (isset($testdata['HTML'])) {
-                if (!isset($testdata['EXPECTEDHTML'])) {
-                    throw new coding_exception(sprintf(
-                            'The test file "%s" must have a section named "%s".',
-                            basename($file),
-                            'EXPECTEDHTML'
-                        ));
-                }
-
-                if (!isset($testdata['HTMLLINECOUNT'])) {
-                    $testdata['HTMLLINECOUNT'] = null;
-                }
-            } else {
-                $testdata['HTML'] = $testdata['EXPECTEDHTML'] = null;
-            }
-
             $test = array(
                     // The filename.
                     basename($file),
 
+                    $testdata['FULLSOURCE'],
+
                     // The plaintext component of the message.
-                    $testdata['PLAIN'],
-                    $testdata['PLAINLINECOUNT'],
                     $testdata['EXPECTEDPLAIN'],
 
                     // The HTML component of the message.
-                    $testdata['HTML'],
-                    $testdata['HTMLLINECOUNT'],
                     $testdata['EXPECTEDHTML'],
                 );
 
@@ -122,16 +124,13 @@ class core_messageinbound_testcase extends advanced_testcase {
 
     protected function read_test_file(\SplFileInfo $file, $fixturesdir) {
         // Break on the --[TOKEN]-- tags in the file.
-        $tokens = preg_split('#(?:^|\n*)--([A-Z-]+)--\n#', file_get_contents($file->getRealPath()),
+        $tokens = preg_split('#(?:^|\n*)----([A-Z-]+)----\n#', file_get_contents($file->getRealPath()),
                 null, PREG_SPLIT_DELIM_CAPTURE);
         $sections = array(
-            'PLAIN'             => true,
-            'PLAINLINECOUNT'    => true,
-            'EXPECTEDPLAIN'     => false,
-            'HTML'              => false,
-            'HTMLLINECOUNT'     => false,
-            'EXPECTEDHTML'      => false,
-            'FULLSOURCE'        => false,
+            // Key              => Required.
+            'FULLSOURCE'        => true,
+            'EXPECTEDPLAIN'     => true,
+            'EXPECTEDHTML'      => true,
         );
         $section = null;
         $data = array();
