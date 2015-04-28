@@ -244,7 +244,154 @@ abstract class handler {
      * @param int    $linecount number of lines to remove before quoted text.
      * @return mixed|string
      */
-    protected static function remove_quoted_text($text, $linecount = 1) {
+    protected static function remove_quoted_text($messagedata) {
+        // Grab the headers.
+        $headers = \Horde_Mime_Headers::parseHeaders($messagedata->headers);
+
+        // Totally ignore MSO for the moment.
+        if ($headers->getValue('X-MS-Has-Attach') || $headers->getValue('X-MS-TNEF-Correlator')) {
+            // Do *not* return the 'best' version, always return PLAIN. Outlook sucks.
+            $messagedata->plain = html_to_text($messagedata->plain);
+            return self::strip_original_fallback($messagedata);
+        }
+
+        // Google don't add any specific headers to their messages. We only
+        // want to catch the messages sent using the GMail interface, not
+        // those sent using Google SMTP.
+        // TODO check App too.
+        if (stripos($messagedata->messageid, '@mail.gmail.com>') !== false) {
+            if (!empty($messagedata->html) && stripos($messagedata->html, 'gmail_quote') !== false) {
+                // This is a gmail message.
+                return self::strip_original_for_gmail($messagedata);
+            }
+        }
+
+        if ($headers->getValue('X-Yahoo-Newman-Property')) {
+            // This is a message sent from Yahoo.
+            return self::strip_original_for_yahoo($messagedata);
+        }
+
+        if (stripos($headers->getValue('X-Mailer'), 'Evolution') !== false) {
+            // Evolution.
+            return self::strip_original_for_evolution($messagedata);
+        }
+
+        // TODO Hotmail
+        // TODO Thunderbird
+        // TODO Evolution
+
+        // None of the other clients matched. Revert to the standard fallback.
+        $content = self::strip_original_fallback($messagedata);
+        return self::return_best_version($messagedata, $content);
+    }
+
+    /**
+     * Try to guess how many lines to remove from the email to delete "xyz wrote on" text. Hard coded numbers for various email
+     * clients.
+     * Gmail uses two
+     * Evolution uses one
+     * Thunderbird uses one
+     *
+     * @param \stdClass $messagedata The Inbound Message record
+     *
+     * @return int number of lines to chop off before the start of quoted text.
+     */
+    protected static function get_linecount_to_remove($messagedata) {
+        $linecount = 1;
+        // Place exceptions which cannot be properly parsed here.
+        return $linecount;
+    }
+
+    protected static function strip_original_for_gmail($messagedata) {
+        // GMail generally creates a valid DOM structure.
+        $dom = new \DOMDocument();
+        $dom->loadHTML($messagedata->html);
+
+        // Remove any gmail_extra sections. These contain the "On X, Y wrote" sections and original content.
+        $dom = self::remove_class_children($dom, 'div', 'gmail_extra');
+
+        return array(self::strip_html_wrapper($dom), FORMAT_HTML);
+    }
+
+    protected static function strip_original_for_yahoo($messagedata) {
+        // Yahoo generally create a valid DOM structure.
+        $dom = new \DOMDocument();
+        $dom->loadHTML($messagedata->html);
+
+        // Remove any yahoo_quoted, and separately quoted sections.
+        $dom = self::remove_class_children($dom, 'div', 'yahoo_quoted');
+        $dom = self::remove_class_children($dom, 'div', 'qtdSeparateBR');
+
+        return array(self::strip_html_wrapper($dom), FORMAT_HTML);
+    }
+
+    protected static function strip_original_for_evolution($messagedata) {
+        $dom = new \DOMDocument();
+        $dom->loadHTML($messagedata->html);
+
+        // Remove any cited blockquotes.
+        $dom = self::remove_xpath_children($dom, '//blockquote[contains(@type, "CITE")]');
+
+        if ($bodies = $dom->getElementsByTagName('body')) {
+            // There should only ever be one body, but... you never know!
+            foreach ($bodies as $body) {
+                $body->removeChild($body->lastChild);
+            }
+        }
+
+        // Convert to HTML and strip the HTML wrapper.
+        $content = self::strip_html_wrapper($dom);
+
+        // Now remove the last line.
+        $content = substr($content, 0, strrpos($content, "\n"));
+
+        return array($content, FORMAT_HTML);
+    }
+
+    protected static function strip_html_wrapper(\DOMDocument $dom) {
+        // Strip the html > body sections.
+        $innerhtml = '';
+
+        if ($bodies = $dom->getElementsByTagName('body')) {
+            // There should only ever be one body, but... you never know!
+            foreach ($bodies as $body) {
+                foreach ($body->childNodes as $child) {
+                    $innerhtml .= $dom->saveHTML($child);
+                }
+            }
+        } else {
+            // No body found.
+            $innerhtml = $dom->saveHTML();
+        }
+
+        $innerhtml = trim($innerhtml);
+
+        return self::remove_html_ids($innerhtml);
+    }
+
+    protected static function remove_class_children(\DOMDocument $dom, $tag, $class) {
+        return self::remove_xpath_children($dom, '//' . $tag . '[contains(@class, "' . $class . '")]');
+    }
+
+    protected static function remove_xpath_children(\DOMDocument $dom, $path) {
+        $xpath = new \DOMXPath($dom);
+
+        $found = $xpath->query($path);
+        foreach ($found as $node) {
+            $node->parentNode->removeChild($node);
+        }
+
+        return $dom;
+    }
+
+    protected static function remove_html_ids($innerhtml) {
+        return preg_replace('/(<[^>]+) id=".*?"/i', '$1', $innerhtml);
+    }
+
+    protected static function strip_original_fallback($messagedata) {
+        $text = $messagedata->plain;
+        $linecount = 1;
+
         $splitted = preg_split("/\n|\r/", $text);
         if (empty($splitted)) {
             return $text;
@@ -286,27 +433,20 @@ abstract class handler {
         }
 
         $replaced = implode(PHP_EOL, array_reverse($reverse));
-        return trim($replaced);
+        return array(trim($replaced), FORMAT_PLAIN);
     }
 
-    /**
-     * Try to guess how many lines to remove from the email to delete "xyz wrote on" text. Hard coded numbers for various email
-     * clients.
-     * Gmail uses two
-     * Evolution uses one
-     * Thunderbird uses one
-     *
-     * @param \stdClass $messagedata The Inbound Message record
-     *
-     * @return int number of lines to chop off before the start of quoted text.
-     */
-    protected static function get_linecount_to_remove($messagedata) {
-        $linecount = 1;
-        if (!empty($messagedata->html) && stripos($messagedata->html, 'gmail_quote') !== false) {
-            // Gmail uses two lines.
-            $linecount = 2;
+    protected static function return_best_version($messagedata, $result) {
+        list($content, $format) = $result;
+        if ($format === FORMAT_PLAIN &&
+                $content === $messagedata->plain &&
+                isset($messagedata->html)) {
+
+            // If the content is the same as the plaintext format, may as well return HTML content if we have it.
+            $content = $messagedata->html;
+            $format = FORMAT_HTML;
         }
-        return $linecount;
-    }
 
+        return array($content, $format);
+    }
 }

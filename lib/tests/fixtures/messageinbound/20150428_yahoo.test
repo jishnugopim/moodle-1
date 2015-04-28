@@ -1,0 +1,137 @@
+----EXPECTED----
+<div style="color:#000; background-color:#fff; font-family:HelveticaNeue, Helvetica Neue, Helvetica, Arial, Lucida Grande, Sans-Serif;font-size:16px">
+<div dir="ltr"><span>Any time</span></div>  <br>
+</div>
+
+----FULLSOURCE----
+Delivered-To: moodlehqtest+aaaaaaaaaaiaaaaaaaaabaaaaaaaaaaoogkkjzj76lt8baso@gmail.com
+Received: by 10.50.159.130 with SMTP id xc2csp1751393igb;
+        Tue, 28 Apr 2015 01:12:15 -0700 (PDT)
+X-Received: by 10.70.36.102 with SMTP id p6mr29604839pdj.18.1430208735540;
+        Tue, 28 Apr 2015 01:12:15 -0700 (PDT)
+Return-Path: <jlokely@yahoo.com>
+Received: from nm50-vm1.bullet.mail.gq1.yahoo.com (nm50-vm1.bullet.mail.gq1.yahoo.com. [67.195.87.241])
+        by mx.google.com with ESMTPS id jz6si33559340pad.78.2015.04.28.01.12.15
+        for <moodlehqtest+AAAAAAAAAAIAAAAAAAAABAAAAAAAAAAOoGKKjzJ76LT8bASO@gmail.com>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Tue, 28 Apr 2015 01:12:15 -0700 (PDT)
+Received-SPF: pass (google.com: domain of jlokely@yahoo.com designates 67.195.87.241 as permitted sender) client-ip=67.195.87.241;
+Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of jlokely@yahoo.com designates 67.195.87.241 as permitted sender) smtp.mail=jlokely@yahoo.com;
+       dkim=pass header.i=@yahoo.com;
+       dmarc=pass (p=REJECT dis=NONE) header.from=yahoo.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1430208735; bh=IzaTmOL1k/1TIc1SIrMMkCiBvvXU64USCTvRwtF4imc=; h=Date:From:Reply-To:To:In-Reply-To:References:Subject:From:Subject; b=M5VMpELhAdi/zGfsOZckQoJmz5uxo01WWnR2elRy3pdcJix8X0qK2g2VCvzkERpbcKPQCT5uCNzqaqwrbcRwVazYkU7QCsF1SfNdGTpEhj9DeJ+OPzrUWNrY2hlvRcqOovjETb8lAkS8SDOUrr4D+fCUld5eA7F5VPFKBxFtNr9hfmQQ3eu2c+DKnGr8LAmNFeE/zGDs0feXlmAoIIXV2SnFt3e+1DXUZQTPpxGX1cdryIfihChmpjemXkERh1LKu0MY0QmTFoo5SjW+FLPvk5LuJOVjB6bQeeUdNyHvO58TPp9ZT7YwDWpCPIazOxkm/s/vrVz0eQQd+ibk5JOkfQ==
+Received: from [127.0.0.1] by nm50.bullet.mail.gq1.yahoo.com with NNFMP; 28 Apr 2015 08:12:15 -0000
+Received: from [98.137.12.55] by nm50.bullet.mail.gq1.yahoo.com with NNFMP; 28 Apr 2015 08:09:23 -0000
+Received: from [66.196.81.174] by tm15.bullet.mail.gq1.yahoo.com with NNFMP; 28 Apr 2015 08:09:23 -0000
+Received: from [98.139.212.239] by tm20.bullet.mail.bf1.yahoo.com with NNFMP; 28 Apr 2015 08:09:23 -0000
+Received: from [127.0.0.1] by omp1048.mail.bf1.yahoo.com with NNFMP; 28 Apr 2015 08:09:23 -0000
+X-Yahoo-Newman-Property: ymail-4
+X-Yahoo-Newman-Id: 237345.16728.bm@omp1048.mail.bf1.yahoo.com
+X-YMail-OSG: u0HrbG0VM1ma6r.e2mio1RxvtdCkqJiqNazvVm856aPNSVNYC1jnaXGNT0D8qSM
+ BkRKuZnsmLBDvtqSzABGK7bVpzDN45fPOhgG.Zqr.CgJsqWrQzVsg8l57FRg3EWQi0lEKcgYH9vY
+ XQVW2tuZMj8jqjtx8566mzhoZN5OgccWkFXVTckr16FhvlnnBBAIMq33xafY.sqQXABBa5.PL6.x
+ QZ_cx5u_lPvLCfg4xATcLXHavsbShKwjnR9Nnk0BFJzu6I_un9fBb5IgRwpu9RQwxYozfcolojZ.
+ bGV9OHA3d0KO4Hj_fuq3sosJ7m2_ik8yFhuKx2GUW.s9qt1iQqh5knoshD2PbeMv2Ix2Lgc9BxMk
+ 1AwZMU4i2uyuUMCsxAga_Anz0Wyurfj4mo0Zti9n3dBwocPe.ClvYKb43qdYNxhPaO2MPoQW8G3v
+ 76HR2XXGR0M6EH9whnQ3G2YbtZjqk7a7YwUbQcdU3NAnWdV2OSrL.6z9y3QaPENPZITlTQy8NLPp
+ bDikLTcdEh6KkI1lZq88-
+Received: by 66.196.81.110; Tue, 28 Apr 2015 08:09:22 +0000 
+Date: Tue, 28 Apr 2015 08:09:22 +0000 (UTC)
+From: John Okely <jlokely@yahoo.com>
+Reply-To: John Okely <jlokely@yahoo.com>
+To: 
+  "moodlehqtest+AAAAAAAAAAIAAAAAAAAABAAAAAAAAAAOoGKKjzJ76LT8bASO@gmail.com" <moodlehqtest+AAAAAAAAAAIAAAAAAAAABAAAAAAAAAAOoGKKjzJ76LT8bASO@gmail.com>
+Message-ID: <983335239.6973124.1430208562209.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <19adbabdc0378c9b12e43a0f7d3e920063c9a560f8191ac0ad30b7725888f0f0@banana.per.in.moodle.com>
+References: <19adbabdc0378c9b12e43a0f7d3e920063c9a560f8191ac0ad30b7725888f0f0@banana.per.in.moodle.com>
+Subject: Re: MDL-48002: Re: Reply here, or else!
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+  boundary="----=_Part_6973123_1050873739.1430208562202"
+Content-Length: 4860
+
+------=_Part_6973123_1050873739.1430208562202
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Any time=20
+
+
+     On Tuesday, 28 April 2015, 16:05, Adrian Greeve <adrian@adriangreeve.c=
+om> wrote:
+  =20
+
+ MDL-48002 =C2=BB Forums =C2=BB MDL-48002 =C2=BB Reply here, or else!
+|  | Re: Reply here, or else!by Adrian Greeve - Tuesday, 28 April 2015, 4:0=
+6 PM |
+| =C2=A0 | Hi John, thanks for the test.Show parent | ReplySee this post in=
+ context |
+
+Unsubscribe from this forum=C2=A0Unsubscribe from this discussion=C2=A0Unsu=
+bscribe from all forums=C2=A0Change your forum digest preferencesYou can re=
+ply to this via email.
+
+  
+------=_Part_6973123_1050873739.1430208562202
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<html><body><div style=3D"color:#000; background-color:#fff; font-family:He=
+lveticaNeue, Helvetica Neue, Helvetica, Arial, Lucida Grande, Sans-Serif;fo=
+nt-size:16px"><div id=3D"yui_3_16_0_1_1430208535028_3291" dir=3D"ltr"><span=
+ id=3D"yui_3_16_0_1_1430208535028_3293">Any time</span></div>  <br><div cla=
+ss=3D"qtdSeparateBR"><br><br></div><div class=3D"yahoo_quoted" style=3D"dis=
+play: block;"> <div style=3D"font-family: HelveticaNeue, Helvetica Neue, He=
+lvetica, Arial, Lucida Grande, Sans-Serif; font-size: 16px;"> <div style=3D=
+"font-family: HelveticaNeue, Helvetica Neue, Helvetica, Arial, Lucida Grand=
+e, Sans-Serif; font-size: 16px;"> <div dir=3D"ltr"> <font size=3D"2" face=
+=3D"Arial"> On Tuesday, 28 April 2015, 16:05, Adrian Greeve &lt;adrian@adri=
+angreeve.com&gt; wrote:<br> </font> </div>  <br><br> <div class=3D"y_msg_co=
+ntainer"><div id=3D"yiv2049730661">
+<div>
+
+<div class=3D"yiv2049730661navbar"><a rel=3D"nofollow" target=3D"_blank" hr=
+ef=3D"http://banana.per.in.moodle.com/mdl48002/course/view.php?id=3D3">MDL-=
+48002</a> =C2=BB <a rel=3D"nofollow" target=3D"_blank" href=3D"http://banan=
+a.per.in.moodle.com/mdl48002/mod/forum/index.php?id=3D3">Forums</a> =C2=BB =
+<a rel=3D"nofollow" target=3D"_blank" href=3D"http://banana.per.in.moodle.c=
+om/mdl48002/mod/forum/view.php?f=3D5">MDL-48002</a> =C2=BB <a rel=3D"nofoll=
+ow" target=3D"_blank" href=3D"http://banana.per.in.moodle.com/mdl48002/mod/=
+forum/discuss.php?d=3D5">Reply here, or else!</a></div><table border=3D"0" =
+cellpadding=3D"3" cellspacing=3D"0" class=3D"yiv2049730661forumpost"><tbody=
+><tr class=3D"yiv2049730661header"><td width=3D"35" valign=3D"top" class=3D=
+"yiv2049730661picture yiv2049730661left"><a rel=3D"nofollow" target=3D"_bla=
+nk" href=3D"http://banana.per.in.moodle.com/mdl48002/user/view.php?id=3D3&a=
+mp;course=3D3"><img src=3D"http://banana.per.in.moodle.com/mdl48002/theme/i=
+mage.php?theme=3Dclean&amp;component=3Dcore&amp;image=3Du%2Ff2&amp;svg=3D0"=
+ alt=3D"Picture of Adrian Greeve" title=3D"Picture of Adrian Greeve" class=
+=3D"yiv2049730661userpicture yiv2049730661defaultuserpic" width=3D"35" heig=
+ht=3D"35"></a></td><td class=3D"yiv2049730661topic"><div class=3D"yiv204973=
+0661subject">Re: Reply here, or else!</div><div class=3D"yiv2049730661autho=
+r">by <a rel=3D"nofollow" target=3D"_blank" href=3D"http://banana.per.in.mo=
+odle.com/mdl48002/user/view.php?id=3D3&amp;course=3D3">Adrian Greeve</a> - =
+Tuesday, 28 April 2015, 4:06 PM</div></td></tr><tr><td class=3D"yiv20497306=
+61left yiv2049730661side" valign=3D"top">&nbsp;</td><td class=3D"yiv2049730=
+661content">Hi John, thanks for the test.<div class=3D"yiv2049730661command=
+s"><a rel=3D"nofollow" target=3D"_blank" href=3D"http://banana.per.in.moodl=
+e.com/mdl48002/mod/forum/discuss.php?d=3D5&amp;parent=3D13">Show parent</a>=
+ | <a rel=3D"nofollow" target=3D"_blank" href=3D"http://banana.per.in.moodl=
+e.com/mdl48002/mod/forum/post.php?reply=3D14">Reply</a></div><div class=3D"=
+yiv2049730661link"><a rel=3D"nofollow" target=3D"_blank" href=3D"http://ban=
+ana.per.in.moodle.com/mdl48002/mod/forum/discuss.php?d=3D5#p14">See this po=
+st in context</a></div></td></tr></tbody></table>
+
+<hr><div class=3D"yiv2049730661mdl-align yiv2049730661unsubscribelink"><a r=
+el=3D"nofollow" target=3D"_blank" href=3D"http://banana.per.in.moodle.com/m=
+dl48002/mod/forum/subscribe.php?id=3D5">Unsubscribe from this forum</a>&nbs=
+p;<a rel=3D"nofollow" target=3D"_blank" href=3D"http://banana.per.in.moodle=
+.com/mdl48002/mod/forum/subscribe.php?id=3D5&amp;d=3D5">Unsubscribe from th=
+is discussion</a>&nbsp;<a rel=3D"nofollow" target=3D"_blank" href=3D"http:/=
+/banana.per.in.moodle.com/mdl48002/mod/forum/unsubscribeall.php">Unsubscrib=
+e from all forums</a>&nbsp;<a rel=3D"nofollow" target=3D"_blank" href=3D"ht=
+tp://banana.per.in.moodle.com/mdl48002/mod/forum/index.php?id=3D3">Change y=
+our forum digest preferences</a></div></div><div>You can reply to this via =
+email.</div>
+</div><br><br></div>  </div> </div>  </div></div></body></html>
+------=_Part_6973123_1050873739.1430208562202--

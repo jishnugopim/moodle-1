@@ -1,0 +1,150 @@
+----EXPECTED----
+<div dir="ltr">
+<div>I did too! He's in my kitchen too. Hmm. Dejavu!<br><br>
+</div>I should snatch a photo of him.<br>
+</div>
+
+----FULLSOURCE----
+Delivered-To: andrewrn@gmail.com
+Received: by 10.194.103.100 with SMTP id fv4csp1950376wjb;
+        Tue, 28 Apr 2015 05:29:57 -0700 (PDT)
+X-Received: by 10.182.255.171 with SMTP id ar11mr4716468obd.29.1430224196789;
+        Tue, 28 Apr 2015 05:29:56 -0700 (PDT)
+Return-Path: <andrew+caf_=andrewrn=gmail.com@nicols.org.uk>
+Received: from mail-oi0-x235.google.com (mail-oi0-x235.google.com. [2607:f8b0:4003:c06::235])
+        by mx.google.com with ESMTPS id vt3si15789819oeb.27.2015.04.28.05.29.55
+        for <andrewrn@gmail.com>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 Apr 2015 05:29:56 -0700 (PDT)
+Received-SPF: none (google.com: andrew+caf_=andrewrn=gmail.com@nicols.org.uk does not designate permitted sender hosts) client-ip=2607:f8b0:4003:c06::235;
+Authentication-Results: mx.google.com;
+       spf=none (google.com: andrew+caf_=andrewrn=gmail.com@nicols.org.uk does not designate permitted sender hosts) smtp.mail=andrew+caf_=andrewrn=gmail.com@nicols.org.uk;
+       dkim=pass header.i=@moodle.com;
+       dmarc=pass (p=QUARANTINE dis=NONE) header.from=moodle.com
+Received: by mail-oi0-x235.google.com with SMTP id a37so114300726oic.0
+        for <andrewrn@gmail.com>; Tue, 28 Apr 2015 05:29:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20130820;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:date:message-id:subject:from:to:content-type;
+        bh=0ND2npvajXNeoR0+I4h0RbmoMiBeV6KTDTQW/Nw26xI=;
+        b=SrXhtbnzP2yBu8ekOa+sbp1a8lsMtmeUWxD1U5SmeRCfjHdGYPeMvfO+nOjmBEdc7A
+         VlelQucqD7kXtWMz3zM7wUb1oIX1JGLmDgfli5M7THIBhUWSf7/NUCBplnA2Shhk6M27
+         3S5YChPx/aEBu+qm31/UCY/JUf4tDbg5UmjITb+x/QmoWxFeIqVBbAExNhNTJj22cqWz
+         wbG9RZxZyB9MMjLb4se9R0OsuxAG99jS+Vo5u24IxAvbx6J6RX6jQq4bhFkN22JmFB48
+         Wc8VSXr0l5WpHhnNvaJc+vplI9t1E+tNVMyiAhLnIvy4XLtqXg8s90TaXoPfO6GooWpa
+         DXSw==
+X-Gm-Message-State: ALoCoQnHYHVr67lBk+ApMP9gIXmK0eO7+riKKbvQ1MN47hKRgLR5C2blynOEkcC073Z6Yu9St9Py
+X-Received: by 10.202.182.136 with SMTP id g130mr13438937oif.94.1430224195634;
+        Tue, 28 Apr 2015 05:29:55 -0700 (PDT)
+X-Forwarded-To: andrewrn@gmail.com
+X-Forwarded-For: andrew@nicols.org.uk andrewrn@gmail.com
+Delivered-To: andrew@nicols.co.uk
+Received: by 10.182.37.101 with SMTP id x5csp1819925obj;
+        Tue, 28 Apr 2015 05:29:54 -0700 (PDT)
+X-Received: by 10.112.72.2 with SMTP id z2mr14157335lbu.39.1430224193534;
+        Tue, 28 Apr 2015 05:29:53 -0700 (PDT)
+Return-Path: <andrewn@moodle.com>
+Received: from mail-wg0-x22d.google.com (mail-wg0-x22d.google.com. [2a00:1450:400c:c00::22d])
+        by mx.google.com with ESMTPS id ld3si16938885lac.175.2015.04.28.05.29.52
+        for <andrew@nicols.co.uk>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 Apr 2015 05:29:53 -0700 (PDT)
+Received-SPF: pass (google.com: domain of andrewn@moodle.com designates 2a00:1450:400c:c00::22d as permitted sender) client-ip=2a00:1450:400c:c00::22d;
+Received: by wgyo15 with SMTP id o15so149572161wgy.2
+        for <andrew@nicols.co.uk>; Tue, 28 Apr 2015 05:29:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=moodle.com; s=google;
+        h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+         :content-type;
+        bh=0ND2npvajXNeoR0+I4h0RbmoMiBeV6KTDTQW/Nw26xI=;
+        b=HFee7PSbt/N1yX/4P9FqTra47uuT4e19TLGkEdhg4IQawJ1GFf8ut+P76sQ88IAr2e
+         yxa1Zsu9A8bCVAh0cGFck2kO8nc496zNp5AfIUc+WxlZuObNW4iFH06QMjrAuDuBpAy7
+         5eNoRgtN4iqD6jHcQP+JE+rv7GFn1qYjMyYDo=
+MIME-Version: 1.0
+X-Received: by 10.180.208.84 with SMTP id mc20mr29774557wic.38.1430224192161;
+ Tue, 28 Apr 2015 05:29:52 -0700 (PDT)
+Received: by 10.28.21.15 with HTTP; Tue, 28 Apr 2015 05:29:52 -0700 (PDT)
+In-Reply-To: <CAObMQFeAU-P=L1iAJsONM-eH=Rj+35UuC6a--W9kxUFr_pP_2g@mail.gmail.com>
+References: <CAObMQFeAU-P=L1iAJsONM-eH=Rj+35UuC6a--W9kxUFr_pP_2g@mail.gmail.com>
+Date: Tue, 28 Apr 2015 20:29:52 +0800
+Message-ID: <CADB5etFGTYyMHqneqRDhn2Qh_bgJx8X4uNh1HoOtg8U5QpqjCA@mail.gmail.com>
+Subject: Re: I thought I saw a pussy cat
+From: Andrew Nicols <andrewn@moodle.com>
+To: Andrew Nicols <andrew@nicols.co.uk>
+Content-Type: multipart/alternative; boundary=001a11c33606ec6a640514c8041e
+
+--001a11c33606ec6a640514c8041e
+Content-Type: text/plain; charset=UTF-8
+
+I did too! He's in my kitchen too. Hmm. Dejavu!
+
+I should snatch a photo of him.
+
+On Tue, Apr 28, 2015 at 8:29 PM, Andrew Nicols <andrew@nicols.co.uk> wrote:
+
+> He's sitting in the kitchen. He's eating his food from a blue bowl.
+> He is black with a white spot, and he wears a green collar.
+>
+> I reckon he's only about 5 months old.
+>
+
+
+
+-- 
+  Andrew Nicols
+ Senior Analyst Developer
+andrewn@moodle.com
++61894674167 (Ext: 104) | moodle.com
+ The world's open source learning platform
+
+--001a11c33606ec6a640514c8041e
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>I did too! He&#39;s in my kitchen too. Hmm. Dejavu!<b=
+r><br></div>I should snatch a photo of him.<br></div><div class=3D"gmail_ex=
+tra"><br><div class=3D"gmail_quote">On Tue, Apr 28, 2015 at 8:29 PM, Andrew=
+ Nicols <span dir=3D"ltr">&lt;<a href=3D"mailto:andrew@nicols.co.uk" target=
+=3D"_blank">andrew@nicols.co.uk</a>&gt;</span> wrote:<br><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex"><div dir=3D"ltr">He&#39;s sitting in the kitchen. He&#39;s ea=
+ting his food from a blue bowl.<div>He is black with a white spot, and he w=
+ears a green collar.</div><div><br></div><div>I reckon he&#39;s only about =
+5 months old.</div></div>
+</blockquote></div><br><br clear=3D"all"><br>-- <br><div class=3D"gmail_sig=
+nature"><table style=3D"width:450px">
+  <tbody>
+    <tr>
+      <td style=3D"vertical-align:bottom">
+        <span style=3D"color:rgb(0,0,0);line-height:14pt;font-size:14pt;fon=
+t-family:san-serif;font-style:italic">
+          Andrew Nicols
+        </span>
+        <br>
+        <span style=3D"line-height:10pt;font-size:10pt;font-family:san-seri=
+f;color:rgb(247,142,43)">
+          Senior Analyst Developer
+          <br>
+          <a href=3D"mailto:andrewn@moodle.com" target=3D"_blank">andrewn@m=
+oodle.com</a>
+          <br>
+          +61894674167 (Ext: 104) | <a href=3D"http://moodle.com" target=3D=
+"_blank">moodle.com</a>
+        </span>
+      </td>
+      <td style=3D"vertical-align:bottom">
+        <center>
+          <img src=3D"http://assets.moodle.com/email_sig.png" style=3D"widt=
+h:150px"><br>
+          <span style=3D"color:rgb(0,0,0);font-size:8pt">
+            The world&#39;s open source learning platform
+          </span>
+        </center>
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+
+--001a11c33606ec6a640514c8041e--

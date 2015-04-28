@@ -162,13 +162,7 @@ class reply_handler extends \core\message\inbound\handler {
         $addpost->parent       = $post->id;
         $addpost->itemid       = file_get_unused_draft_itemid();
 
-        $linecount = self::get_linecount_to_remove($messagedata);
-        if (!empty($messagedata->plain)) {
-            $addpost->message = $this->remove_quoted_text($messagedata->plain, $linecount);
-        } else {
-            $addpost->message = $this->remove_quoted_text(html_to_text($messagedata->html), $linecount);
-        }
-        $addpost->messageformat = FORMAT_PLAIN;
+        list($addpost->message, $addpost->messageformat) = self::remove_quoted_text($messagedata);
 
         // We don't trust text coming from e-mail.
         $addpost->messagetrust = false;
@@ -306,77 +300,5 @@ class reply_handler extends \core\message\inbound\handler {
         $message->plain = get_string('postbymailsuccess', 'mod_forum', $a);
         $message->html = get_string('postbymailsuccess_html', 'mod_forum', $a);
         return $message;
-    }
-
-    /**
-     * Remove quoted message string from the text message.
-     *
-     * @param string $text text message.
-     * @param int    $linecount number of lines to remove before quoted text.
-     * @return mixed|string
-     */
-    protected static function remove_quoted_text($text, $linecount = 1) {
-        $splitted = preg_split("/\n|\r/", $text);
-        if (empty($splitted)) {
-            return $text;
-        }
-
-        // Remove extra line. "Xyz wrote on...".
-        $count = 0;
-        $i = 0;
-        foreach ($splitted as $i => $element) {
-            if (stripos($element, ">") === 0) {
-                // Remove 2 non empty line before this.
-                for ($j = $i - 1; ($j >= 0); $j--) {
-                    $element = $splitted[$j];
-                    if (!empty($element)) {
-                        unset($splitted[$j]);
-                        $count++;
-                    }
-                    if ($count == $linecount) {
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-        $k = $i - $linecount; // Where to start the chopping process.
-
-        // Remove quoted text.
-        $splitted = array_slice($splitted, 0, $k);
-
-        // Strip out empty lines towards the end, since a lot of clients add a huge chunk of empty lines.
-        $reverse = array_reverse($splitted);
-        foreach ($reverse as $i => $line) {
-            if (empty($line)) {
-                unset($reverse[$i]);
-            } else {
-                // Non empty line found.
-                break;
-            }
-        }
-
-        $replaced = implode(PHP_EOL, array_reverse($reverse));
-        return trim($replaced);
-    }
-
-    /**
-     * Try to guess how many lines to remove from the email to delete "xyz wrote on" text. Hard coded numbers for various email
-     * clients.
-     * Gmail uses two
-     * Evolution uses one
-     * Thunderbird uses one
-     *
-     * @param \stdClass $messagedata The Inbound Message record
-     *
-     * @return int number of lines to chop off before the start of quoted text.
-     */
-    protected static function get_linecount_to_remove($messagedata) {
-        $linecount = 1;
-        if (!empty($messagedata->html) && stripos($messagedata->html, 'gmail_quote') !== false) {
-            // Gmail uses two lines.
-            $linecount = 2;
-        }
-        return $linecount;
     }
 }

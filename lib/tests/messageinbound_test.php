@@ -40,25 +40,13 @@ class core_messageinbound_testcase extends advanced_testcase {
     /**
      * @dataProvider message_inbound_handler_trim_testprovider
      */
-    public function test_messageinbound_handler_trim($file, $source, $expectedplain, $expectedhtml) {
+    public function test_messageinbound_handler_trim($file, $source, $expectedcontent) {
         $this->resetAfterTest();
 
-        $mime = Horde_Mime_Part::parseMessage($source);
-        if ($plainpartid = $mime->findBody('plain')) {
-            $messagedata = $mime->getPart($plainpartid)->getContents();
-
-            $linecount = test_handler::get_linecount_to_remove($messagedata);
-            $actual = test_handler::remove_quoted_text($messagedata, $linecount);
-            $this->assertEquals($expectedplain, $actual);
-        }
-
-        if ($htmlpartid = $mime->findBody('html')) {
-            $messagedata = html_to_text($mime->getPart($htmlpartid)->getContents());
-
-            $linecount = test_handler::get_linecount_to_remove($messagedata);
-            $actual = test_handler::remove_quoted_text($messagedata, $linecount);
-            $this->assertEquals($expectedhtml, $actual);
-        }
+        $messagedata = $this->create_messagedata($source);
+        list($actual, $format) = test_handler::remove_quoted_text($messagedata);
+        $this->assertEquals($expectedcontent, $actual);
+        //$this->assertEquals($expectedformat, $format);
     }
 
     public function message_inbound_handler_trim_testprovider() {
@@ -85,11 +73,8 @@ class core_messageinbound_testcase extends advanced_testcase {
 
                     $testdata['FULLSOURCE'],
 
-                    // The plaintext component of the message.
-                    $testdata['EXPECTEDPLAIN'],
-
-                    // The HTML component of the message.
-                    $testdata['EXPECTEDHTML'],
+                    // The expected trimming of this message.
+                    $testdata['EXPECTED'],
                 );
 
             $tests[basename($file)] = $test;
@@ -104,8 +89,7 @@ class core_messageinbound_testcase extends advanced_testcase {
         $sections = array(
             // Key              => Required.
             'FULLSOURCE'        => true,
-            'EXPECTEDPLAIN'     => true,
-            'EXPECTEDHTML'      => true,
+            'EXPECTED'          => false,
         );
         $section = null;
         foreach ($tokens as $i => $token) {
@@ -114,11 +98,7 @@ class core_messageinbound_testcase extends advanced_testcase {
             }
             if (null === $section) {
                 if (!isset($sections[$token])) {
-                    throw new coding_exception(sprintf(
-                        'The test file "%s" should not contain a section named "%s".',
-                        basename($file),
-                        $token
-                    ));
+                    continue;
                 }
                 $section = $token;
                 continue;
@@ -134,16 +114,60 @@ class core_messageinbound_testcase extends advanced_testcase {
                     str_replace($fixturesdir.'/', '', $file),
                     $section
                 ));
+            } else if (!isset($data[$section])) {
+                $data[$section] = null;
             }
         }
         return $data;
     }
+
+    protected function create_messagedata($source) {
+        $mime = Horde_Mime_Part::parseMessage($source);
+        $headers = Horde_Mime_Headers::parseHeaders($source);
+
+        $messagedata = new \stdClass();
+        $messagedata->subject = $headers->getValue('Subject');
+        $messagedata->messageid = $headers->getValue('Message-Id');
+        $messagedata->date = $headers->getValue('Date');
+        $messagedata->headers = $headers->toString();
+
+        if ($plainpartid = $mime->findBody('html')) {
+            $messagedata->plain = $mime->getPart($plainpartid)->getContents();
+        } else {
+            $messagedata->plain = null;
+        }
+
+        if ($htmlpartid = $mime->findBody('html')) {
+            $messagedata->html = $mime->getPart($htmlpartid)->getContents();
+        } else {
+            $messagedata->html = null;
+        }
+        return $messagedata;
+    }
 }
 
-class test_handler extends \mod_forum\message\inbound\reply_handler {
+class test_handler extends \core\message\inbound\handler {
 
-    public static function remove_quoted_text($text, $linecount = 1) {
-        return parent::remove_quoted_text($text, $linecount);
+    protected function get_description() {}
+
+    /**
+     * Return a name for the current handler.
+     * This appears in the admin pages as a human-readable name.
+     *
+     * @return string
+     */
+    protected function get_name() {}
+
+    /**
+     * Process the message against the current handler.
+     *
+     * @param \stdClass $record The Inbound Message Handler record
+     * @param \stdClass $messagedata The message data
+     */
+    public function process_message(\stdClass $record, \stdClass $messagedata) {}
+
+    public static function remove_quoted_text($messagedata) {
+        return parent::remove_quoted_text($messagedata);
     }
 
     public static function get_linecount_to_remove($messagedata) {
