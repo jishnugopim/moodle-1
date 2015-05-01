@@ -24,6 +24,8 @@
 
 module.exports = function(grunt) {
     var path = require('path'),
+        // Attempt to use the PWD environment variable. Fallback on the cwd for Windows.
+        pwd = process.env.PWD || process.cwd(),
         tasks = {};
 
     // Project configuration.
@@ -38,11 +40,11 @@ module.exports = function(grunt) {
                     ['**/src/*.js', '!**/node_modules/**'],
                     '',
                     {
-                        cwd: process.env.PWD,
+                        cwd: pwd,
                         rename: function(destBase, destPath) {
                             destPath = destPath.replace('src', 'build');
                             destPath = destPath.replace('.js', '.min.js');
-                            destPath = path.resolve(process.env.PWD, destPath);
+                            destPath = path.resolve(pwd, destPath);
                             return destPath;
                         }
                     }
@@ -64,12 +66,12 @@ module.exports = function(grunt) {
             shifter;
 
             // Determine the most appropriate options to run with based upon the current location.
-            if (path.basename(process.env.PWD) === 'src') {
+            if (path.basename(pwd) === 'src') {
                 // Detect whether we're in a src directory.
                 grunt.log.debug('In a src directory');
                 args.push('--walk');
                 options.walk = true;
-            } else if (path.basename(path.dirname(process.env.PWD)) === 'src') {
+            } else if (path.basename(path.dirname(pwd)) === 'src') {
                 // Detect whether we're in a module directory.
                 grunt.log.debug('In a module directory');
                 options.module = true;
@@ -101,7 +103,7 @@ module.exports = function(grunt) {
 
             // Actually run shifter.
             shifter = exec(process.cwd() + '/node_modules/shifter/bin/shifter', args, {
-                cwd: process.env.PWD,
+                cwd: pwd,
                 stdio: 'inherit',
                 env: process.env
             });
@@ -119,10 +121,10 @@ module.exports = function(grunt) {
 
     tasks.startup = function() {
         // Are we in a YUI directory?
-        if (path.basename(path.resolve(process.env.PWD, '../../')) == 'yui') {
+        if (path.basename(path.resolve(pwd, '../../')) == 'yui') {
             grunt.task.run('shifter');
         // Are we in an AMD directory?
-        } else if (path.basename(process.env.PWD) == 'amd') {
+        } else if (path.basename(pwd) == 'amd') {
             grunt.task.run('jshint');
             grunt.task.run('uglify');
         } else {
