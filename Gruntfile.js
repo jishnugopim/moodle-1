@@ -52,7 +52,7 @@ module.exports = function(grunt) {
     });
 
     tasks.shifter = function() {
-       var  exec = require('child_process').spawn,
+        var exec = require("spawn-cmd").spawn,
             done = this.async(),
             args = [],
             options = {
