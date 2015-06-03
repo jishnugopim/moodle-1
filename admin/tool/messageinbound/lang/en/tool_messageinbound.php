@@ -69,6 +69,11 @@ $string['messageprocessingsuccess'] = '{$a->plain}
 If you do not wish to receive these notifications in the future, you can edit your personal messaging preferences by opening {$a->messagepreferencesurl} in your browser.';
 $string['messageprocessingsuccesshtml'] = '{$a->html}
 <p>If you do not wish to receive these notifications in the future, you can <a href="{$a->messagepreferencesurl}">edit your personal messaging preferences</a>.</p>';
+$string['messageprocessingvirus'] = 'You recently sent an email "{$a->subject}" but unfortunately an attachment in that e-mail contained a virus.
+
+The affected file had the filename "{$a->filename}".';
+$string['messageprocessingvirushtml'] = '<p>You recently sent an email <em>{$a->subject}</em> but unfortunately an attachment in that e-mail contained a virus.</p>
+<p>The affected file had the filename <em>{$a->filename}</em>.</p>';
 $string['messageinbound'] = 'Message Inbound';
 $string['messageinboundenabled'] = 'Enable incoming mail processing';
 $string['messageinboundenabled_desc'] = 'Incoming mail processing must be enabled in order for messages to be sent with the appropriate information.';
