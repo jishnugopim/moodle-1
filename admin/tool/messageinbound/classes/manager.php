@@ -631,7 +631,7 @@ class manager {
         $attachment->contentid      = $partdata->getContentId();
         $attachment->filesize       = $messagedata->getBodyPartSize($part);
 
-        if (empty($CFG->runclamonupload) or empty($CFG->pathtoclam)) {
+        if (!empty($CFG->runclamonupload) and !empty($CFG->pathtoclam)) {
             mtrace("--> Attempting virus scan of '{$attachment->filename}'");
 
             // Store the file on disk - it will need to be virus scanned first.
@@ -654,7 +654,7 @@ class manager {
                 \repository::antivir_scan_file($filepath, $attachment->filename, true);
             } catch (\moodle_exception $e) {
                 mtrace("--> A virus was found in the attachment '{$attachment->filename}'.");
-                $this->inform_attachment_virus();
+                $this->inform_attachment_virus($attachment);
                 return;
             }
         }
@@ -990,6 +990,48 @@ class manager {
             mtrace("---> Unable to send success notification.");
         }
         return true;
+    }
+
+    /**
+     * Inform the sender that the message attachment contained a virus of
+     * some kind.
+     *
+     * @param \stdClass $attachment The infected attachment
+     * @return void
+     */
+    private function inform_attachment_virus(\stdClass $attachment) {
+        global $USER;
+
+        // The message will be sent from the intended user.
+        $userfrom = clone $USER;
+        $userfrom->customheaders = array();
+
+        if ($messageid = $this->currentmessagedata->messageid) {
+            // Adding the In-Reply-To header ensures that it is seen as a reply and threading is maintained.
+            $userfrom->customheaders[] = 'In-Reply-To: ' . $messageid;
+        }
+
+        $messagedata = new \stdClass();
+        $messagedata->subject = $this->currentmessagedata->envelope->subject;
+        $messagedata->filename = $attachment->filename;
+
+        $eventdata = new \stdClass();
+        $eventdata->component           = 'tool_messageinbound';
+        $eventdata->name                = 'messageprocessingerror';
+        $eventdata->userfrom            = $userfrom;
+        $eventdata->userto              = $USER;
+        $eventdata->subject             = self::get_reply_subject($this->currentmessagedata->envelope->subject);
+        $eventdata->fullmessage         = get_string('messageprocessingvirus', 'tool_messageinbound', $messagedata);
+        $eventdata->fullmessageformat   = FORMAT_PLAIN;
+        $eventdata->fullmessagehtml     = get_string('messageprocessingvirushtml', 'tool_messageinbound', $messagedata);
+        $eventdata->smallmessage        = $eventdata->fullmessage;
+        $eventdata->notification        = 1;
+
+        if (message_send($eventdata)) {
+            mtrace("---> Notification sent to {$USER->email}.");
+        } else {
+            mtrace("---> Unable to send notification.");
+        }
     }
 
     /**
