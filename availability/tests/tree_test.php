@@ -42,99 +42,197 @@ class tree_testcase extends \advanced_testcase {
     }
 
     /**
-     * Tests constructing a tree with errors.
+     * The dataProvider for test_construct_errors.
      */
-    public function test_construct_errors() {
-        try {
-            new tree('frog');
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('not object', $e->getMessage());
-        }
-        try {
-            new tree((object)array());
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('missing ->op', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '*'));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('unknown ->op', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|'));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('missing ->show', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|', 'show' => 0));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('->show not bool', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '&'));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('missing ->showc', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '&', 'showc' => 0));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('->showc not array', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '&', 'showc' => array(0)));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('->showc value not bool', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|', 'show' => true));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('missing ->c', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|', 'show' => true,
-                    'c' => 'side'));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('->c not array', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|', 'show' => true,
-                    'c' => array(3)));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('child not object', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|', 'show' => true,
-                    'c' => array((object)array('type' => 'doesnotexist'))));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('Unknown condition type: doesnotexist', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '|', 'show' => true,
-                    'c' => array((object)array())));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('missing ->op', $e->getMessage());
-        }
-        try {
-            new tree((object)array('op' => '&',
-                    'c' => array((object)array('op' => '&', 'c' => array())),
-                    'showc' => array(true, true)
-                    ));
-            $this->fail();
-        } catch (coding_exception $e) {
-            $this->assertContains('->c, ->showc mismatch', $e->getMessage());
+    public function construct_errors_provider() {
+        return array(
+            array(
+                'name' => 'String instead of object',
+                'test' => array(
+                    'tree' => 'frog',
+                ),
+                'assertions' => array(
+                    'contains' => 'not object',
+                ),
+            ),
+            array(
+                'name' => 'Missing ->op',
+                'test' => array(
+                    'tree' => (object) array(),
+                ),
+                'assertions' => array(
+                    'contains' => 'missing ->op',
+                ),
+            ),
+            array(
+                'name' => 'Unknown ->op',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '*'
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'unknown ->op',
+                ),
+            ),
+            array(
+                'name' => 'missing ->show',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|'
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'missing ->show',
+                ),
+            ),
+            array(
+                'name' => 'show not bool',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|',
+                        'show' => 0,
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => '->show not bool',
+                ),
+            ),
+            array(
+                'name' => 'missing ->showc',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '&'
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'missing ->showc',
+                ),
+            ),
+            array(
+                'name' => '->showc not array',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '&',
+                        'showc' => 0,
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => '->showc not array',
+                ),
+            ),
+            array(
+                'name' => '->showc value not bool',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '&',
+                        'showc' => array(0),
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => '->showc value not bool',
+                ),
+            ),
+            array(
+                'name' => 'missing ->c',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|',
+                        'show' => true,
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'missing ->c',
+                ),
+            ),
+            array(
+                'name' => '->c not array',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|',
+                        'show' => true,
+                        'c' => 'side',
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => '->c not array',
+                ),
+            ),
+            array(
+                'name' => 'child not object',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|',
+                        'show' => true,
+                        'c' => array(3),
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'child not object',
+                ),
+            ),
+            array(
+                'name' => 'Unknown condition type: doesnotexist',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|',
+                        'show' => true,
+                        'c' => array(
+                            (object) array(
+                                'type' => 'doesnotexist',
+                            ),
+                        ),
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'Unknown condition type: doesnotexist',
+                ),
+            ),
+            array(
+                'name' => 'missing ->op',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '|',
+                        'show' => true,
+                        'c' => array(
+                            (object) array(
+                            ),
+                        ),
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => 'missing ->op',
+                ),
+            ),
+            array(
+                'name' => '->c, ->showc mismatch',
+                'test' => array(
+                    'tree' => (object) array(
+                        'op' => '&',
+                        'c' => array(
+                            (object) array(
+                                'op' => '&',
+                                'c' => array(),
+                            ),
+                        ),
+                        'showc' => array(true, true),
+                    ),
+                ),
+                'assertions' => array(
+                    'contains' => '->c, ->showc mismatch',
+                ),
+            ),
+        );
+    }
+
+    /**
+     * Tests constructing a tree with errors.
+     * @dataProvider construct_errors_provider
+     */
+    public function test_construct_errors($name, $test, $expects) {
+        $this->setExpectedException('coding_exception', $expects['contains']);
+        if (isset($test['tree'])) {
+            new tree($test['tree']);
         }
     }
 
@@ -173,9 +271,292 @@ class tree_testcase extends \advanced_testcase {
     }
 
     /**
-     * Tests the check_available and get_result_information functions.
+     * The dataProvider for test_check_available.
      */
-    public function test_check_available() {
+    public function check_available_provider() {
+        return array(
+            array(
+                'name' => 'No conditions',
+                'structure' => array(),
+                'assertions' => array(
+                    'available' => true,
+                )
+            ),
+
+            array(
+                'name' => 'One condition set to yes',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => true)),
+                    ),
+                ),
+                'assertions' => array(
+                    'available' => true,
+                )
+            ),
+            array(
+                'name' => 'One condition set to no',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'no')),
+                    ),
+                ),
+                'assertions' => array(
+                    'equals'    => 'SA: no',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, OR, resolving as true',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'no')),
+                        self::mock(array('a' => true)),
+                    ),
+                ),
+                'assertions' => array(
+                    'available' => true,
+                    'equals'    => '',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, OR, resolving as false',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'no')),
+                        self::mock(array('a' => false, 'm' => 'way')),
+                    ),
+                ),
+                'assertions' => array(
+                    'regexp'    => '~any of.*no.*way~',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, OR, resolving as false, no display',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'no')),
+                        self::mock(array('a' => false, 'm' => 'way')),
+                    ),
+                    'show'  => false,
+                ),
+                'assertions' => array(
+                    'equals'    => '',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, AND, resolving as true',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => true)),
+                        self::mock(array('a' => true)),
+                    ),
+                    'op'    => '&',
+                    'showc' => array(
+                        true,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'available' => true,
+                )
+            ),
+            array(
+                'name' => 'Two conditions, AND, one false',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'wom')),
+                        self::mock(array('a' => true, 'm' => '')),
+                    ),
+                    'op'    => '&',
+                    'showc' => array(
+                        true,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'equals'    => 'SA: wom',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, AND, both false',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'wom')),
+                        self::mock(array('a' => false, 'm' => 'bat')),
+                    ),
+                    'op'    => '&',
+                    'showc' => array(
+                        true,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'regexp'    => '~wom.*bat~',
+                )
+            ),
+
+            array(
+                'name' => 'Two conditions, AND, both false, show turned off for one. When ' .
+                          'show is turned off, that means if you don\'t have that condition ' .
+                          'you don\'t get to see anything at all',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'wom')),
+                        self::mock(array('a' => false, 'm' => 'bat')),
+                    ),
+                    'op'    => '&',
+                    'showc' => array(
+                        false,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'equals'    => '',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, NOT OR, both false',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => false, 'm' => 'wom')),
+                        self::mock(array('a' => false, 'm' => 'bat')),
+                    ),
+                    'op'    => '!|',
+                    'showc' => array(
+                        true,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'available' => true,
+                )
+            ),
+            array(
+                'name' => 'Two conditions, NOT OR, one true',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => true, 'm' => 'wom')),
+                        self::mock(array('a' => false, 'm' => 'bat')),
+                    ),
+                    'op'    => '!|',
+                    'showc' => array(
+                        true,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'equals'    => 'SA: !wom',
+                )
+            ),
+
+            array(
+                'name' => 'Two conditions, NOT OR, both true',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => true, 'm' => 'wom')),
+                        self::mock(array('a' => true, 'm' => 'bat')),
+                    ),
+                    'op'    => '!|',
+                    'showc' => array(
+                        true,
+                        true,
+                    ),
+                ),
+                'assertions' => array(
+                    'regexp'    => '~!wom.*!bat~',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, NOT AND, both true',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => true, 'm' => 'wom')),
+                        self::mock(array('a' => true, 'm' => 'bat')),
+                    ),
+                    'op'    => '!&',
+                    'show'  => true,
+                ),
+                'assertions' => array(
+                    'regexp' => '~any of.*!wom.*!bat~',
+                )
+            ),
+            array(
+                'name' => 'Two conditions, NOT AND, one true.',
+                'structure' => array(
+                    'c' => array(
+                        self::mock(array('a' => true, 'm' => 'wom')),
+                        self::mock(array('a' => false, 'm' => 'bat')),
+                    ),
+                    'op'    => '!&',
+                    'show'  => true,
+                ),
+                'assertions' => array(
+                    'available' => true,
+                )
+            ),
+            array(
+                'name' => 'Nested NOT conditions; true',
+                'structure' => array(
+                    'c' => array(
+                        tree::get_nested_json(
+                            array(
+                                self::mock(array('a' => true, 'm' => 'no')),
+                            ),
+                            tree::OP_NOT_AND
+                        ),
+                    ),
+                    'op'    => '!&',
+                    'show'  => true,
+                ),
+                'assertions' => array(
+                    'available' => true,
+                )
+            ),
+            array(
+                'name' => 'Nested NOT conditions; false (note no ! in message)',
+                'structure' => array(
+                    'c' => array(
+                        tree::get_nested_json(
+                            array(
+                                self::mock(array('a' => false, 'm' => 'no')),
+                            ),
+                            tree::OP_NOT_AND
+                        ),
+                    ),
+                    'op'    => '!&',
+                    'show'  => true,
+                ),
+                'assertions' => array(
+                    'equals' => 'SA: no',
+                )
+            ),
+            array(
+                'name' => 'Nested condition groups, message test',
+                'structure' => array(
+                    'c' => array(
+                        tree::get_nested_json(
+                            array(
+                                self::mock(array('a' => false, 'm' => '1')),
+                                self::mock(array('a' => false, 'm' => '2')),
+                            ), tree::OP_AND
+                        ),
+                        self::mock(array('a' => false, 'm' => 3))
+                    ),
+                    'op'    => '|',
+                    'show'  => true,
+                ),
+                'assertions' => array(
+                    'regexp' => '~<ul.*<ul.*<li.*1.*<li.*2.*</ul>.*<li.*3~',
+                )
+            ),
+        );
+    }
+
+    /**
+     * Tests the check_available and get_result_information functions.
+     * @dataProvider check_available_provider
+     */
+    public function test_check_available($name, $test, $expected) {
         global $USER;
 
         // Setup.
@@ -184,153 +565,45 @@ class tree_testcase extends \advanced_testcase {
         $this->setAdminUser();
         $information = '';
 
-        // No conditions.
+        // The base test structure.
         $structure = tree::get_root_json(array(), tree::OP_OR);
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
 
-        // One condition set to yes.
-        $structure->c = array(
-                self::mock(array('a' => true)));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
+        // Override the test structure details.
+        if (isset($test['c'])) {
+            $structure->c = $test['c'];
+        }
 
-        // One condition set to no.
-        $structure->c = array(
-                self::mock(array('a' => false, 'm' => 'no')));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertEquals('SA: no', $information);
+        if (isset($test['show'])) {
+            $structure->show = $test['show'];
+        }
 
-        // Two conditions, OR, resolving as true.
-        $structure->c = array(
-                self::mock(array('a' => false, 'm' => 'no')),
-                self::mock(array('a' => true)));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
-        $this->assertEquals('', $information);
+        if (isset($test['showc'])) {
+            $structure->showc = $test['showc'];
+        }
 
-        // Two conditions, OR, resolving as false.
-        $structure->c = array(
-                self::mock(array('a' => false, 'm' => 'no')),
-                self::mock(array('a' => false, 'm' => 'way')));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertRegExp('~any of.*no.*way~', $information);
+        if (isset($test['op'])) {
+            $structure->op = $test['op'];
+        }
 
-        // Two conditions, OR, resolving as false, no display.
-        $structure->show = false;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertEquals('', $information);
+        // Get the results for this test structure.
+        list($available, $information) = $this->get_available_results($structure, $info, $USER->id);
 
-        // Two conditions, AND, resolving as true.
-        $structure->op = '&';
-        unset($structure->show);
-        $structure->showc = array(true, true);
-        $structure->c = array(
-                self::mock(array('a' => true)),
-                self::mock(array('a' => true)));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
+        // Test the output.
 
-        // Two conditions, AND, one false.
-        $structure->c = array(
-                self::mock(array('a' => false, 'm' => 'wom')),
-                self::mock(array('a' => true, 'm' => '')));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertEquals('SA: wom', $information);
+        // All tests are either available or unavailable.
+        if (!isset($expected['available'])) {
+            // Default available to false.
+            $expected['available'] = false;
+        }
+        $this->assertEquals($expected['available'], $available);
 
-        // Two conditions, AND, both false.
-        $structure->c = array(
-                self::mock(array('a' => false, 'm' => 'wom')),
-                self::mock(array('a' => false, 'm' => 'bat')));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertRegExp('~wom.*bat~', $information);
+        if (isset($expected['equals'])) {
+            $this->assertEquals($expected['equals'], $information);
+        }
 
-        // Two conditions, AND, both false, show turned off for one. When
-        // show is turned off, that means if you don't have that condition
-        // you don't get to see anything at all.
-        $structure->showc[0] = false;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertEquals('', $information);
-        $structure->showc[0] = true;
-
-        // Two conditions, NOT OR, both false.
-        $structure->op = '!|';
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
-
-        // Two conditions, NOT OR, one true.
-        $structure->c[0]->a = true;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertEquals('SA: !wom', $information);
-
-        // Two conditions, NOT OR, both true.
-        $structure->c[1]->a = true;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertRegExp('~!wom.*!bat~', $information);
-
-        // Two conditions, NOT AND, both true.
-        $structure->op = '!&';
-        unset($structure->showc);
-        $structure->show = true;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertRegExp('~any of.*!wom.*!bat~', $information);
-
-        // Two conditions, NOT AND, one true.
-        $structure->c[1]->a = false;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
-
-        // Nested NOT conditions; true.
-        $structure->c = array(
-                tree::get_nested_json(array(
-                    self::mock(array('a' => true, 'm' => 'no'))), tree::OP_NOT_AND));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertTrue($available);
-
-        // Nested NOT conditions; false (note no ! in message).
-        $structure->c[0]->c[0]->a = false;
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertEquals('SA: no', $information);
-
-        // Nested condition groups, message test.
-        $structure->op = '|';
-        $structure->c = array(
-                tree::get_nested_json(array(
-                    self::mock(array('a' => false, 'm' => '1')),
-                    self::mock(array('a' => false, 'm' => '2'))
-                    ), tree::OP_AND),
-                self::mock(array('a' => false, 'm' => 3)));
-        list ($available, $information) = $this->get_available_results(
-                $structure, $info, $USER->id);
-        $this->assertFalse($available);
-        $this->assertRegExp('~<ul.*<ul.*<li.*1.*<li.*2.*</ul>.*<li.*3~', $information);
+        if (isset($expected['regexp'])) {
+            $this->assertRegExp($expected['regexp'], $information);
+        }
     }
 
     /**
