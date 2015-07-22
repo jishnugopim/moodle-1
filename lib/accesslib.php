@@ -5100,6 +5100,20 @@ abstract class context extends stdClass implements IteratorAggregate {
     protected $_depth;
 
     /**
+     * The ID of the disguise.
+     * Can be accessed publicly through $context->disguiseid
+     * @var int|null
+     */
+    protected $_disguiseid;
+
+    /**
+     * The disguise.
+     * Can be accessed publicly through $context->disguise
+     * @var object|null
+     */
+    protected $_disguise;
+
+    /**
      * @var array Context caching info
      */
     private static $cache_contextsbyid = array();
@@ -5235,18 +5249,22 @@ abstract class context extends stdClass implements IteratorAggregate {
      * @return void (modifies $rec)
      */
      protected static function preload_from_record(stdClass $rec) {
-         if (empty($rec->ctxid) or empty($rec->ctxlevel) or !isset($rec->ctxinstance) or empty($rec->ctxpath) or empty($rec->ctxdepth)) {
+         if (empty($rec->ctxid) or empty($rec->ctxlevel) or !isset($rec->ctxinstance) or empty($rec->ctxpath) or empty($rec->ctxdepth) or !isset($rec->ctxdisguiseid)) {
              // $rec does not have enough data, passed here repeatedly or context does not exist yet
+             if (isset($rec->ctxid) && !isset($rec->ctxdisguiseid)) {
+                 debuggging('ctxdisguiseid missing', DEBUG_DEVELOPER);
+             }
              return;
          }
 
          // note: in PHP5 the objects are passed by reference, no need to return $rec
          $record = new stdClass();
-         $record->id           = $rec->ctxid;       unset($rec->ctxid);
-         $record->contextlevel = $rec->ctxlevel;    unset($rec->ctxlevel);
-         $record->instanceid   = $rec->ctxinstance; unset($rec->ctxinstance);
-         $record->path         = $rec->ctxpath;     unset($rec->ctxpath);
-         $record->depth        = $rec->ctxdepth;    unset($rec->ctxdepth);
+         $record->id           = $rec->ctxid;           unset($rec->ctxid);
+         $record->contextlevel = $rec->ctxlevel;        unset($rec->ctxlevel);
+         $record->instanceid   = $rec->ctxinstance;     unset($rec->ctxinstance);
+         $record->path         = $rec->ctxpath;         unset($rec->ctxpath);
+         $record->depth        = $rec->ctxdepth;        unset($rec->ctxdepth);
+         $record->disguiseid   = $rec->ctxdisguiseid;   unset($rec->ctxdisguiseid);
 
          return context::create_instance_from_record($record);
      }
@@ -5275,6 +5293,7 @@ abstract class context extends stdClass implements IteratorAggregate {
             case 'instanceid':   return $this->_instanceid;
             case 'path':         return $this->_path;
             case 'depth':        return $this->_depth;
+            case 'disguiseid':   return $this->_disguiseid;
 
             default:
                 debugging('Invalid context property accessed! '.$name);
@@ -5294,6 +5313,7 @@ abstract class context extends stdClass implements IteratorAggregate {
             case 'instanceid':   return isset($this->_instanceid);
             case 'path':         return isset($this->_path);
             case 'depth':        return isset($this->_depth);
+            case 'disguiseid':   return isset($this->_disguiseid);
 
             default: return false;
         }
@@ -5322,7 +5342,8 @@ abstract class context extends stdClass implements IteratorAggregate {
             'contextlevel' => $this->contextlevel,
             'instanceid'   => $this->instanceid,
             'path'         => $this->path,
-            'depth'        => $this->depth
+            'depth'        => $this->depth,
+            'disguiseid'   => $this->disguiseid,
         );
         return new ArrayIterator($ret);
     }
@@ -5341,6 +5362,11 @@ abstract class context extends stdClass implements IteratorAggregate {
         $this->_instanceid   = $record->instanceid;
         $this->_path         = $record->path;
         $this->_depth        = $record->depth;
+        if (isset($record->disguiseid)) {
+            $this->_disguiseid   = $record->disguiseid;
+        } else {
+            debugging("Disguiseid missing", DEBUG_DEVELOPER);
+        }
     }
 
     /**
@@ -5382,13 +5408,14 @@ abstract class context extends stdClass implements IteratorAggregate {
         $dbfamily = $DB->get_dbfamily();
         if ($dbfamily == 'mysql') {
             $updatesql = "UPDATE {context} ct, {context_temp} temp
-                             SET ct.path     = temp.path,
-                                 ct.depth    = temp.depth
+                             SET ct.path        = temp.path,
+                                 ct.depth       = temp.depth,
+                                 ct.disguiseid  = temp.disguiseid
                            WHERE ct.id = temp.id";
         } else if ($dbfamily == 'oracle') {
             $updatesql = "UPDATE {context} ct
-                             SET (ct.path, ct.depth) =
-                                 (SELECT temp.path, temp.depth
+                             SET (ct.path, ct.depth, ct.disguiseid) =
+                                 (SELECT temp.path, temp.depth, temp.disguiseid
                                     FROM {context_temp} temp
                                    WHERE temp.id=ct.id)
                            WHERE EXISTS (SELECT 'x'
@@ -5396,15 +5423,17 @@ abstract class context extends stdClass implements IteratorAggregate {
                                            WHERE temp.id = ct.id)";
         } else if ($dbfamily == 'postgres' or $dbfamily == 'mssql') {
             $updatesql = "UPDATE {context}
-                             SET path     = temp.path,
-                                 depth    = temp.depth
+                             SET path       = temp.path,
+                                 depth      = temp.depth,
+                                 disguiseid = temp.disguiseid
                             FROM {context_temp} temp
                            WHERE temp.id={context}.id";
         } else {
             // sqlite and others
             $updatesql = "UPDATE {context}
-                             SET path     = (SELECT path FROM {context_temp} WHERE id = {context}.id),
-                                 depth    = (SELECT depth FROM {context_temp} WHERE id = {context}.id)
+                             SET path       = (SELECT path FROM {context_temp} WHERE id = {context}.id),
+                                 depth      = (SELECT depth FROM {context_temp} WHERE id = {context}.id),
+                                 disguiseid = (SELECT disguiseid FROM {context_temp} WHERE id = {context}.id)
                              WHERE id IN (SELECT id FROM {context_temp})";
         }
 
@@ -5603,6 +5632,7 @@ abstract class context extends stdClass implements IteratorAggregate {
         $record->instanceid   = $instanceid;
         $record->depth        = 0;
         $record->path         = null; //not known before insert
+        $record->disguiseid   = 0; // Empty by default.
 
         $record->id = $DB->insert_record('context', $record);
 
@@ -6040,7 +6070,14 @@ class context_helper extends context {
      * @return array (table.column=>alias, ...)
      */
     public static function get_preload_record_columns($tablealias) {
-        return array("$tablealias.id"=>"ctxid", "$tablealias.path"=>"ctxpath", "$tablealias.depth"=>"ctxdepth", "$tablealias.contextlevel"=>"ctxlevel", "$tablealias.instanceid"=>"ctxinstance");
+        return array(
+            "$tablealias.id"           =>  "ctxid",
+            "$tablealias.path"         =>  "ctxpath",
+            "$tablealias.depth"        =>  "ctxdepth",
+            "$tablealias.contextlevel" =>  "ctxlevel",
+            "$tablealias.instanceid"   =>  "ctxinstance",
+            "$tablealias.disguiseid"   =>  "ctxdisguiseid",
+        );
     }
 
     /**
@@ -6053,7 +6090,12 @@ class context_helper extends context {
      * @return string
      */
     public static function get_preload_record_columns_sql($tablealias) {
-        return "$tablealias.id AS ctxid, $tablealias.path AS ctxpath, $tablealias.depth AS ctxdepth, $tablealias.contextlevel AS ctxlevel, $tablealias.instanceid AS ctxinstance";
+        return  "$tablealias.id AS ctxid, " .
+                "$tablealias.path AS ctxpath," .
+                " $tablealias.depth AS ctxdepth," .
+                " $tablealias.contextlevel AS ctxlevel," .
+                " $tablealias.instanceid AS ctxinstance," .
+                " $tablealias.disguiseid AS ctxdisguiseid";
     }
 
     /**
@@ -6236,6 +6278,7 @@ class context_system extends context {
                 $record->instanceid   = 0;
                 $record->path         = '/'.SYSCONTEXTID;
                 $record->depth        = 1;
+                $record->disguiseid   = 0;
                 context::$systemcontext = new context_system($record);
             }
             return context::$systemcontext;
@@ -6260,6 +6303,7 @@ class context_system extends context {
             $record->instanceid   = 0;
             $record->depth        = 1;
             $record->path         = null; //not known before insert
+            $record->disguiseid   = 0; // Not set by default.
 
             try {
                 if ($DB->count_records('context')) {
@@ -6774,8 +6818,8 @@ class context_coursecat extends context {
             // Deeper categories - one query per depthlevel
             $maxdepth = $DB->get_field_sql("SELECT MAX(depth) FROM {course_categories}");
             for ($n=2; $n<=$maxdepth; $n++) {
-                $sql = "INSERT INTO {context_temp} (id, path, depth)
-                        SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1
+                $sql = "INSERT INTO {context_temp} (id, path, depth, disguiseid)
+                        SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1, pctx.disguiseid
                           FROM {context} ctx
                           JOIN {course_categories} cc ON (cc.id = ctx.instanceid AND ctx.contextlevel = ".CONTEXT_COURSECAT." AND cc.depth = $n)
                           JOIN {context} pctx ON (pctx.instanceid = cc.parent AND pctx.contextlevel = ".CONTEXT_COURSECAT.")
@@ -6998,8 +7042,8 @@ class context_course extends context {
             $DB->execute($sql);
 
             // standard courses
-            $sql = "INSERT INTO {context_temp} (id, path, depth)
-                    SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1
+            $sql = "INSERT INTO {context_temp} (id, path, depth, disguiseid)
+                    SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1, pctx.disguiseid
                       FROM {context} ctx
                       JOIN {course} c ON (c.id = ctx.instanceid AND ctx.contextlevel = ".CONTEXT_COURSE." AND c.category <> 0)
                       JOIN {context} pctx ON (pctx.instanceid = c.category AND pctx.contextlevel = ".CONTEXT_COURSECAT.")
@@ -7240,8 +7284,8 @@ class context_module extends context {
                 $ctxemptyclause = "AND (ctx.path IS NULL OR ctx.depth = 0)";
             }
 
-            $sql = "INSERT INTO {context_temp} (id, path, depth)
-                    SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1
+            $sql = "INSERT INTO {context_temp} (id, path, depth, disguiseid)
+                    SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1, pctx.disguiseid
                       FROM {context} ctx
                       JOIN {course_modules} cm ON (cm.id = ctx.instanceid AND ctx.contextlevel = ".CONTEXT_MODULE.")
                       JOIN {context} pctx ON (pctx.instanceid = cm.course AND pctx.contextlevel = ".CONTEXT_COURSE.")
@@ -7461,8 +7505,8 @@ class context_block extends context {
             }
 
             // pctx.path IS NOT NULL prevents fatal problems with broken block instances that point to invalid context parent
-            $sql = "INSERT INTO {context_temp} (id, path, depth)
-                    SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1
+            $sql = "INSERT INTO {context_temp} (id, path, depth, disguiseid)
+                    SELECT ctx.id, ".$DB->sql_concat('pctx.path', "'/'", 'ctx.id').", pctx.depth+1, pctx.disguiseid
                       FROM {context} ctx
                       JOIN {block_instances} bi ON (bi.id = ctx.instanceid AND ctx.contextlevel = ".CONTEXT_BLOCK.")
                       JOIN {context} pctx ON (pctx.id = bi.parentcontextid)
