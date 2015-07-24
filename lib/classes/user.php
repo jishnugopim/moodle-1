@@ -238,4 +238,25 @@ class core_user {
             return true;
         }
     }
+
+    public static function fullname(\stdClass $user, array $options = array()) {
+        if (isset($options['context']) && $options['context']->disguise) {
+            return call_user_func_array(array($options['context']->disguise, 'fullname'), func_get_args());
+        }
+
+        $override = isset($options['firstthenlast']) && $options['firstthenlast'];
+        return fullname($user, $override);
+    }
+
+    public static function profile_url(\stdClass $user, array $options = array(), $courseid = null) {
+        if (isset($options['context']) && $options['context']->disguise) {
+            return call_user_func_array(array($options['context']->disguise, 'profile_url'), func_get_args());
+        }
+
+        $profileurl = new moodle_url('/user/view.php', array('id' => $user->id));
+        if ($courseid) {
+            $profileurl->param('course', $courseid);
+        }
+        return $profileurl;
+    }
 }

@@ -5294,6 +5294,7 @@ abstract class context extends stdClass implements IteratorAggregate {
             case 'path':         return $this->_path;
             case 'depth':        return $this->_depth;
             case 'disguiseid':   return $this->_disguiseid;
+            case 'disguise':     return $this->get_disguise();
 
             default:
                 debugging('Invalid context property accessed! '.$name);
@@ -5878,6 +5879,17 @@ abstract class context extends stdClass implements IteratorAggregate {
                 }
             }
         }
+    }
+
+    protected function get_disguise() {
+        if (null === $this->_disguiseid) {
+            return null;
+        }
+
+        if (null === $this->_disguise) {
+            $this->_disguise = \core\disguise\helper::instance($this->_disguiseid);
+        }
+        return $this->_disguise;
     }
 }
 

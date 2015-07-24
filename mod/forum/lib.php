@@ -801,7 +801,8 @@ function forum_cron() {
                 }
 
                 $smallmessagestrings = new stdClass();
-                $smallmessagestrings->user          = fullname($userfrom);
+                // TODO add context across cron.
+                $smallmessagestrings->user          = core_user::fullname($userfrom);
                 $smallmessagestrings->forumname     = "$shortname: " . format_string($forum->name, true) . ": " . $discussion->name;
                 $smallmessagestrings->message       = $post->message;
 
@@ -1077,12 +1078,16 @@ function forum_cron() {
                             $posttext .= "\n";
                             $posttext .= $CFG->wwwroot.'/mod/forum/discuss.php?d='.$discussion->id;
                             $by = new stdClass();
-                            $by->name = fullname($userfrom);
+                            // TODO -- add context.
+                            $userparams = array('context' => context_module::instance($forum->id));
+                            $by->name = core_user::fullname($userfrom, $userparams);
                             $by->date = userdate($post->modified);
                             $posttext .= "\n".format_string($post->subject,true).' '.get_string("bynameondate", "forum", $by);
                             $posttext .= "\n---------------------------------------------------------------------";
 
-                            $by->name = "<a target=\"_blank\" href=\"$CFG->wwwroot/user/view.php?id=$userfrom->id&amp;course=$course->id\">$by->name</a>";
+                            if ($profilelink = core_user::profile_url($userfrom, $userparams, $course->id)) {
+                                $by->name = html_writer::link($profilelink, $by->name, array('target' => '_blank'));
+                            }
                             $posthtml .= '<div><a target="_blank" href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$discussion->id.'#p'.$post->id.'">'.format_string($post->subject,true).'</a> '.get_string("bynameondate", "forum", $by).'</div>';
 
                         } else {
@@ -1189,7 +1194,10 @@ function forum_make_mail_text($course, $cm, $forum, $discussion, $post, $userfro
     }
 
     $by = New stdClass;
-    $by->name = fullname($userfrom, $viewfullnames);
+    $by->name = core_user::fullname($userfrom, array(
+        'context' => $modcontext,
+        'firstthenlast' => $viewfullnames,
+    ));
     $by->date = userdate($post->modified, "", core_date::get_user_timezone($userto));
 
     $strbynameondate = get_string('bynameondate', 'forum', $by);
@@ -1698,7 +1706,10 @@ function forum_print_recent_activity($course, $viewfullnames, $timestart) {
 
         echo '<li><div class="head">'.
                '<div class="date">'.userdate($post->modified, $strftimerecent).'</div>'.
-               '<div class="name">'.fullname($post, $viewfullnames).'</div>'.
+               '<div class="name">'.core_user::fullname($post, array(
+                    'context' => $modcontext,
+                    'firstthenlast' => $viewfullnames,
+                )) . '</div>'.
              '</div>';
         echo '<div class="info'.$subjectclass.'">';
         if (empty($post->parent)) {
@@ -3061,9 +3072,17 @@ function forum_make_mail_post($course, $cm, $forum, $discussion, $post, $userfro
     }
     $output .= '<div class="subject">'.format_string($post->subject).'</div>';
 
-    $fullname = fullname($userfrom, $viewfullnames);
+    $postuserparams = array(
+            'context' => $modcontext,
+            'firstthenlast' => $viewfullnames,
+        );
     $by = new stdClass();
-    $by->name = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$userfrom->id.'&amp;course='.$course->id.'">'.$fullname.'</a>';
+
+    $fullname = core_user::fullname($postuser, $postuserparams);
+    if ($profilelink = core_user::profile_url($postuser, $postuserparams, $course->id)) {
+        $by->name = html_writer::link($profilelink, $fullname);
+    }
+    $by->name = $fullname;
     $by->date = userdate($post->modified, '', core_date::get_user_timezone($userto));
     $output .= '<div class="author">'.get_string('bynameondate', 'forum', $by).'</div>';
 
@@ -3266,8 +3285,12 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
     $postuserfields = explode(',', user_picture::fields());
     $postuser = username_load_fields_from_object($postuser, $post, null, $postuserfields);
     $postuser->id = $post->userid;
-    $postuser->fullname    = fullname($postuser, $cm->cache->caps['moodle/site:viewfullnames']);
-    $postuser->profilelink = new moodle_url('/user/view.php', array('id'=>$post->userid, 'course'=>$course->id));
+    $postuserparams = array(
+            'context' => $modcontext,
+            'firstthenlast' => $cm->cache->caps['moodle/site:viewfullnames'],
+        );
+    $postuser->fullname    = core_user::fullname($postuser, $postuserparams);
+    $postuser->profilelink = core_user::profile_url($postuser, $postuserparams, $course->id);
 
     // Prepare the groups the posting user belongs to
     if (isset($cm->cache->usersgroups)) {
@@ -3417,7 +3440,11 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
                                                            'aria-level' => '2'));
 
     $by = new stdClass();
-    $by->name = html_writer::link($postuser->profilelink, $postuser->fullname);
+    if ($postuser->profilelink) {
+        $by->name = html_writer::link($postuser->profilelink, $postuser->fullname);
+    } else {
+        $by->name = $postuser->fullname;
+    }
     $by->date = userdate($post->modified);
     $output .= html_writer::tag('div', get_string('bynameondate', 'forum', $by), array('class'=>'author',
                                                                                        'role' => 'heading',
@@ -3714,9 +3741,19 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
     echo "</td>\n";
 
     // User name
-    $fullname = fullname($postuser, has_capability('moodle/site:viewfullnames', $modcontext));
+
     echo '<td class="author">';
-    echo '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$post->userid.'&amp;course='.$forum->course.'">'.$fullname.'</a>';
+
+    $postuserparams = array(
+            'context' => $modcontext,
+            'firstthenlast' => has_capability('moodle/site:viewfullnames', $modcontext),
+        );
+    $fullname = core_user::fullname($postuser, $postuserparams);
+    if ($profilelink = core_user::profile_url($postuser, $postuserparams, $forum->course)) {
+        echo html_writer::link($profilelink, $fullname);
+    } else {
+        echo $fullname;
+    }
     echo "</td>\n";
 
     // Group picture
@@ -3780,8 +3817,14 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 
     // In QA forums we check that the user can view participants.
     if ($forum->type !== 'qanda' || $canviewparticipants) {
-        echo '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$post->usermodified.'&amp;course='.$forum->course.'">'.
-             fullname($usermodified).'</a><br />';
+        $userparams = array('context' => $modcontext);
+        $fullname = core_user::fullname($usermodified, $userparams);
+        if ($profilelink = core_user::profile_url($usermodified, $userparams, $forum->course)) {
+            echo html_writer::link($profilelink, $fullname);
+        } else {
+            echo $fullname;
+        }
+        echo '<br>';
         $parenturl = (empty($post->lastpostid)) ? '' : '&amp;parent='.$post->lastpostid;
     }
 
@@ -4711,7 +4754,9 @@ function forum_post_subscription($fromform, $forum, $discussion) {
     }
 
     $info = new stdClass();
-    $info->name  = fullname($USER);
+    $info->name  = core_user::fullname($USER, array(
+        'context' => context_module::instance($forum->id),
+    ));
     $info->discussion = format_string($discussion->name);
     $info->forum = format_string($forum->name);
 
@@ -5718,7 +5763,10 @@ function forum_print_posts_threaded($course, &$cm, $forum, $discussion, $parent,
                     continue;
                 }
                 $by = new stdClass();
-                $by->name = fullname($post, $canviewfullnames);
+                $by->name = core_user::fullname($post, array(
+                    'context' => $modcontext,
+                    'firstthenlast' => $canviewfullnames,
+                ));
                 $by->date = userdate($post->modified);
 
                 if ($forumtracked) {
@@ -5930,9 +5978,17 @@ function forum_print_recent_mod_activity($activity, $courseid, $detail, $modname
     echo '</div>';
 
     echo '<div class="user">';
-    $fullname = fullname($activity->user, $viewfullnames);
-    echo "<a href=\"$CFG->wwwroot/user/view.php?id={$activity->user->id}&amp;course=$courseid\">"
-         ."{$fullname}</a> - ".userdate($activity->timestamp);
+    $userparams = array(
+            'context' => context_module::instance($activity->id),
+            'firstthenlast' => $viewfullnames,
+        );
+    $fullname = core_user::fullname($activity->user, $userparams);
+    if ($profilelink = core_user::profile_url($activity->user, $userparams, $courseid)) {
+        echo html_writer::link($profilelink, $fullname);
+    } else {
+        echo $fullname;
+    }
+    echo ' - ' . userdate($activity->timestamp);
     echo '</div>';
       echo "</td></tr></table>";
 
