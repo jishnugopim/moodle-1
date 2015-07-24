@@ -6,6 +6,7 @@ information provided here is intended especially for theme designer.
 * The renderer function core_availability_renderer::multiple_messages was changed to
   render_core_availability_multiple_messages, requiring a parameter of the new
   \core_availability\multiple_messages type.
+* Inclusion of the YUI CSS resets has been moved to the YUI loader rather than by direct inclusion in the page header.
 
 === 2.9 ===
 
