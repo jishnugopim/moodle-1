@@ -555,7 +555,7 @@ class core_renderer extends renderer_base {
      */
     public function standard_top_of_body_html() {
         global $CFG;
-        $output = $this->page->requires->get_top_of_body_code();
+        $output = $this->page->requires->get_top_of_body_code($this->page);
         if (!empty($CFG->additionalhtmltopofbody)) {
             $output .= "\n".$CFG->additionalhtmltopofbody;
         }

@@ -6,6 +6,8 @@ information provided here is intended especially for theme designer.
 * The renderer function core_availability_renderer::multiple_messages was changed to
   render_core_availability_multiple_messages, requiring a parameter of the new
   \core_availability\multiple_messages type.
+* Themes overwriting core_renderer::standard_top_of_body_html() function
+  will now need to pass $this->page to get_top_of_body_code().
 
 === 2.9 ===
 
