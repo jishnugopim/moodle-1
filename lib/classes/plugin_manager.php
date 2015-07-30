@@ -1758,6 +1758,10 @@ class core_plugin_manager {
                 'imagegallery'
             ),
 
+            'disguise' => array(
+                'basic',
+            ),
+
             'editor' => array(
                 'atto', 'textarea', 'tinymce'
             ),
