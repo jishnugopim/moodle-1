@@ -439,6 +439,11 @@ define('FEATURE_SHOW_DESCRIPTION', 'showdescription');
 /** True if module uses the question bank */
 define('FEATURE_USES_QUESTIONS', 'usesquestions');
 
+/**
+ * True if context supports user disguises.
+ */
+define('FEATURE_DISGUISES', 'userdisguises');
+
 /** Unspecified module archetype */
 define('MOD_ARCHETYPE_OTHER', 0);
 /** Resource-like type module */

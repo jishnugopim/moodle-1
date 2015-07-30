@@ -274,4 +274,34 @@ class core_user {
             throw new moodle_exception('suspended', 'auth');
         }
     }
+
+    public static function fullname(\stdClass $user, array $options = array()) {
+        if (isset($options['context']) && $options['context']->disguise) {
+            return call_user_func_array(array($options['context']->disguise, 'fullname'), func_get_args());
+        }
+
+        $override = isset($options['firstthenlast']) && $options['firstthenlast'];
+        return fullname($user, $override);
+    }
+
+    public static function profile_url(\stdClass $user, array $options = array(), $courseid = null) {
+        if (isset($options['context']) && $options['context']->disguise) {
+            return call_user_func_array(array($options['context']->disguise, 'profile_url'), func_get_args());
+        }
+
+        $profileurl = new moodle_url('/user/view.php', array('id' => $user->id));
+        if ($courseid) {
+            $profileurl->param('course', $courseid);
+        }
+        return $profileurl;
+    }
+
+    public static function user_picture(\stdClass $user, array $options = array(), $userpictureoptions = array()) {
+        global $OUTPUT;
+        if (isset($options['context']) && $options['context']->disguise) {
+            return call_user_func_array(array($options['context']->disguise, 'user_picture'), func_get_args());
+        }
+
+        return $OUTPUT->user_picture($user, $userpictureoptions);
+    }
 }
