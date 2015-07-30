@@ -1762,6 +1762,9 @@ class core_plugin_manager {
                 'imagegallery'
             ),
 
+            'disguise' => array(
+            ),
+
             'editor' => array(
                 'atto', 'textarea', 'tinymce'
             ),
