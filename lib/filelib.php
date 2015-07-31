@@ -3981,13 +3981,26 @@ function file_pluginfile($relativepath, $forcedownload, $preview = null) {
                 $filename = 'f1';
             }
 
-            if ((!empty($CFG->forcelogin) and !isloggedin()) ||
-                    (!empty($CFG->forceloginforprofileimage) && (!isloggedin() || isguestuser()))) {
-                // protect images if login required and not logged in;
-                // also if login is required for profile images and is not logged in or guest
-                // do not use require_login() because it is expensive and not suitable here anyway
+            // Protect images based on the forceloginforprofileimage and forcelogin settings.
+            // Note: forceloginforprofileimage does not allow guest access, while forcelogin does.
+
+            // Always allow access if we have a loggedin user who is not the guest.
+            $allowaccess = isloggedin() && !isguestuser();
+
+            // Allow access if we actively do not force login for the profile image.
+            $allowaccess = $allowaccess || empty($CFG->forceloginforprofileimage);
+
+            // Allow access if we respect the value of forcelogin, and do not actively force login.
+            $allowaccess = $allowaccess || ($CFG->forceloginforprofileimage == -1 && empty($CFG->forcelogin));
+
+            // Allow access if we respect the value of forcelogin, and actively force login, and the user is a guest.
+            $allowaccess = $allowaccess || ($CFG->forceloginforprofileimage == -1 && $CFG->forcelogin) && isguestuser();
+
+            if (!$allowaccess) {
+                // Do not use require_login() because it is expensive and not suitable here anyway.
                 $theme = theme_config::load($themename);
-                redirect($theme->pix_url('u/'.$filename, 'moodle')); // intentionally not cached
+                // Note: This is intentionally not cached.
+                redirect($theme->pix_url('u/'.$filename, 'moodle'));
             }
 
             if (!$file = $fs->get_file($context->id, 'user', 'icon', 0, '/', $filename.'.png')) {
@@ -4014,8 +4027,15 @@ function file_pluginfile($relativepath, $forcedownload, $preview = null) {
             }
 
             $options = array('preview' => $preview);
-            if (empty($CFG->forcelogin) && empty($CFG->forceloginforprofileimage)) {
-                // Profile images should be cache-able by both browsers and proxies according
+
+            // Allow caching if we do not actively force login for the profile image.
+            $allowcache = empty($CFG->forceloginforprofileimage);
+
+            // Allow caching if we respect the value of forcelogin, and do not actively force login.
+            $allowcache = $allowcache || ($CFG->forceloginforprofileimage === -1 && empty($CFG->forcelogin));
+
+            if ($allowcache) {
+                // Profile images should be cacheable by both browsers and proxies according
                 // to $CFG->forcelogin and $CFG->forceloginforprofileimage.
                 $options['cacheability'] = 'public';
             }

@@ -361,11 +361,23 @@ class user_picture implements renderable {
 
         $defaulturl = $renderer->pix_url('u/'.$filename); // default image
 
-        if ((!empty($CFG->forcelogin) and !isloggedin()) ||
-            (!empty($CFG->forceloginforprofileimage) && (!isloggedin() || isguestuser()))) {
-            // Protect images if login required and not logged in;
-            // also if login is required for profile images and is not logged in or guest
-            // do not use require_login() because it is expensive and not suitable here anyway.
+        // Protect images based on the forceloginforprofileimage and forcelogin settings.
+        // Note: forceloginforprofileimage does not allow guest access, while forcelogin does.
+
+        // Always allow access if we have a loggedin user who is not the guest.
+        $allowaccess = isloggedin() && !isguestuser();
+
+        // Allow access if we actively do not force login for the profile image.
+        $allowaccess = $allowaccess || empty($CFG->forceloginforprofileimage);
+
+        // Allow access if we respect the value of forcelogin, and do not actively force login.
+        $allowaccess = $allowaccess || ($CFG->forceloginforprofileimage == -1 && empty($CFG->forcelogin));
+
+        // Allow access if we respect the value of forcelogin, and actively force login, and the user is a guest.
+        $allowaccess = $allowaccess || ($CFG->forceloginforprofileimage == -1 && $CFG->forcelogin) && isguestuser();
+
+        if (!$allowaccess) {
+            // Do not use require_login() because it is expensive and not suitable here anyway.
             return $defaulturl;
         }
 

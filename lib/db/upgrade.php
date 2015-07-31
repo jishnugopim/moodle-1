@@ -4441,5 +4441,17 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2015062500.01);
     }
 
+    if ($oldversion < 2015073100.00) {
+        // MDL-48425: forceloginforprofileimage changes.
+
+        if (empty($CFG->forceloginforprofileimage) && !empty($CFG->forcelogin)) {
+            // To maintain the existing behaviour, we must have forceloginforprofileimage honour the forcelogin setting.
+            set_config('forceloginforprofileimage', -1);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2015073100.00);
+    }
+
     return true;
 }
