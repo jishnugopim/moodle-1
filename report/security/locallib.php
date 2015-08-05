@@ -338,6 +338,41 @@ function report_security_check_google($detailed=false) {
 }
 
 /**
+ * Verifies adcrawler access not combined with disabled guest access
+ * because attackers might gain guest access by modifying browser signature.
+ * @param bool $detailed
+ * @return object result
+ */
+function report_security_check_adcrawlers($detailed=false) {
+    global $CFG;
+
+    $result = new stdClass();
+    $result->issue   = 'report_security_check_adcrawlers';
+    $result->name    = get_string('check_adcrawlers_name', 'report_security');
+    $result->info    = null;
+    $result->details = null;
+    $result->status  = null;
+    $result->link    = "<a href=\"$CFG->wwwroot/$CFG->admin/settings.php?section=sitepolicies\">".get_string('sitepolicies', 'admin').'</a>';
+
+    if (empty($CFG->opentoadcrawlers)) {
+        $result->status = REPORT_SECURITY_OK;
+        $result->info   = get_string('check_adcrawlers_ok', 'report_security');
+    } else if (!empty($CFG->guestloginbutton)) {
+        $result->status = REPORT_SECURITY_INFO;
+        $result->info   = get_string('check_adcrawlers_info', 'report_security');
+    } else {
+        $result->status = REPORT_SECURITY_SERIOUS;
+        $result->info   = get_string('check_adcrawlers_error', 'report_security');
+    }
+
+    if ($detailed) {
+        $result->details = get_string('check_adcrawlers_details', 'report_security');
+    }
+
+    return $result;
+}
+
+/**
  * Verifies email confirmation - spammers were changing mails very often
  * @param bool $detailed
  * @return object result

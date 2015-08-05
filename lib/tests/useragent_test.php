@@ -1831,12 +1831,7 @@ class core_useragent_testcase extends basic_testcase {
         // Setup the core_useragent instance.
         core_useragent::instance(true, $useragent);
 
-        if (isset($tests['is_ad_crawler']) && $tests['is_ad_crawler']) {
-            $this->assertTrue(core_useragent::is_ad_crawler(),
-                "Browser was not identified as an ad crawler");
-        } else {
-            $this->assertFalse(core_useragent::is_ad_crawler(),
-                "Browser was incorrectly identified as an ad crawler");
-        }
+        $expectation = isset($tests['is_ad_crawler']) ? $tests['is_ad_crawler'] : false;
+        $this->assertSame($expectation, core_useragent::is_ad_crawler());
     }
 }

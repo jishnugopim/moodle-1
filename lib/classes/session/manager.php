@@ -391,6 +391,12 @@ class manager {
             }
         }
 
+        if (!empty($CFG->opentoadcrawlers)) {
+            if (\core_useragent::is_ad_crawler()) {
+                $user = guest_user();
+            }
+        }
+
         // Setup $USER and insert the session tracking record.
         if ($user) {
             self::set_user($user);
