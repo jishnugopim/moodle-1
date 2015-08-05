@@ -1117,6 +1117,55 @@ class core_useragent_testcase extends basic_testcase {
                     ),
                ),
             ),
+            array(
+                'Mediapartners-Google',
+                array(
+                    'is_ad_crawler'                 => true,
+                    'versionclasses'                => array(
+                    ),
+                    'devicetype'                    => 'mobile',
+               ),
+            ),
+            array(
+                'Mediapartners (Googlebot)',
+                array(
+                    'is_web_crawler'                => true,
+                    'is_ad_crawler'                 => true,
+                    'versionclasses'                => array(
+                    ),
+                    'devicetype'                    => 'mobile',
+               ),
+            ),
+            array(
+                'AdsBot-Google',
+                array(
+                    'is_ad_crawler'                 => true,
+                    'versionclasses'                => array(
+                    ),
+               ),
+            ),
+            array(
+                'Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_2 like Mac OS X; cs-cz) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16 (compatible; Mediapartners-Google/2.1; +http://www.google.com/bot.html)',
+                array(
+                    'is_ad_crawler'                 => true,
+                    'is_web_crawler'                => true,
+
+                    // Note: We do *not* identify mobile Safari as Safari.
+                    'is_safari_ios'                 => true,
+                    'check_safari_ios_version'      => array(
+                        '527'                       => true,
+                    ),
+
+                    'is_webkit'                     => true,
+
+                    'versionclasses'                => array(
+                        'safari',
+                        'ios',
+                    ),
+
+                    'devicetype'                    => 'mobile',
+               ),
+            ),
 
             // Yahoo crawlers.
             // See https://help.yahoo.com/kb/slurp-crawling-page-sln22600.html.
@@ -1209,6 +1258,15 @@ class core_useragent_testcase extends basic_testcase {
                 'msnbot-media/1.1 (+http://search.msn.com/msnbot.htm)',
                 array(
                     'is_web_crawler'                => true,
+                    'versionclasses'                => array(
+                    ),
+               ),
+            ),
+            array(
+                'adidxbot/1.1 (+http://search.msn.com/msnbot.htm)',
+                array(
+                    'is_web_crawler'                => true,
+                    'is_ad_crawler'                 => true,
                     'versionclasses'                => array(
                     ),
                ),
@@ -1764,5 +1822,21 @@ class core_useragent_testcase extends basic_testcase {
 
         $expectation = isset($tests['is_web_crawler']) ? $tests['is_web_crawler'] : false;
         $this->assertSame($expectation, core_useragent::is_web_crawler());
+    }
+
+    /**
+     * @dataProvider user_agents_providers
+     */
+    public function test_useragent_ad_crawler($useragent, $tests) {
+        // Setup the core_useragent instance.
+        core_useragent::instance(true, $useragent);
+
+        if (isset($tests['is_ad_crawler']) && $tests['is_ad_crawler']) {
+            $this->assertTrue(core_useragent::is_ad_crawler(),
+                "Browser was not identified as an ad crawler");
+        } else {
+            $this->assertFalse(core_useragent::is_ad_crawler(),
+                "Browser was incorrectly identified as an ad crawler");
+        }
     }
 }

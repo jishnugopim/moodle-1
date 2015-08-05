@@ -63,6 +63,11 @@ class core_useragent {
     const DEVICETYPE_CRAWLER = 'searchcrawler';
 
     /**
+     * Ad service crawlers.
+     */
+    const DEVICETYPE_AD_CRAWLER = 'adcrawler';
+
+    /**
      * An instance of this class.
      * @var core_useragent
      */
@@ -78,6 +83,7 @@ class core_useragent {
         self::DEVICETYPE_MOBILE,
         self::DEVICETYPE_TABLET,
         self::DEVICETYPE_CRAWLER,
+        self::DEVICETYPE_AD_CRAWLER,
     );
 
     /**
@@ -222,6 +228,16 @@ class core_useragent {
      */
     protected function is_useragent_web_crawler() {
         $regex = '/Googlebot|google\.com|Yahoo! Slurp|\[ZSEBOT\]|msnbot|bingbot|BingPreview|Yandex|AltaVista|Baiduspider|Teoma/';
+        return (preg_match($regex, $this->useragent));
+    }
+
+    /**
+     * Whether the user agent relates to an advertisting crawler.
+     *
+     * @return bool
+     */
+    protected function is_useragent_ad_crawler() {
+        $regex = '/(Mediapartners|AdsBot).*Google|adidxbot/';
         return (preg_match($regex, $this->useragent));
     }
 
@@ -953,5 +969,15 @@ class core_useragent {
     public static function is_web_crawler() {
         $instance = self::instance();
         return (bool) $instance->is_useragent_web_crawler();
+    }
+
+    /**
+     * Returns true if the client appears to be some kind of advertising crawler.
+     *
+     * @return bool
+     */
+    public static function is_ad_crawler() {
+        $instance = self::instance();
+        return (bool) $instance->is_useragent_ad_crawler();
     }
 }
