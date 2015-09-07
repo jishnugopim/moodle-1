@@ -249,7 +249,10 @@ class enrol_self_plugin extends enrol_plugin {
             $output = ob_get_clean();
             return $OUTPUT->box($output);
         } else {
-            return $OUTPUT->box($enrolstatus);
+            $content = html_writer::tag('legend', $this->get_instance_name($instance)) .
+                html_writer::tag('div', $enrolstatus, array('class' => 'unavailable-instance'));
+            $fakefieldset = html_writer::tag('div', html_writer::tag('fieldset', $content), array('class' => 'mform'));
+            return $OUTPUT->box($fakefieldset);
         }
     }
 
