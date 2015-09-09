@@ -57,15 +57,13 @@ class mod_scorm_external_testcase extends externallib_advanced_testcase {
         $this->cm = get_coursemodule_from_instance('scorm', $this->scorm->id);
 
         // Create users.
-        $this->student1 = self::getDataGenerator()->create_user();
-        $this->student2 = self::getDataGenerator()->create_user();
+        $this->student = self::getDataGenerator()->create_user();
         $this->teacher = self::getDataGenerator()->create_user();
 
         // Users enrolments.
         $this->studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
-        $this->getDataGenerator()->enrol_user($this->student1->id, $this->course->id, $this->studentrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($this->student2->id, $this->course->id, $this->studentrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($this->student->id, $this->course->id, $this->studentrole->id, 'manual');
         $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, $this->teacherrole->id, 'manual');
     }
 
@@ -119,52 +117,88 @@ class mod_scorm_external_testcase extends externallib_advanced_testcase {
     /**
      * Test get scorm attempt count
      */
-    public function test_mod_scorm_get_scorm_attempt_count() {
-        global $DB;
-
+    public function test_mod_scorm_get_scorm_attempt_count_own_empty() {
         // Set to the student user.
-        self::setUser($this->student1);
+        self::setUser($this->student);
 
         // Retrieve my attempts (should be 0).
-        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student1->id);
+        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student->id);
         $result = external_api::clean_returnvalue(mod_scorm_external::get_scorm_attempt_count_returns(), $result);
         $this->assertEquals(0, $result['attemptscount']);
+    }
+
+    public function test_mod_scorm_get_scorm_attempt_count_own_with_complete() {
+        // Set to the student user.
+        self::setUser($this->student);
 
         // Create attempts.
         $scoes = scorm_get_scoes($this->scorm->id);
         $sco = array_shift($scoes);
-        scorm_insert_track($this->student1->id, $this->scorm->id, $sco->id, 1, 'cmi.core.lesson_status', 'completed');
-        scorm_insert_track($this->student1->id, $this->scorm->id, $sco->id, 2, 'cmi.core.lesson_status', 'completed');
+        scorm_insert_track($this->student->id, $this->scorm->id, $sco->id, 1, 'cmi.core.lesson_status', 'completed');
+        scorm_insert_track($this->student->id, $this->scorm->id, $sco->id, 2, 'cmi.core.lesson_status', 'completed');
 
-        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student1->id);
+        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student->id);
         $result = external_api::clean_returnvalue(mod_scorm_external::get_scorm_attempt_count_returns(), $result);
         $this->assertEquals(2, $result['attemptscount']);
+    }
 
-        // New attempt that should be ignored.
-        scorm_insert_track($this->student1->id, $this->scorm->id, $sco->id, 3, 'cmi.core.credit', '0');
-        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student1->id, true);
+    public function test_mod_scorm_get_scorm_attempt_count_own_incomplete() {
+        // Set to the student user.
+        self::setUser($this->student);
+
+        // Create a complete attempt, and an incomplete attempt.
+        $scoes = scorm_get_scoes($this->scorm->id);
+        $sco = array_shift($scoes);
+        scorm_insert_track($this->student->id, $this->scorm->id, $sco->id, 1, 'cmi.core.lesson_status', 'completed');
+        scorm_insert_track($this->student->id, $this->scorm->id, $sco->id, 2, 'cmi.core.credit', '0');
+
+        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student->id, true);
         $result = external_api::clean_returnvalue(mod_scorm_external::get_scorm_attempt_count_returns(), $result);
-        $this->assertEquals(2, $result['attemptscount']);
+        $this->assertEquals(1, $result['attemptscount']);
+    }
 
-        // Retrieve other user attempts.
+    public function test_mod_scorm_get_scorm_attempt_count_others_as_teacher() {
+        // As a teacher.
         self::setUser($this->teacher);
-        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student1->id);
+
+        // Create a completed attempt for student.
+        $scoes = scorm_get_scoes($this->scorm->id);
+        $sco = array_shift($scoes);
+        scorm_insert_track($this->student->id, $this->scorm->id, $sco->id, 1, 'cmi.core.lesson_status', 'completed');
+
+        // I should be able to view the attempts for my students.
+        $result = mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student->id);
         $result = external_api::clean_returnvalue(mod_scorm_external::get_scorm_attempt_count_returns(), $result);
-        $this->assertEquals(3, $result['attemptscount']);
+        $this->assertEquals(1, $result['attemptscount']);
+    }
 
-        // Retrieve other user attempts.
-        self::setUser($this->student2);
+    public function test_mod_scorm_get_scorm_attempt_count_others_as_student() {
+        // Create a second student.
+        $student2 = self::getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student2->id, $this->course->id, $this->studentrole->id, 'manual');
 
-        $this->setExpectedException('moodle_exception');
-        mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student1->id);
+        // As a student.
+        self::setUser($student2);
+
+        // I should not be able to view the attempts of another student.
+        $this->setExpectedException('required_capability_exception');
+        mod_scorm_external::get_scorm_attempt_count($this->scorm->id, $this->student->id);
+    }
+
+    public function test_mod_scorm_get_scorm_attempt_count_invalid_instanceid() {
+        // As student.
+        self::setUser($this->student);
 
         // Test invalid instance id.
         $this->setExpectedException('moodle_exception');
-        mod_scorm_external::get_scorm_attempt_count(0, $this->student1->id);
+        mod_scorm_external::get_scorm_attempt_count(0, $this->student->id);
+    }
 
-        // Test invalid user id.
+    public function test_mod_scorm_get_scorm_attempt_count_invalid_userid() {
+        // As student.
+        self::setUser($this->student);
+
         $this->setExpectedException('moodle_exception');
         mod_scorm_external::get_scorm_attempt_count($this->scorm->id, -1);
-
     }
 }
