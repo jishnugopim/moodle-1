@@ -64,16 +64,22 @@ if (\core\session\manager::is_loggedinas() and $USER->loginascontext->contextlev
 // get all enrol forms available in this course
 $enrols = enrol_get_plugins(true);
 $enrolinstances = enrol_get_instances($course->id, true);
-$forms = array();
+$available = array();
+$unavailable = array();
 foreach($enrolinstances as $instance) {
     if (!isset($enrols[$instance->enrol])) {
         continue;
     }
     $form = $enrols[$instance->enrol]->enrol_page_hook($instance);
     if ($form) {
-        $forms[$instance->id] = $form;
+        if (true === $enrols[$instance->enrol]->can_self_enrol($instance)) {
+            $available[$instance->id] = $form;
+        } else {
+            $unavailable[$instance->id] = $form;
+        }
     }
 }
+$forms = array_merge($available, $unavailable);
 
 // Check if user already enrolled
 if (is_enrolled($context, $USER, '', true)) {

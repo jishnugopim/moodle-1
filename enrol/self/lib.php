@@ -234,8 +234,8 @@ class enrol_self_plugin extends enrol_plugin {
 
         $enrolstatus = $this->can_self_enrol($instance);
 
-        // Don't show enrolment instance form, if user can't enrol using it.
         if (true === $enrolstatus) {
+            // This user can enrol. Create the enrolment form.
             $form = new enrol_self_enrol_form(NULL, $instance);
             $instanceid = optional_param('instance', 0, PARAM_INT);
             if ($instance->id == $instanceid) {
@@ -243,17 +243,18 @@ class enrol_self_plugin extends enrol_plugin {
                     $this->enrol_self($instance, $data);
                 }
             }
-
-            ob_start();
-            $form->display();
-            $output = ob_get_clean();
-            return $OUTPUT->box($output);
         } else {
-            $content = html_writer::tag('legend', $this->get_instance_name($instance)) .
-                html_writer::tag('div', $enrolstatus, array('class' => 'unavailable-instance'));
-            $fakefieldset = html_writer::tag('div', html_writer::tag('fieldset', $content), array('class' => 'mform'));
-            return $OUTPUT->box($fakefieldset);
+            // This user cannot enrol. Create the reason form.
+            $data = new stdClass();
+            $data->instance = $instance;
+            $data->reason = $enrolstatus;
+            $form = new enrol_self_noenrol_form(null, $data);
         }
+
+        ob_start();
+        $form->display();
+        $output = ob_get_clean();
+        return $OUTPUT->box($output);
     }
 
     /**

@@ -134,3 +134,16 @@ class enrol_self_enrol_form extends moodleform {
         return $errors;
     }
 }
+
+class enrol_self_noenrol_form extends moodleform {
+    public function definition() {
+        $mform = $this->_form;
+        $data = $this->_customdata;
+        $plugin = enrol_get_plugin('self');
+
+        $heading = $plugin->get_instance_name($data->instance);
+        $mform->addElement('header', 'selfheader', $heading);
+        $mform->addElement('static', 'failurereason', '', $data->reason);
+        $mform->setExpanded('selfheader', false, true);
+    }
+}
