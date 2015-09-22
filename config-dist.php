@@ -698,6 +698,9 @@ $CFG->admin = 'admin';
 // Example:
 //   $CFG->behat_faildump_path = '/my/path/to/save/failure/dumps';
 //
+// You can also force dumps on every step, instead of just on failures.
+//   $CFG->behat_faildump_always = true;
+//
 //=========================================================================
 // 12. DEVELOPER DATA GENERATOR
 //=========================================================================

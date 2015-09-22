@@ -85,6 +85,16 @@ class behat_hooks extends behat_base {
     protected static $faildumpdirname = false;
 
     /**
+     * @var integer The scenario count.
+     */
+    protected static $currentscenariocount = 0;
+
+    /**
+     * @var integer The step count within the current scenario.
+     */
+    protected static $currentscenariostepcount = 0;
+
+    /**
      * Gives access to moodle codebase, ensures all is ready and sets up the test lock.
      *
      * Includes config.php to use moodle codebase with $CFG->behat_*
@@ -162,6 +172,9 @@ class behat_hooks extends behat_base {
     public function before_scenario($event) {
         global $DB, $SESSION, $CFG;
 
+        self::$currentscenariostepcount = 0;
+        self::$currentscenariocount++;
+
         // As many checks as we can.
         if (!defined('BEHAT_TEST') ||
                !defined('BEHAT_SITE_RUNNING') ||
@@ -236,6 +249,15 @@ class behat_hooks extends behat_base {
     }
 
     /**
+     * Perform any required actions before the step begins.
+     * @param StepEvent $event
+     * @BeforeStep
+     */
+    public function before_step(StepEvent $event) {
+        self::$currentscenariostepcount++;
+    }
+
+    /**
      * Wait for JS to complete before beginning interacting with the DOM.
      *
      * Executed only when running against a real browser. We wrap it
@@ -273,12 +295,6 @@ class behat_hooks extends behat_base {
     public function after_step_javascript($event) {
         global $CFG;
 
-        // Save a screenshot if the step failed.
-        if (!empty($CFG->behat_faildump_path) &&
-                $event->getResult() === StepEvent::FAILED) {
-            $this->take_screenshot($event);
-        }
-
         try {
             $this->wait_for_pending_js();
             self::$currentstepexception = null;
@@ -299,18 +315,28 @@ class behat_hooks extends behat_base {
     }
 
     /**
-     * Execute any steps required after the step has finished.
-     *
-     * This includes creating an HTML dump of the content if there was a failure.
+     * Take any required screenshots and content dumps.
      *
      * @AfterStep
+     * @param StepEvent $event event fired after step.
      */
-    public function after_step($event) {
+    public function after_step_dumps(StepEvent $event) {
         global $CFG;
 
-        // Save the page content if the step failed.
-        if (!empty($CFG->behat_faildump_path) &&
-                $event->getResult() === StepEvent::FAILED) {
+        // Perform dumps on failures.
+        $createdump = $event->getResult() === StepEvent::FAILED;
+
+        // Perform dumps when faildump_always is set.
+        $createdump = $createdump || !empty($CFG->behat_faildump_always);
+
+        // Only perform dumps if a faildump path is set.
+        $createdump = $createdump && !empty($CFG->behat_faildump_path);
+
+        if ($createdump) {
+            // Save a screenshot.
+            $this->take_screenshot($event);
+
+            // Save the page content.
             $this->take_contentdump($event);
         }
     }
@@ -380,10 +406,21 @@ class behat_hooks extends behat_base {
             $dir = $CFG->behat_faildump_path . DIRECTORY_SEPARATOR . $faildumpdir;
         }
 
-        // The scenario title + the failed step text.
-        // We want a i-am-the-scenario-title_i-am-the-failed-step.$filetype format.
-        $filename = $event->getStep()->getParent()->getTitle() . '_' . $event->getStep()->getText();
+        // Make a directory for the scenario.
+        $scenarioname = $event->getLogicalParent()->getTitle();
+        $scenarioname = preg_replace('/([^a-zA-Z0-9\_]+)/', '-', $scenarioname);
+        // We want a i-am-the-scenario-title format.
+        $dir = $dir . DIRECTORY_SEPARATOR . self::$currentscenariocount . '-' . $scenarioname;
+        if (!is_dir($dir) && !mkdir($dir, $CFG->directorypermissions, true)) {
+            // We already checked that the directory is writable. This should not fail.
+            throw new Exception('No directories can be created inside $CFG->behat_faildump_path, check the directory permissions.');
+        }
+
+        // The failed step text.
+        // We want a stepno-i-am-the-failed-step.$filetype format.
+        $filename = $event->getStep()->getText();
         $filename = preg_replace('/([^a-zA-Z0-9\_]+)/', '-', $filename);
+        $filename = self::$currentscenariostepcount . '-' . $filename;
 
         // File name limited to 255 characters. Leaving 4 chars for the file
         // extension as we allow .png for images and .html for DOM contents.
@@ -578,4 +615,3 @@ class behat_hooks extends behat_base {
     }
 
 }
-
