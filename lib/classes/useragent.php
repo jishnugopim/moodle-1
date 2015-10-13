@@ -507,8 +507,11 @@ class core_useragent {
             // Reject Opera.
             return false;
         }
+        // See: https://msdn.microsoft.com/library/bg182625(v=vs.85).aspx for Edge UA details.
+        if (preg_match("%Edge/(.*)$%", $useragent, $match)) {
+            $browser = $match[1];
         // See: http://www.useragentstring.com/pages/Internet%20Explorer/.
-        if (preg_match("/MSIE ([0-9\.]+)/", $useragent, $match)) {
+        } else if (preg_match("/MSIE ([0-9\.]+)/", $useragent, $match)) {
             $browser = $match[1];
         // See: http://msdn.microsoft.com/en-us/library/ie/bg182625%28v=vs.85%29.aspx for IE11+ useragent details.
         } else if (preg_match("/Trident\/[0-9\.]+/", $useragent) && preg_match("/rv:([0-9\.]+)/", $useragent, $match)) {
@@ -516,6 +519,7 @@ class core_useragent {
         } else {
             return false;
         }
+
         $compatview = false;
         // IE8 and later versions may pretend to be IE7 for intranet sites, use Trident version instead,
         // the Trident should always describe the capabilities of IE in any emulation mode.
@@ -699,6 +703,10 @@ class core_useragent {
         if (strpos($useragent, 'Chrome')) { // Reject chrome browsers - it needs to be tested explicitly.
             return false;
         }
+        if (strpos($useragent, 'Edge')) {
+            // Reject Edge browsers - it needs to be tested explicitly.
+            return false;
+        }
 
         if (empty($version)) {
             return true; // No version specified.
@@ -768,6 +776,10 @@ class core_useragent {
             return false;
         }
         if (strpos($useragent, 'Android') === false) {
+            return false;
+        }
+        if (strpos($useragent, 'Edge')) {
+            // Reject Edge browsers - it needs to be tested explicitly.
             return false;
         }
         if (empty($version)) {
@@ -857,7 +869,14 @@ class core_useragent {
      */
     public static function get_browser_version_classes() {
         $classes = array();
-        if (self::is_ie()) {
+        if (self::is_webkit()) {
+            $classes[] = 'safari';
+            if (self::is_safari_ios()) {
+                $classes[] = 'ios';
+            } else if (self::is_webkit_android()) {
+                $classes[] = 'android';
+            }
+        } else if (self::is_ie()) {
             $classes[] = 'ie';
             for ($i = 12; $i >= 6; $i--) {
                 if (self::check_ie_version($i)) {

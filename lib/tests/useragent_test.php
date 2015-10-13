@@ -42,6 +42,78 @@ class core_useragent_testcase extends basic_testcase {
         // Note: When adding new entries to this list, please ensure that any new browser versions are added to the corresponding list.
         // This ensures that regression tests are applied to all known user agents.
         return array(
+            'Microsoft Edge for Windows 10 Desktop' => array(
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136',
+                array(
+                    'is_ie'                         => true,
+                    'check_ie_version'              => array(
+                        '0'                         => true,
+                        '5.0'                       => true,
+                        '5.5'                       => true,
+                        '6.0'                       => true,
+                        '7.0'                       => true,
+                        '8.0'                       => true,
+                        '9.0'                       => true,
+                        '10'                        => true,
+                        '11'                        => true,
+                        '12'                        => true,
+                    ),
+
+                    // Edge pretends to be WebKit.
+                    'is_webkit'                     => true,
+
+                    // Edge pretends to be Chrome.
+                    'is_chrome'                     => true,
+                    'check_chrome_version'          => array(
+                        '7'                         => true,
+                        '8'                         => true,
+                        '10'                        => true,
+                        '39'                        => true,
+                    ),
+
+                    'versionclasses'                => array(
+                        'ie',
+                        'ie12',
+                    ),
+                ),
+            ),
+            'Microsoft Edge for Windows 10 Mobile' => array(
+                'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; DEVICE INFO) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10136',
+                array(
+                    'is_ie'                         => true,
+                    'check_ie_version'              => array(
+                        '0'                         => true,
+                        '5.0'                       => true,
+                        '5.5'                       => true,
+                        '6.0'                       => true,
+                        '7.0'                       => true,
+                        '8.0'                       => true,
+                        '9.0'                       => true,
+                        '10'                        => true,
+                        '11'                        => true,
+                        '12'                        => true,
+                    ),
+
+                    // Edge pretends to be WebKit.
+                    'is_webkit'                     => true,
+
+                    // Edge pretends to be Chrome.
+                    'is_chrome'                     => true,
+                    'check_chrome_version'          => array(
+                        '7'                         => true,
+                        '8'                         => true,
+                        '10'                        => true,
+                        '39'                        => true,
+                    ),
+
+                    'versionclasses'                => array(
+                        'ie',
+                        'ie12',
+                    ),
+
+                    'devicetype'                    => 'mobile',
+                ),
+            ),
             // Windows 98; Internet Explorer 5.0.
             array(
                 'Mozilla/4.0 (compatible; MSIE 5.00; Windows 98)',
