@@ -3457,20 +3457,32 @@ function username_load_fields_from_object($addtoobject, $secondobject, $prefix =
  * @return array An array of values in order according to placement in the string format.
  */
 function order_in_string($values, $stringformat) {
+    // First sort by string value.
+    sort($values, SORT_STRING);
+
+    // Then by string length.
+    // We must sort by string length to ensure that we match most-exact items first.
+    usort($values, function($a, $b) {
+        return strlen($b) - strlen($a);
+    });
+
     $valuearray = array();
     foreach ($values as $value) {
-        $pattern = "/$value\b/";
-        // Using preg_match as strpos() may match values that are similar e.g. firstname and firstnamephonetic.
-        if (preg_match($pattern, $stringformat)) {
-            $replacement = "thing";
-            // Replace the value with something more unique to ensure we get the right position when using strpos().
-            $newformat = preg_replace($pattern, $replacement, $stringformat);
-            $position = strpos($newformat, $replacement);
+        $position = strpos($stringformat, $value);
+        if ($position !== false) {
             $valuearray[$position] = $value;
+
+            // Replace the occurrence of the matched string with a space.
+            $newformat = substr($stringformat, 0, $position);
+            $newformat .= ' ';
+            $newformat .= substr($stringformat, $position + strlen($value));
+
+            // Update the stringformat for the next search.
+            $stringformat = $newformat;
         }
     }
     ksort($valuearray);
-    return $valuearray;
+    return array_values($valuearray);
 }
 
 /**

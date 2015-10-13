@@ -2545,25 +2545,56 @@ class core_moodlelib_testcase extends advanced_testcase {
         $this->assertEquals($teststring, get_all_user_name_fields(true, null, null, null, true));
     }
 
-    public function test_order_in_string() {
-        $this->resetAfterTest();
+    public function order_in_string_dataprovider() {
+        return array(
+            'Return an array in an order as they are encountered in a string.' => array(
+                array('second', 'firsthalf', 'first'),
+                'first firsthalf some other text (second)',
+                array('first', 'firsthalf', 'second'),
+            ),
 
-        // Return an array in an order as they are encountered in a string.
-        $valuearray = array('second', 'firsthalf', 'first');
-        $formatstring = 'first firsthalf some other text (second)';
-        $expectedarray = array('0' => 'first', '6' => 'firsthalf', '33' => 'second');
-        $this->assertEquals($expectedarray, order_in_string($valuearray, $formatstring));
+            'Try again with a different order for the format.' => array(
+                array('second', 'firsthalf', 'first'),
+                'firsthalf first second',
+                array('firsthalf', 'first', 'second'),
+            ),
 
-        // Try again with a different order for the format.
-        $valuearray = array('second', 'firsthalf', 'first');
-        $formatstring = 'firsthalf first second';
-        $expectedarray = array('0' => 'firsthalf', '10' => 'first', '16' => 'second');
-        $this->assertEquals($expectedarray, order_in_string($valuearray, $formatstring));
+            'Try again with yet another different order for the format.' => array(
+                array('second', 'firsthalf', 'first'),
+                'start seconds away second firstquater first firsthalf',
+                array('second', 'first', 'firsthalf'),
+            ),
 
-        // Try again with yet another different order for the format.
-        $valuearray = array('second', 'firsthalf', 'first');
-        $formatstring = 'start seconds away second firstquater first firsthalf';
-        $expectedarray = array('19' => 'second', '38' => 'first', '44' => 'firsthalf');
+            'Now try with getting the sort order of names (normal).' => array(
+                array('firstname', 'lastname', 'firstnamephonetic', 'lastnamephonetic'),
+                'lastname firstname',
+                array('lastname', 'firstname'),
+            ),
+
+            'Now try with getting the sort order of names (no space).' => array(
+                array('firstname', 'lastname', 'firstnamephonetic', 'lastnamephonetic'),
+                'lastnamefirstname',
+                array('lastname', 'firstname'),
+            ),
+
+            'Try with firstnamephonetic in the format string (normal).' => array(
+                array('firstname', 'lastname', 'firstnamephonetic', 'lastnamephonetic'),
+                'firstnamephonetic firstname',
+                array('firstnamephonetic', 'firstname'),
+            ),
+
+            'Try with firstnamephonetic in the format string (no space).' => array(
+                array('firstname', 'lastname', 'firstnamephonetic', 'lastnamephonetic'),
+                'firstnamephoneticfirstname',
+                array('firstnamephonetic', 'firstname'),
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider order_in_string_dataprovider
+     */
+    public function test_order_in_string($valuearray, $formatstring, $expectedarray) {
         $this->assertEquals($expectedarray, order_in_string($valuearray, $formatstring));
     }
 
