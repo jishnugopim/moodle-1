@@ -150,28 +150,34 @@ make_localcache_directory('theme', false);
 // there is a cached image already of another format.
 // Remember this only gets run once before any candidate exists, and only if we want a cached revision.
 if (!$usesvg) {
-    $imagefile = $theme->resolve_image_location($image, $component, true);
-    if (!empty($imagefile) && is_readable($imagefile)) {
-        $cacheimage = cache_image($image, $imagefile, $candidatelocation);
-        $pathinfo = pathinfo($imagefile);
-        // There is no SVG equivalent, we've just successfully cached an image of another format.
-        if ($pathinfo['extension'] !== 'svg') {
-            // Serve the file as we would in a normal request.
-            if (connection_aborted()) {
-                die;
-            }
-            // Make sure nothing failed.
-            clearstatcache();
-            if (file_exists($cacheimage)) {
-                send_cached_image($cacheimage, $etag);
-            }
-            send_uncached_image($imagefile);
-            exit;
-        } else {
-            // We cannot serve the SVG file this time and there is no alternative, so prevent future
-            // requests from failing to find the image when they can support SVG.
-            image_not_found();
+    $svgimagefile = $theme->resolve_image_location($image, $component, true);
+    if (!empty($svgimagefile) && is_readable($svgimagefile)) {
+        $pathinfo = pathinfo($svgimagefile);
+        if ($pathinfo['extension'] === 'svg') {
+            // This is definitely an SVG.
+            // Just cache the file - do not serve it now.
+            cache_image($image, $svgimagefile, $candidatelocation);
         }
+    }
+
+    $imagefile = $theme->resolve_image_location($image, $component, false);
+    if (!empty($imagefile) && is_readable($imagefile)) {
+        // Cache the actual image.
+        cache_image($image, $imagefile, $candidatelocation);
+
+        // Serve the file as we would in a normal request.
+        if (connection_aborted()) {
+            die;
+        }
+        // Make sure nothing failed.
+        clearstatcache();
+        if (file_exists($cacheimage)) {
+            send_cached_image($cacheimage, $etag);
+        }
+        send_uncached_image($imagefile);
+    } else {
+        // A non-svg file could not be found.
+        image_not_found();
     }
 }
 
