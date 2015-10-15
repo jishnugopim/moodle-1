@@ -104,6 +104,14 @@ before_script:
         fi
       fi
 
+    # Install npm dependencies too for CI tests.
+    # This will be required for moodle-local_ci.
+    #- >
+    #  if [ "$CITEST" = 'true' ];
+    #  then
+    #    npm install;
+    #  fi
+
 script:
     ########################################################################
     # PHPUnit
@@ -126,6 +134,10 @@ script:
         # The following repositories are required.
         # The local_ci repository does the actual checking.
         git clone https://github.com/moodlehq/moodle-local_ci.git local/ci
+
+        # We may want to invoke the codechcker and doc checker some day soon.
+        #git clone git://github.com/moodlehq/moodle-local_codechecker.git local/codechecker;
+        #git clone https://github.com/moodlehq/moodle-local_moodlecheck.git local/moodlecheck;
 
         # We need the official upstream for comparison
         git remote add upstream https://github.com/moodle/moodle.git;
