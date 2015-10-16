@@ -73,12 +73,12 @@ function atto_table_strings_for_js() {
  * @param string $foptions
  */
 function atto_table_params_for_js($elementid, $options, $foptions) {
-    $params = array('allowborder' => get_config('atto_table', 'allowborder'),
-                    'allowborderstyles' => get_config('atto_table', 'allowborderstyle'),
-                    'borderstyles' => get_config('atto_table', 'borderstyles'),
-                    'allowbordersize' => get_config('atto_table', 'allowbordersize'),
-                    'allowbordercolour' => get_config('atto_table', 'allowbordercolour'),
-                    'allowwidth' => get_config('atto_table', 'allowwidth'),
-                    'allowbackgroundcolour' => get_config('atto_table', 'allowbackgroundcolour'));
+    $params = array('allowBorder'            => (bool) get_config('atto_table', 'allowborder'),
+                    'allowBorderStyle'       => (bool) get_config('atto_table', 'allowborderstyle'),
+                    'borderStyles'           => get_config('atto_table', 'borderstyles'),
+                    'allowBorderSize'        => (bool) get_config('atto_table', 'allowbordersize'),
+                    'allowBorderColour'      => (bool) get_config('atto_table', 'allowbordercolour'),
+                    'allowWidth'             => (bool) get_config('atto_table', 'allowwidth'),
+                    'allowBackgroundColour'  => (bool) get_config('atto_table', 'allowbackgroundcolour'));
     return $params;
 }
