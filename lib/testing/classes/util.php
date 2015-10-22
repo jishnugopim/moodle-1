@@ -498,7 +498,12 @@ abstract class testing_util {
             foreach ($data as $table => $records) {
                 if (isset($structure[$table]['id']) and $structure[$table]['id']->auto_increment) {
                     if (isset($sequences[$table])) {
-                        $nextid = self::get_next_sequence_starting_value($records);
+                        $lastrecord = end($records);
+                        if ($lastrecord) {
+                            $nextid = $lastrecord->id + 1;
+                        } else {
+                            $nextid = 1;
+                        }
                         if ($sequences[$table] != $nextid) {
                             $DB->change_database_structure("ALTER TABLE {$prefix}{$table} AUTO_INCREMENT = $nextid");
                         }
@@ -526,6 +531,7 @@ abstract class testing_util {
             $rs->close();
 
             foreach ($data as $table => $records) {
+                continue;
                 if (isset($structure[$table]['id']) and $structure[$table]['id']->auto_increment) {
                     $lastrecord = end($records);
                     if ($lastrecord) {
