@@ -63,11 +63,6 @@ matrix:
         - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
           php: 5.4
 
-    include:
-        # Attempt to run the CITEST set on PHP 7.
-        - php: nightly
-          env: DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
-
 cache:
     directories:
       - $HOME/.composer/cache
