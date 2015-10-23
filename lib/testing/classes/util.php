@@ -626,6 +626,7 @@ abstract class testing_util {
             }
         }
 
+        $timeindelete = 0;
         foreach ($data as $table => $records) {
             if ($borkedmysql) {
                 if (empty($records) and isset($empties[$table])) {
@@ -653,7 +654,9 @@ abstract class testing_util {
                 if (isset($empties[$table])) {
                     // table was not modified and is empty
                 } else {
+                    $timestart = microtime();
                     $DB->delete_records($table, array());
+                    $timeindelete += (float) microtime_diff($timestart, microtime());
                 }
                 continue;
             }
@@ -683,11 +686,16 @@ abstract class testing_util {
                 }
             }
 
+            $timestart = microtime();
             $DB->delete_records($table, array());
+            $timeindelete += (float) microtime_diff($timestart, microtime());
             foreach ($records as $record) {
                 $DB->import_record($table, $record, false, true);
             }
         }
+
+        echo "============================================================================\n";
+        echo "Time spent in deletion was {$timeindelete} seconds\n\n";
 
         // reset all next record ids - aka sequences
         self::reset_all_database_sequences($empties);
