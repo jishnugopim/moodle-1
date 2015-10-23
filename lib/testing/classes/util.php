@@ -655,7 +655,7 @@ abstract class testing_util {
                     // table was not modified and is empty
                 } else {
                     $timestart = microtime();
-                    $DB->delete_records($table, array());
+                    $DB->delete_records($table);
                     $timeindelete += (float) microtime_diff($timestart, microtime());
                 }
                 continue;
@@ -687,7 +687,7 @@ abstract class testing_util {
             }
 
             $timestart = microtime();
-            $DB->delete_records($table, array());
+            $DB->delete_records($table);
             $timeindelete += (float) microtime_diff($timestart, microtime());
             foreach ($records as $record) {
                 $DB->import_record($table, $record, false, true);
