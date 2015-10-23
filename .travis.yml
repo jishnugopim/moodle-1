@@ -34,10 +34,10 @@ env:
     - DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
 
     # Run CI Tests without running PHPUnit.
-    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
+    #- DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
 
     # Run unit tests on Postgres
-    - DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
+    #- DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
 
 matrix:
     # Enable fast finish.
