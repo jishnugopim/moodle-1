@@ -653,7 +653,7 @@ abstract class testing_util {
                 if (isset($empties[$table])) {
                     // table was not modified and is empty
                 } else {
-                    $DB->delete_records($table, array());
+                    $DB->delete_records($table, null);
                 }
                 continue;
             }
@@ -683,7 +683,7 @@ abstract class testing_util {
                 }
             }
 
-            $DB->delete_records($table, array());
+            $DB->delete_records($table, null);
             foreach ($records as $record) {
                 $DB->import_record($table, $record, false, true);
             }
