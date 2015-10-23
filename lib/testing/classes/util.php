@@ -685,7 +685,7 @@ abstract class testing_util {
                 if (isset($empties[$table])) {
                     // table was not modified and is empty
                 } else {
-                    $DB->delete_records($table, null);
+                    $DB->delete_records($table, array());
                 }
                 $summation['delete'] += (float) microtime_diff($changetimestart, microtime());
                 continue;
@@ -725,7 +725,7 @@ abstract class testing_util {
             $summation['delete2'] += (float) $timetaken;
 
             $changetimestart = microtime();
-            $DB->delete_records($table, null);
+            $DB->delete_records($table, array());
             foreach ($data[$table] as $record) {
                 $DB->import_record($table, $record, false, true);
             }
