@@ -453,6 +453,11 @@ abstract class testing_util {
             return;
         }
 
+        static $fulltimetaken = null;
+        if (null === $fulltimetaken) {
+            $fulltimetaken = 0;
+        }
+
         // If all starting Id's are the same, it's difficult to detect coding and testing
         // errors that use the incorrect id in tests.  The classic case is cmid vs instance id.
         // To reduce the chance of the coding error, we start sequences at different values where possible.
@@ -479,6 +484,8 @@ abstract class testing_util {
             }
 
         } else if ($dbfamily === 'mysql') {
+            $count = 0;
+            $timestart = microtime();;
             $sequences = array();
             $prefix = $DB->get_prefix();
             $rs = $DB->get_recordset_sql("SHOW TABLE STATUS LIKE ?", array($prefix.'%'));
@@ -496,10 +503,13 @@ abstract class testing_util {
             $rs->close();
             $prefix = $DB->get_prefix();
             foreach ($data as $table => $records) {
+                //echo "    -> Looking at table $table";
                 if (isset($structure[$table]['id']) and $structure[$table]['id']->auto_increment) {
                     if (isset($sequences[$table])) {
                         $nextid = self::get_next_sequence_starting_value($records);
                         if ($sequences[$table] != $nextid) {
+                            //echo " ==> resetting sequence from {$sequences[$table]} to $nextid";
+                            $count++;
                             $DB->change_database_structure("ALTER TABLE {$prefix}{$table} AUTO_INCREMENT = $nextid");
                         }
 
@@ -508,7 +518,15 @@ abstract class testing_util {
                         $DB->get_manager()->reset_sequence($table);
                     }
                 }
+                //echo ".\n";
             }
+
+            $timetaken = microtime_diff($timestart, microtime());
+            $fulltimetaken += $timetaken;
+            //echo "\n";
+            //echo "============================================================================\n";
+            //echo "== Updated {$count} tables in {$timetaken} seconds ({$fulltimetaken})\n";
+            //echo "============================================================================\n";
 
         } else if ($dbfamily === 'oracle') {
             $sequences = self::get_sequencenames();
@@ -586,6 +604,8 @@ abstract class testing_util {
             return false;
         }
 
+        $timestart = microtime();
+
         $empties = self::guess_unmodified_empty_tables();
 
         $borkedmysql = false;
@@ -626,9 +646,18 @@ abstract class testing_util {
             }
         }
 
-        foreach ($data as $table => $records) {
+        $timestart = microtime();
+        $summation = array(
+            'borked' => 0,
+            'delete' => 0,
+            'import' => 0,
+            'delete2' => 0,
+        );
+        $tablenames = array_keys($data);
+        foreach ($tablenames as $table) {
+            $changetimestart = microtime();
             if ($borkedmysql) {
-                if (empty($records) and isset($empties[$table])) {
+                if (empty($data[$table]) and isset($empties[$table])) {
                     continue;
                 }
 
@@ -643,25 +672,32 @@ abstract class testing_util {
 
                 // Use TRUNCATE as a workaround and reinsert everything.
                 $DB->delete_records($table, null);
-                foreach ($records as $record) {
+                foreach ($data[$table] as $record) {
                     $DB->import_record($table, $record, false, true);
                 }
                 continue;
             }
+            $timetaken = microtime_diff($changetimestart, microtime());
+            $summation['borked'] += (float) microtime_diff($changetimestart, microtime());
 
-            if (empty($records)) {
+            $changetimestart = microtime();
+            if (empty($data[$table])) {
                 if (isset($empties[$table])) {
                     // table was not modified and is empty
                 } else {
-                    $DB->delete_records($table, array());
+                    $DB->delete_records($table, null);
                 }
+                $summation['delete'] += (float) microtime_diff($changetimestart, microtime());
                 continue;
             }
+            $timetaken = microtime_diff($changetimestart, microtime());
+            $summation['delete'] += (float) $timetaken;
 
+            $changetimestart = microtime();
             if (isset($structure[$table]['id']) and $structure[$table]['id']->auto_increment) {
                 $currentrecords = $DB->get_records($table, array(), 'id ASC');
                 $changed = false;
-                foreach ($records as $id => $record) {
+                foreach ($data[$table] as $id => $record) {
                     if (!isset($currentrecords[$id])) {
                         $changed = true;
                         break;
@@ -674,20 +710,31 @@ abstract class testing_util {
                 }
                 if (!$changed) {
                     if ($currentrecords) {
-                        $lastrecord = end($records);
+                        $lastrecord = end($data[$table]);
                         $DB->delete_records_select($table, "id > ?", array($lastrecord->id));
+                        $summation['delete2'] += (float) microtime_diff($changetimestart, microtime());
                         continue;
                     } else {
+                        $summation['delete2'] += (float) microtime_diff($changetimestart, microtime());
                         continue;
                     }
                 }
             }
+            $timetaken = microtime_diff($changetimestart, microtime());
+            //echo "==== Took {$timetaken} seconds to import the records for {$table}\n";
+            $summation['delete2'] += (float) $timetaken;
 
-            $DB->delete_records($table, array());
-            foreach ($records as $record) {
+            $changetimestart = microtime();
+            $DB->delete_records($table, null);
+            foreach ($data[$table] as $record) {
                 $DB->import_record($table, $record, false, true);
             }
+            //$timetaken = microtime_diff($changetimestart, microtime()); echo "==== Took {$timetaken} seconds to import the records for {$table}\n";
+            $summation['import'] += (float) $timetaken;
         }
+        $timetaken = microtime_diff($timestart, microtime()); echo "=== " . __LINE__ . " - Time taken so far is {$timetaken}\n";
+
+        var_dump($summation);
 
         // reset all next record ids - aka sequences
         self::reset_all_database_sequences($empties);
@@ -961,5 +1008,9 @@ abstract class testing_util {
             fwrite($fp, json_encode(array_values($listfiles)));
             fclose($fp);
         }
+    }
+
+    protected function add_time() {
+        $summation['borked'] += (float) microtime_diff($changetimestart, microtime());
     }
 }
