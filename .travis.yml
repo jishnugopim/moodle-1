@@ -147,6 +147,7 @@ before_script:
             -e "/require_once/i define('TEST_CACHESTORE_MEMCACHE_TESTSERVERS', '127.0.0.1:11211');" \
             -e "/require_once/i define('TEST_CACHESTORE_MEMCACHED_TESTSERVERS', '127.0.0.1:11211');" \
             -e "/require_once/i define('TEST_CACHESTORE_MONGODB_TESTSERVER', 'mongodb://localhost:27017');" \
+            -e "/require_once/i define('TEST_CACHE_USING_APPLICATION_STORE', 'memcached');" \
             config.php ;
 
           # Initialise PHPUnit for Moodle.
