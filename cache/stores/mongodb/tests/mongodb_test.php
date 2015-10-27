@@ -59,7 +59,7 @@ class cachestore_mongodb_test extends cachestore_tests {
         $instance = cachestore_mongodb::initialise_unit_test_instance($definition);
 
         if (!$instance) {
-            $this->markTestSkipped();
+            throw new moodle_exception('test skipped');
         }
 
         $this->assertTrue($instance->set(1, 'alpha'));

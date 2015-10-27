@@ -60,7 +60,7 @@ class cachestore_memcached_test extends cachestore_tests {
         $instance = cachestore_memcached::initialise_unit_test_instance($definition);
 
         if (!$instance) { // Something prevented memcached store to be inited (extension, TEST_CACHESTORE_MEMCACHED_TESTSERVERS...).
-            $this->markTestSkipped();
+            throw new moodle_exception('test skipped');
         }
 
         $keys = array(
@@ -142,7 +142,7 @@ class cachestore_memcached_test extends cachestore_tests {
         $this->resetAfterTest(true);
 
         if (!defined('TEST_CACHESTORE_MEMCACHED_TESTSERVERS')) {
-            $this->markTestSkipped();
+            throw new moodle_exception('test skipped');
         }
 
         $testservers = explode("\n", trim(TEST_CACHESTORE_MEMCACHED_TESTSERVERS));
@@ -165,7 +165,7 @@ class cachestore_memcached_test extends cachestore_tests {
         $instance = cachestore_memcached::initialise_test_instance($definition);
 
         if (!$instance) {
-            $this->markTestSkipped();
+            throw new moodle_exception('test skipped');
         }
 
         // Now we are going to setup a connection to each independent server.
@@ -178,7 +178,7 @@ class cachestore_memcached_test extends cachestore_tests {
             set_config('testservers', $testserver, 'cachestore_memcached');
             $checkinstance = cachestore_memcached::initialise_test_instance($definition);
             if (!$checkinstance) {
-                $this->markTestSkipped();
+                throw new moodle_exception('test skipped');
             }
             $checkinstances[] = $checkinstance;
         }
