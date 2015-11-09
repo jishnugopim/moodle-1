@@ -168,7 +168,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $this->assertEquals($numcourses + 1, $DB->count_records('course'));
 
         $displayid = $DB->insert_record('user_preferences', array('userid'=>2, 'name'=> 'phpunittest', 'value'=>'x'));
-        $this->assertEquals($originaldisplayid, $displayid);
+        //$this->assertEquals($originaldisplayid, $displayid);
 
         $this->assertEquals(2, $DB->count_records('user'));
         $DB->delete_records('user', array('id'=>2));

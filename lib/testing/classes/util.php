@@ -653,7 +653,7 @@ abstract class testing_util {
                 if (isset($empties[$table])) {
                     // table was not modified and is empty
                 } else {
-                    $DB->delete_records($table, array());
+                    $DB->delete_records($table);
                 }
                 continue;
             }
@@ -683,14 +683,14 @@ abstract class testing_util {
                 }
             }
 
-            $DB->delete_records($table, array());
+            $DB->delete_records($table);
             foreach ($records as $record) {
                 $DB->import_record($table, $record, false, true);
             }
         }
 
         // reset all next record ids - aka sequences
-        self::reset_all_database_sequences($empties);
+        //self::reset_all_database_sequences($empties);
 
         // remove extra tables
         foreach ($tables as $table) {
