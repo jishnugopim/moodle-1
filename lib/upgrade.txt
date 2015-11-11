@@ -31,6 +31,8 @@ information provided here is intended especially for developers.
     custom user filters. Similar deprecations in existing user_filter_* classes.
   * table_default_export_format_parent::table_default_export_format_parent() is
     deprecated, use parent::__construct() in extending classes.
+* get_next_sequence_starting_value requires an additional table parameter, so it  can return proper
+  sequence for the specified table.
 
 === 3.0 ===
 
