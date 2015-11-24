@@ -44,6 +44,8 @@ env:
     # Run unit tests on Postgres
     - DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
 
+    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=false    NPMTESTS=true
+
 matrix:
     # Enable fast finish.
     # This will fail the build if a single job fails (except those in allow_failures).
@@ -68,10 +70,16 @@ matrix:
         - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
           php: 5.4
 
+        # Do not run NPM Tests, except on 5.6.
+        - env: DB=none     PHPUNIT=false   INSTALL=false   CITEST=false    NPMTESTS=true
+
     include:
         # Attempt to run the CITEST set on PHP 7.
         - php: nightly
           env: DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
+
+        - php: 5.6
+          env: DB=none     PHPUNIT=false   INSTALL=false   CITEST=false    NPMTESTS=true
 
 cache:
     directories:
@@ -84,11 +92,15 @@ install:
     # Install composer dependencies.
     # We need --no-interaction in case we hit API limits for composer. This causes it to fall back to a standard clone.
     # Typically it should be able to use the Composer cache if any other job has already completed before we started here.
-    - travis_retry composer install --prefer-dist --no-interaction
+    - if [ "$INSTALL" = 'true' -o "$PHPUNIT" = 'true' ]; then travis_retry composer install --prefer-dist --no-interaction ; fi
 
-    - echo "extension = memcache.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    # Modify php with relevant extensions.
+    - if [ "$INSTALL" = 'true' -o "$PHPUNIT" = 'true' ]; then echo "extension = memcache.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini ; fi
+    - if [ "$INSTALL" = 'true' -o "$PHPUNIT" = 'true' ]; then echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini ; fi
+    - if [ "$INSTALL" = 'true' -o "$PHPUNIT" = 'true' ]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini ; fi
+
+    # Install NPM dependencies.
+    - if [ "$NPMTESTS" = 'true' ]; then npm install ; npm install recess ; fi
 
 before_script:
     - >
@@ -204,4 +216,23 @@ script:
       if [ "$CITEST" = 'true' ];
       then
         bash local/ci/php_lint/php_lint.sh;
+      fi
+
+    - >
+      if [ "$NPMTESTS" = 'true' ];
+      then
+        # Run Grunt.
+        grunt
+
+        # Run Recess.
+        pushd `git rev-parse --show-toplevel`/theme/bootstrapbase/style > /dev/null
+        `git rev-parse --show-toplevel`/node_modules/.bin/recess --compile --compress ../less/moodle.less > moodle.css
+        `git rev-parse --show-toplevel`/node_modules/.bin/recess --compile --compress ../less/editor.less > editor.css
+        popd > /dev/null
+
+        # Check for any changes.
+        if [ -n "$(git status --porcelain)" ];
+        then
+          echo "Changes detected after running grunt and recess :(" && false;
+        fi
       fi
