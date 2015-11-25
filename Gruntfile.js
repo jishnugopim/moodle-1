@@ -219,9 +219,138 @@ module.exports = function(grunt) {
     };
 
 
+    var cssFunctions = {};
+
+    cssFunctions.getLessFiles = function() {
+        var lessFiles = {};
+        grunt.file.expand({cwd: 'theme'}, ['*/less/*.less']).forEach(function(lessFile) {
+            // These will always be in the format:
+            // <themeName>/less/<fileName>
+            var exploded    = lessFile.split('/');
+
+            var data = {
+                path:           lessFile,
+                fullPath:       'theme/' + lessFile,
+                themeName:      exploded[0],
+                fullFileName:   exploded[2],
+                fileName:       '',
+                lessTaskName:   '',
+                cssFile:        ''
+            };
+
+            // Strip off the extension from the fileName.
+            data.fileName = data.fullFileName.substr(0, data.fullFileName.length - '.less'.length);
+
+            // And set the task name.
+            data.lessTaskPath = 'less.' + data.themeName + '/' + data.fileName;
+            data.lessTaskName = 'less:' + data.themeName + '/' + data.fileName;
+
+            data.cssFile = data.themeName + '/style/' + data.fileName + '.css';
+
+            // Check whether this file is built by less-php instead.
+            if (cssFunctions.checkLessFileShouldBuild(data)) {
+                lessFiles[lessFile] = data;
+            }
+        });
+
+        return lessFiles;
+    };
+
+    cssFunctions.setup = function() {
+        var lessFiles = cssFunctions.getLessFiles(),
+            index,
+            lessFile,
+            themes = {};
+        for (index in lessFiles) {
+            lessFile = lessFiles[index];
+            if (!cssFunctions.checkLessFileShouldBuild(lessFile)) {
+                continue;
+            }
+
+            // Add the specific config.
+            cssFunctions.registerLessConfig(lessFile);
+
+            if (typeof themes[lessFile.themeName] === 'undefined') {
+                themes[lessFile.themeName] = [];
+            }
+            themes[lessFile.themeName].push(lessFile.lessTaskName);
+        }
+
+        for (index in themes) {
+            grunt.task.registerTask('css:' + index, themes[index]);
+        }
+    };
+
+    cssFunctions.cssWatch = function() {
+        var lessFiles = cssFunctions.getLessFiles(),
+            index,
+            lessFile,
+            config;
+        for (index in lessFiles) {
+            lessFile = lessFiles[index];
+
+            // Register the build task - this is required by the watch task.
+            cssFunctions.registerLessConfig(lessFile);
+
+            // Configure the current watch task.
+            config = {
+                watch: {
+                }
+            };
+
+            config.watch[lessFile.themeName] = {
+                options: {
+                    spawn: false
+                },
+                files: [
+                    lessFile.fullPath
+                ],
+                tasks: [
+                    lessFile.lessTaskName
+                ]
+            };
+
+            grunt.config.merge(config);
+        }
+
+        grunt.task.run('watch');
+    };
+
+    cssFunctions.checkLessFileShouldBuild = function(config) {
+        // Check whether this file is built by less-php instead.
+        var configFile = fs.readFileSync('theme/' + config.themeName + '/config.php', {
+            encoding: 'utf8'
+        });
+
+        if (configFile.match("THEME->lessfile = '" + config.fileName + "';")) {
+            return false;
+        }
+
+        return true;
+    };
+
+    cssFunctions.registerLessConfig = function(config) {
+        // Configure the task.
+        var taskConfig = {
+                options: {
+                    compress: true,
+                    sourceMap: true,
+                    sourceMapURL: config.cssFile + '.map'
+                },
+                files: {}
+        };
+
+        // Set the list of target files.
+        taskConfig.files['theme/' + config.cssFile] = 'theme/' + config.path;
+
+        grunt.config.set(config.lessTaskPath, taskConfig);
+    };
+
     // Register NPM tasks.
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Register the shifter task.
     grunt.registerTask('shifter', 'Run Shifter against the current directory', tasks.shifter);
@@ -229,6 +358,13 @@ module.exports = function(grunt) {
     // Register the startup task.
     grunt.registerTask('startup', 'Run the correct tasks for the current directory', tasks.startup);
 
+    // Configure CSS tasks.
+    grunt.registerTask('css', 'Compile all CSS', 'css:compile');
+    grunt.registerTask('css:compile', ['less']);
+    grunt.registerTask('css:watch', 'Watch for changes', cssFunctions.cssWatch);
+
     // Register the default task.
     grunt.registerTask('default', ['startup']);
+
+    cssFunctions.setup();
 };
