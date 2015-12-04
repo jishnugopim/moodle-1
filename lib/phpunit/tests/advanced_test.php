@@ -147,11 +147,6 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $this->assertEquals(5, $record->id);
 
         $this->assertEquals(0, $DB->count_records('user_preferences'));
-
-        // Add record and reset table, as the sequence will be reset after 1st modification in table.
-        $DB->insert_record('user_preferences', array('userid'=>2, 'name'=> 'phpunittest', 'value'=>'x'));
-        $this->resetAllData();
-
         $originaldisplayid = $DB->insert_record('user_preferences', array('userid'=>2, 'name'=> 'phpunittest', 'value'=>'x'));
         $this->assertEquals(1, $DB->count_records('user_preferences'));
 

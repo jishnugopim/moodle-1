@@ -614,15 +614,14 @@ abstract class testing_util {
             return false;
         }
 
-        $empties = null;
+        $empties = array();
         // Use local copy of self::$tableupdated, as list gets updated in for loop.
-        $updatedtables = null;
+        $updatedtables = self::$tableupdated;
 
-        // If empty tableupdate list then guess from database.
-        if (empty(self::$tableupdated)) {
+        // If empty tablesequences list then it's the very first run.
+        if (empty(self::$tablesequences) && (($DB->get_dbfamily() != 'mysql') && ($DB->get_dbfamily() != 'postgres'))) {
+            // Only Mysql and Postgres support random sequence, so don't guess, just reset everything on very first run.
             $empties = self::guess_unmodified_empty_tables();
-        } else {
-            $updatedtables = self::$tableupdated;
         }
 
         // Check if any table has been modified by behat selenium process.
