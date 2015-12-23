@@ -1407,55 +1407,6 @@ class core_dml_testcase extends database_driver_testcase {
         $records = $DB->get_records($tablename, array('course' => false));
         $this->assertCount(0, $records);
 
-        // Test for exception throwing on text conditions being compared. (MDL-24863, unwanted auto conversion of param to int).
-        $conditions = array('onetext' => '1');
-        try {
-            $records = $DB->get_records($tablename, $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
-        } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
-            $this->assertSame('textconditionsnotallowed', $e->errorcode);
-        }
-
-        // Test get_records passing non-existing table.
-        // with params.
-        try {
-            $records = $DB->get_records('xxxx', array('id' => 0));
-            $this->fail('An Exception is missing, expected due to query against non-existing table');
-        } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
-            if (debugging()) {
-                // Information for developers only, normal users get general error message.
-                $this->assertSame('ddltablenotexist', $e->errorcode);
-            }
-        }
-        // And without params.
-        try {
-            $records = $DB->get_records('xxxx', array());
-            $this->fail('An Exception is missing, expected due to query against non-existing table');
-        } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
-            if (debugging()) {
-                // Information for developers only, normal users get general error message.
-                $this->assertSame('ddltablenotexist', $e->errorcode);
-            }
-        }
-
-        // Test get_records passing non-existing column.
-        try {
-            $records = $DB->get_records($tablename, array('xxxx' => 0));
-            $this->fail('An Exception is missing, expected due to query against non-existing column');
-        } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
-            if (debugging()) {
-                // Information for developers only, normal users get general error message.
-                $this->assertSame('ddlfieldnotexist', $e->errorcode);
-            }
-        }
-
         // Note: delegate limits testing to test_get_records_sql().
     }
 
@@ -5479,6 +5430,266 @@ class core_dml_testcase extends database_driver_testcase {
         foreach ($tables as $table) {
             $dbman->drop_table($table);
         }
+    }
+
+    /**
+     * @dataProvider where_clause_provider
+     */
+    public function test_where_clause($mocks, $table, $conditions, $exceptions, $expected_result, $expected_debugging) {
+        // Get a mock of the moodle_database class.
+        $DB = $this->getMockForAbstractClass('moodle_database');
+
+        // Mock the specified functions.
+        foreach ($mocks as $function => $config) {
+            if (isset($config['expects'])) {
+                $mocked_function = $DB
+                    ->expects($config['expects'])
+                    ->method($function);
+            } else {
+                $mocked_function = $DB
+                    ->method($function);
+            }
+
+            if (isset($config['returns'])) {
+                $mocked_function->willReturn($config['returns']);
+            }
+
+            if (isset($value['with'])) {
+                $mocked_function->with($config['with']);
+            }
+        }
+
+        // The where_clause function is protected, so make it accessible.
+        $reflectionClass = new \ReflectionClass('moodle_database');
+        $method = $reflectionClass->getMethod('where_clause');
+        $method->setAccessible(true);
+
+        foreach ($exceptions as $exception => $message) {
+            $this->setExpectedExceptionRegExp($exception, $message);
+        }
+
+        // Prepare to catch debugging output.
+        $this->resetDebugging();
+
+        $result = $method->invokeArgs($DB, array($table, $conditions));
+
+        // Note: This line will not be reached if an exception was caught.
+        $this->assertEquals($expected_result, $result);
+
+        $debugging = $this->getDebuggingMessages();
+        $this->assertCount(count($expected_debugging), $debugging);
+        foreach ($debugging as $debug) {
+            $this->assertArrayHasKey($debug->message, $expected_debugging);
+        }
+    }
+
+    public function where_clause_provider() {
+        return array(
+            'Valid table "xxxx" without conditions' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array(),
+                'exceptions'        => array(),
+                'expected_result'   => array('', array()),
+                'expected_debug'    => array(),
+            ),
+            'Valid table "xxxx" with valid condition' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array('id' => 1),
+                'exceptions'        => array(),
+                'expected_result'   => array('id = ?', array(1)),
+                'expected_debug'    => array(),
+            ),
+            'Valid table "xxxx" with multiple valid conditions' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                            "id2" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array(
+                    'id'    => 1,
+                    'id2'   => 42,
+                ),
+                'exceptions'        => array(),
+                'expected_result'   => array('id = ? AND id2 = ?', array(1, 42)),
+                'expected_debug'    => array(),
+            ),
+            'Valid table "xxxx" with multiple valid condition (named params)' => array(
+                'mocked_functions'  => array(
+                    'allowed_param_types'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => SQL_PARAMS_NAMED,
+                    ),
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                            "id2" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array(
+                    'id'    => 1,
+                    'id2'   => 42,
+                ),
+                'exceptions'        => array(),
+                'expected_result'   => array(
+                    'id = :id AND id2 = :id2',
+                    array(
+                        'id'    => 1,
+                        'id2'   => 42,
+                    )
+                ),
+                'expected_debug'    => array(),
+            ),
+            'Unknown field "yyyy" in valid table' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array('yyyy' => 1),
+                'exceptions'        => array(
+                    'dml_exception' => '/Field "yyyy" does not exist in table "xxxx"/',
+                ),
+                'expected_result'   => null,
+                'expected_debug'    => array(),
+            ),
+            'Text field in valid table' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'X',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array('id' => 1),
+                'exceptions'        => array(
+                    'dml_exception' => '/.*Comparisons of text column conditions are not allowed..*/',
+                ),
+                'expected_result'   => null,
+                'expected_debug'    => array(),
+            ),
+            'Integer key in condition of valid table' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "42" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array(42 => 1),
+                'exceptions'        => array(
+                    'dml_exception' => '/\$conditions array may not contain numeric keys, please fix the code!/',
+                ),
+                'expected_result'   => null,
+                'expected_debug'    => array(),
+            ),
+            'Valid table with null value' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "id" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array('id' => null),
+                'exceptions'        => array(
+                ),
+                'expected_result'   => array('id IS NULL', array()),
+                'expected_debug'    => array(),
+            ),
+            'Valid table with deprecated key name' => array(
+                'mocked_functions'  => array(
+                    'allowed_param_types'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => SQL_PARAMS_NAMED,
+                    ),
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(
+                            "i d" => (object) array(
+                                'meta_type' => 'I',
+                            ),
+                        ),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array('i d' => 1),
+                'exceptions'        => array(
+                ),
+                'expected_result'   => array('i d = :i_d', array('i_d' => 1)),
+                'expected_debug'    => array(
+                    'Invalid key found in the conditions array.' => true,
+                ),
+            ),
+            'Unknown table' => array(
+                'mocked_functions'  => array(
+                    'get_columns'   => array(
+                        'expects'   => $this->once(),
+                        'returns'   => array(),
+                    ),
+                ),
+                'table'             => 'xxxx',
+                'conditions'        => array(),
+                'exceptions'        => array(
+                    'dml_exception' => '/Table "xxxx" does not exist/',
+                ),
+                'expected_result'   => null,
+                'expected_debug'    => array(),
+            ),
+        );
     }
 }
 
