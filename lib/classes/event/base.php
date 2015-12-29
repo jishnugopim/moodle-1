@@ -217,7 +217,7 @@ abstract class base implements \IteratorAggregate {
         $event->data['contextlevel'] = $event->context->contextlevel;
         $event->data['contextinstanceid'] = $event->context->instanceid;
 
-        if ($event->context->disguise && $event->context->disguise->should_log_anonymously()) {
+        if ($event->context->has_disguise() && $event->context->disguise->should_log_anonymously()) {
             // There is a disguise at this context and it requests log anonymity.
             $event->data['anonymous'] = true;
         }

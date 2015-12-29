@@ -5742,10 +5742,6 @@ abstract class context extends stdClass implements IteratorAggregate {
 
         $result = array();
         foreach ($contextids as $contextid) {
-            $parent = context::instance_by_id($contextid, IGNORE_MISSING);
-            if (empty($parent)) {
-                $parent = context::instance_by_id($contextid, MUST_EXIST);
-            }
             $parent = context::instance_by_id($contextid, MUST_EXIST);
             $result[$parent->id] = $parent;
         }
@@ -5915,13 +5911,17 @@ abstract class context extends stdClass implements IteratorAggregate {
     }
 
     protected function get_inheritteddisguiseid() {
+        if (!empty($this->disguiseid)) {
+            return $this->disguiseid;
+        }
+
         if (!empty($this->_inheritteddisguiseid)) {
             return $this->_inheritteddisguiseid;
         }
 
         // Attempt to load a disguise for the current context by checking
-        // all contexts from this one up to the upper-most parent.
-        foreach ($this->get_parent_contexts(true) as $parent) {
+        // all parent contexts from this one up to the upper-most parent.
+        foreach ($this->get_parent_contexts() as $parent) {
             if (!empty($parent->disguiseid)) {
                 return $this->_inheritteddisguiseid = $parent->disguiseid;
             }
@@ -5930,7 +5930,7 @@ abstract class context extends stdClass implements IteratorAggregate {
         return null;
     }
 
-    protected function has_disguise() {
+    public function has_disguise() {
         return !empty($this->inheritteddisguiseid);
     }
 }
