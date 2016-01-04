@@ -298,7 +298,7 @@ class file_system {
     public function is_readable(stored_file $file) {
         $path = $this->get_fullpath_from_storedfile($file, true);
         if (!is_readable($path)) {
-            if (!$this->fs->try_content_recovery($file) or !is_readable($path)) {
+            if (!$this->try_content_recovery($file) or !is_readable($path)) {
                 return false;
             }
         }
