@@ -46,14 +46,45 @@ class file_system {
     protected $filedir = null;
 
     /**
+     * @var string The path to the trashdir.
+     */
+    protected $trashdir = null;
+
+    protected $dirpermissions = null;
+    protected $filepermissions = null;
+
+    /**
      * @var file_system The filesystem singleton instance.
      */
     private static $instance;
 
-    protected function __construct($filedir, $dirpermissions, $filepermissions, file_storage $fs = null) {
+    protected function __construct($filedir, $trashdir, $dirpermissions, $filepermissions, file_storage $fs = null) {
         $this->filedir          = $filedir;
+        $this->trashdir         = $trashdir;
         $this->dirpermissions   = $dirpermissions;
         $this->filepermissions  = $filepermissions;
+
+        // Make sure the file pool directory exists.
+        if (!is_dir($this->filedir)) {
+            if (!mkdir($this->filedir, $this->dirpermissions, true)) {
+                // Permission trouble.
+                throw new file_exception('storedfilecannotcreatefiledirs');
+            }
+            // Place warning file in file pool root.
+            if (!file_exists($this->filedir.'/warning.txt')) {
+                file_put_contents($this->filedir.'/warning.txt',
+                                  'This directory contains the content of uploaded files and is controlled by Moodle code. Do not manually move, change or rename any of the files and subdirectories here.');
+                chmod($this->filedir . '/warning.txt', $filepermissions);
+            }
+        }
+
+        // Make sure the trashdir directory exists too.
+        if (!is_dir($this->trashdir)) {
+            if (!mkdir($this->trashdir, $this->dirpermissions, true)) {
+                // Permission trouble.
+                throw new file_exception('storedfilecannotcreatefiledirs');
+            }
+        }
 
         if ($fs) {
             $this->fs = $fs;
@@ -88,11 +119,12 @@ class file_system {
      * Return the file_system instance.
      *
      * @param string $filedir The path to the local filedir.
+     * @param string $trashdir The path to the trashdir.
      * @param int $dirpermissions The directory permissions when creating new directories
      * @param int $filepermissions The file permissions when creating new files
      * @param file_storage $fs The instance of file_storage to instantiate the class with.
      */
-    public static function instance($filedir = null, $dirpermissions = null, $filepermissions = null, file_storage $fs = null) {
+    public static function instance($filedir = null, $trashdir = null, $dirpermissions = null, $filepermissions = null, file_storage $fs = null) {
         global $CFG;
 
         if (self::$instance === null) {
@@ -106,7 +138,7 @@ class file_system {
             } else {
                 $class = get_class();
             }
-            self::$instance = new $class($filedir, $dirpermissions, $filepermissions, $fs);
+            self::$instance = new $class($filedir, $trashdir, $dirpermissions, $filepermissions, $fs);
         }
 
         return self::$instance;
@@ -159,7 +191,7 @@ class file_system {
      * Note: This function does not ensure that the file is present on disk.
      *
      * @param stored_file $file The file to fetch details for.
-     * @return string full path to pool file with file content
+     * @return string The full path to the content directory
      */
     protected function get_fulldir_from_storedfile(stored_file $file) {
         return $this->get_fulldir_from_hash($file->get_contenthash());
@@ -211,6 +243,50 @@ class file_system {
      */
     protected function get_contentpath_from_hash($contenthash) {
         return $this->get_contentdir_from_hash($contenthash) . "/$contenthash";
+    }
+
+    /**
+     * Get the full directory to the stored file in the trash, including the path to the
+     * trashdir, and the directory which the file is actually in.
+     *
+     * Note: This function does not ensure that the file is present on disk.
+     *
+     * @param stored_file $file The file to fetch details for.
+     * @return string full path to the trash directory
+     */
+    protected function get_trash_fulldir_from_storedfile(stored_file $file) {
+        return $this->get_trash_fulldir_from_hash($file->get_contenthash());
+    }
+
+    /**
+     * Get the full directory for the specified hash in the trash, including the path to the
+     * trashdir, and the directory which the file is actually in.
+     *
+     * @param string $contenthash The content hash
+     * @return string The full path to the trash directory
+     */
+    protected function get_trash_fulldir_from_hash($contenthash) {
+        return $this->trashdir . DIRECTORY_SEPARATOR . $this->get_contentdir_from_hash($contenthash);
+    }
+
+    /**
+     * Get the full path for the specified file in the trash, including the path to the trashdir.
+     *
+     * @param string $contenthash The content hash
+     * @return string The full path to the trash file
+     */
+    protected function get_trash_fullpath_from_storedfile(stored_file $file) {
+        return $this->get_trash_fullpath_from_hash($file->get_contenthash());
+    }
+
+    /**
+     * Get the full path for the specified hash in the trash, including the path to the trashdir.
+     *
+     * @param string $contenthash The content hash
+     * @return string The full path to the trash file
+     */
+    protected function get_trash_fullpath_from_hash($contenthash) {
+        return $this->trashdir . DIRECTORY_SEPARATOR . $this->get_contentpath_from_hash($contenthash);
     }
 
     /**
@@ -291,9 +367,32 @@ class file_system {
         return copy($source, $target);
     }
 
-    public function try_content_recovery(stored_file $file, $trashfile) {
-        $contentdir  = $this->get_fulldir_from_storedfile($file);
-        $contentfile = $this->get_fullpath_from_storedfile($file);
+    /**
+     * Tries to recover missing content of file from trash.
+     *
+     * @param stored_file $file stored_file instance
+     * @return bool success
+     */
+    public function try_content_recovery(stored_file $file) {
+        $contenthash    = $file->get_contenthash();
+        $contentdir     = $this->get_fulldir_from_storedfile($file);
+        $contentfile    = $this->get_fullpath_from_storedfile($file);
+        $trashfile      = $this->get_trash_fullpath_from_storedfile($file);
+        $alttrashfile   = $this->trashdir . DIRECTORY_SEPARATOR . $contenthash;
+
+        if (!is_readable($trashfile)) {
+            // The trash file was not found. Check the alternative trash file too just in case.
+            if (!is_readable($alttrashfile)) {
+                return false;
+            }
+            // The alternative trash file in trash root exists.
+            $trashfile = $alttrashfile;
+        }
+
+        if (filesize($trashfile) != $file->get_filesize() or sha1_file($trashfile) != $contenthash) {
+            // The files are different. Leave this one in trash - something seems to be wrong with it.
+            return false;
+        }
 
         if (file_exists($contentfile)) {
             // The file already exists on the file system. No need to recover.
@@ -312,7 +411,14 @@ class file_system {
         return rename($trashfile, $contentfile);
     }
 
-    public function deleted_file_cleanup($contenthash, $trashfile) {
+    /**
+     * Marks pool file as candidate for deleting.
+     *
+     * DO NOT call directly - reserved for core!!
+     *
+     * @param string $contenthash
+     */
+    public function deleted_file_cleanup($contenthash) {
         try {
             $this->ensure_readable_by_hash($contenthash);
         } catch (file_exception $e) {
@@ -320,7 +426,13 @@ class file_system {
             return;
         }
 
+        $trashpath  = $this->get_trash_fulldir_from_hash($contenthash);
+        $trashfile  = $this->get_trash_fullpath_from_hash($contenthash);
         $contentfile = $this->get_fullpath_from_hash($contenthash);
+
+        if (!is_dir($trashpath)) {
+            mkdir($trashpath, $this->dirpermissions, true);
+        }
 
         if (file_exists($trashfile)) {
             // A copy of this file is already in the trash.
@@ -329,9 +441,16 @@ class file_system {
             return;
         }
 
-        // MOve the contentfile to the trash, and fix permissions as required.
+        // Move the contentfile to the trash, and fix permissions as required.
         rename($contentfile, $trashfile);
         chmod($trashfile, $this->filepermissions);
+    }
+
+    /**
+     * Cleanup the trash directory.
+     */
+    public function cleanup_trash() {
+        fulldelete($this->trashdir);
     }
 
     /**
@@ -684,7 +803,7 @@ class file_system {
         }
 
         $hashpath = $this->get_fulldir_from_hash($contenthash);
-        $hashfile = "$hashpath/$contenthash";
+        $hashfile = $this->get_fullpath_from_hash($contenthash);
 
         $newfile = true;
 

@@ -44,12 +44,6 @@ require_once("$CFG->libdir/filestorage/stored_file.php");
  */
 class file_storage {
 
-    /** @var string Directory with file contents */
-    private $filedir;
-
-    /** @var string Contents of deleted files not needed any more */
-    private $trashdir;
-
     /** @var string tempdir */
     private $tempdir;
 
@@ -71,31 +65,10 @@ class file_storage {
     public function __construct($filedir, $trashdir, $tempdir, $dirpermissions, $filepermissions) {
         global $CFG;
 
-        $this->filedir         = $filedir;
-        $this->trashdir        = $trashdir;
         $this->tempdir         = $tempdir;
         $this->dirpermissions  = $dirpermissions;
         $this->filepermissions = $filepermissions;
-        $this->filesystem      = file_system::instance($filedir, $dirpermissions, $filepermissions, $this);
-
-        // make sure the file pool directory exists
-        if (!is_dir($this->filedir)) {
-            if (!mkdir($this->filedir, $this->dirpermissions, true)) {
-                throw new file_exception('storedfilecannotcreatefiledirs'); // permission trouble
-            }
-            // place warning file in file pool root
-            if (!file_exists($this->filedir.'/warning.txt')) {
-                file_put_contents($this->filedir.'/warning.txt',
-                                  'This directory contains the content of uploaded files and is controlled by Moodle code. Do not manually move, change or rename any of the files and subdirectories here.');
-                chmod($this->filedir.'/warning.txt', $CFG->filepermissions);
-            }
-        }
-        // make sure the file pool directory exists
-        if (!is_dir($this->trashdir)) {
-            if (!mkdir($this->trashdir, $this->dirpermissions, true)) {
-                throw new file_exception('storedfilecannotcreatefiledirs'); // permission trouble
-            }
-        }
+        $this->filesystem      = file_system::instance($filedir, $trashdir, $dirpermissions, $filepermissions, $this);
     }
 
     /**
@@ -158,7 +131,7 @@ class file_storage {
      * @return stored_file instance of file abstraction class
      */
     public function get_file_instance(stdClass $filerecord) {
-        $storedfile = new stored_file($this, $filerecord, $this->filedir);
+        $storedfile = new stored_file($this, $filerecord);
         return $storedfile;
     }
 
@@ -1694,41 +1667,13 @@ class file_storage {
     }
 
     /**
-     * Return path to file with given hash.
-     *
-     * NOTE: must not be public, files in pool must not be modified
-     *
-     * @param string $contenthash content hash
-     * @return string expected file location
-     */
-    protected function trash_path_from_hash($contenthash) {
-        $l1 = $contenthash[0].$contenthash[1];
-        $l2 = $contenthash[2].$contenthash[3];
-        return "$this->trashdir/$l1/$l2";
-    }
-
-    /**
      * Tries to recover missing content of file from trash.
      *
      * @param stored_file $file stored_file instance
      * @return bool success
      */
     public function try_content_recovery($file) {
-        $contenthash = $file->get_contenthash();
-        $trashfile = $this->trash_path_from_hash($contenthash).'/'.$contenthash;
-        if (!is_readable($trashfile)) {
-            if (!is_readable($this->trashdir.'/'.$contenthash)) {
-                return false;
-            }
-            // Nice, at least alternative trash file in trash root exists.
-            $trashfile = $this->trashdir.'/'.$contenthash;
-        }
-        if (filesize($trashfile) != $file->get_filesize() or sha1_file($trashfile) != $contenthash) {
-            // Weird, better fail early.
-            return false;
-        }
-
-        return $this->filesystem->try_content_recovery($file, $trashfile);
+        return $this->filesystem->try_content_recovery($file);
     }
 
     /**
@@ -1752,15 +1697,9 @@ class file_storage {
             // file content is still used
             return;
         }
+
         // Move content file to trash.
-        $trashpath = $this->trash_path_from_hash($contenthash);
-        $trashfile = $trashpath.'/'.$contenthash;
-
-        if (!is_dir($trashpath)) {
-            mkdir($trashpath, $this->dirpermissions, true);
-        }
-
-        $this->filesystem->deleted_file_cleanup($contenthash, $trashfile);
+        $this->filesystem->deleted_file_cleanup($contenthash);
     }
 
     /**
@@ -2118,7 +2057,7 @@ class file_storage {
 
             mtrace('Deleting trash files... ', '');
             cron_trace_time_and_memory();
-            fulldelete($this->trashdir);
+            $this->filesystem->cleanup_trash();
             set_config('fileslastcleanup', time());
             mtrace('done.');
         }

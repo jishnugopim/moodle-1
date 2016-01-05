@@ -45,8 +45,6 @@ class stored_file {
     private $fs;
     /** @var stdClass record from the files table left join files_reference table */
     private $file_record;
-    /** @var string location of content files */
-    private $filedir;
     /** @var repository repository plugin instance */
     private $repository;
     /** @var file_system filesystem instance */
@@ -68,13 +66,12 @@ class stored_file {
      *
      * @param file_storage $fs file  storage instance
      * @param stdClass $file_record description of file
-     * @param string $filedir location of file directory with sh1 named content files
+     * @param string $deprecated
      */
-    public function __construct(file_storage $fs, stdClass $file_record, $filedir) {
+    public function __construct(file_storage $fs, stdClass $file_record, $deprecated = null) {
         global $DB, $CFG;
         $this->fs          = $fs;
         $this->file_record = clone($file_record); // prevent modifications
-        $this->filedir     = $filedir; // keep secret, do not expose!
 
         if (!empty($file_record->repositoryid)) {
             require_once("$CFG->dirroot/repository/lib.php");
