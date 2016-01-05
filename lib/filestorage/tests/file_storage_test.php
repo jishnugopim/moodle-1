@@ -64,7 +64,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $this->assertTrue($DB->record_exists('files', array('pathnamehash'=>$pathhash)));
 
-        $location = test_stored_file_inspection::get_pretected_pathname($file);
+        $method = new ReflectionMethod('file_system', 'get_fullpath_from_storedfile');
+        $method->setAccessible(true);
+        $filesystem = file_system::instance();
+        $location = $method->invokeArgs($filesystem, array($file));
 
         $this->assertFileExists($location);
 
@@ -133,7 +136,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $this->assertTrue($DB->record_exists('files', array('pathnamehash'=>$pathhash)));
 
-        $location = test_stored_file_inspection::get_pretected_pathname($file);
+        $method = new ReflectionMethod('file_system', 'get_fullpath_from_storedfile');
+        $method->setAccessible(true);
+        $filesystem = file_system::instance();
+        $location = $method->invokeArgs($filesystem, array($file));
 
         $this->assertFileExists($location);
 

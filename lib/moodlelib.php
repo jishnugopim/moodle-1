@@ -5971,10 +5971,15 @@ function email_is_not_allowed($email) {
  *
  * @return file_storage
  */
-function get_file_storage() {
+function get_file_storage($reset = false) {
     global $CFG;
 
     static $fs = null;
+
+    if ($reset) {
+        $fs = null;
+        return;
+    }
 
     if ($fs) {
         return $fs;
