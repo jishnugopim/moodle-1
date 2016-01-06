@@ -2251,6 +2251,12 @@ class core_dml_testcase extends database_driver_testcase {
         $id = $DB->insert_record($tablename, array('onetext' => 1e300));
         $this->assertEquals(1e300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
 
+
+        // Test saving a smiley.
+        $value = 'Βεβαίως έχω και Twitter: .... 😄😄😄!! Έχω και ..... 😄😄😄😄😄😄”';
+        $id = $DB->insert_record($tablename, array('onetext' => $value));
+        $this->assertEquals($value, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+
         // Test that inserting data violating one unique key leads to error.
         // Empty the table completely.
         $this->assertTrue($DB->delete_records($tablename));
