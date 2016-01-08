@@ -25,15 +25,20 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage;
 use \core_files\filestorage\file_system;
 use \core_files\filestorage\file_exception;
+
+require_once(__DIR__ . '/fixtures/fake_sha1.php');
 
 global $CFG;
 
 class core_files_file_system_testcase extends advanced_testcase {
 
     public function tearDown() {
+        global $namespacemocks;
         file_system::reset();
+        $namespacemocks = null;
     }
 
     protected function get_stored_file_mock_for_hash($contenthash, $mockedmethods = array()) {
@@ -1545,6 +1550,54 @@ class core_files_file_system_testcase extends advanced_testcase {
         $fs->add_file_to_pool($sourcefile);
     }
 
+    public function test_add_file_to_pool_collision() {
+        global $CFG, $namespacemocks;
+
+        // Setup the filedir.
+        $filecontent = 'example content';
+        $contenthash = sha1($filecontent);
+        $altfilecontent = 'different ' . $filecontent;
+        $vfileroot = \org\bovigo\vfs\vfsStream::setup('root', null, array(
+            'filedir' => array(
+                '0f' => array(
+                    'f3' => array(
+                        $contenthash => $altfilecontent,
+                    ),
+                ),
+            ),
+            'trashdir' => array(),
+            'sourcedir' => array(
+                'file' => $filecontent,
+            ),
+        ));
+
+        // Setup the $fs.
+        $fs = file_system::instance(
+            \org\bovigo\vfs\vfsStream::url('root/filedir'),
+            \org\bovigo\vfs\vfsStream::url('root/trashdir'),
+            $CFG->directorypermissions,
+            $CFG->filepermissions
+        );
+
+        $sourcefile = \org\bovigo\vfs\vfsStream::url('root/sourcedir/file');
+
+        // Mock the sha1_file function to always return the same hash.
+        $namespacemocks = array(
+            'sha1_file' => create_function('', 'return "0ff30941ca5acd879fd809e8c937d9f9e6dd1615";'),
+        );
+
+        // Attempt to add the file to the file pool.
+        try {
+            $this->assertFalse($fs->add_file_to_pool($sourcefile), 'Lost the jackpot');
+        } catch (filestorage\file_pool_content_exception $e) {
+            // Note, because we want to test the jackpot files, we cannot use setExpectedException and friends.
+            $this->assertEquals('Incorrect pool file content ' . $contenthash . '.', $e->getMessage());
+            $this->assertEquals($altfilecontent, $vfileroot->getChild('filedir/jackpot/' . $contenthash . '_1')->getContent());
+            $this->assertEquals($filecontent, $vfileroot->getChild('filedir/jackpot/' . $contenthash . '_2')->getContent());
+        }
+    }
+
+
     public function test_add_string_to_pool() {
         $this->resetAfterTest();
         global $CFG;
@@ -1852,6 +1905,52 @@ class core_files_file_system_testcase extends advanced_testcase {
 
         // Attempt to add the file to the file pool.
         $result = $fs->add_string_to_pool($filecontent);
+    }
+
+    public function test_add_string_to_pool_collision() {
+        $this->resetAfterTest();
+        global $CFG, $namespacemocks;;
+
+        // Setup the filedir.
+        $filecontent = 'example content';
+        $contenthash = sha1($filecontent);
+        $altfilecontent = 'different ' . $filecontent;
+        $vfileroot = \org\bovigo\vfs\vfsStream::setup('root', null, array(
+            'filedir' => array(
+                '0f' => array(
+                    'f3' => array(
+                        $contenthash => $altfilecontent,
+                    ),
+                ),
+            ),
+            'trashdir' => array(),
+            'sourcedir' => array(
+                'file' => $filecontent,
+            ),
+        ));
+
+        // Setup the $fs.
+        $fs = file_system::instance(
+            \org\bovigo\vfs\vfsStream::url('root/filedir'),
+            \org\bovigo\vfs\vfsStream::url('root/trashdir'),
+            $CFG->directorypermissions,
+            $CFG->filepermissions
+        );
+
+        // Mock the sha1_file function to always return the same hash.
+        $namespacemocks = array(
+            'sha1_file' => create_function('', 'return "0ff30941ca5acd879fd809e8c937d9f9e6dd1615";'),
+        );
+
+        // Attempt to add the file to the file pool.
+        try {
+            $this->assertFalse($fs->add_string_to_pool($filecontent), 'Lost the jackpot');
+        } catch (filestorage\file_pool_content_exception $e) {
+            // Note, because we want to test the jackpot files, we cannot use setExpectedException and friends.
+            $this->assertEquals('Incorrect pool file content ' . $contenthash . '.', $e->getMessage());
+            $this->assertEquals($altfilecontent, $vfileroot->getChild('filedir/jackpot/' . $contenthash . '_1')->getContent());
+            $this->assertEquals($filecontent, $vfileroot->getChild('filedir/jackpot/' . $contenthash . '_2')->getContent());
+        }
     }
 
     public function test_deleted_file_cleanup() {

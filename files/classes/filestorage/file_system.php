@@ -841,8 +841,8 @@ class file_system {
             if (sha1_file($hashfile) === $contenthash) {
                 // Jackpot! We have a sha1 collision.
                 mkdir("$this->filedir/jackpot/", $this->dirpermissions, true);
-                copy($pathname, "$this->filedir/jackpot/{$contenthash}_1");
-                copy($hashfile, "$this->filedir/jackpot/{$contenthash}_2");
+                copy($hashfile, "$this->filedir/jackpot/{$contenthash}_1");
+                copy($pathname, "$this->filedir/jackpot/{$contenthash}_2");
                 throw new file_pool_content_exception($contenthash);
             }
             debugging("Replacing invalid content file $contenthash");
