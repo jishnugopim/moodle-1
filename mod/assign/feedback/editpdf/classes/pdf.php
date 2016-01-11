@@ -468,7 +468,7 @@ class pdf extends \FPDI {
      * @param stored_file $file
      * @return string path to copy or converted pdf (false == fail)
      */
-    public static function ensure_pdf_compatible(\stored_file $file) {
+    public static function ensure_pdf_compatible(\core_files\filestorage\stored_file $file) {
         global $CFG;
 
         $temparea = \make_temp_directory('assignfeedback_editpdf');

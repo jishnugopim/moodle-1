@@ -341,7 +341,7 @@ class repository_filesystem extends repository {
         }
     }
 
-    public function sync_reference(stored_file $file) {
+    public function sync_reference(\core_files\filestorage\stored_file $file) {
         if ($file->get_referencelastsync() + 60 > time()) {
             // Does not cost us much to synchronise within our own filesystem, check every 1 minute.
             return false;
@@ -565,7 +565,7 @@ class repository_filesystem extends repository {
      * @param stored_file $mainfile The main file we are trying to access relative files for.
      * @param string $relativepath the relative path to the file we are trying to access.
      */
-    public function send_relative_file(stored_file $mainfile, $relativepath) {
+    public function send_relative_file(\core_files\filestorage\stored_file $mainfile, $relativepath) {
         global $CFG;
         // Check if this repository is allowed to use relative linking.
         $allowlinks = $this->supports_relative_file();

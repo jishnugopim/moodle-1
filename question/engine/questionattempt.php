@@ -534,7 +534,7 @@ class question_attempt {
      * @param stored_file $file the file to link to.
      * @return string the URL of that file.
      */
-    public function get_response_file_url(stored_file $file) {
+    public function get_response_file_url(\core_files\filestorage\stored_file $file) {
         return file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
                 $file->get_contextid(),
                 $file->get_component(),

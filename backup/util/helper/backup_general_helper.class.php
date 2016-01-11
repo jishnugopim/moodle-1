@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage\file_progress;
+
 /**
  * Non instantiable helper class providing general helper methods for backup/restore
  *

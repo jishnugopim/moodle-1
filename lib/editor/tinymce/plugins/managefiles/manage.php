@@ -24,7 +24,6 @@
 
 require('../../../../../config.php');
 require_once('manage_form.php');
-require_once($CFG->libdir.'/filestorage/file_storage.php');
 
 $itemid = required_param('itemid', PARAM_INT);
 $maxbytes = optional_param('maxbytes', 0, PARAM_INT);

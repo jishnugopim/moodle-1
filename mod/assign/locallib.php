@@ -1705,7 +1705,7 @@ class assign {
         // Create path for new zip file.
         $tempzip = tempnam($CFG->tempdir . '/', 'assignment_');
         // Zip files.
-        $zipper = new zip_packer();
+        $zipper = new \core_files\filestorage\zip_packer();
         if ($zipper->archive_to_pathname($filesforzipping, $tempzip)) {
             return $tempzip;
         }

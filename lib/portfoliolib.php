@@ -207,7 +207,7 @@ class portfolio_add_button {
      * @param array $extraformats any additional formats other than by mimetype
      *                            eg leap2a etc
      */
-    public function set_format_by_file(stored_file $file, $extraformats=null) {
+    public function set_format_by_file(\core_files\filestorage\stored_file $file, $extraformats=null) {
         $this->file = $file;
         $fileformat = portfolio_format_from_mimetype($file->get_mimetype());
         if (is_string($extraformats)) {
@@ -290,7 +290,7 @@ class portfolio_add_button {
         $url->param('course', (!empty($COURSE)) ? $COURSE->id : 0);
         $url->param('callerformats', implode(',', $this->formats));
         $mimetype = null;
-        if ($this->file instanceof stored_file) {
+        if ($this->file instanceof \core_files\filestorage\stored_file) {
             $mimetype = $this->file->get_mimetype();
         } else if ($this->intendedmimetype) {
             $mimetype = $this->intendedmimetype;
@@ -985,12 +985,12 @@ function portfolio_export_rethrow_exception($exporter, $exception) {
  */
 function portfolio_expected_time_file($totest) {
     global $CFG;
-    if ($totest instanceof stored_file) {
+    if ($totest instanceof \core_files\filestorage\stored_file) {
         $totest = array($totest);
     }
     $size = 0;
     foreach ($totest as $file) {
-        if (!($file instanceof stored_file)) {
+        if (!($file instanceof \core_files\filestorage\stored_file)) {
             debugging('something weird passed to portfolio_expected_time_file - not stored_file object');
             debugging(print_r($file, true));
             continue;

@@ -32,6 +32,9 @@ define('FILE_INTERNAL',  2);
 define('FILE_REFERENCE', 4);
 define('RENAME_SUFFIX', '_2');
 
+use \core_files\filestorage\file_storage;
+use \core_files\filestorage\stored_file;
+
 /**
  * This class is used to manage repository plugins
  *

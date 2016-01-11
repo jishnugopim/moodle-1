@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for /lib/filestorage/mbz_packer.php.
+ * Unit tests for \core_files\filestorage\mbz_packer.
  *
  * @package core_files
  * @copyright 2013 The Open University
@@ -25,7 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/filestorage/file_progress.php');
+
+use \core_files\filestorage\file_progress;
 
 class core_files_mbz_packer_testcase extends advanced_testcase {
 
@@ -35,7 +36,6 @@ class core_files_mbz_packer_testcase extends advanced_testcase {
 
         // Get backup packer.
         $packer = get_file_packer('application/vnd.moodle.backup');
-        require_once($CFG->dirroot . '/lib/filestorage/tgz_packer.php');
 
         // Set up basic archive contents.
         $files = array('1.txt' => array('frog'));

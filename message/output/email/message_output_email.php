@@ -68,7 +68,7 @@ class message_output_email extends message_output {
             if (empty($eventdata->attachname)) {
                 // Attachment needs a file name.
                 debugging('Attachments should have a file name. No attachments have been sent.', DEBUG_DEVELOPER);
-            } else if (!($eventdata->attachment instanceof stored_file)) {
+            } else if (!($eventdata->attachment instanceof \core_files\filestorage\stored_file)) {
                 // Attachment should be of a type stored_file.
                 debugging('Attachments should be of type stored_file. No attachments have been sent.', DEBUG_DEVELOPER);
             } else {

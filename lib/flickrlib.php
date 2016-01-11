@@ -1099,7 +1099,7 @@ class phpFlickr {
      * @param array $meta optional meta information
      * @return boolean
      */
-    function upload(stored_file $photo, array $meta = array()) {
+    function upload(\core_files\filestorage\stored_file $photo, array $meta = array()) {
 
         $args = array();
 

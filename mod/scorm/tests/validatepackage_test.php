@@ -26,6 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage\file_archive;
+
 global $CFG;
 require_once($CFG->dirroot . '/mod/scorm/locallib.php');
 

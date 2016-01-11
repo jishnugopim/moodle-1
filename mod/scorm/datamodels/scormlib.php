@@ -547,7 +547,7 @@ function scorm_parse_scorm(&$scorm, $manifest) {
     global $CFG, $DB;
 
     // Load manifest into string.
-    if ($manifest instanceof stored_file) {
+    if ($manifest instanceof \core_files\filestorage\stored_file) {
         $xmltext = $manifest->get_content();
     } else {
         require_once("$CFG->libdir/filelib.php");

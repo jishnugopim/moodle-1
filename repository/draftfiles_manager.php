@@ -129,7 +129,7 @@ case 'rename':
     break;
 
 case 'downloaddir':
-    $zipper = new zip_packer();
+    $zipper = new \core_files\filestorage\zip_packer();
 
     $file = $fs->get_file($user_context->id, 'user', 'draft', $itemid, $draftpath, '.');
     if ($draftpath === '/') {
@@ -149,7 +149,7 @@ case 'downloaddir':
     break;
 
 case 'zip':
-    $zipper = new zip_packer();
+    $zipper = new \core_files\filestorage\zip_packer();
 
     $file = $fs->get_file($user_context->id, 'user', 'draft', $itemid, $draftpath, '.');
     if (!$file->get_parent_directory()) {
@@ -172,7 +172,7 @@ case 'zip':
     break;
 
 case 'unzip':
-    $zipper = new zip_packer();
+    $zipper = new \core_files\filestorage\zip_packer();
     $file = $fs->get_file($user_context->id, 'user', 'draft', $itemid, $draftpath, $filename);
 
     if ($newfile = $file->extract_to_storage($zipper, $user_context->id, 'user', 'draft', $itemid, $draftpath, $USER->id)) {

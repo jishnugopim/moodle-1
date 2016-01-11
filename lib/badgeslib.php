@@ -1131,7 +1131,7 @@ function badges_download($userid) {
 
     // Zip files and sent them to a user.
     $tempzip = tempnam($CFG->tempdir.'/', 'mybadges');
-    $zipper = new zip_packer();
+    $zipper = new \core_files\filestorage\zip_packer();
     if ($zipper->archive_to_pathname($filelist, $tempzip)) {
         send_temp_file($tempzip, 'badges.zip');
     } else {

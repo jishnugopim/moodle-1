@@ -5997,7 +5997,7 @@ function get_file_storage($reset = false) {
         $trashdirdir = $CFG->dataroot.'/trashdir';
     }
 
-    $fs = new file_storage($filedir, $trashdirdir, "$CFG->tempdir/filestorage", $CFG->directorypermissions, $CFG->filepermissions);
+    $fs = new \core_files\filestorage\file_storage($filedir, $trashdirdir, "$CFG->tempdir/filestorage", $CFG->directorypermissions, $CFG->filepermissions);
 
     return $fs;
 }
@@ -6056,7 +6056,8 @@ function get_file_packer($mimetype='application/zip') {
             return false;
     }
 
-    require_once("$CFG->libdir/filestorage/$classname.php");
+    $classname = '\\core_files\\filestorage\\' . $classname;
+
     $fp[$mimetype] = new $classname();
 
     return $fp[$mimetype];

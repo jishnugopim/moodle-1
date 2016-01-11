@@ -27,6 +27,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage\file_storage;
+
 /**
  * delete old directories and conditionally create backup_temp_ids table
  */

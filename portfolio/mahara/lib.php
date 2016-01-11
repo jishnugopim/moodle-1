@@ -343,7 +343,7 @@ class portfolio_plugin_mahara extends portfolio_plugin_pull_base {
         try {
             $i = $exporter->get('instance');
             $f = $i->get('file');
-            if (empty($f) || !($f instanceof stored_file)) {
+            if (empty($f) || !($f instanceof \core_files\filestorage\stored_file)) {
                 throw new mnet_server_exception(8012, 'mnet_nofile', 'portfolio_mahara');
             }
             try {

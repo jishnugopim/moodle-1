@@ -24,7 +24,6 @@
 
 require(__DIR__ . '/../../../../../config.php');
 require_once(__DIR__ . '/manage_form.php');
-require_once($CFG->libdir . '/filestorage/file_storage.php');
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $itemid = required_param('itemid', PARAM_INT);

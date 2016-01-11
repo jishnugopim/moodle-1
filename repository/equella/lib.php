@@ -194,7 +194,7 @@ class repository_equella extends repository {
         return array('path'=>$path, 'url'=>$url);
     }
 
-    public function sync_reference(stored_file $file) {
+    public function sync_reference(\core_files\filestorage\stored_file $file) {
         global $USER, $CFG;
         if ($file->get_referencelastsync() + DAYSECS > time() || !$this->connection_result()) {
             // Synchronise not more often than once a day.

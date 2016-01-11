@@ -2877,7 +2877,6 @@ class course_in_list implements IteratorAggregate {
         if (empty($CFG->courseoverviewfileslimit)) {
             return array();
         }
-        require_once($CFG->libdir. '/filestorage/file_storage.php');
         require_once($CFG->dirroot. '/course/lib.php');
         $fs = get_file_storage();
         $context = context_course::instance($this->id);

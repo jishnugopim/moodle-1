@@ -243,7 +243,7 @@ class boxnet_client extends oauth2_client {
      * @param integer $parentid The ID of the parent folder.
      * @return object Box.net file object.
      */
-    public function upload_file(stored_file $storedfile, $parentid = 0) {
+    public function upload_file(\core_files\filestorage\stored_file $storedfile, $parentid = 0) {
         $url = $this->make_url('/files/content', array(), true);
         $options = array(
             'filename' => $storedfile,

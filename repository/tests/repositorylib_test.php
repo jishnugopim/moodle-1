@@ -142,7 +142,7 @@ class core_repositorylib_testcase extends advanced_testcase {
         foreach ($existingfiles as $filename) {
             $dummy['filename'] = $filename;
             $file = $fs->create_file_from_string($dummy, 'Content of ' . $filename);
-            $this->assertInstanceOf('stored_file', $file);
+            $this->assertInstanceOf('\core_files\filestorage\stored_file', $file);
         }
 
         // Doing the text.

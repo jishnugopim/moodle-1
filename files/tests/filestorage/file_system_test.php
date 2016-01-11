@@ -25,8 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage\file_system;
+use \core_files\filestorage\file_exception;
+
 global $CFG;
-require_once($CFG->libdir . '/filestorage/file_system.php');
 
 class core_files_file_system_testcase extends advanced_testcase {
 
@@ -38,7 +40,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         // Always mock these.
         $mockedmethods[] = 'get_contenthash';
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods($mockedmethods)
             ->getMock()
@@ -60,13 +62,13 @@ class core_files_file_system_testcase extends advanced_testcase {
         // It's not possible to catch a fatal exception in phpunit. The
         // best we can do is to ensure that no-one has changed the
         // constructor to be public.
-        $reflection = new ReflectionClass('file_system');
+        $reflection = new ReflectionClass('\core_files\filestorage\file_system');
         $constructor = $reflection->getConstructor();
         $this->assertFalse($constructor->isPublic());
     }
 
     public function test_not_cloneable() {
-        $reflection = new ReflectionClass('file_system');
+        $reflection = new ReflectionClass('\core_files\filestorage\file_system');
         $this->assertFalse($reflection->isCloneable());
     }
 
@@ -92,8 +94,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         global $CFG;
         $CFG->filesystem_handler_class = null;
         $fs = file_system::instance();
-        $this->assertInstanceOf('file_system', $fs);
-        $this->assertEquals('file_system', get_class($fs));
+        $this->assertEquals('core_files\filestorage\file_system', get_class($fs));
     }
 
     public function test_supplied_class() {
@@ -102,7 +103,7 @@ class core_files_file_system_testcase extends advanced_testcase {
 
         // Mock the file_system.
         // Mocks create a new child of the mocked class which is perfect for this test.
-        $filesystem = $this->getMockBuilder('file_system')
+        $filesystem = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->getMock()
             ;
@@ -113,10 +114,10 @@ class core_files_file_system_testcase extends advanced_testcase {
 
         // Yes... this test is superflous, but it's to satisfy anyone
         // coming here that the mock is *not* the actual file_system.
-        $this->assertNotEquals('file_system', get_class($filesystem));
+        $this->assertNotEquals('\core_files\filestorage\file_system', get_class($filesystem));
         // Ensure that we realy did get the correct mocked class and not the default.
         $this->assertInstanceOf(get_class($filesystem), $fs);
-        $this->assertInstanceOf('file_system', $fs);
+        $this->assertInstanceOf('\core_files\filestorage\file_system', $fs);
     }
 
     public function test_readonly_filesystem_filedir() {
@@ -134,7 +135,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $trashdir   = \org\bovigo\vfs\vfsStream::url('root/trashdirroot/trashdir');
 
         // This should generate an exception.
-        $this->setExpectedExceptionRegexp('file_exception',
+        $this->setExpectedExceptionRegexp('\core_files\filestorage\file_exception',
             '/Can not create local file pool directories, please verify permissions in dataroot./');
 
         file_system::instance($filedir, $trashdir, 0777, 0777);
@@ -155,7 +156,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $trashdir   = \org\bovigo\vfs\vfsStream::url('root/trashdirroot/trashdir');
 
         // This should generate an exception.
-        $this->setExpectedExceptionRegexp('file_exception',
+        $this->setExpectedExceptionRegexp('\core_files\filestorage\file_exception',
             '/Can not create local file pool directories, please verify permissions in dataroot./');
 
         file_system::instance($filedir, $trashdir, 0777, 0777);
@@ -226,7 +227,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_fullpath_from_storedfile($hash, $hashdir) {
         global $CFG;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array('sync_external_file', 'get_contenthash'))
             ->getMock()
@@ -241,7 +242,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn($hash)
             ;
 
-        $method = new ReflectionMethod('file_system', 'get_fullpath_from_storedfile');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_fullpath_from_storedfile');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -252,7 +253,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_get_fullpath_from_storedfile_with_sync() {
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array('sync_external_file', 'get_contenthash'))
             ->getMock()
@@ -267,7 +268,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn('eee4943847a35a4b6942c6f96daafde06bcfdfab')
             ;
 
-        $method = new ReflectionMethod('file_system', 'get_fullpath_from_storedfile');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_fullpath_from_storedfile');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -281,7 +282,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_fulldir_from_storedfile($hash, $hashdir) {
         global $CFG;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array('sync_external_file', 'get_contenthash'))
             ->getMock()
@@ -292,7 +293,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn($hash)
             ;
 
-        $method = new ReflectionMethod('file_system', 'get_fulldir_from_storedfile');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_fulldir_from_storedfile');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -308,7 +309,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_fulldir_from_hash($hash, $hashdir) {
         global $CFG;
 
-        $method = new ReflectionMethod('file_system', 'get_fulldir_from_hash');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_fulldir_from_hash');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -324,7 +325,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_fullpath_from_hash($hash, $hashdir) {
         global $CFG;
 
-        $method = new ReflectionMethod('file_system', 'get_fullpath_from_hash');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_fullpath_from_hash');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -338,7 +339,7 @@ class core_files_file_system_testcase extends advanced_testcase {
      * @dataProvider contenthash_dataprovider
      */
     public function test_get_contentdir_from_hash($hash, $hashdir) {
-        $method = new ReflectionMethod('file_system', 'get_contentdir_from_hash');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_contentdir_from_hash');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -351,7 +352,7 @@ class core_files_file_system_testcase extends advanced_testcase {
      * @dataProvider contenthash_dataprovider
      */
     public function test_get_contentpath_from_hash($hash, $hashdir) {
-        $method = new ReflectionMethod('file_system', 'get_contentpath_from_hash');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_contentpath_from_hash');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -367,7 +368,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_trash_fullpath_from_storedfile($hash, $hashdir) {
         global $CFG;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array('get_contenthash'))
             ->getMock()
@@ -378,7 +379,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn($hash)
             ;
 
-        $method = new ReflectionMethod('file_system', 'get_trash_fullpath_from_storedfile');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_trash_fullpath_from_storedfile');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -394,7 +395,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_trash_fullpath_from_hash($hash, $hashdir) {
         global $CFG;
 
-        $method = new ReflectionMethod('file_system', 'get_trash_fullpath_from_hash');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_trash_fullpath_from_hash');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -410,7 +411,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_trash_fulldir_from_storedfile($hash, $hashdir) {
         global $CFG;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array('sync_external_file', 'get_contenthash'))
             ->getMock()
@@ -421,7 +422,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn($hash)
             ;
 
-        $method = new ReflectionMethod('file_system', 'get_trash_fulldir_from_storedfile');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_trash_fulldir_from_storedfile');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -437,7 +438,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     public function test_get_trash_fulldir_from_hash($hash, $hashdir) {
         global $CFG;
 
-        $method = new ReflectionMethod('file_system', 'get_trash_fulldir_from_hash');
+        $method = new ReflectionMethod('\core_files\filestorage\file_system', 'get_trash_fulldir_from_hash');
         $method->setAccessible(true);
 
         $fs = file_system::instance();
@@ -448,7 +449,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_is_readable() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array('get_fullpath_from_storedfile'))
             ->getMock()
@@ -459,7 +460,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn(__FILE__)
             ;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock()
             ;
@@ -469,7 +470,7 @@ class core_files_file_system_testcase extends advanced_testcase {
 
     public function test_is_readable_with_failed_recovery() {
         $filedir = \org\bovigo\vfs\vfsStream::setup('filedir');
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'get_fullpath_from_storedfile',
@@ -488,7 +489,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn(false)
             ;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock()
             ;
@@ -537,7 +538,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_is_readable_by_hash() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array('get_fullpath_from_hash'))
             ->getMock()
@@ -548,7 +549,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn(__FILE__)
             ;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock()
             ;
@@ -557,7 +558,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_ensure_readable() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array('is_readable'))
             ->getMock()
@@ -568,7 +569,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn(true)
             ;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock()
             ;
@@ -577,7 +578,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_ensure_readable_exception_on_unreadable() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array('is_readable'))
             ->getMock()
@@ -588,18 +589,18 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn(false)
             ;
 
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock()
             ;
 
-        $this->setExpectedExceptionRegexp('file_exception',
+        $this->setExpectedExceptionRegexp('\core_files\filestorage\file_exception',
             '/Can not read file, either file does not exist or there are permission problems/');
         $fs->ensure_readable($file);
     }
 
     public function test_ensure_readable_by_hash() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array('is_readable_by_hash'))
             ->getMock()
@@ -614,7 +615,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_ensure_readable_by_hash_exception_on_unreadable() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array('is_readable_by_hash'))
             ->getMock()
@@ -625,7 +626,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ->willReturn(false)
             ;
 
-        $this->setExpectedExceptionRegexp('file_exception',
+        $this->setExpectedExceptionRegexp('\core_files\filestorage\file_exception',
             '/Can not read file, either file does not exist or there are permission problems/');
         $fs->ensure_readable_by_hash('example');
     }
@@ -958,13 +959,13 @@ class core_files_file_system_testcase extends advanced_testcase {
         $filepath = \org\bovigo\vfs\vfsStream::url('filedir/file');
 
         // Mock the stored file.
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock()
             ;
 
         // Mock the file_system.
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'ensure_readable',
@@ -988,7 +989,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_get_imageinfo_not_image() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'is_image',
@@ -1002,7 +1003,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ;
 
         // Mock the file to pass in.
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -1011,7 +1012,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_get_imageinfo() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'is_image',
@@ -1041,7 +1042,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ;
 
         // Mock the file to pass in.
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -1051,14 +1052,14 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_is_image_empty_filesize() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(null)
             ->getMock()
             ;
 
         // Mock the file to pass in.
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array('get_filesize'))
             ->getMock();
@@ -1075,14 +1076,14 @@ class core_files_file_system_testcase extends advanced_testcase {
      * @dataProvider is_image_dataprovider
      */
     public function test_is_image_mimetype($mimetype, $isimage) {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(null)
             ->getMock()
             ;
 
         // Mock the file to pass in.
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'get_filesize',
@@ -1104,7 +1105,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_get_content_file_handle() {
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'ensure_readable',
@@ -1123,7 +1124,7 @@ class core_files_file_system_testcase extends advanced_testcase {
             ;
 
         // Mock the file to pass in.
-        $file = $this->getMockBuilder('stored_file')
+        $file = $this->getMockBuilder('\core_files\filestorage\stored_file')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -1133,7 +1134,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_get_file_handle_for_path_invalid_type() {
-        $rcm = new ReflectionMethod('file_system', 'get_file_handle_for_path');
+        $rcm = new ReflectionMethod('\core_files\filestorage\file_system', 'get_file_handle_for_path');
         $rcm->setAccessible(true);
         $this->setExpectedException('coding_exception', 'Unexpected file handle type');
 
@@ -1222,7 +1223,7 @@ class core_files_file_system_testcase extends advanced_testcase {
     }
 
     public function test_add_file_to_pool_file_unavailable() {
-        $this->setExpectedExceptionRegexp('file_exception',
+        $this->setExpectedExceptionRegexp('\core_files\filestorage\file_exception',
             '/Can not read file, either file does not exist or there are permission problems/');
 
         $fs = file_system::instance();
@@ -1271,7 +1272,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         // Disable debugdeveloper temporarily to test other content hash checks.
         $CFG->debugdeveloper = 0;
 
-        $this->setExpectedException('file_exception',
+        $this->setExpectedException('\core_files\filestorage\file_exception',
             'Can not read file, either file does not exist or there are permission problems'
         );
 
@@ -1381,7 +1382,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         );
 
         // Mock the filesystem and set it up.
-        $fs = $this->getMockBuilder('file_system')
+        $fs = $this->getMockBuilder('\core_files\filestorage\file_system')
             ->disableOriginalConstructor()
             ->setMethods(array(
                 'get_fulldir_from_hash',
@@ -1452,7 +1453,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $sourcefile = \org\bovigo\vfs\vfsStream::url('root/sourcedir/file');
 
         $this->setExpectedException(
-            'file_exception',
+            '\core_files\filestorage\file_exception',
             "Can not create local file pool directories, please verify permissions in dataroot."
         );
 
@@ -1500,7 +1501,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $sourcefile = \org\bovigo\vfs\vfsStream::url('root/sourcedir/file');
 
         $this->setExpectedException(
-            'file_exception',
+            '\core_files\filestorage\file_exception',
             'Can not create local file pool file, please verify permissions in dataroot and available disk space.'
         );
 
@@ -1536,7 +1537,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $sourcefile = \org\bovigo\vfs\vfsStream::url('root/sourcedir/file');
 
         $this->setExpectedException(
-            'file_exception',
+            '\core_files\filestorage\file_exception',
             'Can not create local file pool file, please verify permissions in dataroot and available disk space.'
         );
 
@@ -1608,7 +1609,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $sourcefile = \org\bovigo\vfs\vfsStream::url('root/sourcedir/file');
 
         $this->setExpectedException(
-            'file_exception',
+            '\core_files\filestorage\file_exception',
             "Can not create local file pool directories, please verify permissions in dataroot."
         );
 
@@ -1796,7 +1797,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $CFG->preventfilelocking = true;
 
         $this->setExpectedException(
-            'file_exception',
+            '\core_files\filestorage\file_exception',
             'Can not create local file pool file, please verify permissions in dataroot and available disk space.'
         );
 
@@ -1845,7 +1846,7 @@ class core_files_file_system_testcase extends advanced_testcase {
         $CFG->preventfilelocking = true;
 
         $this->setExpectedException(
-            'file_exception',
+            '\core_files\filestorage\file_exception',
             'Can not create local file pool file, please verify permissions in dataroot and available disk space.'
         );
 

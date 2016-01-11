@@ -26,7 +26,6 @@ define('CLI_SCRIPT', true);
 
 require(__DIR__.'/../../../../config.php');
 require_once("$CFG->libdir/clilib.php");
-require_once("$CFG->libdir/filestorage/zip_packer.php");
 
 if (count($_SERVER['argv']) != 2 or !file_exists($_SERVER['argv'][1])) {
     cli_error("This script expects zip file name as the only parameter");

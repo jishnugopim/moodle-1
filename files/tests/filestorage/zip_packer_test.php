@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for /lib/filestorage/zip_packer.php and zip_archive.php
+ * Unit tests for \core_files\filestorage\zip_packer, and \core_files\filestorage\zip_archive.
  *
  * @package   core_files
  * @category  phpunit
@@ -25,8 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage\file_archive;
+use \core_files\filestorage\file_progress;
+use \core_files\filestorage\stored_file;
+use \core_files\filestorage\zip_archive;
+
 global $CFG;
-require_once($CFG->libdir . '/filestorage/file_progress.php');
 
 class core_files_zip_packer_testcase extends advanced_testcase implements file_progress {
     protected $testfile;
@@ -63,10 +67,10 @@ class core_files_zip_packer_testcase extends advanced_testcase implements file_p
     public function test_get_packer() {
         $this->resetAfterTest(false);
         $packer = get_file_packer();
-        $this->assertInstanceOf('zip_packer', $packer);
+        $this->assertInstanceOf('\core_files\filestorage\zip_packer', $packer);
 
         $packer = get_file_packer('application/zip');
-        $this->assertInstanceOf('zip_packer', $packer);
+        $this->assertInstanceOf('\core_files\filestorage\zip_packer', $packer);
     }
 
     /**
@@ -202,7 +206,7 @@ class core_files_zip_packer_testcase extends advanced_testcase implements file_p
 
         $this->assertFalse($fs->file_exists($context->id, 'phpunit', 'test', 0, '/', 'archive.zip'));
         $result = $packer->archive_to_storage($this->files, $context->id, 'phpunit', 'test', 0, '/', 'archive.zip');
-        $this->assertInstanceOf('stored_file', $result);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $result);
         $this->assertTrue($fs->file_exists($context->id, 'phpunit', 'test', 0, '/', 'archive.zip'));
 
         $archivefiles = $result->list_files($packer);
@@ -316,7 +320,7 @@ class core_files_zip_packer_testcase extends advanced_testcase implements file_p
         foreach ($this->files as $file => $unused) {
             $this->assertTrue($result[$file]);
             $stored_file = $fs->get_file_by_hash(sha1("/$context->id/phpunit/target/0/$file"));
-            $this->assertInstanceOf('stored_file', $stored_file);
+            $this->assertInstanceOf('\core_files\filestorage\stored_file', $stored_file);
             $this->assertSame($testcontent, $stored_file->get_content());
         }
 
@@ -328,7 +332,7 @@ class core_files_zip_packer_testcase extends advanced_testcase implements file_p
         foreach ($this->files as $file => $unused) {
             $this->assertTrue($result[$file]);
             $stored_file = $fs->get_file_by_hash(sha1("/$context->id/phpunit/target/0/$file"));
-            $this->assertInstanceOf('stored_file', $stored_file);
+            $this->assertInstanceOf('\core_files\filestorage\stored_file', $stored_file);
             $this->assertSame($testcontent, $stored_file->get_content());
         }
         unlink($archive);
@@ -533,7 +537,7 @@ class core_files_zip_packer_testcase extends advanced_testcase implements file_p
         $this->progress = array();
         $archivefile = $packer->archive_to_storage($this->files, $context->id,
                 'phpunit', 'test', 0, '/', 'archive.zip', null, true, $this);
-        $this->assertInstanceOf('stored_file', $archivefile);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $archivefile);
         $this->assertTrue(count($this->progress) >= count($this->files));
         $this->assertEquals(
                 array(file_progress::INDETERMINATE, file_progress::INDETERMINATE),

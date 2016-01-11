@@ -34,9 +34,6 @@ define('BYTESERVING_BOUNDARY', 's1k2o3d4a5k6s7');
  */
 define('FILE_AREA_MAX_BYTES_UNLIMITED', -1);
 
-require_once("$CFG->libdir/filestorage/file_exceptions.php");
-require_once("$CFG->libdir/filestorage/file_storage.php");
-require_once("$CFG->libdir/filestorage/zip_packer.php");
 require_once("$CFG->libdir/filebrowser/file_browser.php");
 
 /**
@@ -420,7 +417,7 @@ function file_prepare_draft_area(&$draftitemid, $contextid, $component, $fileare
                 $original->itemid    = $itemid;
                 $original->filename  = $file->get_filename();
                 $original->filepath  = $file->get_filepath();
-                $newsourcefield->original = file_storage::pack_reference($original);
+                $newsourcefield->original = \core_files\filestorage\file_storage::pack_reference($original);
                 $draftfile->set_source(serialize($newsourcefield));
                 // End of file manager hack
             }
@@ -870,7 +867,7 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
                 // Directories are always ok to just update.
             } else if (($source = @unserialize($newfile->get_source())) && isset($source->original)) {
                 // File has the 'original' - we need to update the file (it may even have not been changed at all).
-                $original = file_storage::unpack_reference($source->original);
+                $original = \core_files\filestorage\file_storage::unpack_reference($source->original);
                 if ($original['filename'] !== $oldfile->get_filename() || $original['filepath'] !== $oldfile->get_filepath()) {
                     // Very odd, original points to another file. Delete and create file.
                     $oldfile->delete();
@@ -3364,7 +3361,7 @@ class curl {
         if (is_array($params)) {
             $this->_tmp_file_post_params = array();
             foreach ($params as $key => $value) {
-                if ($value instanceof stored_file) {
+                if ($value instanceof \core_files\filestorage\stored_file) {
                     $value->add_to_curl_request($this, $key);
                 } else {
                     $this->_tmp_file_post_params[$key] = $value;

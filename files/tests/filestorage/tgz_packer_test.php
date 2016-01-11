@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for /lib/filestorage/tgz_packer.php and tgz_extractor.php.
+ * Unit tests for \core_files\filestorage\tgz_packer, and \core_files\filestorage\tgz_extractor.
  *
  * @package core_files
  * @copyright 2013 The Open University
@@ -24,8 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_files\filestorage\stored_file;
+use \core_files\filestorage\file_progress;
+use \core_files\filestorage\tgz_packer;
+
 global $CFG;
-require_once($CFG->libdir . '/filestorage/file_progress.php');
 
 class core_files_tgz_packer_testcase extends advanced_testcase implements file_progress {
     /**
@@ -105,7 +108,7 @@ class core_files_tgz_packer_testcase extends advanced_testcase implements file_p
      */
     public function test_get_packer() {
         $packer = get_file_packer('application/x-gzip');
-        $this->assertInstanceOf('tgz_packer', $packer);
+        $this->assertInstanceOf('\core_files\filestorage\tgz_packer', $packer);
     }
 
     /**
@@ -162,7 +165,7 @@ class core_files_tgz_packer_testcase extends advanced_testcase implements file_p
         $context = context_system::instance();
         $sf = $packer->archive_to_storage($files,
                 $context->id, 'phpunit', 'archive', 1, '/', 'archive.tar.gz');
-        $this->assertInstanceOf('stored_file', $sf);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $sf);
 
         // Extract (from storage) to disk.
         $outdir = $CFG->tempdir . '/out';
@@ -211,7 +214,7 @@ class core_files_tgz_packer_testcase extends advanced_testcase implements file_p
         // don't give errors when run twice.
         $sf = $packer->archive_to_storage($files,
                 $context->id, 'phpunit', 'archive', 1, '/', 'archive.tar.gz');
-        $this->assertInstanceOf('stored_file', $sf);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $sf);
         $packer->extract_to_storage($sf, $context->id, 'phpunit', 'data', 2, '/out/');
     }
 
@@ -272,7 +275,7 @@ class core_files_tgz_packer_testcase extends advanced_testcase implements file_p
         $this->progress = array();
         $archivefile = $packer->archive_to_storage($filelist, $context->id,
                 'phpunit', 'test', 0, '/', 'archive.tgz', null, true, $this);
-        $this->assertInstanceOf('stored_file', $archivefile);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $archivefile);
         $this->assertTrue(count($this->progress) >= count($filelist));
         $this->check_progress_toward_max();
 
@@ -387,7 +390,7 @@ class core_files_tgz_packer_testcase extends advanced_testcase implements file_p
         $context = context_system::instance();
         $archive1 = $packer1->archive_to_storage($filelist, $context->id,
                 'phpunit', 'test', 0, '/', 'archive.tgz', null, true, $this);
-        $this->assertInstanceOf('stored_file', $archive1);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $archive1);
         $result = $packer2->archive_to_pathname($filelist, $archive2);
         $this->assertTrue($result);
 

@@ -25,7 +25,6 @@
 define('AJAX_SCRIPT', true);
 
 require_once(dirname(__FILE__) . '/../../../config.php');
-require_once($CFG->libdir . '/filestorage/file_storage.php');
 
 $contextid = required_param('contextid', PARAM_INT);
 $elementid = required_param('elementid', PARAM_ALPHANUMEXT);

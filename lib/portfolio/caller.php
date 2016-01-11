@@ -386,11 +386,11 @@ abstract class portfolio_caller_base {
         $files = array();
         $fs = get_file_storage();
         if (!empty($ids)) {
-            if (is_numeric($ids) || $ids instanceof stored_file) {
+            if (is_numeric($ids) || $ids instanceof \core_files\filestorage\stored_file) {
                 $ids = array($ids);
             }
             foreach ($ids as $id) {
-                if ($id instanceof stored_file) {
+                if ($id instanceof \core_files\filestorage\stored_file) {
                     $files[] = $id;
                 } else {
                     $files[] = $fs->get_file_by_id($id);
@@ -456,7 +456,7 @@ abstract class portfolio_caller_base {
      * @return string
      */
     public function get_mimetype() {
-        if ($this->singlefile instanceof stored_file) {
+        if ($this->singlefile instanceof \core_files\filestorage\stored_file) {
             return $this->singlefile->get_mimetype();
         } else if (!empty($this->intendedmimetype)) {
             return $this->intendedmimetype;

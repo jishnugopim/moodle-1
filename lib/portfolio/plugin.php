@@ -819,7 +819,7 @@ abstract class portfolio_plugin_pull_base extends portfolio_plugin_base {
      */
     public function send_file() {
         $file = $this->get('file');
-        if (!($file instanceof stored_file)) {
+        if (!($file instanceof \core_files\filestorage\stored_file)) {
             throw new portfolio_export_exception($this->get('exporter'), 'filenotfound', 'portfolio');
         }
         // don't die(); afterwards, so we can clean up.

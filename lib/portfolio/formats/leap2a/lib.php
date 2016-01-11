@@ -284,7 +284,7 @@ class portfolio_format_leap2a_entry {
      */
     public function __set($field, $value) {
         // detect the case where content is being set to be a file directly
-        if ($field == 'content' && $value instanceof stored_file) {
+        if ($field == 'content' && $value instanceof \core_files\filestorage\stored_file) {
             throw new portfolio_format_leap2a_exception('leap2a_filecontent', 'portfolio');
         }
         if (in_array($field, $this->requiredfields) || in_array($field, $this->optionalfields)) {
@@ -506,7 +506,7 @@ class portfolio_format_leap2a_file extends portfolio_format_leap2a_entry {
      * @param string $title title of the entry
      * @param stored_file $file file storage instance
      */
-    public function __construct($title, stored_file $file) {
+    public function __construct($title, \core_files\filestorage\stored_file $file) {
         $id = portfolio_format_leap2a::file_id_prefix() . $file->get_id();
         parent::__construct($id, $title, 'resource');
         $this->referencedfile = $file;

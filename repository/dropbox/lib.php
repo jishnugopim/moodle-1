@@ -550,7 +550,7 @@ class repository_dropbox extends repository {
         return serialize($reference);
     }
 
-    public function sync_reference(stored_file $file) {
+    public function sync_reference(\core_files\filestorage\stored_file $file) {
         global $CFG;
 
         if ($file->get_referencelastsync() + DAYSECS > time()) {

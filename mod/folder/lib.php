@@ -360,7 +360,7 @@ function folder_dndupload_handle($uploadinfo) {
     // Only ever one file - extract the contents.
     $file = reset($files);
 
-    $success = $file->extract_to_storage(new zip_packer(), $context->id, 'mod_folder', 'content', 0, '/', $USER->id);
+    $success = $file->extract_to_storage(new \core_files\filestorage\zip_packer(), $context->id, 'mod_folder', 'content', 0, '/', $USER->id);
     $fs->delete_area_files($context->id, 'mod_folder', 'temp', 0);
 
     if ($success) {

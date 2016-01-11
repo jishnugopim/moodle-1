@@ -262,7 +262,7 @@ function label_dndupload_handle($uploadinfo) {
  * @param int $maxheight the maximum height allowed for the image
  * @return string HTML fragment to add to the label
  */
-function label_generate_resized_image(stored_file $file, $maxwidth, $maxheight) {
+function label_generate_resized_image(\core_files\filestorage\stored_file $file, $maxwidth, $maxheight) {
     global $CFG;
 
     $fullurl = moodle_url::make_draftfile_url($file->get_itemid(), $file->get_filepath(), $file->get_filename());

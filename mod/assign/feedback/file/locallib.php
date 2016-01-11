@@ -91,7 +91,7 @@ class assign_feedback_file extends assign_feedback_plugin {
      * @param int $toitemid - The destination item id
      * @return boolean
      */
-    private function copy_area_files(file_storage $fs,
+    private function copy_area_files(\core_files\filestorage\file_storage $fs,
                                      $fromcontextid,
                                      $fromcomponent,
                                      $fromfilearea,

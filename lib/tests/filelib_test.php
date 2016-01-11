@@ -589,7 +589,7 @@ class core_filelib_testcase extends advanced_testcase {
         $ref = $fs->pack_reference($filerecord);
         $originalfile = $fs->create_file_from_string($filerecord, 'Test content');
         $fileid = $originalfile->get_id();
-        $this->assertInstanceOf('stored_file', $originalfile);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $originalfile);
 
         // Create a user private file.
         $userfilerecord = new stdClass;
@@ -608,7 +608,7 @@ class core_filelib_testcase extends advanced_testcase {
 
         // Create a file reference.
         $fileref = $fs->create_file_from_reference($filerefrecord, $userrepository->id, $userfileref);
-        $this->assertInstanceOf('stored_file', $fileref);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $fileref);
         $this->assertEquals($userrepository->id, $fileref->get_repository_id());
         $this->assertSame($userfile->get_contenthash(), $fileref->get_contenthash());
         $this->assertEquals($userfile->get_filesize(), $fileref->get_filesize());
@@ -626,7 +626,7 @@ class core_filelib_testcase extends advanced_testcase {
         $this->assertSame($sourcefield, $source->source);
 
         $draftfileref = $fs->get_file($usercontext->id, 'user', 'draft', $draftitemid, $filepath, $filerefrecord->filename);
-        $this->assertInstanceOf('stored_file', $draftfileref);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $draftfileref);
         $this->assertTrue($draftfileref->is_external_file());
 
         // Change some information.
@@ -648,7 +648,7 @@ class core_filelib_testcase extends advanced_testcase {
 
         // Make sure it's the original file id.
         $this->assertEquals($fileid, $file->get_id());
-        $this->assertInstanceOf('stored_file', $file);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $file);
         $this->assertSame($author, $file->get_author());
         $this->assertSame($license, $file->get_license());
         $this->assertEquals($newsourcefield, $file->get_source());
@@ -706,7 +706,7 @@ class core_filelib_testcase extends advanced_testcase {
         );
         // Create a file reference.
         $fileref = $fs->create_file_from_reference($filerecord, $userrepository->id, $userfileref);
-        $this->assertInstanceOf('stored_file', $fileref);
+        $this->assertInstanceOf('\core_files\filestorage\stored_file', $fileref);
         $this->assertEquals($userrepository->id, $fileref->get_repository_id());
         $this->assertSame($userfile->get_contenthash(), $fileref->get_contenthash());
         $this->assertEquals($userfile->get_filesize(), $fileref->get_filesize());
