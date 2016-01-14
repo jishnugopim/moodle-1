@@ -3253,7 +3253,7 @@ function ismoving($courseid) {
  * @param bool $override If true then the name will be firstname followed by lastname rather than adhering to fullnamedisplay.
  * @return string
  */
-function fullname($user, $override=false) {
+function fullname(stdClass $user, $override=false) {
     global $CFG, $SESSION;
 
     if (!isset($user->firstname) and !isset($user->lastname)) {
