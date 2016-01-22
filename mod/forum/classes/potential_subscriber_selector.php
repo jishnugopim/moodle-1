@@ -54,6 +54,14 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
         if (isset($options['forcesubscribed'])) {
             $this->forcesubscribed=true;
         }
+
+        if (defined('AJAX_SCRIPT') && AJAX_SCRIPT) {
+            // Filter out the existing subscribers.
+            // This normally happens in subscribers.php, but for AJAX calls we don't create that selector.
+            // Therefore we must do so here.
+            $existingselector = new mod_forum_existing_subscriber_selector('existingsubscribers', $options);
+            $this->set_existing_subscribers($existingselector->find_users(''));
+        }
     }
 
     /**
