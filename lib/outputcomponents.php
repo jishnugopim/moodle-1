@@ -2905,6 +2905,8 @@ class custom_menu extends custom_menu_item {
      *     First level third item
      *     English only|http://moodle.com|English only item|en
      *     German only|http://moodle.de|Deutsch|de,de_du,de_kids
+     *     -English only second level another item|https://moodle.org/mod/forum/?id=5|English only item|en
+     *     -German only second level another item|https://moodle.org/mod/forum/index.php?id=18|Deutsch only item|de,de_du,de_kids
      *
      *
      * @static
@@ -2916,7 +2918,6 @@ class custom_menu extends custom_menu_item {
         $root = new custom_menu();
         $lastitem = $root;
         $lastdepth = 0;
-        $hiddenitems = array();
         $lines = explode("\n", $text);
         foreach ($lines as $linenumber => $line) {
             $line = trim($line);
@@ -2958,22 +2959,19 @@ class custom_menu extends custom_menu_item {
                     }
                 }
             }
-            // Get depth of new item.
-            preg_match('/^(\-*)/', $line, $match);
-            $itemdepth = strlen($match[1]) + 1;
-            // Find parent item for new item.
-            while (($lastdepth - $itemdepth) >= 0) {
-                $lastitem = $lastitem->get_parent();
-                $lastdepth--;
+            // Only for visible items (multilang support).
+            if ($itemvisible) {
+                // Get depth of new item.
+                preg_match('/^(\-*)/', $line, $match);
+                $itemdepth = strlen($match[1]) + 1;
+                // Find parent item for new item.
+                while (($lastdepth - $itemdepth) >= 0) {
+                    $lastitem = $lastitem->get_parent();
+                    $lastdepth--;
+                }
+                $lastitem = $lastitem->add($itemtext, $itemurl, $itemtitle, $linenumber + 1);
+                $lastdepth++;
             }
-            $lastitem = $lastitem->add($itemtext, $itemurl, $itemtitle, $linenumber + 1);
-            $lastdepth++;
-            if (!$itemvisible) {
-                $hiddenitems[] = $lastitem;
-            }
-        }
-        foreach ($hiddenitems as $item) {
-            $item->parent->remove_child($item);
         }
         return $root->get_children();
     }
