@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace core\disguise;
+namespace core_disguise;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -123,8 +123,64 @@ abstract class disguise {
         $this->context = $context;
 
         // Determine the path to this plugin instance. We use this for URLs generated for management URLs, etc.
-        $reflect = new \ReflectionClass($this);
-        $this->pluginpath = '/user/disguise/' . $reflect->getShortName();
+        $this->pluginpath = '/user/disguise/' . $this->get_type();
+    }
+
+    /**
+     * Get the ID for the disguise instance.
+     *
+     * @return int
+     */
+    public function get_id() {
+        return $this->id;
+    }
+
+    /**
+     * Instantiate an instance of the disguise.
+     *
+     * @param \context $context
+     * @return An instance of the core_disguise
+     * @throws \coding_exception
+     */
+    public static function instance(\context $context) {
+        global $DB;
+
+        if ($record = $DB->get_record('disguises', array('id' => $context->inheritteddisguiseid))) {
+            if (empty($record->type)) {
+                // There was a disguise, but it has been unset.
+                return null;
+            }
+
+            $classname = '\\disguise_' . $record->type . '\\disguise';
+            if (class_exists($classname)) {
+                return new $classname($record, $context);
+            }
+        }
+
+        throw new \coding_exception('Disguise not found.');
+    }
+
+    /**
+     * Create a new instance of this disguise.
+     */
+    public static function create(\context $context, $disguisetype) {
+        global $DB;
+
+        $classname = '\\disguise_' . $disguisetype . '\\disguise';
+        if (!class_exists($classname)) {
+            throw new \coding_exception('Unknown disguise type');
+        }
+
+        $record = new \stdClass();
+        $record->type = $disguisetype;
+        $record->id = $DB->insert_record('disguises', $record);
+
+        $record = $DB->get_record('disguises', array('id' => $record->id));
+
+        $disguise = new $classname($record, $context);
+        $context->set_disguise($disguise);
+
+        return $disguise;
     }
 
     /**
@@ -164,9 +220,29 @@ abstract class disguise {
             $user = $USER;
         }
 
-        // TODO
         // Check if the user has configured this plugin instance.
         return false;
+    }
+
+    /**
+     * Whether the disguise configured for the specified user in the the specified context.
+     *
+     * @param \context $context The context to check.
+     * @param \stdClass $user The user to check.
+     * @return bool
+     */
+    public static function is_configured_for_user_in_context(\context $context, \stdClass $user) {
+        global $USER;
+
+        if (!$context->disguise) {
+            return true;
+        }
+
+        if (null === $user) {
+            $user = $USER;
+        }
+
+        return $context->disguise->is_configured_for_user($user);
     }
 
     /**
@@ -175,9 +251,73 @@ abstract class disguise {
      * @param \stdClass $user The user to check.
      */
     public function ensure_configured_for_user(\stdClass $user) {
-        if (!$this->is_configured_for_user($user)) {
-            return redirect($this->user_configuration_path());
+        if ($this->is_configured_for_user($user)) {
+            // This user is already configured.
+            return true;
         }
+
+        if ($this->mode === self::DISGUISE_OPTIONAL) {
+            // This disguise is optional. Configuration is not *required*.
+            return true;
+        }
+
+        return $this->handle_unconfigured_for_user($user);
+    }
+
+    /**
+     * Ensure that the the user has configured their disguise within the specified context.
+     *
+     * @param \context $context The context to check.
+     * @param \stdClass $user The user to check.
+     * @return bool
+     */
+    public static function ensure_configured_for_user_in_context(\context $context, \stdClass $user = null) {
+        global $USER;
+
+        if (!$context->disguise) {
+            return;
+        }
+
+        if (null === $user) {
+            $user = $USER;
+        }
+
+        return $context->disguise->ensure_configured_for_user($user);
+    }
+
+    /**
+     * Ensure that the the user has configured their disguise.
+     *
+     * @param \stdClass $user The user to check.
+     */
+    public function handle_unconfigured_for_user(\stdClass $user) {
+        global $SESSION;
+        $SESSION->disguiseredirect = qualified_me();
+
+        // Fallback and redirect to the user configuration path.
+        return redirect($this->user_configuration_path($user));
+    }
+
+    /**
+     * Redirect back to the original location if possible once
+     * configuration is complete.
+     */
+    public function handle_user_now_configured() {
+        global $SESSION, $PAGE;
+
+        if (isset($SESSION->disguiseredirect)) {
+            $redirectto = $SESSION->disguiseredirect;
+            unset($SESSION->disguiseredirect);
+        }
+
+        if (empty($redirectto)) {
+            if ($PAGE->cm) {
+                $node = $PAGE->navigation->find($PAGE->cm->id, \navigation_node::TYPE_ACTIVITY);
+                $redirectto = $node->action;
+            }
+        }
+
+        redirect($redirectto);
     }
 
     /**
@@ -211,7 +351,7 @@ abstract class disguise {
 
     /**
      * Whether the current user can toggle display of the real user identity.
-     * 
+     *
      * This takes into account the revealidentity capability; and the showidentity capability in combination with the
      * restricted showrealidentity setting.
      *
@@ -227,7 +367,7 @@ abstract class disguise {
             // This user holds the showidentity capability, therefore they are able to toggle identity display.
             return true;
         }
-        
+
         // Fallback to false.
         return false;
     }
@@ -235,7 +375,7 @@ abstract class disguise {
     /**
      * Taking into account the is_forced disguise setting, and the forcedisguise option, should the user be disguised.
      *
-     * @param array $options The list of options provided to fullname, profileurl, and other functions.
+     * @param array $options The list of options provided to displayname, profileurl, and other functions.
      * @param bool $options.forcedisguise Force use of the disguise when it is optional.
      * @return bool
      */
@@ -259,35 +399,35 @@ abstract class disguise {
     }
 
     /**
-     * The displayed fullname for the user, taking into account the disguise configuration, and whether the real identity
+     * The displayed displayname for the user, taking into account the disguise configuration, and whether the real identity
      * should also be displayed.
      *
-     * Generally, this function should not be overridden. @see disguise_fullname instead.
+     * Generally, this function should not be overridden. @see disguise_displayname instead.
      *
      * @param \stdClass $user The user being displayed.
-     * @param array $options The list of options for the fullname.
-     * @param bool $options.firstthenlast Whether to override the display of the fullname when shown to show the first,
-     *                                    then the last name instead of adherring to the fullnamedisplay setting.
+     * @param array $options The list of options for the displayname.
+     * @param bool $options.firstthenlast Whether to override the display of the displayname when shown to show the first,
+     *                                    then the last name instead of adherring to the displaynamedisplay setting.
      * @param bool $options.forcedisguise Force use of the disguise when it is optional.
-     * @return string The disguise user fullname
-     * @see disguise_fullname
+     * @return string The disguise user displayname
+     * @see disguise_displayname
      */
-    public function fullname(\stdClass $user, $options) {
-        // The 'override' setting for when we need to call fullname() too.
+    public function displayname(\stdClass $user, $options) {
+        // The 'override' setting for when we need to call displayname() too.
         $override = isset($options['firstthenlast']) && $options['firstthenlast'];
 
         if ($this->should_use_disguise($options)) {
             if ($this->should_show_real_identity()) {
                 $a = new \stdClass();
-                $a->disguise = $this->disguise_fullname($user, $options);
-                $a->fullname = fullname($user, $override);
+                $a->disguise = $this->disguise_displayname($user, $options);
+                $a->fullname = \core_user::fullname($user, $options);
                 return get_string('disguisewithreal', 'moodle', $a);
             }
 
-            return $this->disguise_fullname($user, $options);
+            return $this->disguise_displayname($user, $options);
         }
 
-        return fullname($user, $override);
+        return \core_user::fullname($user, $options);
     }
 
     /**
@@ -301,7 +441,7 @@ abstract class disguise {
      * @param bool $options.forcedisguise Force use of the disguise when it is optional.
      * @return string The disguise user fullname
      */
-    protected abstract function disguise_fullname(\stdClass $user, $options);
+    protected abstract function disguise_displayname(\stdClass $user, $options);
 
     /**
      * The URL for the profile of the user, taking into account the disguise configuration, and whether the real identity
@@ -355,6 +495,7 @@ abstract class disguise {
      * @see disguise_profile_url
      */
     public function user_picture(\stdClass $user, $options = array(), $userpictureoptions = array()) {
+        global $OUTPUT;
         if ($this->should_use_disguise($options) && !$this->should_show_real_identity()) {
             // The disguise should be active, and the real identity is not being displayed.
             return $this->disguise_user_picture($user, $options, $userpictureoptions);
@@ -392,12 +533,16 @@ abstract class disguise {
     /**
      * The user-configuration URL.
      *
+     * @param \stdClass $user The user to handle configuration for
      * @return \moodle_url
      * @throws \coding_exception
      */
-    protected function user_configuration_path() {
+    protected function user_configuration_path(\stdClass $user) {
         // This function is only called if requires_user_configuration is true.
-        return new \moodle_url($this->pluginpath . '/configure.php');
+        return new \moodle_url($this->pluginpath . '/configure.php', array(
+                'id'            => $this->context->id,
+                'userid'        => $user->id,
+            ));
     }
 
     /**
@@ -438,7 +583,73 @@ abstract class disguise {
         // Do not allow this user to disable the lock.
         return false;
     }
+
+    /**
+     * Get the type of disguise.
+     *
+     * @return string
+     */
+    public function get_type() {
+        preg_match('/disguise_([^\\\]*)\\\disguise/', get_called_class(), $matches);
+        return $matches[1];
+    }
+
+    /**
+     * Get the disguise data to add to a form.
+     *
+     * @param stdClass $formdata
+     * @return bool Whether changes were made
+     */
+    public function get_disguise_form_data($data) {
+        $data->disguise_type = $this->get_type();
+        $data->disguise_mode = $this->mode;
+        $data->disguise_showrealidentity = $this->showrealidentity;
+        $data->disguise_disabledisguisefrom = $this->disabledisguisefrom;
+        $data->disguise_loganonymously = $this->loganonymously;
+        $data->disguise_usegradebook = $this->usegradebook;
+        $data->disguise_lockdisguise = $this->lockdisguise;
+
+        return $data;
+    }
+
+    /**
+     * Update the disguise with the data from the submitted form.
+     *
+     * @param stdClass $formdata
+     * @return bool Whether changes were made
+     */
+    public function update_from_form_data(\stdClass $form) {
+        global $DB;
+        // TODO Need to check whether the disguise is locked.
+
+        $record = new \stdClass();
+        if ($form->disguise_type != $this->get_type()) {
+            $record->type = $form->disguise_type;
+        }
+
+        if ($form->disguise_mode != $this->mode) {
+            $record->mode = $form->disguise_mode;
+        }
+        if ($form->disguise_showrealidentity != $this->showrealidentity) {
+            $record->showrealidentity = $form->disguise_showrealidentity;
+        }
+        if ($form->disguise_disabledisguisefrom != $this->disabledisguisefrom) {
+            $record->disabledisguisefrom = $form->disguise_disabledisguisefrom;
+        }
+        if (!empty($form->disguise_loganonymously) != (bool) $this->loganonymously) {
+            $record->loganonymously = !empty($form->disguise_loganonymously);
+        }
+        if (!empty($form->disguise_usegradebook) != (bool) $this->usegradebook) {
+            $record->usegradebook = !empty($form->disguise_usegradebook);
+        }
+
+        if (!empty((array) $record)) {
+            $record->id = $this->id;
+            $DB->update_record('disguises', $record);
+            return true;
+        }
+
+        return false;
+    }
 }
 // TODO usegradebook
-// TODO mod_form hook to add items.
-// TODO lockdisguise in entirety!!

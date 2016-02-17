@@ -33,8 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class disguise extends \core\disguise\disguise {
-    protected function disguise_fullname(\stdClass $user, $options) {
+class disguise extends \core_disguise\disguise {
+    protected function disguise_displayname(\stdClass $user, $options) {
         return 'Anonymous';
     }
     protected function disguise_profile_url(\stdClass $user, $options) {
