@@ -2850,7 +2850,10 @@ class course_in_list implements IteratorAggregate {
                     'user' => $user,
                     'role' => $role,
                     'rolename' => role_get_name($role, $context, ROLENAME_ALIAS),
-                    'username' => fullname($user, $canviewfullnames)
+                    'username' => \core_user::displayname($user, array(
+                        'firstthenlast' => $canviewfullnames,
+                        'context'       => $context,
+                    )),
                 );
             }
         }
