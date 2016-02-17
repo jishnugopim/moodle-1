@@ -424,7 +424,10 @@ class forum_post implements \renderable {
      * @return string
      */
     public function get_author_fullname() {
-        return fullname($this->author, $this->viewfullnames);
+        return \core_user::displayname($this->author, array(
+            'context'           => \context_module::instance($this->cm->id),
+            'firstthenlast'     => $this->viewfullnames,
+        ));
     }
 
     /**

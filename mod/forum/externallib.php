@@ -277,7 +277,10 @@ class mod_forum_external extends external_api {
                     $return->timestart = $discussion->timestart;
                     $return->timeend = $discussion->timeend;
                     $return->firstpost = (int) $discussion->firstpost;
-                    $return->firstuserfullname = fullname($arrusers[$discussion->userid], $canviewfullname);
+                    $return->firstuserfullname = \core_user::displayname($arrusers[$discussion->userid], array(
+                        'context'       => $modcontext,
+                        'firstthenlast' => $canviewfullname,
+                    ));
                     $return->firstuserimagealt = $arrusers[$discussion->userid]->imagealt;
                     $return->firstuserpicture = $arrusers[$discussion->userid]->picture;
                     $return->firstuseremail = $arrusers[$discussion->userid]->email;
@@ -303,7 +306,10 @@ class mod_forum_external extends external_api {
                                 $usernamefields, MUST_EXIST);
                     }
                     $return->lastuserid = $lastpost->userid;
-                    $return->lastuserfullname = fullname($arrusers[$lastpost->userid], $canviewfullname);
+                    $return->lastuserfullname = \core_user::displayname($arrusers[$lastpost->userid], array(
+                        'context'       => $modcontext,
+                        'firstthenlast' => $canviewfullname,
+                    ));
                     $return->lastuserimagealt = $arrusers[$lastpost->userid]->imagealt;
                     $return->lastuserpicture = $arrusers[$lastpost->userid]->picture;
                     $return->lastuseremail = $arrusers[$lastpost->userid]->email;
@@ -481,7 +487,10 @@ class mod_forum_external extends external_api {
             $user = new stdclass();
             $user->id = $post->userid;
             $user = username_load_fields_from_object($user, $post, null, array('picture', 'imagealt', 'email'));
-            $post->userfullname = fullname($user, $canviewfullname);
+            $post->userfullname = \core_user::displayname($user, array(
+                'context'       => $modcontext,
+                'firstthenlast' => $canviewfullname,
+            ));
 
             $userpicture = new user_picture($user);
             $userpicture->size = 1; // Size f1.
@@ -702,7 +711,10 @@ class mod_forum_external extends external_api {
                 $user = username_load_fields_from_object($user, $discussion, null, $picturefields);
                 // Preserve the id, it can be modified by username_load_fields_from_object.
                 $user->id = $discussion->userid;
-                $discussion->userfullname = fullname($user, $canviewfullname);
+                $discussion->userfullname = \core_user::displayname($user, array(
+                    'context'       => $modcontext,
+                    'firstthenlast' => $canviewfullname,
+                ));
 
                 $userpicture = new user_picture($user);
                 $userpicture->size = 1; // Size f1.
@@ -713,7 +725,10 @@ class mod_forum_external extends external_api {
                 $usermodified = username_load_fields_from_object($usermodified, $discussion, 'um', $picturefields);
                 // Preserve the id (it can be overwritten due to the prefixed $picturefields).
                 $usermodified->id = $discussion->usermodified;
-                $discussion->usermodifiedfullname = fullname($usermodified, $canviewfullname);
+                $discussion->usermodifiedfullname = \core_user::displayname($usermodified, array(
+                    'context'       => $modcontext,
+                    'firstthenlast' => $canviewfullname,
+                ));
 
                 $userpicture = new user_picture($usermodified);
                 $userpicture->size = 1; // Size f1.

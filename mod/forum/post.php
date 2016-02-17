@@ -576,11 +576,12 @@ if ($USER->id != $post->userid) {   // Not the original author, so add a message
     $data = new stdClass();
     $data->date = userdate($post->modified);
     if ($post->messageformat == FORMAT_HTML) {
-        $data->name = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$USER->id.'&course='.$post->course.'">'.
-                       fullname($USER).'</a>';
+        $data->name = \core_user::profile_displayname($USER, array(
+            'context' => context_module::instance($cm->id),
+        ), $post->course);
         $post->message .= '<p><span class="edited">('.get_string('editedby', 'forum', $data).')</span></p>';
     } else {
-        $data->name = fullname($USER);
+        $data->name = \core_user::displayname($USER, array('context' => context_module::instance($cm->id)));
         $post->message .= "\n\n(".get_string('editedby', 'forum', $data).')';
     }
     unset($data);
@@ -749,7 +750,10 @@ if ($mform_post->is_cancelled()) {
             $message .= '<br />'.get_string("postupdated", "forum");
         } else {
             $realuser = $DB->get_record('user', array('id' => $realpost->userid));
-            $message .= '<br />'.get_string("editedpostupdated", "forum", fullname($realuser));
+            $message .= '<br>';
+            $message .= get_string('editedpostupdated', 'forum', \core_user::displayname($realuser, array(
+                'context' => $modcontext,
+            )));
         }
 
         if ($subscribemessage = forum_post_subscription($fromform, $forum, $discussion)) {
