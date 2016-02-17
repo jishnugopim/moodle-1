@@ -31,4 +31,28 @@ defined('MOODLE_INTERNAL') || die();
  * Class for user disguises
  */
 class disguise extends base {
+    /**
+     * Finds all enabled plugins, the result may include missing plugins.
+     * @return array|null of enabled plugins $pluginname=>$pluginname, null means unknown
+     */
+    public static function get_enabled_plugins() {
+        global $DB;
+
+        // Get all available plugins.
+        $plugins = \core_plugin_manager::instance()->get_installed_plugins('disguise');
+        if (!$plugins) {
+            return array();
+        }
+
+        // Check they are enabled using get_config (which is cached and hopefully fast).
+        $enabled = array();
+        foreach ($plugins as $plugin => $version) {
+            $disabled = get_config('disguise_' . $plugin, 'disabled');
+            if (empty($disabled)) {
+                $enabled[] = $plugin;
+            }
+        }
+
+        return $enabled;
+    }
 }
