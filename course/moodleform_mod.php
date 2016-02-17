@@ -112,6 +112,7 @@ abstract class moodleform_mod extends moodleform {
 
         $this->_features->gradecat          = ($this->_features->outcomes or $this->_features->hasgrades);
         $this->_features->advancedgrading   = plugin_supports('mod', $this->_modname, FEATURE_ADVANCED_GRADING, false);
+        $this->_features->disguises         = plugin_supports('mod', $this->_modname, FEATURE_DISGUISES, false);
     }
 
     /**
@@ -381,7 +382,7 @@ abstract class moodleform_mod extends moodleform {
     /**
      * Adds all the standard elements to a form to edit the settings for an activity module.
      */
-    function standard_coursemodule_elements(){
+    function standard_coursemodule_elements() {
         global $COURSE, $CFG, $DB;
         $mform =& $this->_form;
 
@@ -504,6 +505,77 @@ abstract class moodleform_mod extends moodleform {
                 $cm = null;
             }
             \core_availability\frontend::include_all_javascript($COURSE, $cm);
+        }
+
+        if ($this->_features->disguises) {
+            $mform->addElement('header', 'userdisguises', get_string('disguisemodformtitle', 'moodle'));
+
+            // TODO disable changes to this once it is locked.
+            $options = array();
+            foreach (\core\plugininfo\disguise::get_enabled_plugins() as $disguise) {
+                $options[$disguise] = get_string('pluginname', 'disguise_' . 'basic');
+            }
+
+            $options = array(null => get_string('none')) + $options;
+            $mform->addElement('select', 'disguise_type', get_string('disguise_type', 'moodle'), $options);
+            if (!empty($this->_cm)) {
+                $context = context_module::instance($this->_cm->id);
+                if ($context->has_own_disguise()) {
+                    $mform->hardFreeze('disguise_type');
+                }
+            }
+
+            // Enabled/Disabled/Optional.
+            $options = array(
+                \core_disguise\disguise::DISGUISE_DISABLED => get_string('disguise_disabled', 'moodle'),
+                \core_disguise\disguise::DISGUISE_FORCED => get_string('disguise_forced', 'moodle'),
+                \core_disguise\disguise::DISGUISE_OPTIONAL => get_string('disguise_optional', 'moodle'),
+            );
+            $mform->addElement('select', 'disguise_mode', get_string('disguise_mode', 'moodle'), $options);
+            $mform->disabledIf('disguise_mode', 'disguise_type', 'eq', null);
+
+            // Show real identity always
+            $options = array(
+                \core_disguise\disguise::IDENTITY_HIDDEN => get_string('disguise_identity_hidden', 'moodle'),
+                \core_disguise\disguise::IDENTITY_SHOWN => get_string('disguise_identity_shown', 'moodle'),
+                \core_disguise\disguise::IDENTITY_RESTRICTED => get_string('disguise_identity_restricted', 'moodle'),
+            );
+            $mform->addElement('select', 'disguise_showrealidentity', get_string('disguise_showrealidentity', 'moodle'), $options);
+            $mform->disabledIf('disguise_showrealidentity', 'disguise_type', 'eq', null);
+
+            // Always show real identity from.
+            $mform->addElement(
+                    'date_time_selector',
+                    'disguise_disabledisguisefrom',
+                    get_string('disguise_disabledisguisefrom', 'moodle'),
+                    array('optional' => true)
+                );
+            $mform->disabledIf('disguise_disabledisguisefrom', 'disguise_type', 'eq', null);
+
+            // Allow logging.
+            $mform->addElement('checkbox', 'disguise_loganonymously', get_string('disguise_loganonymously', 'moodle'));
+            $mform->disabledIf('disguise_loganonymously', 'disguise_type', 'eq', null);
+
+            // Allow use of Gradebook
+            $mform->addElement('checkbox', 'disguise_usegradebook', get_string('disguise_usegradebook', 'moodle'));
+            $mform->disabledIf('disguise_usegradebook', 'disguise_type', 'eq', null);
+
+            // Lock disguise (with warning if user is not able to disable the lock)
+            if (!empty($this->_cm)) {
+                $context = context_module::instance($this->_cm->id);
+                if ($context->disguise && !$context->disguise->can_make_changes()) {
+                    $type = $mform->getElement('disguise_type');
+                    $type->setValue($context->disguise->get_type());
+                    $type->freeze();
+
+                    $mform->getElement('disguise_mode')->freeze();
+                    $mform->getElement('disguise_showrealidentity')->freeze();
+                    $mform->getElement('disguise_disabledisguisefrom')->freeze();
+                    $mform->getElement('disguise_loganonymously')->freeze();
+                    $mform->getElement('disguise_usegradebook')->freeze();
+                }
+            }
+
         }
 
         // Conditional activities: completion tracking section
