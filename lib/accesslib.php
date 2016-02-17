@@ -5539,6 +5539,28 @@ abstract class context extends stdClass implements IteratorAggregate {
     }
 
     /**
+     * Set the disguise for the current context.
+     *
+     * @param int $disguiseid
+     * @return disguise ID
+     */
+    public function set_disguise(\core_disguise\disguise $disguise) {
+        global $DB;
+
+        if ($this->_disguiseid === $disguise->get_id()) {
+            return $disguiseid;
+        }
+
+        $this->_disguiseid = $disguise->get_id();
+
+        $DB->set_field('context', 'disguiseid', $disguise->get_id(), array('id' => $this->id));
+        $this->mark_dirty();
+        context::reset_caches();
+
+        return $disguise->get_id();
+    }
+
+    /**
      * Remove all context path info and optionally rebuild it.
      *
      * @param bool $rebuild
@@ -5897,14 +5919,14 @@ abstract class context extends stdClass implements IteratorAggregate {
         }
     }
 
-    protected function get_disguise() {
-        if (is_a($this->_disguise, '\core\disguise\disguise')) {
+    public function get_disguise() {
+        if (is_a($this->_disguise, '\core_disguise\disguise')) {
             // The disguise has already been loaded.
             return $this->_disguise;
         }
 
         if ($disguiseid = $this->get_inheritteddisguiseid()) {
-            $this->_disguise = \core\disguise::instance($disguiseid);
+            $this->_disguise = \core_disguise\disguise::instance($this);
         }
 
         return $this->_disguise;
@@ -5932,6 +5954,10 @@ abstract class context extends stdClass implements IteratorAggregate {
 
     public function has_disguise() {
         return !empty($this->inheritteddisguiseid);
+    }
+
+    public function has_own_disguise() {
+        return !empty($this->disguiseid);
     }
 }
 
