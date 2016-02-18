@@ -1763,6 +1763,7 @@ class core_plugin_manager {
             ),
 
             'disguise' => array(
+                'basic',
             ),
 
             'editor' => array(
