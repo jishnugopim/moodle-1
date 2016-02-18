@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class disguise extends \core_disguise\disguise {
+class disguise extends \core\disguise\disguise {
     /**
      * @inheritdoc
      */

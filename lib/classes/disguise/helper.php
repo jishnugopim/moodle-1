@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace core_disguise;
+namespace core\disguise;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -69,7 +69,7 @@ class helper {
      * Instantiate an instance of the disguise.
      *
      * @param \context $context
-     * @return An instance of the core_disguise
+     * @return An instance of the core\disguise
      * @throws \coding_exception
      */
     public static function instance(\context $context) {
@@ -185,18 +185,18 @@ class helper {
 
         // Enabled/Disabled/Optional.
         $options = array(
-            \core_disguise\helper::DISGUISE_DISABLED => get_string('disguise_disabled', 'moodle'),
-            \core_disguise\helper::DISGUISE_FORCED => get_string('disguise_forced', 'moodle'),
-            \core_disguise\helper::DISGUISE_OPTIONAL => get_string('disguise_optional', 'moodle'),
+            \core\disguise\helper::DISGUISE_DISABLED => get_string('disguise_disabled', 'moodle'),
+            \core\disguise\helper::DISGUISE_FORCED => get_string('disguise_forced', 'moodle'),
+            \core\disguise\helper::DISGUISE_OPTIONAL => get_string('disguise_optional', 'moodle'),
         );
         $mform->addElement('select', 'disguise_mode', get_string('disguise_mode', 'moodle'), $options);
         $mform->disabledIf('disguise_mode', 'disguise_type', 'eq', null);
 
         // Show real identity always
         $options = array(
-            \core_disguise\helper::IDENTITY_HIDDEN => get_string('disguise_identity_hidden', 'moodle'),
-            \core_disguise\helper::IDENTITY_SHOWN => get_string('disguise_identity_shown', 'moodle'),
-            \core_disguise\helper::IDENTITY_RESTRICTED => get_string('disguise_identity_restricted', 'moodle'),
+            \core\disguise\helper::IDENTITY_HIDDEN => get_string('disguise_identity_hidden', 'moodle'),
+            \core\disguise\helper::IDENTITY_SHOWN => get_string('disguise_identity_shown', 'moodle'),
+            \core\disguise\helper::IDENTITY_RESTRICTED => get_string('disguise_identity_restricted', 'moodle'),
         );
         $mform->addElement('select', 'disguise_showrealidentity', get_string('disguise_showrealidentity', 'moodle'), $options);
         $mform->disabledIf('disguise_showrealidentity', 'disguise_type', 'eq', null);

@@ -5544,7 +5544,7 @@ abstract class context extends stdClass implements IteratorAggregate {
      * @param int $disguiseid
      * @return disguise ID
      */
-    public function set_disguise(\core_disguise\disguise $disguise) {
+    public function set_disguise(\core\disguise\disguise $disguise) {
         global $DB;
 
         if ($this->_disguiseid === $disguise->get_id()) {
@@ -5920,13 +5920,13 @@ abstract class context extends stdClass implements IteratorAggregate {
     }
 
     public function get_disguise() {
-        if (is_a($this->_disguise, '\core_disguise\disguise')) {
+        if (is_a($this->_disguise, '\core\disguise\disguise')) {
             // The disguise has already been loaded.
             return $this->_disguise;
         }
 
         if ($disguiseid = $this->get_inheritteddisguiseid()) {
-            $this->_disguise = \core_disguise\helper::instance($this);
+            $this->_disguise = \core\disguise\helper::instance($this);
         }
 
         return $this->_disguise;

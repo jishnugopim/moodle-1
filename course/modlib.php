@@ -156,7 +156,7 @@ function add_moduleinfo($moduleinfo, $course, $mform = null) {
     $sectionid = course_add_cm_to_section($course, $moduleinfo->coursemodule, $moduleinfo->section);
 
     if (plugin_supports('mod', $moduleinfo->modulename, FEATURE_DISGUISES, false)) {
-        \core_disguise\helper::handle_form_submission($modcontext, $moduleinfo);
+        \core\disguise\helper::handle_form_submission($modcontext, $moduleinfo);
     }
 
     // Trigger event based on the action we did.
@@ -543,7 +543,7 @@ function update_moduleinfo($cm, $moduleinfo, $course, $mform = null) {
     }
 
     if (plugin_supports('mod', $moduleinfo->modulename, FEATURE_DISGUISES, false)) {
-        \core_disguise\helper::handle_form_submission($modcontext, $moduleinfo);
+        \core\disguise\helper::handle_form_submission($modcontext, $moduleinfo);
     }
 
     // Now that module is fully updated, also update completion data if required.

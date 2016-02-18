@@ -1002,7 +1002,7 @@ class moodle_page {
         }
 
         if (!$this->_disguise_configuration_page) {
-            core_disguise\helper::ensure_configured_for_user_in_context($context);
+            \core\disguise\helper::ensure_configured_for_user_in_context($context);
         }
 
         $this->_context = $context;

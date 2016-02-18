@@ -509,9 +509,9 @@ abstract class moodleform_mod extends moodleform {
 
         if ($this->_features->disguises) {
             if (!empty($this->_cm)) {
-                \core_disguise\helper::add_to_form($mform, context_module::instance($this->_cm->id));
+                \core\disguise\helper::add_to_form($mform, context_module::instance($this->_cm->id));
             } else {
-                \core_disguise\helper::add_to_form($mform, null);
+                \core\disguise\helper::add_to_form($mform, null);
             }
         }
 
