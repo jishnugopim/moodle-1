@@ -300,7 +300,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
                 'usermodified' => $discussion1reply3->userid,
                 'timestart' => $discussion1->timestart,
                 'timeend' => $discussion1->timeend,
-                'firstuserfullname' => fullname($user1),
+                'firstuserfullname' => \core_user::displayname($user1, $context),
                 'firstuserimagealt' => $user1->imagealt,
                 'firstuserpicture' => $user1->picture,
                 'firstuseremail' => $user1->email,
@@ -309,7 +309,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
                 'numunread' => '',
                 'lastpost' => $discussion1reply3->id,
                 'lastuserid' => $user4->id,
-                'lastuserfullname' => fullname($user4),
+                'lastuserfullname' => \core_user::displayname($user4, $context),
                 'lastuserimagealt' => $user4->imagealt,
                 'lastuserpicture' => $user4->picture,
                 'lastuseremail' => $user4->email
@@ -327,7 +327,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
                 'usermodified' => $discussion2reply2->userid,
                 'timestart' => $discussion2->timestart,
                 'timeend' => $discussion2->timeend,
-                'firstuserfullname' => fullname($user2),
+                'firstuserfullname' => \core_user::displayname($user2, $context),
                 'firstuserimagealt' => $user2->imagealt,
                 'firstuserpicture' => $user2->picture,
                 'firstuseremail' => $user2->email,
@@ -336,7 +336,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
                 'numunread' => 3,
                 'lastpost' => $discussion2reply2->id,
                 'lastuserid' => $user3->id,
-                'lastuserfullname' => fullname($user3),
+                'lastuserfullname' => \core_user::displayname($user3, $context),
                 'lastuserimagealt' => $user3->imagealt,
                 'lastuserpicture' => $user3->picture,
                 'lastuseremail' => $user3->email
@@ -466,7 +466,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
             'children' => array(),
             'canreply' => true,
             'postread' => false,
-            'userfullname' => fullname($user3),
+            'userfullname' => \core_user::displayname($user3, $forum1context),
             'userpictureurl' => ''
         );
 
@@ -489,7 +489,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
             'children' => array($discussion1reply2->id),
             'canreply' => true,
             'postread' => false,
-            'userfullname' => fullname($user2),
+            'userfullname' => \core_user::displayname($user2, $forum1context),
             'userpictureurl' => ''
         );
 
@@ -664,6 +664,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         $post1 = $DB->get_record('forum_posts', array('id' => $discussion1->firstpost), '*', MUST_EXIST);
 
         // User pictures are initially empty, we should get the links once the external function is called.
+
         $expecteddiscussions = array(
                 'id' => $discussion1->firstpost,
                 'name' => $discussion1->name,
@@ -685,8 +686,8 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
                 'attachment' => $post1->attachment,
                 'totalscore' => $post1->totalscore,
                 'mailnow' => $post1->mailnow,
-                'userfullname' => fullname($user1),
-                'usermodifiedfullname' => fullname($user4),
+                'userfullname' => \core_user::displayname($user1, $context),
+                'usermodifiedfullname' => \core_user::displayname($user4, $context),
                 'userpictureurl' => '',
                 'usermodifiedpictureurl' => '',
                 'numreplies' => 3,
