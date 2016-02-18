@@ -306,12 +306,9 @@ class forum_post implements \renderable {
      * @return string
      */
     public function get_authorlink() {
-        $link = new \moodle_url(
-            '/user/view.php', array(
-                'id' => $this->post->userid,
-                'course' => $this->course->id,
-            )
-        );
+        $link = \core_user::profile_url($this->author, array(
+            'context'           => \context_module::instance($this->cm->id),
+        ), $this->course->id);
 
         return $link->out(false);
     }
@@ -460,9 +457,9 @@ class forum_post implements \renderable {
      * @return string
      */
     public function get_author_picture() {
-        global $OUTPUT;
-
-        return $OUTPUT->user_picture($this->author, array('courseid' => $this->course->id));
+        return \core_user::user_picture($this->author, array(
+            'context'           => \context_module::instance($this->cm->id),
+        ));
     }
 
     /**
