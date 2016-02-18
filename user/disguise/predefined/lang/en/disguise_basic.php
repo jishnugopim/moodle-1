@@ -24,4 +24,3 @@
 
 $string['pluginname'] = 'Simple disguise';
 $string['pluginname_desc'] = '';
-$string['anonymous'] = 'Anonymous';

@@ -275,6 +275,19 @@ class core_user {
         }
     }
 
+    /**
+     * Returns a persons full name taking into account any disguise applied at the supplied context.
+     *
+     * Given an object containing all of the users name values, this function returns a string with the full name of the person.
+     * The result may depend on system settings, language, and disguise configuration.
+     *
+     * @param stdClass $user                         A {@link $USER} object to get full name of.
+     * @param array    $displayoptions               The options to configure how the name is displayed
+     * @param context  $displayoptions.context       The context at which the user is being displayed
+     * @param bool     $displayoptions.firstthenlast Whether to force display to be first name then last name, rather
+     *                                               than adhering to the fullnamedisplay.
+     * @return string
+     */
     public static function displayname(\stdClass $user, array $displayoptions = array()) {
         global $PAGE;
 
@@ -290,6 +303,18 @@ class core_user {
         return self::fullname($user, $displayoptions);
     }
 
+    /**
+     * Returns a persons full name.
+     *
+     * Given an object containing all of the users name values, this function returns a string with the full name of the person.
+     * The result may depend on system settings, and language.
+     *
+     * @param stdClass $user                         A {@link $USER} object to get full name of.
+     * @param array    $displayoptions               The options to configure how the name is displayed
+     * @param bool     $displayoptions.firstthenlast Whether to force display to be first name then last name, rather
+     *                                               than adhering to the fullnamedisplay.
+     * @return string
+     */
     public static function fullname(\stdClass $user, array $options = array()) {
         global $CFG, $SESSION;
 
@@ -392,6 +417,17 @@ class core_user {
         return $displayname;
     }
 
+    /**
+     * Returns a link to the user's profile URL.
+     *
+     * @param stdClass $user                         A {@link $USER} object to get full name of.
+     * @param array    $displayoptions               The options to configure how the name is displayed
+     * @param context  $displayoptions.context       The context at which the user is being displayed
+     * @param int      $courseid                     The ID of the course if a course profile is desired
+     * @return string
+     *
+     * @todo attempt to get the courseid from the context perhaps?
+     */
     public static function profile_url(\stdClass $user, array $options = array(), $courseid = null) {
         global $PAGE;
 
@@ -411,6 +447,19 @@ class core_user {
         return $profileurl;
     }
 
+    /**
+     * Return the user displayname plus a link to their profile if appropriate.
+     *
+     * See {@link profile_url} and {@link displayname}.
+     *
+     * @param stdClass $user                         A {@link $USER} object to get full name of.
+     * @param array    $displayoptions               The options to configure how the name is displayed
+     * @param context  $displayoptions.context       The context at which the user is being displayed
+     * @param bool     $displayoptions.firstthenlast Whether to force display to be first name then last name, rather
+     *                                               than adhering to the fullnamedisplay.
+     * @param int      $courseid                     The ID of the course if a course profile is desired
+     * @return string
+     */
     public static function profile_displayname(\stdClass $user, array $options = array(), $courseid = null) {
         $displayname = self::displayname($user, $options);
         if ($url = self::profile_url($user, $options, $courseid)) {
@@ -420,6 +469,15 @@ class core_user {
         }
     }
 
+    /**
+     * Returns an HTML fragment containing the user's profile picture.
+     *
+     * @param stdClass $user                         A {@link $USER} object to get full name of.
+     * @param array    $displayoptions               The options to configure how the name is displayed
+     * @param context  $displayoptions.context       The context at which the user is being displayed
+     * @param array    $userpictureoptions           Any additional options to pass to the user_picture renderer.
+     * @return string
+     */
     public static function user_picture(\stdClass $user, array $options = array(), $userpictureoptions = array()) {
         global $PAGE, $OUTPUT;
 

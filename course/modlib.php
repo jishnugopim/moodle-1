@@ -155,10 +155,8 @@ function add_moduleinfo($moduleinfo, $course, $mform = null) {
     // So we have to update one of them twice.
     $sectionid = course_add_cm_to_section($course, $moduleinfo->coursemodule, $moduleinfo->section);
 
-    // Set the disguise.
-    if (!empty($moduleinfo->disguisetype)) {
-        // Create a new instance of this type of disguise.
-        \core_disguise\disguise::create($modcontext, $moduleinfo->disguisetype);
+    if (plugin_supports('mod', $moduleinfo->modulename, FEATURE_DISGUISES, false)) {
+        \core_disguise\helper::handle_form_submission($modcontext, $moduleinfo);
     }
 
     // Trigger event based on the action we did.
@@ -545,23 +543,7 @@ function update_moduleinfo($cm, $moduleinfo, $course, $mform = null) {
     }
 
     if (plugin_supports('mod', $moduleinfo->modulename, FEATURE_DISGUISES, false)) {
-        if ($modcontext->has_own_disguise()) {
-            if ($modcontext->inheritteddisguiseid == 0 && !empty($moduleinfo->disguise_type)) {
-                // Only allow setting the disguise when one is not already set.
-                // TODO - probably need to make more checks here like ensuring there's no data.
-                // Create a new instance of this type of disguise.
-                \core_disguise\disguise::create($modcontext, $moduleinfo->disguise_type);
-            }
-
-            // Update settings.
-            $modcontext->disguise->update_from_from_data($moduleinfo);
-        } else if (!empty($moduleinfo->disguise_type)) {
-            // Create a new instance of this type of disguise.
-            \core_disguise\disguise::create($modcontext, $moduleinfo->disguise_type);
-
-            // Update settings.
-            $modcontext->disguise->update_from_from_data($moduleinfo);
-        }
+        \core_disguise\helper::handle_form_submission($modcontext, $moduleinfo);
     }
 
     // Now that module is fully updated, also update completion data if required.

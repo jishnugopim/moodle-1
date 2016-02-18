@@ -15,44 +15,40 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Basic Disguise.
+ * Disguise plugin with tutor-defined optins.
  *
- * @package    disguise_basic
- * @copyright  2015 Andrew Nicols <andrew@nicols.co.uk>
+ * @package    disguise_predefined
+ * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace disguise_basic;
+namespace disguise_predefined;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Basic Disguise.
+ * Disguise plugin with tutor-defined optins.
  *
- * @package    disguise_basic
- * @copyright  2015 Andrew Nicols <andrew@nicols.co.uk>
+ * @package    disguise_predefined
+ * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class disguise extends \core_disguise\disguise {
-
     /**
      * @inheritdoc
      */
-    protected function disguise_displayname(\stdClass $user, $options) {
-        return get_string('anonymous', 'disguise_basic');
+    public function is_configured_for_user(\stdClass $user = null) {
+        if (parent::is_configured_for_user($user)) {
+            // Check parent
+            return true;
+        }
     }
 
-    /**
-     * @inheritdoc
-     */
+    protected function disguise_displayname(\stdClass $user, $options) {
+        return 'Anonymous';
+    }
+
     protected function disguise_profile_url(\stdClass $user, $options) {
         return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function requires_user_configuration() {
-        return false;
     }
 }

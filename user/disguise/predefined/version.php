@@ -15,13 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'disguise_basic', language 'en'.
+ * Disguise plugin with tutor-defined optins.
  *
- * @package   disguise_basic
- * @copyright  2015 Andrew Nicols <andrew@nicols.co.uk>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    disguise_predefined
+ * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Simple disguise';
-$string['pluginname_desc'] = '';
-$string['anonymous'] = 'Anonymous';
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->version   = 2016021700;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2015050500;        // Requires this Moodle version
+$plugin->component = 'disguise_predefined';  // Full name of the plugin (used for diagnostics)

@@ -5926,7 +5926,7 @@ abstract class context extends stdClass implements IteratorAggregate {
         }
 
         if ($disguiseid = $this->get_inheritteddisguiseid()) {
-            $this->_disguise = \core_disguise\disguise::instance($this);
+            $this->_disguise = \core_disguise\helper::instance($this);
         }
 
         return $this->_disguise;
@@ -5952,10 +5952,21 @@ abstract class context extends stdClass implements IteratorAggregate {
         return null;
     }
 
+    /**
+     * Whether a context is applied to this context, or any of its parent
+     * contexts.
+     *
+     * @return bool
+     */
     public function has_disguise() {
         return !empty($this->inheritteddisguiseid);
     }
 
+    /**
+     * Whether a context is applied directly to this context.
+     *
+     * @return bool
+     */
     public function has_own_disguise() {
         return !empty($this->disguiseid);
     }
