@@ -508,11 +508,7 @@ abstract class moodleform_mod extends moodleform {
         }
 
         if ($this->_features->disguises) {
-            if (!empty($this->_cm)) {
-                \core\disguise\helper::add_to_form($mform, context_module::instance($this->_cm->id));
-            } else {
-                \core\disguise\helper::add_to_form($mform, null);
-            }
+            \core\disguise\helper::add_to_form($mform, $this->_features, $this->_cm);
         }
 
         // Conditional activities: completion tracking section

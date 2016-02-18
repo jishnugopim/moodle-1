@@ -43,11 +43,19 @@ class core_user {
      */
     const SUPPORT_USER = -20;
 
+    /**
+     * Disguised user id.
+     */
+    const DISGUISED_USER = -30;
+
     /** @var stdClass keep record of noreply user */
     public static $noreplyuser = false;
 
     /** @var stdClass keep record of support user */
     public static $supportuser = false;
+
+    /** @var stdClass keep record of disguised user */
+    public static $disguiseduser = false;
 
     /**
      * Return user object from db or create noreply or support user,
@@ -201,6 +209,35 @@ class core_user {
         // Unset emailstop to make sure support message is sent.
         self::$supportuser->emailstop = 0;
         return self::$supportuser;
+    }
+
+    /**
+     * Return disguised user record.
+     *
+     * $CFG->disguiseduserid is set then returns user record
+     *
+     * @return stdClass user record.
+     */
+    public static function get_disguised_user() {
+        global $CFG;
+
+        if (!empty(self::$disguiseduser)) {
+            return self::$disguiseduser;
+        }
+
+        // If custom disguised user is set then use it, else if disguisedemail is set then use it, else use noreply.
+        if (!empty($CFG->disguiseduserid)) {
+            self::$disguiseduser = self::get_user($CFG->disguiseduserid, '*', MUST_EXIST);
+        }
+
+        // Try sending it to disguised email if disguised user is not set.
+        if (empty(self::$disguiseduser)) {
+            self::$disguiseduser = self::get_dummy_user_record();
+            self::$disguiseduser->id = self::DISGUISED_USER;
+            self::$disguiseduser->maildisplay = '0'; // Show to all.
+        }
+
+        return self::$disguiseduser;
     }
 
     /**

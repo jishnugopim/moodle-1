@@ -5959,7 +5959,8 @@ abstract class context extends stdClass implements IteratorAggregate {
      * @return bool
      */
     public function has_disguise() {
-        return !empty($this->inheritteddisguiseid);
+        $inheritteddisguiseid = $this->inheritteddisguiseid;
+        return !empty($inheritteddisguiseid);
     }
 
     /**

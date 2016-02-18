@@ -167,10 +167,19 @@ class helper {
      * Add the standard disguise form fields.
      *
      * @param $mform
+     * @param \stdClass $features The features available to this module.
      * @param \context $context The context to add the form to
      */
-    public static function add_to_form(&$mform, \context $context = null) {
+    public static function add_to_form(&$mform, \stdClass $features, $cm = null) {
+        global $DB;
+
         $mform->addElement('header', 'userdisguises', get_string('disguisemodformtitle', 'moodle'));
+
+        $cm = \cm_info::create($cm);
+        $context = null;
+        if (!empty($cm)) {
+            $context = \context_module::instance($cm->id);
+        }
 
         $options = array();
         foreach (\core\plugininfo\disguise::get_enabled_plugins() as $disguise) {
@@ -215,8 +224,34 @@ class helper {
         $mform->disabledIf('disguise_loganonymously', 'disguise_type', 'eq', null);
 
         // Allow use of Gradebook
-        $mform->addElement('checkbox', 'disguise_usegradebook', get_string('disguise_usegradebook', 'moodle'));
-        $mform->disabledIf('disguise_usegradebook', 'disguise_type', 'eq', null);
+        if (!empty($features->hasgrades)) {
+            $mform->addElement('checkbox', 'disguise_usegradebook', get_string('disguise_usegradebook', 'moodle'));
+            $mform->disabledIf('disguise_usegradebook', 'disguise_type', 'eq', null);
+
+            if ($context && $context->has_disguise()) {
+                // This context already exists.
+                // Check whether grades already exist - it isn't possible to enable this setting once grades have been entered
+                // for the grade_item.
+                $hasgrades = false;
+                if ($context instanceof \context_module) {
+                    $gradeitems = \grade_item::fetch_all(array(
+                        'itemtype'      => 'mod',
+                        'itemmodule'    => $cm->modname,
+                        'iteminstance'  => $cm->instance,
+                        'courseid'      => $cm->course,
+                    ));
+                    if ($gradeitems) {
+                        list($sql, $params) = $DB->get_in_or_equal(array_keys($gradeitems), SQL_PARAMS_NAMED, 'gi');
+                        $hasgrades = $DB->record_exists_select('grade_grades', 'itemid ' . $sql, $params);
+                    }
+                }
+
+                if ($hasgrades) {
+                    $mform->hardFreeze('disguise_usegradebook');
+                    // todo freeze other grade items if usegradebook is set to no.
+                }
+            }
+        }
 
         // Lock disguise (with warning if user is not able to disable the lock)
         if ($context && $context->disguise && !$context->disguise->can_make_changes()) {

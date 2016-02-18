@@ -269,6 +269,7 @@ class mod_forum_external extends external_api {
                     $return->course = $discussion->course;
                     $return->forum = $discussion->forum;
                     $return->name = $discussion->name;
+                    // todo
                     $return->userid = $discussion->userid;
                     $return->groupid = $discussion->groupid;
                     $return->assessed = $discussion->assessed;
@@ -281,6 +282,7 @@ class mod_forum_external extends external_api {
                         'context'       => $modcontext,
                         'firstthenlast' => $canviewfullname,
                     ));
+                    // todo
                     $return->firstuserimagealt = $arrusers[$discussion->userid]->imagealt;
                     $return->firstuserpicture = $arrusers[$discussion->userid]->picture;
                     $return->firstuseremail = $arrusers[$discussion->userid]->email;
