@@ -111,7 +111,7 @@ class mod_forum_external extends external_api {
      * @return external_single_structure
      * @since Moodle 2.5
      */
-     public static function get_forums_by_courses_returns() {
+    public static function get_forums_by_courses_returns() {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
@@ -234,11 +234,13 @@ class mod_forum_external extends external_api {
             array_unshift($params, $id);
             $select = "forum = ? $groupselect";
 
+            $coreuserparams = array(
+                    'usefullnamedisplay' => has_capability('moodle/site:viewfullnames', $modcontext),
+                );
+
             if ($discussions = $DB->get_records_select('forum_discussions', $select, $params, 'timemodified DESC', '*',
                                                             $limitfrom, $limitnum)) {
 
-                // Check if they can view full names.
-                $canviewfullname = has_capability('moodle/site:viewfullnames', $modcontext);
                 // Get the unreads array, this takes a forum id and returns data for all discussions.
                 $unreads = array();
                 if ($cantrack = forum_tp_can_track_forums($forum)) {
@@ -261,15 +263,16 @@ class mod_forum_external extends external_api {
                         $arrusers[$discussion->userid] = $DB->get_record('user', array('id' => $discussion->userid),
                                 $usernamefields, MUST_EXIST);
                     }
+
                     // Get the subject.
                     $subject = $DB->get_field('forum_posts', 'subject', array('id' => $discussion->firstpost), MUST_EXIST);
+
                     // Create object to return.
                     $return = new stdClass();
                     $return->id = (int) $discussion->id;
                     $return->course = $discussion->course;
                     $return->forum = $discussion->forum;
                     $return->name = $discussion->name;
-                    $return->userid = $discussion->userid;
                     $return->groupid = $discussion->groupid;
                     $return->assessed = $discussion->assessed;
                     $return->timemodified = (int) $discussion->timemodified;
@@ -277,10 +280,13 @@ class mod_forum_external extends external_api {
                     $return->timestart = $discussion->timestart;
                     $return->timeend = $discussion->timeend;
                     $return->firstpost = (int) $discussion->firstpost;
-                    $return->firstuserfullname = fullname($arrusers[$discussion->userid], $canviewfullname);
-                    $return->firstuserimagealt = $arrusers[$discussion->userid]->imagealt;
-                    $return->firstuserpicture = $arrusers[$discussion->userid]->picture;
-                    $return->firstuseremail = $arrusers[$discussion->userid]->email;
+
+                    $prepareduserrecord = \core_user::prepare_external_user($arrusers[$discussion->userid], $modcontext, $coreuserparams);
+                    $return->userid             = $prepareduserrecord->id;
+                    $return->firstuserfullname  = \core_user::displayname($arrusers[$discussion->userid], $modcontext, $coreuserparams);
+                    $return->firstuserimagealt  = $prepareduserrecord->imagealt;
+                    $return->firstuserpicture   = $prepareduserrecord->picture;
+                    $return->firstuseremail     = $prepareduserrecord->email;
                     $return->subject = $subject;
                     $return->numunread = '';
                     if ($cantrack && $forumtracked) {
@@ -302,11 +308,14 @@ class mod_forum_external extends external_api {
                         $arrusers[$lastpost->userid] = $DB->get_record('user', array('id' => $lastpost->userid),
                                 $usernamefields, MUST_EXIST);
                     }
-                    $return->lastuserid = $lastpost->userid;
-                    $return->lastuserfullname = fullname($arrusers[$lastpost->userid], $canviewfullname);
-                    $return->lastuserimagealt = $arrusers[$lastpost->userid]->imagealt;
-                    $return->lastuserpicture = $arrusers[$lastpost->userid]->picture;
-                    $return->lastuseremail = $arrusers[$lastpost->userid]->email;
+
+                    // Prepare the user record for WS. This handles disguises.
+                    $prepareduserrecord = \core_user::prepare_external_user($arrusers[$lastpost->userid], $modcontext, $coreuserparams);
+                    $return->lastuserid         = $prepareduserrecord->id;
+                    $return->lastuserfullname   = \core_user::displayname($arrusers[$lastpost->userid], $modcontext, $coreuserparams);
+                    $return->lastuserimagealt   = $prepareduserrecord->imagealt;
+                    $return->lastuserpicture    = $prepareduserrecord->picture;
+                    $return->lastuseremail      = $prepareduserrecord->email;
                     // Add the discussion statistics to the array to return.
                     $arrdiscussions[$return->id] = (array) $return;
                 }
@@ -324,7 +333,7 @@ class mod_forum_external extends external_api {
      * @deprecated Moodle 2.8 MDL-46458 - Please do not call this function any more.
      * @see get_forum_discussions_paginated
      */
-     public static function get_forum_discussions_returns() {
+    public static function get_forum_discussions_returns() {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
@@ -441,8 +450,6 @@ class mod_forum_external extends external_api {
             throw new moodle_exception('noviewdiscussionspermission', 'forum');
         }
 
-        $canviewfullname = has_capability('moodle/site:viewfullnames', $modcontext);
-
         // We will add this field in the response.
         $canreply = forum_user_can_post($forum, $discussion, $USER, $cm, $course, $modcontext);
 
@@ -450,6 +457,10 @@ class mod_forum_external extends external_api {
 
         $sort = 'p.' . $sortby . ' ' . $sortdirection;
         $allposts = forum_get_all_discussion_posts($discussion->id, $sort, $forumtracked);
+
+        $coreuserparams = array(
+                'usefullnamedisplay' => has_capability('moodle/site:viewfullnames', $modcontext),
+            );
 
         foreach ($allposts as $post) {
 
@@ -481,9 +492,8 @@ class mod_forum_external extends external_api {
             $user = new stdclass();
             $user->id = $post->userid;
             $user = username_load_fields_from_object($user, $post, null, array('picture', 'imagealt', 'email'));
-            $post->userfullname = fullname($user, $canviewfullname);
-
-            $userpicture = new user_picture($user);
+            $post->userfullname = \core_user::displayname($user, $modcontext, $coreuserparams);
+            $userpicture = new user_picture(\core_user::prepare_external_user($user, $modcontext, $coreuserparams));
             $userpicture->size = 1; // Size f1.
             $post->userpictureurl = $userpicture->get_url($PAGE)->out(false);
 
@@ -653,7 +663,9 @@ class mod_forum_external extends external_api {
         $alldiscussions = forum_get_discussions($cm, $sort, true, -1, -1, true, $page, $perpage, FORUM_POSTS_ALL_USER_GROUPS);
 
         if ($alldiscussions) {
-            $canviewfullname = has_capability('moodle/site:viewfullnames', $modcontext);
+            $coreuserparams = array(
+                    'usefullnamedisplay' => has_capability('moodle/site:viewfullnames', $modcontext),
+                );
 
             // Get the unreads array, this takes a forum id and returns data for all discussions.
             $unreads = array();
@@ -702,9 +714,9 @@ class mod_forum_external extends external_api {
                 $user = username_load_fields_from_object($user, $discussion, null, $picturefields);
                 // Preserve the id, it can be modified by username_load_fields_from_object.
                 $user->id = $discussion->userid;
-                $discussion->userfullname = fullname($user, $canviewfullname);
+                $discussion->userfullname = \core_user::displayname($user, $modcontext, $coreuserparams);
 
-                $userpicture = new user_picture($user);
+                $userpicture = new user_picture(\core_user::prepare_external_user($user, $modcontext, $coreuserparams));
                 $userpicture->size = 1; // Size f1.
                 $discussion->userpictureurl = $userpicture->get_url($PAGE)->out(false);
 
@@ -713,9 +725,9 @@ class mod_forum_external extends external_api {
                 $usermodified = username_load_fields_from_object($usermodified, $discussion, 'um', $picturefields);
                 // Preserve the id (it can be overwritten due to the prefixed $picturefields).
                 $usermodified->id = $discussion->usermodified;
-                $discussion->usermodifiedfullname = fullname($usermodified, $canviewfullname);
+                $discussion->usermodifiedfullname = \core_user::displayname($usermodified, $modcontext, $coreuserparams);
 
-                $userpicture = new user_picture($usermodified);
+                $userpicture = new user_picture(\core_user::prepare_external_user($usermodified, $modcontext, $coreuserparams));
                 $userpicture->size = 1; // Size f1.
                 $discussion->usermodifiedpictureurl = $userpicture->get_url($PAGE)->out(false);
 
