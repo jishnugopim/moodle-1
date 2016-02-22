@@ -185,9 +185,16 @@ abstract class core_role_capability_table_with_risks extends core_role_capabilit
         global $OUTPUT;
         if (!isset($this->riskicons[$type])) {
             $iconurl = $OUTPUT->pix_url('i/' . str_replace('risk', 'risk_', $type));
-            $text = '<img src="' . $iconurl . '" alt="' . get_string($type . 'short', 'admin') . '" />';
-            $action = new popup_action('click', $this->risksurl, 'docspopup');
-            $this->riskicons[$type] = $OUTPUT->action_link($this->risksurl, $text, $action, array('title'=>get_string($type, 'admin')));
+
+            $text = html_writer::img($iconurl, get_string($type . 'short', 'admin'));
+            $this->riskicons[$type] = html_writer::link(
+                $this->risksurl,
+                html_writer::img($iconurl, get_string($type . 'short', 'admin')),
+                array(
+                    'title'         => get_string($type, 'admin'),
+                    'data-popup'    => popup_action::get_js_options(popup_action::get_params()),
+                    'data-name'     => 'docspopup',
+                ));
         }
         return $this->riskicons[$type];
     }

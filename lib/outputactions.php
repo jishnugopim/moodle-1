@@ -130,20 +130,7 @@ class popup_action extends component_action {
     /**
      * @var array An array of parameters that will be passed to the openpopup JS function
      */
-    public $params = array(
-            'height' =>  400,
-            'width' => 500,
-            'top' => 0,
-            'left' => 0,
-            'menubar' => false,
-            'location' => false,
-            'scrollbars' => true,
-            'resizable' => true,
-            'toolbar' => true,
-            'status' => true,
-            'directories' => false,
-            'fullscreen' => false,
-            'dependent' => true);
+    public $params = array();
 
     /**
      * Constructor
@@ -169,6 +156,7 @@ class popup_action extends component_action {
             $this->name = 'popup';
         }
 
+        $this->params = self::get_params();
         foreach ($this->params as $var => $val) {
             if (array_key_exists($var, $params)) {
                 $this->params[$var] = $params[$var];
@@ -188,10 +176,14 @@ class popup_action extends component_action {
      *
      * @return string String of option->value pairs for JS popup function.
      */
-    public function get_js_options() {
+    public static function get_js_options($params = null) {
         $jsoptions = '';
 
-        foreach ($this->params as $var => $val) {
+        if ($params === null) {
+            $params = $this->params;
+        }
+
+        foreach ($params as $var => $val) {
             if (is_string($val) || is_int($val)) {
                 $jsoptions .= "$var=$val,";
             } elseif (is_bool($val)) {
@@ -202,5 +194,23 @@ class popup_action extends component_action {
         $jsoptions = substr($jsoptions, 0, strlen($jsoptions) - 1);
 
         return $jsoptions;
+    }
+
+    public static function get_params() {
+        return array(
+                'height' =>  400,
+                'width' => 500,
+                'top' => 0,
+                'left' => 0,
+                'menubar' => false,
+                'location' => false,
+                'scrollbars' => true,
+                'resizable' => true,
+                'toolbar' => true,
+                'status' => true,
+                'directories' => false,
+                'fullscreen' => false,
+                'dependent' => true,
+            );
     }
 }
