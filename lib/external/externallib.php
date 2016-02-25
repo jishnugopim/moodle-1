@@ -406,6 +406,7 @@ class core_external extends external_api {
                 'editlabel' => new external_value(PARAM_NOTAGS, 'label for editing element', VALUE_OPTIONAL),
                 'type' => new external_value(PARAM_ALPHA, 'type of the element (text, toggle, select)', VALUE_OPTIONAL),
                 'options' => new external_value(PARAM_RAW, 'options of the element, format depends on type', VALUE_OPTIONAL),
+                'displayinlink' => new external_value(PARAM_BOOL, 'Whether to display in the link', VALUE_OPTIONAL),
             )
         );
     }
