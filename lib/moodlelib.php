@@ -3150,7 +3150,7 @@ function user_not_fully_set_up($user) {
 function over_bounce_threshold($user) {
     global $CFG, $DB;
 
-    if (empty($CFG->handlebounces)) {
+    if (empty($CFG->messageinbound_handlebounces)) {
         return false;
     }
 
@@ -3160,11 +3160,11 @@ function over_bounce_threshold($user) {
     }
 
     // Set sensible defaults.
-    if (empty($CFG->minbounces)) {
-        $CFG->minbounces = 10;
+    if (empty($CFG->messageinbound_minbounces)) {
+        $CFG->messageinbound_minbounces = 10;
     }
-    if (empty($CFG->bounceratio)) {
-        $CFG->bounceratio = .20;
+    if (empty($CFG->messageinbound_bounceratio)) {
+        $CFG->messageinbound_bounceratio = .20;
     }
     $bouncecount = 0;
     $sendcount = 0;
@@ -3210,21 +3210,26 @@ function set_send_count($user, $reset=false) {
  *
  * @param stdClass $user object containing an id
  * @param bool $reset will reset the count to 0
+ * @return integer The new bounce count
  */
-function set_bounce_count($user, $reset=false) {
+function set_bounce_count($user, $reset = false) {
     global $DB;
 
     if ($pref = $DB->get_record('user_preferences', array('userid' => $user->id, 'name' => 'email_bounce_count'))) {
-        $pref->value = (!empty($reset)) ? 0 : $pref->value+1;
+        $pref->value = (!empty($reset)) ? 0 : $pref->value + 1;
         $DB->update_record('user_preferences', $pref);
-    } else if (!empty($reset)) {
-        // If it's not there and we're resetting, don't bother. Make a new one.
+        return $pref->value;
+    }
+    if (!empty($reset)) {
+        // If it's not there and we are not resetting, don't bother. Make a new one.
         $pref = new stdClass();
         $pref->name   = 'email_bounce_count';
         $pref->value  = 1;
         $pref->userid = $user->id;
         $DB->insert_record('user_preferences', $pref, false);
+        return $pref->value;
     }
+    return 0;
 }
 
 /**
@@ -5284,51 +5289,6 @@ function reset_course_userdata($data) {
 }
 
 /**
- * Generate an email processing address.
- *
- * @param int $modid
- * @param string $modargs
- * @return string Returns email processing address
- */
-function generate_email_processing_address($modid, $modargs) {
-    global $CFG;
-
-    $header = $CFG->mailprefix . substr(base64_encode(pack('C', $modid)), 0, 2).$modargs;
-    return $header . substr(md5($header.get_site_identifier()), 0, 16).'@'.$CFG->maildomain;
-}
-
-/**
- * ?
- *
- * @todo Finish documenting this function
- *
- * @param string $modargs
- * @param string $body Currently unused
- */
-function moodle_process_email($modargs, $body) {
-    global $DB;
-
-    // The first char should be an unencoded letter. We'll take this as an action.
-    switch ($modargs{0}) {
-        case 'B': { // Bounce.
-            list(, $userid) = unpack('V', base64_decode(substr($modargs, 1, 8)));
-            if ($user = $DB->get_record("user", array('id' => $userid), "id,email")) {
-                // Check the half md5 of their email.
-                $md5check = substr(md5($user->email), 0, 16);
-                if ($md5check == substr($modargs, -16)) {
-                    set_bounce_count($user);
-                }
-                // Else maybe they've already changed it?
-            }
-        }
-        break;
-        // Maybe more later?
-    }
-}
-
-// CORRESPONDENCE.
-
-/**
  * Get mailer instance, enable buffering, flush buffer or disable buffering.
  *
  * @param string $action 'get', 'buffer', 'close' or 'flush'
@@ -5614,9 +5574,12 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
     $supportuser = core_user::get_support_user();
 
     // Make up an email address for handling bounces.
-    if (!empty($CFG->handlebounces)) {
-        $modargs = 'B'.base64_encode(pack('V', $user->id)).substr(md5($user->email), 0, 16);
-        $mail->Sender = generate_email_processing_address(0, $modargs);
+    if (!empty($CFG->messageinbound_handlebounces)) {
+        $addressmanager = new \core\message\inbound\address_manager();
+        $addressmanager->set_handler('\tool_messageinbound\message\inbound\bounce_handler');
+        $checksum = \tool_messageinbound\message\inbound\bounce_handler::email_checksum($user->email);
+        $addressmanager->set_data($checksum);
+        $mail->Sender = $addressmanager->generate($user->id);
     } else {
         $mail->Sender = $supportuser->email;
     }
