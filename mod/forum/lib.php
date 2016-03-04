@@ -3079,18 +3079,12 @@ function forum_get_course_forum($courseid, $type) {
  */
 function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=false, $reply=false, $link=false,
                           $footer="", $highlight="", $postisread=null, $dummyifcantsee=true, $istracked=null, $return=false) {
-    global $USER, $CFG, $OUTPUT;
+    global $USER, $CFG, $PAGE;
 
     require_once($CFG->libdir . '/filelib.php');
 
     // String cache
     static $str;
-    // This is an extremely hacky way to ensure we only print the 'unread' anchor
-    // the first time we encounter an unread post on a page. Ideally this would
-    // be moved into the caller somehow, and be better testable. But at the time
-    // of dealing with this bug, this static workaround was the most surgical and
-    // it fits together with only printing th unread anchor id once on a given page.
-    static $firstunreadanchorprinted = false;
 
     $modcontext = context_module::instance($cm->id);
 
@@ -3132,43 +3126,18 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
         $postisread = forum_tp_is_post_read($USER->id, $post);
     }
 
-    if (!forum_user_can_see_post($forum, $discussion, $post, NULL, $cm)) {
-        $output = '';
+    $renderer = $PAGE->get_renderer('mod_forum');
+    if (!forum_user_can_see_post($forum, $discussion, $post, null, $cm)) {
         if (!$dummyifcantsee) {
             if ($return) {
-                return $output;
+                return '';
             }
-            echo $output;
             return;
         }
-        $output .= html_writer::tag('a', '', array('id'=>'p'.$post->id));
-        $output .= html_writer::start_tag('div', array('class'=>'forumpost clearfix',
-                                                       'role' => 'region',
-                                                       'aria-label' => get_string('hiddenforumpost', 'forum')));
-        $output .= html_writer::start_tag('div', array('class'=>'row header'));
-        $output .= html_writer::tag('div', '', array('class'=>'left picture')); // Picture
-        if ($post->parent) {
-            $output .= html_writer::start_tag('div', array('class'=>'topic'));
-        } else {
-            $output .= html_writer::start_tag('div', array('class'=>'topic starter'));
-        }
-        $output .= html_writer::tag('div', get_string('forumsubjecthidden','forum'), array('class' => 'subject',
-                                                                                           'role' => 'header')); // Subject.
-        $output .= html_writer::tag('div', get_string('forumauthorhidden', 'forum'), array('class' => 'author',
-                                                                                           'role' => 'header')); // Author.
-        $output .= html_writer::end_tag('div');
-        $output .= html_writer::end_tag('div'); // row
-        $output .= html_writer::start_tag('div', array('class'=>'row'));
-        $output .= html_writer::tag('div', '&nbsp;', array('class'=>'left side')); // Groups
-        $output .= html_writer::tag('div', get_string('forumbodyhidden','forum'), array('class'=>'content')); // Content
-        $output .= html_writer::end_tag('div'); // row
-        $output .= html_writer::end_tag('div'); // forumpost
 
-        if ($return) {
-            return $output;
-        }
-        echo $output;
-        return;
+        $output = $renderer->render_from_template('mod_forum/forum_post_hidden', array());
+
+        return $output;
     }
 
     if (empty($str)) {
@@ -3179,47 +3148,29 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
         $str->parent       = get_string('parent', 'forum');
         $str->pruneheading = get_string('pruneheading', 'forum');
         $str->prune        = get_string('prune', 'forum');
-        $str->displaymode     = get_user_preferences('forum_displaymode', $CFG->forum_displaymode);
+        $str->displaymode  = get_user_preferences('forum_displaymode', $CFG->forum_displaymode);
         $str->markread     = get_string('markread', 'forum');
         $str->markunread   = get_string('markunread', 'forum');
+        $str->permalink    = get_string('permalink', 'forum');
     }
 
-    $discussionlink = new moodle_url('/mod/forum/discuss.php', array('d'=>$post->discussion));
+    $discussionlink = new moodle_url('/mod/forum/discuss.php', array('d' => $post->discussion));
 
-    // Build an object that represents the posting user
-    $postuser = new stdClass;
-    $postuserfields = explode(',', user_picture::fields());
-    $postuser = username_load_fields_from_object($postuser, $post, null, $postuserfields);
-    $postuser->id = $post->userid;
-    $postuser->fullname    = fullname($postuser, $cm->cache->caps['moodle/site:viewfullnames']);
-    $postuser->profilelink = new moodle_url('/user/view.php', array('id'=>$post->userid, 'course'=>$course->id));
+    $data = new \mod_forum\output\forum_post_web(
+            $course,
+            $cm,
+            $forum,
+            $discussion,
+            $post,
+			$post
+        );
 
-    // Prepare the groups the posting user belongs to
-    if (isset($cm->cache->usersgroups)) {
-        $groups = array();
-        if (isset($cm->cache->usersgroups[$post->userid])) {
-            foreach ($cm->cache->usersgroups[$post->userid] as $gid) {
-                $groups[$gid] = $cm->cache->groups[$gid];
-            }
-        }
-    } else {
-        $groups = groups_get_all_groups($course->id, $post->userid, $cm->groupingid);
-    }
-
-    // Prepare the attachements for the post, files then images
-    list($attachments, $attachedimages) = forum_print_attachments($post, $cm, 'separateimages');
-
-    // Determine if we need to shorten this post
-    $shortenpost = ($link && (strlen(strip_tags($post->message)) > $CFG->forum_longpost));
-
-
-    // Prepare an array of commands
-    $commands = array();
+    $data->set_link_only($link);
 
     // Add a permalink.
     $permalink = new moodle_url($discussionlink);
     $permalink->set_anchor('p' . $post->id);
-    $commands[] = array('url' => $permalink, 'text' => get_string('permalink', 'forum'));
+    $data->add_command($permalink, $str->permalink);
 
     // SPECIAL CASE: The front page can display a news item post to non-logged in users.
     // Don't display the mark read / unread controls in this case.
@@ -3235,7 +3186,16 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
         } else {
             $url->set_anchor('p'.$post->id);
         }
-        $commands[] = array('url'=>$url, 'text'=>$text);
+        $data->add_command($url, $text);
+
+        // This is an extremely hacky way to ensure we only print the 'unread' anchor
+        // the first time we encounter an unread post on a page. Ideally this would
+        // be moved into the caller somehow, and be better testable. But at the time
+        // of dealing with this bug, this static workaround was the most surgical and
+        // it fits together with only printing th unread anchor id once on a given page.
+        static $firstunreadanchorprinted = false;
+        $data->is_first_unread_post(!$firstunreadanchorprinted);
+        $firstunreadanchorprinted = true;
     }
 
     // Zoom in to the parent specifically
@@ -3246,7 +3206,7 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
         } else {
             $url->set_anchor('p'.$post->parent);
         }
-        $commands[] = array('url'=>$url, 'text'=>$str->parent);
+        $data->add_command($url, $str->parent);
     }
 
     // Hack for allow to edit news posts those are not displayed yet until they are displayed
@@ -3258,24 +3218,29 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
     if ($forum->type == 'single' and $discussion->firstpost == $post->id) {
         if (has_capability('moodle/course:manageactivities', $modcontext)) {
             // The first post in single simple is the forum description.
-            $commands[] = array('url'=>new moodle_url('/course/modedit.php', array('update'=>$cm->id, 'sesskey'=>sesskey(), 'return'=>1)), 'text'=>$str->edit);
+            $data->add_command(
+                    new moodle_url('/course/modedit.php', array(
+                        'update' => $cm->id,
+                        'sesskey' => sesskey(),
+                        'return' => 1,
+                    )), $str->edit);
         }
     } else if (($ownpost && $age < $CFG->maxeditingtime) || $cm->cache->caps['mod/forum:editanypost']) {
-        $commands[] = array('url'=>new moodle_url('/mod/forum/post.php', array('edit'=>$post->id)), 'text'=>$str->edit);
+        $data->add_command(new moodle_url('/mod/forum/post.php', array('edit' => $post->id)), $str->edit);
     }
 
     if ($cm->cache->caps['mod/forum:splitdiscussions'] && $post->parent && $forum->type != 'single') {
-        $commands[] = array('url'=>new moodle_url('/mod/forum/post.php', array('prune'=>$post->id)), 'text'=>$str->prune, 'title'=>$str->pruneheading);
+        $data->add_command(new moodle_url('/mod/forum/post.php', array('prune' => $post->id)), $str->prune);
     }
 
     if ($forum->type == 'single' and $discussion->firstpost == $post->id) {
         // Do not allow deleting of first post in single simple type.
     } else if (($ownpost && $age < $CFG->maxeditingtime && $cm->cache->caps['mod/forum:deleteownpost']) || $cm->cache->caps['mod/forum:deleteanypost']) {
-        $commands[] = array('url'=>new moodle_url('/mod/forum/post.php', array('delete'=>$post->id)), 'text'=>$str->delete);
+        $data->add_command(new moodle_url('/mod/forum/post.php', array('delete' => $post->id)), $str->delete);
     }
 
     if ($reply) {
-        $commands[] = array('url'=>new moodle_url('/mod/forum/post.php#mformforum', array('reply'=>$post->id)), 'text'=>$str->reply);
+        $data->add_command(new moodle_url('/mod/forum/post.php#mformform', array('reply' => $post->id)), $str->reply);
     }
 
     if ($CFG->enableportfolios && ($cm->cache->caps['mod/forum:exportpost'] || ($ownpost && $cm->cache->caps['mod/forum:exportownpost']))) {
@@ -3289,202 +3254,12 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
             $button->set_formats(PORTFOLIO_FORMAT_RICHHTML);
         }
 
-        $porfoliohtml = $button->to_html(PORTFOLIO_ADD_TEXT_LINK);
-        if (!empty($porfoliohtml)) {
-            $commands[] = $porfoliohtml;
-        }
+        $data->set_portfolio_link($button);
     }
     // Finished building commands
 
-
-    // Begin output
-
-    $output  = '';
-
-    if ($istracked) {
-        if ($postisread) {
-            $forumpostclass = ' read';
-        } else {
-            $forumpostclass = ' unread';
-            // If this is the first unread post printed then give it an anchor and id of unread.
-            if (!$firstunreadanchorprinted) {
-                $output .= html_writer::tag('a', '', array('id' => 'unread'));
-                $firstunreadanchorprinted = true;
-            }
-        }
-    } else {
-        // ignore trackign status if not tracked or tracked param missing
-        $forumpostclass = '';
-    }
-
-    $topicclass = '';
-    if (empty($post->parent)) {
-        $topicclass = ' firstpost starter';
-    }
-
-    if (!empty($post->lastpost)) {
-        $forumpostclass .= ' lastpost';
-    }
-
-    // Flag to indicate whether we should hide the author or not.
-    $authorhidden = forum_is_author_hidden($post, $forum);
-    $postbyuser = new stdClass;
-    $postbyuser->post = $post->subject;
-    $postbyuser->user = $postuser->fullname;
-    $discussionbyuser = get_string('postbyuser', 'forum', $postbyuser);
-    $output .= html_writer::tag('a', '', array('id'=>'p'.$post->id));
-    // Begin forum post.
-    $output .= html_writer::start_div('forumpost clearfix' . $forumpostclass . $topicclass,
-        ['role' => 'region', 'aria-label' => $discussionbyuser]);
-    // Begin header row.
-    $output .= html_writer::start_div('row header clearfix');
-
-    // User picture.
-    if (!$authorhidden) {
-        $picture = $OUTPUT->user_picture($postuser, ['courseid' => $course->id]);
-        $output .= html_writer::div($picture, 'left picture');
-        $topicclass = 'topic' . $topicclass;
-    }
-
-    // Begin topic column.
-    $output .= html_writer::start_div($topicclass);
-    $postsubject = $post->subject;
-    if (empty($post->subjectnoformat)) {
-        $postsubject = format_string($postsubject);
-    }
-    $output .= html_writer::div($postsubject, 'subject', ['role' => 'heading', 'aria-level' => '2']);
-
-    if ($authorhidden) {
-        $bytext = userdate($post->modified);
-    } else {
-        $by = new stdClass();
-        $by->date = userdate($post->modified);
-        $by->name = html_writer::link($postuser->profilelink, $postuser->fullname);
-        $bytext = get_string('bynameondate', 'forum', $by);
-    }
-    $bytextoptions = [
-        'role' => 'heading',
-        'aria-level' => '2',
-    ];
-    $output .= html_writer::div($bytext, 'author', $bytextoptions);
-    // End topic column.
-    $output .= html_writer::end_div();
-
-    // End header row.
-    $output .= html_writer::end_div();
-
-    // Row with the forum post content.
-    $output .= html_writer::start_div('row maincontent clearfix');
-    // Show if author is not hidden or we have groups.
-    if (!$authorhidden || $groups) {
-        $output .= html_writer::start_div('left');
-        $groupoutput = '';
-        if ($groups) {
-            $groupoutput = print_group_picture($groups, $course->id, false, true, true);
-        }
-        if (empty($groupoutput)) {
-            $groupoutput = '&nbsp;';
-        }
-        $output .= html_writer::div($groupoutput, 'grouppictures');
-        $output .= html_writer::end_div(); // Left side.
-    }
-
-    $output .= html_writer::start_tag('div', array('class'=>'no-overflow'));
-    $output .= html_writer::start_tag('div', array('class'=>'content'));
-
-    $options = new stdClass;
-    $options->para    = false;
-    $options->trusted = $post->messagetrust;
-    $options->context = $modcontext;
-    if ($shortenpost) {
-        // Prepare shortened version by filtering the text then shortening it.
-        $postclass    = 'shortenedpost';
-        $postcontent  = format_text($post->message, $post->messageformat, $options);
-        $postcontent  = shorten_text($postcontent, $CFG->forum_shortpost);
-        $postcontent .= html_writer::link($discussionlink, get_string('readtherest', 'forum'));
-        $postcontent .= html_writer::tag('div', '('.get_string('numwords', 'moodle', count_words($post->message)).')',
-            array('class'=>'post-word-count'));
-    } else {
-        // Prepare whole post
-        $postclass    = 'fullpost';
-        $postcontent  = format_text($post->message, $post->messageformat, $options, $course->id);
-        if (!empty($highlight)) {
-            $postcontent = highlight($highlight, $postcontent);
-        }
-        if (!empty($forum->displaywordcount)) {
-            $postcontent .= html_writer::tag('div', get_string('numwords', 'moodle', count_words($post->message)),
-                array('class'=>'post-word-count'));
-        }
-        $postcontent .= html_writer::tag('div', $attachedimages, array('class'=>'attachedimages'));
-    }
-
-    // Output the post content
-    $output .= html_writer::tag('div', $postcontent, array('class'=>'posting '.$postclass));
-    $output .= html_writer::end_tag('div'); // Content
-    $output .= html_writer::end_tag('div'); // Content mask
-    $output .= html_writer::end_tag('div'); // Row
-
-    $output .= html_writer::start_tag('div', array('class'=>'row side'));
-    $output .= html_writer::tag('div','&nbsp;', array('class'=>'left'));
-    $output .= html_writer::start_tag('div', array('class'=>'options clearfix'));
-
-    if (!empty($attachments)) {
-        $output .= html_writer::tag('div', $attachments, array('class' => 'attachments'));
-    }
-
-    // Output ratings
-    if (!empty($post->rating)) {
-        $output .= html_writer::tag('div', $OUTPUT->render($post->rating), array('class'=>'forum-post-rating'));
-    }
-
-    // Output the commands
-    $commandhtml = array();
-    foreach ($commands as $command) {
-        if (is_array($command)) {
-            $commandhtml[] = html_writer::link($command['url'], $command['text']);
-        } else {
-            $commandhtml[] = $command;
-        }
-    }
-    $output .= html_writer::tag('div', implode(' | ', $commandhtml), array('class'=>'commands'));
-
-    // Output link to post if required
-    if ($link && forum_user_can_post($forum, $discussion, $USER, $cm, $course, $modcontext)) {
-        if ($post->replies == 1) {
-            $replystring = get_string('repliesone', 'forum', $post->replies);
-        } else {
-            $replystring = get_string('repliesmany', 'forum', $post->replies);
-        }
-        if (!empty($discussion->unread) && $discussion->unread !== '-') {
-            $replystring .= ' <span class="sep">/</span> <span class="unread">';
-            if ($discussion->unread == 1) {
-                $replystring .= get_string('unreadpostsone', 'forum');
-            } else {
-                $replystring .= get_string('unreadpostsnumber', 'forum', $discussion->unread);
-            }
-            $replystring .= '</span>';
-        }
-
-        $output .= html_writer::start_tag('div', array('class'=>'link'));
-        $output .= html_writer::link($discussionlink, get_string('discussthistopic', 'forum'));
-        $output .= '&nbsp;('.$replystring.')';
-        $output .= html_writer::end_tag('div'); // link
-    }
-
-    // Output footer if required
-    if ($footer) {
-        $output .= html_writer::tag('div', $footer, array('class'=>'footer'));
-    }
-
-    // Close remaining open divs
-    $output .= html_writer::end_tag('div'); // content
-    $output .= html_writer::end_tag('div'); // row
-    $output .= html_writer::end_tag('div'); // forumpost
-
-    // Mark the forum post as read if required
-    if ($istracked && !$CFG->forum_usermarksread && !$postisread) {
-        forum_tp_mark_post_read($USER->id, $post, $forum->id);
-    }
+    // Begin output.
+    $output = $renderer->render_from_template('mod_forum/forum_post', $data->export_for_template($renderer));
 
     if ($return) {
         return $output;

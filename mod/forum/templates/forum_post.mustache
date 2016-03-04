@@ -1,0 +1,121 @@
+<a id="p{{ id }}"></a>
+<div {{!
+    }} class="forumpost clearfix{{!
+        }}{{# lastpost }} lastpost {{/ lastpost }}{{!
+        }}{{# read }} read {{/ read }}{{^ read }} unread {{/ read }}{{!
+        }}{{# firstpost }} firstpost starter {{/ firstpost }}{{!
+        }}"{{!
+        }}{{# firstunread }} id="unread" {{/ firstunread }}{{!
+        }} role="region" aria-label="{{# str }}
+            hiddenforumpost,
+            forum,
+            {
+                "post": {{# quote }}{{ subject }}{{/ quote }},
+                "user": {{# quote }}{{ fullname }}{{/ quote }}
+            }
+            {{/ str }}">
+    <div class="row header">
+        {{# authorshown }}
+        <div class="left picture">
+            {{{ authorpicture }}}
+        </div>
+        {{/ authorshown }}
+        <div class="topic{{# firstpost }} firstpost starter{{/ firstpost }}">
+            <div class="subject" role="heading" aria-level="2">
+                {{ subject }}
+            </div>
+            <div class="author" role="heading" aria-level="2">
+                {{# authorshown }}
+                    {{# str }}
+                        bynameondate,
+                        forum,
+                        {
+                            "name": {{# quote }}<a href='{{{ authorlink }}}'>{{ authorfullname }}</a>{{/ quote }},
+                            "date": "{{ postdate }}"
+                        }
+                    {{/ str }}
+                {{/ authorshown }}
+                {{^ authorshown }}
+                    {{ postdate }}
+                {{/ authorshown }}
+            </div>
+        </div>
+    </div>
+    <div class="row maincontent clearfix">
+        {{# grouppictureshown }}
+        <div class="left">
+            {{# grouppicture }}
+            <div class="grouppictures">
+                {{{ grouppicture }}}
+            </div>
+            {{/ grouppicture }}
+            {{^ grouppicture }}
+            &nbsp;
+            {{/ grouppicture }}
+        </div>
+        {{/ grouppictureshown }}
+        <div class="no-overflow">
+            <div class="content">
+                <div class="posting {{!
+                    }}{{# shortenpost }} shortenedpost {{/ shortenpost }}{{!
+                    }}{{^ shortenpost }} fullpost {{/ shortenpost }}{{!
+                    }}">
+
+                    {{{ message }}}
+
+                    {{# link }}
+                    <a href="{{{ discussionlink }}}">{{# str }} readtherest, forum {{/ str }}</a>
+                    {{/ link }}
+
+                    {{# wordcount }}
+                        <div class="post-word-count"></div>
+                    {{/ wordcount }}
+
+                    {{# attachedimages }}
+                        <div class="attachedimages">
+                            {{{ attachedimages }}}
+                        </div>
+                    {{/ attachedimages }}
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row side">
+        <div class="left">&nbsp;</div>
+        <div class="options clearfix">
+
+            {{# attachments }}
+            <div class="attachments">{{{ attachments }}}</div>
+            {{/ attachments }}
+
+            {{# rating }}
+            <div class="forum-post-rating">
+                {{{ rating }}}
+            </div>
+            {{/ rating }}
+
+            {{# commands.0 }}
+                <div class="commands">
+                {{# commands }}
+                    <a href="{{ link }}">{{ text }}</a> {{^ last }} | {{/ last }}
+                {{/ commands }}
+                </div>
+            {{/ commands.0 }}
+
+            {{# portfolio_link }}
+                {{ portfolio_link }}
+            {{/ portfolio_link }}
+
+            {{# link }}
+            <div class="link">
+                <a href="{{ discussionlink }}">{{# str }} discussthistopic, forum {{/ str }}</a>&nbsp;({{{ replystring }}})
+            </div>
+            {{/ link }}
+
+            {{# footer }}
+            <div class="footer">{{{ footer }}}</div>
+            {{/ footer }}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<a id="p{{ id }}"></a>
+<div class="forumpost clearfix" role="region" aria-label="{{# str }} hiddenforumpost, forum {{/ str }}">
+    <div class="row header">
+        <div class="left picture"></div>
+        <div class="topic{{# firstpost }} starter{{/ firstpost }}">
+            <div class="subject" role="header">
+                {{# str }} forumsubjecthidden, forum {{/ str }}
+            </div>
+            <div class="author" role="header">
+                {{# str }} forumauthorhidden, forum {{/ str }}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="left side">&nbsp;</div>
+        <div class="content">{{# str }} forumbodyhidden, forum {{/ str }}</div>
+    </div>
+</div>

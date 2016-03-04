@@ -191,7 +191,11 @@ class mod_forum_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_forum_post_email(\mod_forum\output\forum_post_email $post) {
-        $data = $post->export_for_template($this, $this->target === RENDERER_TARGET_TEXTEMAIL);
+        if ($this->target === RENDERER_TARGET_TEXTEMAIL) {
+            $data = $post->export_for_template_text($this);
+        } else {
+            $data = $post->export_for_template($this);
+        }
         return $this->render_from_template('mod_forum/' . $this->forum_post_template(), $data);
     }
 
@@ -225,5 +229,25 @@ class mod_forum_renderer extends plugin_renderer_base {
         $editable->set_type_select($options);
 
         return $editable;
+    }
+
+    public function format_message_text($cm, $post) {
+        $options = new stdClass;
+        $options->para    = false;
+        $options->trusted = $post->messagetrust;
+        $options->context = \context_module::instance($cm->instance);
+
+        return format_text($post->message, $post->messageformat, $options);
+    }
+
+    /**
+     * The HTML version of the attachments list.
+     *
+     * @param \stdClass $cm
+     * @param \stdClass $post
+     * @return string
+     */
+    public function format_message_attachments($cm, $post) {
+        return forum_print_attachments($post, $cm, "html");
     }
 }
