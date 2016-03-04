@@ -46,7 +46,6 @@ Feature: In an assignment, students can comment in their submissions
     And I should see "Second student comment"
     And I should not see "First student comment"
 
-  @javascript
   Scenario: Teacher can comment on an offline assignment
     Given the following "activities" exist:
       | activity | course | idnumber | name                 | intro                       | assignsubmission_onlinetext_enabled | assignmentsubmission_file_enabled | assignfeedback_comments_enabled |
@@ -60,7 +59,7 @@ Feature: In an assignment, students can comment in their submissions
       | Grade out of 100 | 50 |
       | Feedback comments | I'm the teacher feedback |
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     Then I should see "50.00" in the "Student 1" "table_row"
     And I should see "I'm the teacher feedback" in the "Student 1" "table_row"
 
@@ -77,9 +76,7 @@ Feature: In an assignment, students can comment in their submissions
       | Grade out of 100 | 0 |
     And I press "Save changes"
     And I should see "The grade changes were saved"
-    And I press "Continue"
     When I click on "Grade Student 1" "link" in the "Student 1" "table_row"
     And I set the following fields to these values:
       | Feedback comments | I'm the teacher feedback |
-    And I press "Save changes"
     Then I should see "The grade changes were saved"

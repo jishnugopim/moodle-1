@@ -4,7 +4,6 @@ Feature: Check that the assignment grade can be updated correctly
   As a teacher
   I need to grade a student and ensure the grade is shown correctly
 
-  @javascript
   Scenario: Update the grade for an assignment
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |
@@ -32,10 +31,9 @@ Feature: Check that the assignment grade can be updated correctly
     And I click on "Grade Student 1" "link" in the "Student 1" "table_row"
     And I set the field "Grade out of 100" to "50"
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     And "Student 1" row "Grade" column of "generaltable" table should contain "50.00"
 
-  @javascript
   Scenario: Update the grade for a team assignment
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |
@@ -65,5 +63,5 @@ Feature: Check that the assignment grade can be updated correctly
     And I click on "Grade Student 1" "link" in the "Student 1" "table_row"
     And I set the field "Grade out of 100" to "50"
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     And "Student 1" row "Grade" column of "generaltable" table should contain "50.00"

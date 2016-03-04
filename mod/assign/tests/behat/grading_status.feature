@@ -57,7 +57,7 @@ Feature: View the grading status of an assignment
     And I set the field "Marking workflow state" to "In review"
     And I set the field "Feedback comments" to "Great job! Lol, not really."
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     And I should see "In review" in the "Student 1" "table_row"
     And I log out
     # View the grading status as a student.
@@ -143,7 +143,7 @@ Feature: View the grading status of an assignment
     And I set the field "Grade out of 100" to "50"
     And I set the field "Feedback comments" to "Great job! Lol, not really."
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     And I should see "Graded" in the "Student 1" "table_row"
     And I log out
     # View the grading status as a student.

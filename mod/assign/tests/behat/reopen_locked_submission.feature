@@ -49,7 +49,6 @@ Feature: Submissions are unlocked when a new attempt is given
     And I set the field "User grade" to "49.0"
     And I press "Save all quick grading changes"
     And I should see "The grade changes were saved"
-    And I press "Continue"
     Then I should see "Reopened"
     And I should not see "Submission changes not allowed"
 

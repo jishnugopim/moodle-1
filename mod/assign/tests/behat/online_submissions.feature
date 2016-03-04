@@ -4,7 +4,6 @@ Feature: In an assignment, students can add and edit text online
   As a student
   I need to submit my assignment editing an online form
 
-  @javascript
   Scenario: Submit a text online and edit the submission
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |

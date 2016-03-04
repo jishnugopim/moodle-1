@@ -4,7 +4,6 @@ Feature: In an assignment, students start a new attempt based on their previous 
   As a student
   I need to submit my assignment editing an online form, receive feedback, and then improve my submission.
 
-  @javascript
   Scenario: Submit a text online and edit the submission
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |
@@ -120,7 +119,6 @@ Feature: In an assignment, students start a new attempt based on their previous 
     And I set the field "User grade" to "60.0"
     And I press "Save all quick grading changes"
     And I should see "The grade changes were saved"
-    And I press "Continue"
     And I click on "Student 1" "checkbox"
     And I set the following fields to these values:
       | operation | Allow another attempt |

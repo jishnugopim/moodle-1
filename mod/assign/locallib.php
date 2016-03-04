@@ -2563,18 +2563,12 @@ class assign {
      * @return string
      */
     protected function view_savegrading_result($message) {
-        $o = '';
-        $o .= $this->get_renderer()->render(new assign_header($this->get_instance(),
-                                                      $this->get_context(),
-                                                      $this->show_intro(),
-                                                      $this->get_course_module()->id,
-                                                      get_string('savegradingresult', 'assign')));
-        $gradingresult = new assign_gradingmessage(get_string('savegradingresult', 'assign'),
-                                                   $message,
-                                                   $this->get_course_module()->id);
-        $o .= $this->get_renderer()->render($gradingresult);
-        $o .= $this->view_footer();
-        return $o;
+        $urlparams = array(
+                'id'        => $this->get_course_module()->id,
+                'action'    => 'grading',
+            );
+        $redirectto = new moodle_url('/mod/assign/view.php', $urlparams);
+        redirect($redirectto, $message, 0, \core\notification::SUCCESS);
     }
     /**
      * Display a continue page after quickgrading.
@@ -2583,21 +2577,13 @@ class assign {
      * @return string
      */
     protected function view_quickgrading_result($message) {
-        $o = '';
-        $o .= $this->get_renderer()->render(new assign_header($this->get_instance(),
-                                                      $this->get_context(),
-                                                      $this->show_intro(),
-                                                      $this->get_course_module()->id,
-                                                      get_string('quickgradingresult', 'assign')));
-        $lastpage = optional_param('lastpage', null, PARAM_INT);
-        $gradingresult = new assign_gradingmessage(get_string('quickgradingresult', 'assign'),
-                                                   $message,
-                                                   $this->get_course_module()->id,
-                                                   false,
-                                                   $lastpage);
-        $o .= $this->get_renderer()->render($gradingresult);
-        $o .= $this->view_footer();
-        return $o;
+        $urlparams = array(
+                'id'        => $this->get_course_module()->id,
+                'action'    => 'grading',
+                'page'      => optional_param('lastpage', null, PARAM_INT),
+            );
+        $redirectto = new moodle_url('/mod/assign/view.php', $urlparams);
+        redirect($redirectto, $message, 0, \core\notification::SUCCESS);
     }
 
     /**

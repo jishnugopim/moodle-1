@@ -4,7 +4,6 @@ Feature: Check that the assignment grade can not be input in a wrong format.
   As a teacher
   I need to grade a student and ensure that the grade should be correctly entered
 
-  @javascript
   Scenario: Error in the decimal separator ,
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |
@@ -34,7 +33,6 @@ Feature: Check that the assignment grade can not be input in a wrong format.
     And I press "Save changes"
     And I should see "The grade provided could not be understood: 50,,6"
 
-  @javascript
   Scenario: Error in the decimal separator .
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |

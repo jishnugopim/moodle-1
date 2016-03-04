@@ -41,7 +41,7 @@ Feature: In an assignment, teachers grade multiple students on one page
     And I follow "View/grade all submissions"
     And I click on "Grade Student 1" "link" in the "Student 1" "table_row"
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     And I follow "Test assignment name"
     Then I should see "1" in the "Needs grading" "table_row"
 
@@ -116,12 +116,11 @@ Feature: In an assignment, teachers grade multiple students on one page
       | M8d skillZ! | 1337 |
       | Feedback comments | I'm the teacher first feedback |
     And I press "Save changes"
-    And I press "Continue"
+    And I should see "The grade changes were saved"
     Then I click on "Quick grading" "checkbox"
     And I set the field "User grade" to "60.0"
     And I press "Save all quick grading changes"
     And I should see "The grade changes were saved"
-    And I press "Continue"
     And I log out
     And I log in as "student1"
     And I follow "Course 1"
@@ -160,7 +159,6 @@ Feature: In an assignment, teachers grade multiple students on one page
     And I click on "Hide Outcomes" "link"
     And I press "Save all quick grading changes"
     And I should see "The grade changes were saved"
-    And I press "Continue"
     And I log out
     And I log in as "student1"
     And I follow "Course 1"

@@ -27,7 +27,6 @@ Feature: Grant an extension to an offline student
       | student5 | C1 | student |
       | student6 | C1 | student |
 
-  @javascript
   Scenario: Granting an extension to an offline assignment
     Given the following "activities" exist:
       | activity | course | idnumber | name                 | intro                       | assignsubmission_onlinetext_enabled | assignsubmission_file_enabled | duedate    |

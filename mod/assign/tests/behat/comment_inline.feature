@@ -47,8 +47,8 @@ Feature: In an assignment, teachers can edit a students submission inline
       | Feedback comments | I'm the teacher feedback |
     And I upload "lib/tests/fixtures/empty.txt" file to "Feedback files" filemanager
     And I press "Save changes"
-    And I press "Continue"
-    Then I should see "50.00" in the "Student 1" "table_row"
+    Then I should see "The grade changes were saved"
+    And I should see "50.00" in the "Student 1" "table_row"
     And I should see "Submitted for grading" in the "Student 1" "table_row"
     And I should see "Graded" in the "Student 1" "table_row"
     And I should see "I'm the student first submission" in the "Student 1" "table_row"

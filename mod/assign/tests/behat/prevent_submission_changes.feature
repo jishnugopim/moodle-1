@@ -19,7 +19,6 @@ Feature: Prevent or allow assignment submission changes
       | student1 | C1 | student |
       | student2 | C1 | student |
 
-  @javascript
   Scenario: Preventing changes and allowing them again
     Given I log in as "teacher1"
     And I follow "Course 1"
