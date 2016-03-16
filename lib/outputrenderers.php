@@ -950,6 +950,7 @@ class core_renderer extends renderer_base {
         // Give themes a chance to init/alter the page object.
         $this->page->theme->init_page($this->page);
 
+        \core\hook::fire('pre_page_header_print');
         $this->page->set_state(moodle_page::STATE_PRINTING_HEADER);
 
         // Find the appropriate page layout file, based on $this->page->pagelayout.
@@ -1039,6 +1040,7 @@ class core_renderer extends renderer_base {
     public function footer() {
         global $CFG, $DB, $PAGE;
 
+        \core\hook::fire('pre_page_footer_print');
         $output = $this->container_end_all(true);
 
         $footer = $this->opencontainers->pop('header/footer');
@@ -1066,6 +1068,7 @@ class core_renderer extends renderer_base {
         $footer = str_replace($this->unique_end_html_token, $this->page->requires->get_end_code(), $footer);
 
         $this->page->set_state(moodle_page::STATE_DONE);
+        \core\hook::fire('post_page_footer_print');
 
         return $output . $footer;
     }
