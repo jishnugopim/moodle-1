@@ -43,4 +43,13 @@ defined('MOODLE_INTERNAL') || die();
 
 // Callbacks implemented by Moodle core.
 $callables = [
+    [
+        'hookname' => 'pre_page_header_print',
+        'callable' => '\core\test::pre_page_header_print',
+    ],
+    [
+        'hookname' => 'pre_page_header_print',
+        'callable' => '\core\test::another_page_header_print',
+        'priority' => -1
+    ],
 ];
