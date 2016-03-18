@@ -143,8 +143,9 @@ class mod_forum_post_form extends moodleform {
             $mform->addHelpButton('pinned', 'discussionpinned', 'forum');
         }
 
-        if (empty($post->id) && $manageactivities) {
+        if (empty($post->id) && has_capability('mod/forum:mailnow', $modcontext)) {
             $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forum'));
+            $mform->addHelpButton('mailnow', 'mailnow', 'forum');
         }
 
         if (!empty($CFG->forum_enabletimedposts) && !$post->parent && has_capability('mod/forum:viewhiddentimedposts', $coursecontext)) { // hack alert

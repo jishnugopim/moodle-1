@@ -121,6 +121,7 @@ $string['deletedpost'] = 'The post has been deleted';
 $string['deletedposts'] = 'Those posts have been deleted';
 $string['deletesure'] = 'Are you sure you want to delete this post?';
 $string['deletesureplural'] = 'Are you sure you want to delete this post and all replies? ({$a} posts)';
+$string['digestignored'] = 'The author of this post requested that it be sent out immediately and not in your normal daily digest.';
 $string['digestmailheader'] = 'This is your daily digest of new posts from the {$a->sitename} forums. To change your default forum email preferences, go to {$a->userprefs}.';
 $string['digestmailpost'] = 'Change your forum digest preferences';
 $string['digestmailpostlink'] = 'Change your forum digest preferences: {$a}';
@@ -233,6 +234,7 @@ $string['forum:exportdiscussion'] = 'Export whole discussion';
 $string['forum:exportownpost'] = 'Export own post';
 $string['forum:exportpost'] = 'Export post';
 $string['forumintro'] = 'Description';
+$string['forum:mailnow'] = 'Allow users to use the mail now functinality';
 $string['forum:managesubscriptions'] = 'Manage subscriptions';
 $string['forum:movediscussions'] = 'Move discussions';
 $string['forum:pindiscussions'] = 'Pin discussions';
@@ -282,6 +284,9 @@ $string['lastpost'] = 'Last post';
 $string['learningforums'] = 'Learning forums';
 $string['longpost'] = 'Long post';
 $string['mailnow'] = 'Mail now';
+$string['mailnow_help'] = 'This post will be queued immediately to be sent to all forum subscribers.
+
+Forum digest preferences will be ignored for this post.';
 $string['manydiscussions'] = 'Discussions per page';
 $string['markalldread'] = 'Mark all posts in this discussion read.';
 $string['markallread'] = 'Mark all posts in this forum read.';
@@ -401,7 +406,7 @@ $string['postincontext'] = 'See this post in context';
 $string['postmailinfolink'] = 'This is a copy of a message posted in {$a->coursename}.
 
 To reply click on this link: {$a->replylink}';
-$string['postmailnow'] = '<p>This post will be mailed out immediately to all forum subscribers.</p>';
+$string['postmailnow'] = '<p>This post will be queued immediately to be sent to all forum subscribers.</p><p>Forum digest preferences will be ignored for this post.</p>';
 $string['postmailsubject'] = '{$a->courseshortname}: {$a->subject}';
 $string['postrating1'] = 'Mostly separate knowing';
 $string['postrating2'] = 'Separate and connected';

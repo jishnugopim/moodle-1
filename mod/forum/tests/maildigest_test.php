@@ -313,9 +313,12 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
      * * single messages based on a user profile setting.
      */
     public function test_cron_profile_single_mails() {
-        global $DB;
+        global $DB, $CFG;
 
         $this->resetAfterTest(true);
+
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
 
         // Set up a basic user enrolled in a course.
         $userhelper = $this->helper_setup_user_in_course();
@@ -328,7 +331,7 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
         $record = new stdClass();
         $record->course = $course1->id;
         $record->userid = $user->id;
-        $record->mailnow = 1;
+        $record->mailnow = 0;
 
         // Add 5 discussions to forum 1.
         $record->forum = $forum1->id;
@@ -367,6 +370,9 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
 
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
         // Set up a basic user enrolled in a course.
         $userhelper = $this->helper_setup_user_in_course();
         $user = $userhelper->user;
@@ -378,7 +384,7 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
         $record = new stdClass();
         $record->course = $course1->id;
         $record->userid = $user->id;
-        $record->mailnow = 1;
+        $record->mailnow = 0;
 
         // Add 5 discussions to forum 1.
         $record->forum = $forum1->id;
@@ -418,6 +424,9 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
 
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
         // Set up a basic user enrolled in a course.
         $userhelper = $this->helper_setup_user_in_course();
         $user = $userhelper->user;
@@ -429,7 +438,7 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
         $record = new stdClass();
         $record->course = $course1->id;
         $record->userid = $user->id;
-        $record->mailnow = 1;
+        $record->mailnow = 0;
 
         // Add 5 discussions to forum 1.
         $record->forum = $forum1->id;
@@ -469,6 +478,9 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
 
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
         // Set up a basic user enrolled in a course.
         $userhelper = $this->helper_setup_user_in_course();
         $user = $userhelper->user;
@@ -480,7 +492,7 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
         $record = new stdClass();
         $record->course = $course1->id;
         $record->userid = $user->id;
-        $record->mailnow = 1;
+        $record->mailnow = 0;
 
         // Add 5 discussions to forum 1.
         $record->forum = $forum1->id;
@@ -519,6 +531,9 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
 
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
         // Set up a basic user enrolled in a course.
         $userhelper = $this->helper_setup_user_in_course();
         $user = $userhelper->user;
@@ -530,7 +545,7 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
         $record = new stdClass();
         $record->course = $course1->id;
         $record->userid = $user->id;
-        $record->mailnow = 1;
+        $record->mailnow = 0;
 
         // Add 5 discussions to forum 1.
         $record->forum = $forum1->id;
@@ -560,4 +575,120 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
         $this->helper_run_cron_check_count(1, 0, 1);
     }
 
+    /**
+     * Override the daily digest setting from the user profile setting using the mailnow flag.
+     */
+    public function test_cron_profile_forum_digest_mailnow() {
+        global $DB, $CFG;
+
+        $this->resetAfterTest(true);
+
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
+        // Set up a basic user enrolled in a course.
+        $userhelper = $this->helper_setup_user_in_course();
+        $user = $userhelper->user;
+        $course1 = $userhelper->courses->course1;
+        $forum1 = $userhelper->forums->forum1;
+
+        // Add some discussions to the forums.
+        $record = new stdClass();
+        $record->course = $course1->id;
+        $record->userid = $user->id;
+        $record->forum = $forum1->id;
+        $record->mailnow = 1;
+        $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
+
+        // Ensure that the creation times mean that the messages will be sent.
+        $this->helper_force_digest_mail_times();
+
+        // Set the tested user's default maildigest setting.
+        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+
+        // Set the maildigest preference for forum1 to default.
+        forum_set_user_maildigest($forum1, -1, $user);
+
+        // One digest mail should still be sent, and 1 forum mails will be sent.
+        $this->helper_run_cron_check_count(1, 1, 1);
+    }
+
+    /**
+     * Override the daily digest setting from the user profile setting using the mailnow flag.
+     */
+    public function test_cron_perforum_forum_digest_mailnow() {
+        global $DB, $CFG;
+
+        $this->resetAfterTest(true);
+
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
+        // Set up a basic user enrolled in a course.
+        $userhelper = $this->helper_setup_user_in_course();
+        $user = $userhelper->user;
+        $course1 = $userhelper->courses->course1;
+        $forum1 = $userhelper->forums->forum1;
+
+        // Add some discussions to the forums.
+        $record = new stdClass();
+        $record->course = $course1->id;
+        $record->userid = $user->id;
+        $record->forum = $forum1->id;
+        $record->mailnow = 1;
+        $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
+
+        // Ensure that the creation times mean that the messages will be sent.
+        $this->helper_force_digest_mail_times();
+
+        // Set the maildigest preference for forum1 to default.
+        forum_set_user_maildigest($forum1, 1, $user);
+
+        // One digest mail should still be sent, and 1 forum mails will be sent.
+        $this->helper_run_cron_check_count(1, 1, 1);
+    }
+
+    /**
+     * Override the daily digest setting from the user profile setting using the mailnow flag.
+     */
+    public function test_cron_profile_forum_digest_mixed_mailnow() {
+        global $DB, $CFG;
+
+        $this->resetAfterTest(true);
+
+        // No max editing time.
+        $CFG->maxeditingtime = 0;
+
+        // Set up a basic user enrolled in a course.
+        $userhelper = $this->helper_setup_user_in_course();
+        $user = $userhelper->user;
+        $course1 = $userhelper->courses->course1;
+        $forum1 = $userhelper->forums->forum1;
+
+        // Add some discussions to the forums.
+        $record = new stdClass();
+        $record->course = $course1->id;
+        $record->userid = $user->id;
+        $record->forum = $forum1->id;
+        $record->mailnow = 1;
+        $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
+
+        // Add 5 more discussions to forum 1 without the mailnow setting.
+        $record->mailnow = 0;
+        for ($i = 0; $i < 5; $i++) {
+            $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
+        }
+
+        // Ensure that the creation times mean that the messages will be sent.
+        $this->helper_force_digest_mail_times();
+
+        // Set the tested user's default maildigest setting.
+        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+
+        // Set the maildigest preference for forum1 to default.
+        forum_set_user_maildigest($forum1, -1, $user);
+
+        // One digest mail containing 6 posts, and one immediate discussion.
+        $this->helper_run_cron_check_count(1, 1, 1);
+    }
 }

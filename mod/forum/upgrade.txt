@@ -3,6 +3,10 @@ information provided here is intended especially for developers.
 
 === 3.1 ===
  * The inteface to forum_get_email_message_id() has changed and no longer needs the $host argument.
+ * The 'mailnow' flag on posts will now cause messages to be sent as single messages for those opting for digests. The
+   message is additionally sent in the digest.
+ * The 'digestignored' flag has been made available to forum e-mail templates to indicate when a message has been sent
+   with the 'mailnow' flag.
 
 === 3.0 ===
  * External function get_forums_by_courses now returns and additional field "cancreatediscussions" that indicates if the user

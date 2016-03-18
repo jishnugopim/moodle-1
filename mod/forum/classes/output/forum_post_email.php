@@ -33,4 +33,36 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class forum_post_email extends forum_post {
+    /**
+     * The user's digest preference was ignored.
+     *
+     * @var boolean $digestignored
+     */
+    protected $digestignored = false;
+
+    /**
+     * Export this data so it can be used as the context for a mustache template.
+     *
+     * @param   renderer_base   $renderer   The render to be used for formatting the message and attachments
+     * @param   boolean         $plaintext  Whether the target is a plaintext target
+     * @return  stdClass                    Data ready for use in a mustache template
+     */
+    public function export_for_template(\renderer_base $renderer, $plaintext = false) {
+        $data = parent::export_for_template($renderer, $plaintext);
+        $data['digestignored'] = $this->digestignored;
+
+        return $data;
+    }
+
+    /**
+     * Set whether the daily digest was ignored for this user.
+     *
+     * @param   boolean     $ignored    Whether the digest was ignored.
+     * @return  self
+     */
+    protected function set_digestignored($ignored = false) {
+        $this->digestignored = true;
+
+        return $this;
+    }
 }

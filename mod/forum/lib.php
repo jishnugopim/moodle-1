@@ -738,7 +738,12 @@ function forum_cron() {
                     $queue->postid       = $post->id;
                     $queue->timemodified = $post->created;
                     $DB->insert_record('forum_queue', $queue);
-                    continue;
+
+                    if ($post->mailnow != 1) {
+                        // Where a post is sent with 'mailnow', it is included in both the digest _and_ sent as an
+                        // individual mail.
+                        continue;
+                    }
                 }
 
                 // Prepare to actually send the post now, and build up the content.
@@ -792,6 +797,10 @@ function forum_cron() {
                     $data->viewfullnames = has_capability('moodle/site:viewfullnames', $modcontext, $userto->id);
                 } else {
                     $data->viewfullnames = $userto->viewfullnames[$forum->id];
+                }
+
+                if ($maildigest > 0 && !empty($post->mailnow)) {
+                    $data->digestignored = true;
                 }
 
                 // Not all of these variables are used in the default language
