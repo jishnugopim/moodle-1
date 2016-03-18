@@ -190,8 +190,12 @@ function forum_rss_feed_discussions_sql($forum, $cm, $newsince=0) {
                    JOIN {forum_posts} p ON p.discussion = d.id
                    JOIN {user} u ON p.userid = u.id
              WHERE d.forum = {$forum->id} AND p.parent = 0
+                   AND (p.created < :postreleasetime OR p.mailnow = :mailnow)
                    $timelimit $groupselect $newsince
           ORDER BY $forumsort";
+
+    $params['postreleasetime'] = $timenow - $CFG->maxeditingtime;
+    $params['mailnow'] = 1;
     return array($sql, $params);
 }
 
@@ -204,6 +208,8 @@ function forum_rss_feed_discussions_sql($forum, $cm, $newsince=0) {
  * @return string the SQL query to be used to get the Post details from the forum table of the database
  */
 function forum_rss_feed_posts_sql($forum, $cm, $newsince=0) {
+    global $CFG;
+
     $modcontext = context_module::instance($cm->id);
 
     // Get group enforcement SQL.
@@ -244,10 +250,13 @@ function forum_rss_feed_posts_sql($forum, $cm, $newsince=0) {
                {user} u
             WHERE d.forum = {$forum->id} AND
                 p.discussion = d.id AND
+                (p.created < :postreleasetime OR p.mailnow = :mailnow) AND
                 u.id = p.userid $newsince
                 $groupselect
             ORDER BY p.created desc";
 
+    $params['postreleasetime'] = $timenow - $CFG->maxeditingtime;
+    $params['mailnow'] = 1;
     return array($sql, $params);
 }
 
