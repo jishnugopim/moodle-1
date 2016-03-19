@@ -188,3 +188,7 @@ span.unread {
     margin: 3px 0 0 5px;
     float: right;
 }
+
+.privatereplyinfo {
+    font-size: 80%;
+}

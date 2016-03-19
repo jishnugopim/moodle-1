@@ -147,6 +147,13 @@ class mod_forum_post_form extends moodleform {
             $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forum'));
         }
 
+        $isprivatereply = !empty($post->privatereplyto);
+        $canreplyprivately = has_capability('mod/forum:postprivatereply', $modcontext);
+        if (!$isprivatereply && !empty($post->parent) && $canreplyprivately) {
+            $mform->addElement('checkbox', 'private', get_string('privatereply', 'forum'));
+            $mform->addHelpButton('private', 'privatereply', 'forum');
+        }
+
         if (!empty($CFG->forum_enabletimedposts) && !$post->parent && has_capability('mod/forum:viewhiddentimedposts', $coursecontext)) { // hack alert
             $mform->addElement('header', 'displayperiod', get_string('displayperiod', 'forum'));
 

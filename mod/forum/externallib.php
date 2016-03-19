@@ -111,7 +111,7 @@ class mod_forum_external extends external_api {
      * @return external_single_structure
      * @since Moodle 2.5
      */
-     public static function get_forums_by_courses_returns() {
+    public static function get_forums_by_courses_returns() {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
@@ -247,7 +247,8 @@ class mod_forum_external extends external_api {
                     }
                 }
                 // The forum function returns the replies for all the discussions in a given forum.
-                $replies = forum_count_discussion_replies($id);
+                $canseeprivatereplies = has_capability('mod/forum:readprivatereplies', $modcontext);
+                $replies = forum_count_discussion_replies($id, "", -1, -1, 0, $canseeprivatereplies);
 
                 foreach ($discussions as $discussion) {
                     // This function checks capabilities, timed discussions, groups and qanda forums posting.
@@ -324,7 +325,7 @@ class mod_forum_external extends external_api {
      * @deprecated Moodle 2.8 MDL-46458 - Please do not call this function any more.
      * @see get_forum_discussions_paginated
      */
-     public static function get_forum_discussions_returns() {
+    public static function get_forum_discussions_returns() {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
@@ -511,6 +512,8 @@ class mod_forum_external extends external_api {
                 }
             }
 
+            $post->isprivatereply = !empty($post->privatereplyto);
+
             $posts[] = $post;
         }
 
@@ -559,7 +562,8 @@ class mod_forum_external extends external_api {
                                 'canreply' => new external_value(PARAM_BOOL, 'The user can reply to posts?'),
                                 'postread' => new external_value(PARAM_BOOL, 'The post was read'),
                                 'userfullname' => new external_value(PARAM_TEXT, 'Post author full name'),
-                                'userpictureurl' => new external_value(PARAM_URL, 'Post author picture.', VALUE_OPTIONAL)
+                                'userpictureurl' => new external_value(PARAM_URL, 'Post author picture.', VALUE_OPTIONAL),
+                                'isprivatereply' => new external_value(PARAM_BOOL, 'The post is a private reply'),
                             ), 'post'
                         )
                     ),
@@ -663,7 +667,8 @@ class mod_forum_external extends external_api {
                 }
             }
             // The forum function returns the replies for all the discussions in a given forum.
-            $replies = forum_count_discussion_replies($forumid, $sort, -1, $page, $perpage);
+            $canseeprivatereplies = has_capability('mod/forum:readprivatereplies', $modcontext);
+            $replies = forum_count_discussion_replies($forumid, $sort, -1, $page, $perpage, $canseeprivatereplies);
 
             foreach ($alldiscussions as $discussion) {
 
@@ -960,7 +965,8 @@ class mod_forum_external extends external_api {
                         array(
                             'name' => new external_value(PARAM_ALPHANUM,
                                         'The allowed keys (value format) are:
-                                        discussionsubscribe (bool); subscribe to the discussion?, default to true
+                                        discussionsubscribe (bool); subscribe to the discussion?, default to true;
+                                        private (bool); make this reply private to the author of the parent post, default to false.
                             '),
                             'value' => new external_value(PARAM_RAW, 'the value of the option,
                                                             this param is validated in the external function.'
@@ -995,12 +1001,16 @@ class mod_forum_external extends external_api {
                                             ));
         // Validate options.
         $options = array(
-            'discussionsubscribe' => true
+            'discussionsubscribe'   => true,
+            'private'               => false,
         );
         foreach ($params['options'] as $option) {
             $name = trim($option['name']);
             switch ($name) {
                 case 'discussionsubscribe':
+                    $value = clean_param($option['value'], PARAM_BOOL);
+                    break;
+                case 'private':
                     $value = clean_param($option['value'], PARAM_BOOL);
                     break;
                 default:
@@ -1042,6 +1052,7 @@ class mod_forum_external extends external_api {
         $post->messageformat = FORMAT_HTML;   // Force formatting for now.
         $post->messagetrust = trusttext_trusted($context);
         $post->itemid = 0;
+        $post->private = $options['private'];
 
         if ($postid = forum_add_new_post($post, null)) {
 
