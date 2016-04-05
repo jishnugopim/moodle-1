@@ -120,8 +120,9 @@ class core_badges_external extends external_api {
         $result['badges'] = array();
         $result['warnings'] = $warnings;
 
-        foreach ($userbadges as $badge) {
-            $context = ($badge->type == BADGE_TYPE_SITE) ? context_system::instance() : context_course::instance($badge->courseid);
+        foreach ($userbadges as $badgedata) {
+            $badge = badge::create_from_record($badgedata);
+            $context = $badge->get_context();
             $badge->badgeurl = moodle_url::make_webservice_pluginfile_url($context->id, 'badges', 'badgeimage', $badge->id, '/',
                                                                             'f1')->out(false);
             // Return all the information if we are requesting our own badges.

@@ -135,9 +135,33 @@ class badge {
      *
      * @param int $badgeid badge ID.
      */
-    public function __construct($badgeid) {
+    public function __construct($badgeid = null) {
+        if ($badgeid) {
+            $this->reload_from_id($badgeid);
+        }
+    }
+
+    /**
+     * Create a new instance of the badge using using the badge ID.
+     *
+     * @param int $badgeid badge ID.
+     * @return badge
+     */
+    public static function create_from_id($badgeid) {
+        $badge = new self();
+        $badge->reload_from_id($badgeid);
+
+        return $badge;
+    }
+
+    /**
+     * Reload the badge using the specified data record.
+     *
+     * @param int $badgeid badge ID.
+     * @return self
+     */
+    protected function reload_from_id($badgeid) {
         global $DB;
-        $this->id = $badgeid;
 
         $data = $DB->get_record('badge', array('id' => $badgeid));
 
@@ -145,13 +169,39 @@ class badge {
             print_error('error:nosuchbadge', 'badges', $badgeid);
         }
 
-        foreach ((array)$data as $field => $value) {
+        return $this->reload_from_record($data);
+    }
+
+
+    /**
+     * Create a new instance of the badge using the specified data record.
+     *
+     * @param \stdClass $data
+     * @return badge
+     */
+    public static function create_from_record(\stdClass $data) {
+        $badge = new self();
+        $badge->reload_from_record($data);
+
+        return $badge;
+    }
+
+    /**
+     * Reload the badge using the specified data record.
+     *
+     * @param \stdClass $data
+     * @return self
+     */
+    protected function reload_from_record(\stdClass $data) {
+        foreach ((array) $data as $field => $value) {
             if (property_exists($this, $field)) {
                 $this->{$field} = $value;
             }
         }
 
         $this->criteria = self::get_criteria();
+
+        return $this;
     }
 
     /**
