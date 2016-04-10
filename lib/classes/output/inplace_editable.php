@@ -105,6 +105,16 @@ class inplace_editable implements templatable, renderable {
     protected $options = '';
 
     /**
+     * @var string formfieldname The name of the form field to update.
+     */
+    protected $formfieldname = null;
+
+    /**
+     * @var string defaultdisplayvalue The name of the form field to update.
+     */
+    protected $defaultdisplayvalue = null;
+
+    /**
      * Constructor.
      *
      * @param string $component name of the component or plugin responsible for the updating of the value (must declare callback)
@@ -128,6 +138,18 @@ class inplace_editable implements templatable, renderable {
         $this->value = $value;
         $this->edithint = $edithint;
         $this->editlabel = $editlabel;
+    }
+
+    public function set_formfieldname($formfieldname) {
+        $this->formfieldname = $formfieldname;
+
+        return $this;
+    }
+
+    public function set_defaultdisplayvalue($defaultdisplayvalue) {
+        $this->defaultdisplayvalue = $defaultdisplayvalue;
+
+        return $this;
     }
 
     /**
@@ -232,6 +254,8 @@ class inplace_editable implements templatable, renderable {
             'type' => $this->type,
             'options' => $this->options,
             'linkeverything' => $this->get_linkeverything() ? 1 : 0,
+            'formfieldname' => $this->formfieldname,
+            'defaultdisplayvalue' => $this->defaultdisplayvalue,
         );
     }
 

@@ -52,7 +52,6 @@ class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
      *              or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-        global $CFG;
         // no standard mform in moodle should allow autocomplete of passwords
         if (empty($attributes)) {
             $attributes = array('autocomplete'=>'off');
@@ -83,20 +82,29 @@ class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
      * @return string
      */
     function toHtml() {
-        global $PAGE;
+        global $OUTPUT;
 
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
-        } else {
-            $unmask = get_string('unmaskpassword', 'form');
-            //Pass id of the element, so that unmask checkbox can be attached.
-            $attributes = array('formid' => $this->getAttribute('id'),
-                'checkboxlabel' => $unmask,
-                'checkboxname' => $this->getAttribute('name'));
-            $PAGE->requires->yui_module('moodle-form-passwordunmask', 'M.form.passwordunmask',
-                    array($attributes));
-            return $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />';
         }
+
+        $displayvalue = str_pad("", 7 * 10, "&#8226;");
+
+        $editable = new \core\output\inplace_editable(
+            'core_form',
+            'passwordunmask',
+            null,
+            true,
+            $displayvalue,
+            $this->_attributes['value']
+        );
+
+        $editable
+            ->set_formfieldname($this->_attributes['name'])
+            ->set_defaultdisplayvalue($displayvalue);
+
+        return $OUTPUT->render($editable);
     }
 
 }
+
