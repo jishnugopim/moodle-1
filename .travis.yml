@@ -69,6 +69,8 @@ install:
     # Set the encrypted GITHUB_TOKEN if it's available to raise the API limit.
     - if [ -n "$GITHUB_APITOKEN" ]; then composer config github-oauth.github.com $GITHUB_APITOKEN; fi
 
+    - sudo locale-gen --purge en_AU.UTF-8
+
     # Install composer dependencies.
     # We need --no-interaction in case we hit API limits for composer. This causes it to fall back to a standard clone.
     # Typically it should be able to use the Composer cache if any other job has already completed before we started here.
