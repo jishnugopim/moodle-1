@@ -27,16 +27,18 @@ env:
     # Postgres is significantly is pretty reasonable in its run-time.
 
     # Run unit tests on MySQL
-    - DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
+    #    - DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
 
     # Run CI Tests without running PHPUnit.
-    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
+    #- DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
+
+    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=false  GRUNT=true
 
     # Run unit tests on Postgres
-    - DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
+    #- DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
 
     # Perform an upgrade test too.
-    - DB=pgsql    PHPUNIT=false   INSTALL=true   CITEST=false   UPGRADE=true
+    #- DB=pgsql    PHPUNIT=false   INSTALL=true   CITEST=false   UPGRADE=true
 
 matrix:
     # Enable fast finish.
@@ -53,12 +55,12 @@ matrix:
         # - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
         #   php: 5.5
 
-        - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
-          php: 5.4
+      #    - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
+      #    php: 5.4
 
         # Moodle 2.7 is not compatible with PHP 7 for the upgrade test.
-        - env: DB=pgsql    PHPUNIT=false   INSTALL=true   CITEST=false   UPGRADE=true
-          php: 7.0
+        #  - env: DB=pgsql    PHPUNIT=false   INSTALL=true   CITEST=false   UPGRADE=true
+        #  php: 7.0
 
 cache:
     directories:
@@ -179,9 +181,19 @@ script:
       if [ "$CITEST" = 'true' ];
       then
         bash local/ci/php_lint/php_lint.sh;
+      fi
+
+    - >
+      if [ "$GRUNT" = 'true' ];
+      then
         npm install ;
         npm install -g grunt ;
         grunt ;
+
+        # Add all files to the git index and then run diff --cached to see all changes.
+        # This ensures that we get the status of all files, including new files.
+        git add . ;
+        git diff --cached --exit-code ;
       fi
 
     ########################################################################
