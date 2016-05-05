@@ -150,7 +150,6 @@ before_script:
       then
         npm install ;
         npm install -g grunt ;
-        grunt ;
       fi
 
 script:
@@ -202,6 +201,7 @@ script:
       then
         # Add all files to the git index and then run diff --cached to see all changes.
         # This ensures that we get the status of all files, including new files.
+        grunt ;
         git add . ;
         git diff --cached --exit-code ;
       fi
