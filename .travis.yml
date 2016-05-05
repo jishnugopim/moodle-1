@@ -179,6 +179,9 @@ script:
       if [ "$CITEST" = 'true' ];
       then
         bash local/ci/php_lint/php_lint.sh;
+        npm install ;
+        npm install -g grunt ;
+        grunt ;
       fi
 
     ########################################################################
