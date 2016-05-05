@@ -145,6 +145,14 @@ before_script:
         fi
       fi
 
+    - >
+      if [ "$GRUNT" = 'true' ];
+      then
+        npm install ;
+        npm install -g grunt ;
+        grunt ;
+      fi
+
 script:
     ########################################################################
     # PHPUnit
@@ -192,10 +200,6 @@ script:
     - >
       if [ "$GRUNT" = 'true' ];
       then
-        npm install ;
-        npm install -g grunt ;
-        grunt ;
-
         # Add all files to the git index and then run diff --cached to see all changes.
         # This ensures that we get the status of all files, including new files.
         git add . ;
