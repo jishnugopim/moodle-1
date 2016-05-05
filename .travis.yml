@@ -27,19 +27,19 @@ env:
     # Postgres is significantly is pretty reasonable in its run-time.
 
     # Run unit tests on MySQL
-    - DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
+    - DB=mysqli   TASK=PHPUNIT
 
     # Run CI Tests without running PHPUnit.
-    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
+    - DB=none     TASK=CITEST
 
     # Run unit tests on Postgres
-    - DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
+    - DB=pgsql    TASK=PHPUNIT
 
     # Perform an upgrade test too.
-    - DB=pgsql    PHPUNIT=false   INSTALL=true   CITEST=false   UPGRADE=true
+    - DB=pgsql    TASK=UPGRADE
 
     # Run a check for unbuilt files with Grunt.
-    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=false  GRUNT=true
+    - DB=none     TASK=GRUNT
 
 matrix:
     # Enable fast finish.
@@ -56,14 +56,14 @@ matrix:
         # - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
         #   php: 5.5
 
-        - env: DB=mysqli   PHPUNIT=true    INSTALL=false   CITEST=false
+        - env: DB=mysqli   TASK=PHPUNIT
           php: 5.4
 
-        - env: DB=none     PHPUNIT=false   INSTALL=false   CITEST=false  GRUNT=true
+        - env: DB=none     TASK=GRUNT
           php: 5.4
 
         # Moodle 2.7 is not compatible with PHP 7 for the upgrade test.
-        - env: DB=pgsql    PHPUNIT=false   INSTALL=true   CITEST=false   UPGRADE=true
+        - env: DB=pgsql    TASK=UPGRADE
           php: 7.0
 
 cache:
@@ -86,7 +86,7 @@ install:
 
 before_script:
     - >
-      if [ "$INSTALL" = 'true' -o "$PHPUNIT" = 'true' ];
+      if [ "$TASK" = 'PHPUNIT' -o "$TASK" = 'UPGRADE' ];
       then
         # Copy generic configuration in place.
         cp config-dist.php config.php ;
@@ -128,45 +128,37 @@ before_script:
           mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;' ;
           mysql -e 'CREATE DATABASE travis_ci_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin;' ;
         fi
-
-        if [ "$PHPUNIT" = 'true' ];
-        then
-          # Create a directory for the phpunit dataroot.
-          mkdir -p "$HOME"/roots/phpunit
-
-          # The phpunit dataroot and prefix..
-          sed -i \
-            -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
-            -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
-            config.php ;
-
-          # Initialise PHPUnit for Moodle.
-          php admin/tool/phpunit/cli/init.php
-        fi
       fi
 
     - >
-      if [ "$GRUNT" = 'true' ];
+      if [ "$TASK" = 'PHPUNIT' ];
+      then
+        # Create a directory for the phpunit dataroot.
+        mkdir -p "$HOME"/roots/phpunit
+
+        # The phpunit dataroot and prefix..
+        sed -i \
+          -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
+          -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
+          config.php ;
+
+        # Initialise PHPUnit for Moodle.
+        php admin/tool/phpunit/cli/init.php
+      fi
+
+    - >
+      if [ "$TASK" = 'GRUNT' ];
       then
         npm install ;
         npm install -g grunt ;
-      fi
-
-script:
-    ########################################################################
-    # PHPUnit
-    ########################################################################
-    - >
-      if [ "$PHPUNIT" = 'true' ];
-      then
-        vendor/bin/phpunit;
+        grunt ;
       fi
 
     ########################################################################
     # CI Tests
     ########################################################################
     - >
-      if [ "$CITEST" = 'true' ];
+      if [ "$TASK" = 'CITEST' ];
       then
         # Note - this is deliberately placed in the script section as we
         # should not add any code until after phpunit has run.
@@ -187,23 +179,6 @@ script:
         export gitcmd=`which git`;
         export gitdir="$TRAVIS_BUILD_DIR";
         export phpcmd=`which php`;
-      fi
-
-    # Actually run the CI Tests - do this outside of the main test to make output clearer.
-    - >
-      if [ "$CITEST" = 'true' ];
-      then
-        bash local/ci/php_lint/php_lint.sh;
-      fi
-
-    - >
-      if [ "$GRUNT" = 'true' ];
-      then
-        # Add all files to the git index and then run diff --cached to see all changes.
-        # This ensures that we get the status of all files, including new files.
-        grunt ;
-        git add . ;
-        git diff --cached --exit-code ;
       fi
 
     ########################################################################
@@ -230,7 +205,36 @@ script:
 
         # The local_ci repository can be used to check upgrade savepoints.
         git clone https://github.com/moodlehq/moodle-local_ci.git local/ci ;
+      fi
 
+script:
+    - >
+      if [ "$TASK" = 'PHPUNIT' ];
+      then
+        vendor/bin/phpunit;
+      fi
+
+    - >
+      if [ "$CITEST" = 'true' ];
+      then
+        bash local/ci/php_lint/php_lint.sh;
+      fi
+
+    - >
+      if [ "$GRUNT" = 'true' ];
+      then
+        # Add all files to the git index and then run diff --cached to see all changes.
+        # This ensures that we get the status of all files, including new files.
+        git add . ;
+        git diff --cached --exit-code ;
+      fi
+
+    ########################################################################
+    # Upgrade test
+    ########################################################################
+    - >
+      if [ "$UPGRADE" = 'true' ];
+      then
         cp local/ci/check_upgrade_savepoints/check_upgrade_savepoints.php ./check_upgrade_savepoints.php
         result=`php check_upgrade_savepoints.php`;
         # Check if there are problems
