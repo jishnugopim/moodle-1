@@ -8,8 +8,10 @@ environment:
   matrix:
     - majorversion: 70
       phpversion: php-7.0.5-nts-Win32-VC14-x86.zip
+      installsqlsrvdriver: 1
       sqlsrvdriver: v4.0.0
     - majorversion: 56
+      installsqlsrvdriver: 0
       phpversion: php-5.6.20-Win32-VC11-x86.zip
       sqlsrvdriver: 0
 
@@ -49,8 +51,8 @@ install:
     - IF %INSTALLPHP%==1 echo extension=php_soap.dll >> php.ini
     - IF %INSTALLPHP%==1 echo extension=php_gd2.dll >> php.ini
     - IF %INSTALLPHP%==1 echo extension=php_bz2.dll >> php.ini
-    - IF %INSTALLPHP%==1 appveyor DownloadFile https://github.com/Azure/msphpsql/releases/download/v4.0.0/php_sqlsrv_7_nts.dll -FileName ext\php_sqlsrv_7_nts.dll
-    - IF %INSTALLPHP%==1 echo extension=php_sqlsrv_7_nts.dll >> php.ini
+    - IF %installsqlsrvdriver%==1 appveyor DownloadFile https://github.com/Azure/msphpsql/releases/download/v4.0.0/php_sqlsrv_7_nts.dll -FileName ext\php_sqlsrv_7_nts.dll
+    - IF %installsqlsrvdriver%==1 echo extension=php_sqlsrv_7_nts.dll >> php.ini
     - IF %INSTALLPHP%==1 echo zend_extension=php_opcache.dll >> php.ini
     - IF %INSTALLPHP%==1 echo opcache.enable=1 >> php.ini
     - IF %INSTALLPHP%==1 echo opcache.enable_cli=1 >> php.ini
@@ -68,4 +70,4 @@ before_test:
 
 test_script:
     - cd c:\projects\moodle
-    #- vendor\bin\phpunit
+    - vendor\bin\phpunit
