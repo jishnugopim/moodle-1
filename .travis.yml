@@ -56,21 +56,21 @@ cache:
     directories:
       - $HOME/.composer/cache
 
-before install:
+before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install php70 php70-intl php70-mcrypt php70-imagick; fi
 
 install:
     # Disable xdebug. We aren't generating code coverage, and it has a huge impact upon test performance.
-    - rm /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
+    - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then rm /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ; fi
 
     # Set the encrypted GITHUB_TOKEN if it's available to raise the API limit.
-    - if [ -n "$GITHUB_APITOKEN" ]; then composer config github-oauth.github.com $GITHUB_APITOKEN; fi
+    #- if [ -n "$GITHUB_APITOKEN" ]; then composer config github-oauth.github.com $GITHUB_APITOKEN; fi
 
     # Install composer dependencies.
     # We need --no-interaction in case we hit API limits for composer. This causes it to fall back to a standard clone.
     # Typically it should be able to use the Composer cache if any other job has already completed before we started here.
-    - travis_retry composer install --prefer-dist --no-interaction
+    #- travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
     - >
