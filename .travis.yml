@@ -55,7 +55,7 @@ before_script:
         # The wwwroot and dataroot.
         sed -i \
           -e "s%http://example.com/moodle%http://localhost%" \
-          -e "s%/home/example/moodledata%/home/travis/roots/base%" \
+          -e "s%/home/example/moodledata%$HOME/roots/base%" \
           config.php ;
 
         if [ "$DB" = 'pgsql' ];
@@ -88,7 +88,7 @@ before_script:
 
           # The phpunit dataroot and prefix..
           sed -i \
-            -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
+            -e "%require_once%i \\\$CFG->phpunit_dataroot = '$HOME/roots/phpunit';" \
             -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
             config.php ;
 
