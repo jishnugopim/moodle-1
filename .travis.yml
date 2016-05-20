@@ -5,6 +5,13 @@
 os:
   - osx
 
+env:
+    # Run CI Tests without running PHPUnit.
+    - DB=none     PHPUNIT=false   INSTALL=false   CITEST=true
+
+    # Run unit tests on Postgres
+    - DB=pgsql    PHPUNIT=true    INSTALL=false   CITEST=false
+
 # We currently disable Travis notifications entirely until https://github.com/travis-ci/travis-ci/issues/4976
 # is fixed.
 notifications:
@@ -13,6 +20,7 @@ notifications:
 cache:
     directories:
       - $HOME/.composer/cache
+      - /usr/local/Cellar
 
 before_install:
     - brew update
