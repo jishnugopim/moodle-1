@@ -18,7 +18,7 @@ before_install:
     - brew update
     - brew tap homebrew/php
     - brew install php70 php70-intl php70-mcrypt php70-imagick
-    - https://getcomposer.org/installer > composer-setup.php
+    - curl https://getcomposer.org/installer > composer-setup.php
     - php composer-setup.php --install-dir=bin --filename=composer
     - sudo mv composer.phar /usr/local/bin/composer
 
