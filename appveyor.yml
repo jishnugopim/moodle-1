@@ -4,6 +4,12 @@ shallow_clone: true
 platform: x86
 clone_folder: c:\projects\moodle
 
+matrix:
+  - phpversion: php-7.0.5-nts-Win32-VC14-x86.zip
+    sqlsrvdriver: v4.0.0
+  - phpversion: php-5.6.20-Win32-VC11-x86.zip
+    sqlsrvdriver: 0
+
 services:
   - mssql2014
 
@@ -15,35 +21,35 @@ cache:
 init:
     - SET PATH=c:\php;%PATH%
     - SET COMPOSER_NO_INTERACTION=1
-    - SET PHP=1
+    - SET INSTALLPHP=1
     - SET ANSICON=121x90 (121x90)
 
 install:
-    - IF EXIST c:\php (SET PHP=0) ELSE (mkdir c:\php)
+    - IF EXIST c:\php (SET INSTALLPHP=0) ELSE (mkdir c:\php)
     - cd c:\php
-    - IF %PHP%==1 appveyor DownloadFile http://windows.php.net/downloads/releases/php-7.0.6-nts-Win32-VC14-x86.zip
-    - IF %PHP%==1 7z x php-7.0.6-nts-Win32-VC14-x86.zip -y >nul
-    - IF %PHP%==1 del /Q *.zip
-    - IF %PHP%==1 copy /Y php.ini-production php.ini
-    - IF %PHP%==1 echo max_execution_time=1200 >> php.ini
-    - IF %PHP%==1 echo date.timezone="UTC" >> php.ini
-    - IF %PHP%==1 echo extension_dir=ext >> php.ini
-    - IF %PHP%==1 echo extension=php_openssl.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_intl.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_mbstring.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_fileinfo.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_curl.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_xmlrpc.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_pgsql.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_soap.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_gd2.dll >> php.ini
-    - IF %PHP%==1 echo extension=php_bz2.dll >> php.ini
-    - IF %PHP%==1 appveyor DownloadFile https://github.com/Azure/msphpsql/releases/download/v4.0.0/php_sqlsrv_7_nts.dll -FileName ext\php_sqlsrv_7_nts.dll
-    - IF %PHP%==1 echo extension=php_sqlsrv_7_nts.dll >> php.ini
-    - IF %PHP%==1 echo zend_extension=php_opcache.dll >> php.ini
-    - IF %PHP%==1 echo opcache.enable=1 >> php.ini
-    - IF %PHP%==1 echo opcache.enable_cli=1 >> php.ini
-    - IF %PHP%==1 echo @php composer.phar %%* > composer.bat
+    - IF %INSTALLPHP%==1 appveyor DownloadFile http://windows.php.net/downloads/releases/archives/%phpversion%
+    - IF %INSTALLPHP%==1 7z x %phpversion% -y >nul
+    - IF %INSTALLPHP%==1 del /Q *.zip
+    - IF %INSTALLPHP%==1 copy /Y php.ini-production php.ini
+    - IF %INSTALLPHP%==1 echo max_execution_time=1200 >> php.ini
+    - IF %INSTALLPHP%==1 echo date.timezone="UTC" >> php.ini
+    - IF %INSTALLPHP%==1 echo extension_dir=ext >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_openssl.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_intl.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_mbstring.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_fileinfo.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_curl.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_xmlrpc.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_pgsql.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_soap.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_gd2.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo extension=php_bz2.dll >> php.ini
+    - IF %sqlsrvdriver%!=0 appveyor DownloadFile https://github.com/Azure/msphpsql/releases/download/%sqlsrvdriver%/php_sqlsrv_7_nts.dll -FileName ext\php_sqlsrv_7_nts.dll
+    - IF %sqlsrvdriver%!=0 echo extension=php_sqlsrv_7_nts.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo zend_extension=php_opcache.dll >> php.ini
+    - IF %INSTALLPHP%==1 echo opcache.enable=1 >> php.ini
+    - IF %INSTALLPHP%==1 echo opcache.enable_cli=1 >> php.ini
+    - IF %INSTALLPHP%==1 echo @php composer.phar %%* > composer.bat
     - mkdir c:\projects\moodledata
     - mkdir c:\projects\phpunit_moodledata
     - cd c:\projects\moodle
