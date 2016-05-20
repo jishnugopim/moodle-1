@@ -70,4 +70,4 @@ before_test:
 
 test_script:
     - cd c:\projects\moodle
-    - vendor\bin\phpunit
+    - vendor\bin\phpunit -v --debug
