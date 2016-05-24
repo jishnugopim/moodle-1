@@ -78,8 +78,17 @@ class webservice_xmlrpc_server extends webservice_base_server {
 
         // Decode the request to get the decoded parameters and the name of the method to be called.
         $decodedparams = xmlrpc_decode_request($rawpostdata, $methodname);
+
+        if (!$decodedparams) {
+            throw new \invalid_parameter_exception("Malformed request");
+        }
+
         $methodinfo = external_api::external_function_info($methodname);
         $methodparams = array_keys($methodinfo->parameters_desc->keys);
+
+        if (count($decodedparams != count($methodparams))) {
+            throw new \invalid_parameter_exception("Parameter count mismatch");
+        }
 
         // Add the decoded parameters to the methodvariables array.
         if (is_array($decodedparams)) {
