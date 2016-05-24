@@ -70,4 +70,4 @@ before_test:
 
 test_script:
     - cd c:\projects\moodle
-    - vendor\bin\phpunit -v --debug
+    - vendor\bin\phpunit -v --debug cache/tests/config_writer_test.php
