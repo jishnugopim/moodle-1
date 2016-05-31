@@ -73,7 +73,7 @@ class webservice_xmlrpc_server extends webservice_base_server {
         }
 
         // Get the XML-RPC request data.
-        $rawpostdata = file_get_contents("php://input");
+        $rawpostdata = $this->fetch_input_content();
         $methodname = null;
 
         // Decode the request to get the decoded parameters and the name of the method to be called.
@@ -101,6 +101,15 @@ class webservice_xmlrpc_server extends webservice_base_server {
 
         $this->functionname = $methodname;
         $this->parameters = $methodvariables;
+    }
+
+    /**
+     * Fetch content from the client.
+     *
+     * @return string
+     */
+    protected function fetch_input_content() {
+        return file_get_contents("php://input");
     }
 
     /**
