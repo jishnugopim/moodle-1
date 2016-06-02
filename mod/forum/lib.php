@@ -3989,6 +3989,50 @@ function forum_move_attachments($discussion, $forumfrom, $forumto) {
 }
 
 /**
+ * Move forum ratings for a discussin being moved between forums.
+ *
+ * Where rating systems match in both forums, the ratings matching the
+ * post IDs in the target forum are removed, and ratings from the source
+ * forum are adjusted accordingly.
+ *
+ * @param   stdClass    $discussion
+ * @param   stdClass    $fromforum
+ * @param   stdClass    $toforum
+ */
+function forum_move_ratings($discussion, $fromforum, $toforum) {
+    global $DB;
+
+    if ($fromforum->scaleid != $toforum->scaleid) {
+        // The target forum does not have a scale associated with it, or it
+        // is not the same.
+        // For the moment we don't do anything. It's safest not to remove
+        // the existing ratings, or to move them.
+        return;
+    }
+
+    $oldcm = get_coursemodule_from_instance('forum', $fromforum);
+    $oldcontext = context_module::instance($oldcm->id);
+    $newcm = get_coursemodule_from_instance('forum', $toforum);
+    $newcontext = context_module::instance($newcm->id);
+
+    $DB->delete_records('rating', '
+                contextid = :newcontext
+               AND itemid in (SELECT id FROM mdl_forum_posts WHERE discussion = :discussionid)
+            ', [
+                'newcontext'    => $newcontext->id,
+                'discussionid'  => $discussion->id,
+        ]);
+
+    $DB->set_field_select('rating', 'contextid', $newcontext->id, '
+                contextid = :oldcontext
+               AND itemid in (SELECT id FROM mdl_forum_posts WHERE discussion = :discussionid)
+            ', [
+                'oldcontext'    => $oldcontext->id,
+                'discussionid'  => $discussion->id,
+        ]);
+}
+
+/**
  * Returns attachments as formated text/html optionally with separate images
  *
  * @global object

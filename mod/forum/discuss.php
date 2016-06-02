@@ -109,6 +109,9 @@ if ($move > 0 and confirm_sesskey()) {
         true
     );
 
+    // Move over the ratings.
+    forum_move_ratings($discussion, $forum, $forumto);
+
     // Pre-seed the subscribed_discussion caches.
     // Firstly for the forum being moved to.
     \mod_forum\subscriptions::fill_subscription_cache($forumto->id);
