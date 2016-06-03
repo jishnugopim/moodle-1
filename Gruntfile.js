@@ -244,6 +244,24 @@ module.exports = function(grunt) {
     grunt.registerTask('amd', ['jshint', 'uglify']);
     grunt.registerTask('js', ['amd', 'shifter']);
 
+    grunt.registerTask("jasmine",
+        "Run Jasmine core specs in Node.js",
+        function() {
+            var done = this.async(),
+            Jasmine = require('jasmine'),
+            jasmine = new Jasmine();
+
+            jasmine.loadConfigFile('./lib/testing/js/jasmine.json');
+            jasmine.onComplete(function(passed) {
+                done(passed);
+            });
+
+            jasmine.execute();
+        }
+    );
+
+
+
     // Register CSS taks.
     grunt.registerTask('css', ['less:bootstrapbase']);
 
@@ -251,5 +269,5 @@ module.exports = function(grunt) {
     grunt.registerTask('startup', 'Run the correct tasks for the current directory', tasks.startup);
 
     // Register the default task.
-    grunt.registerTask('default', ['startup']);
+    grunt.registerTask('default', ['startup', 'jasmine']);
 };
