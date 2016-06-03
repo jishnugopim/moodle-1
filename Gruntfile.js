@@ -251,7 +251,21 @@ module.exports = function(grunt) {
             Jasmine = require('jasmine'),
             jasmine = new Jasmine();
 
-            jasmine.loadConfigFile('./lib/testing/js/jasmine.json');
+            var helpers = [
+                    'lib/testing/js/helpers/initGlobalM.js',
+                    'lib/testing/js/helpers/legacyYUI.js',
+                    'lib/testing/js/helpers/yui.js'
+                ];
+
+            jasmine.loadConfig({
+                    spec_dir: "",
+                    spec_files: grunt.file.expand({filter: 'isFile'}, ['**/tests/js/*.js']),
+                    helpers: helpers,
+                    stopSpecOnExpectationFailure: false,
+                    random: false
+                });
+
+
             jasmine.onComplete(function(passed) {
                 done(passed);
             });
