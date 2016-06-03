@@ -276,12 +276,15 @@ module.exports = function(grunt) {
 
 
 
-    // Register CSS taks.
+    // Register CSS task.
     grunt.registerTask('css', ['less:bootstrapbase']);
 
     // Register the startup task.
     grunt.registerTask('startup', 'Run the correct tasks for the current directory', tasks.startup);
 
+    // Alias jasmine to test.
+    grunt.registerTask('test', ['jasmine']);
+
     // Register the default task.
-    grunt.registerTask('default', ['startup', 'jasmine']);
+    grunt.registerTask('default', ['startup']);
 };
