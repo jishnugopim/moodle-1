@@ -152,6 +152,7 @@ before_script:
     - >
       if [ "$TASK" = 'GRUNT' ];
       then
+        nvm install 5 2> /dev/null ;
         npm install ;
         npm install -g grunt ;
         grunt ;
