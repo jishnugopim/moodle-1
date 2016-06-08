@@ -361,6 +361,9 @@ class behat_hooks extends behat_base {
             return;
         }
 
+        // Check for any JS deprecations on the page.
+        $this->look_for_deprecated_js();
+
         // Save a screenshot if the step failed.
         if (!empty($CFG->behat_faildump_path) &&
             $scope->getTestResult()->getResultCode() === Behat\Testwork\Tester\Result\TestResult::FAILED) {

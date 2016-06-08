@@ -717,6 +717,51 @@ class behat_base extends Behat\MinkExtension\Context\RawMinkContext {
     }
 
     /**
+     * Check for any deprecated JS Function calls.
+     *
+     * @throws \Exception
+     */
+    public function look_for_deprecated_js() {
+        // Waiting for JS is only valid for JS scenarios.
+        if (!$this->running_javascript()) {
+            return;
+        }
+
+        $deprecations = '';
+        try {
+            $jscode = '
+                return (function() {
+                    if (typeof M !== "undefined" && M.hasOwnProperty("util") && M.util.hasOwnProperty("deprecations")) {
+                        return JSON.stringify(M.util.deprecations);
+                    }
+                    return ""
+                })();';
+            $deprecations = $this->getSession()->evaluateScript($jscode);
+        } catch (NoSuchWindow $nsw) {
+            // We catch an exception here, in case we just closed the window we were interacting with.
+            // No javascript is running if there is no window right?
+            $deprecations = '';
+        } catch (UnknownError $e) {
+            // M is not defined when the window or the frame don't exist anymore.
+            if (strstr($e->getMessage(), 'M is not defined') != false) {
+                $deprecations = '';
+            }
+        }
+
+        $deprecations = json_decode($deprecations);
+        if (!empty($deprecations)) {
+            $msg = "Javascript deprecations found:\n";
+            foreach ($deprecations as $deprecation) {
+                $msg .= "Function '{$deprecation->functionName}'";
+                if ($deprecation->stackTrace) {
+                    $msg .= "Stacktrace:\n{$deprecation->stackTrace}\n";
+                }
+            }
+            throw new \Exception(html_entity_decode($msg));
+        }
+    }
+
+    /**
      * Internal step definition to find exceptions, debugging() messages and PHP debug messages.
      *
      * Part of behat_hooks class as is part of the testing framework, is auto-executed
