@@ -850,6 +850,48 @@ class behat_base extends Behat\MinkExtension\Context\RawMinkContext {
     }
 
     /**
+     * Check for any JS Exceptions.
+     *
+     * @throws \Exception
+     */
+    public function look_for_js_exceptions() {
+        // Waiting for JS is only valid for JS scenarios.
+        if (!$this->running_javascript()) {
+            return;
+        }
+
+        $exceptions = '';
+        try {
+            $jscode = '
+                return (function() {
+                    if (typeof M !== "undefined" && M.hasOwnProperty("util") && M.util.hasOwnProperty("exceptions")) {
+                        return JSON.stringify(M.util.exceptions);
+                    }
+                    return ""
+                })();';
+            $exceptions = $this->getSession()->evaluateScript($jscode);
+        } catch (NoSuchWindow $nsw) {
+            // We catch an exception here, in case we just closed the window we were interacting with.
+            // No javascript is running if there is no window right?
+            $exceptions = '';
+        } catch (UnknownError $e) {
+            // M is not defined when the window or the frame don't exist anymore.
+            if (strstr($e->getMessage(), 'M is not defined') != false) {
+                $exceptions = '';
+            }
+        }
+
+        $exceptions = json_decode($exceptions);
+        if (!empty($exceptions)) {
+            $msg = "Javascript exceptions found:\n";
+            foreach ($exceptions as $exception) {
+                $msg .= "{$exception->{1}}:{$exception->{2}}:{$exception->{3}} - {$exception->{0}}";
+            }
+            throw new \Exception(html_entity_decode($msg));
+        }
+    }
+
+    /**
      * Converts HTML tags to line breaks to display the info in CLI
      *
      * @param string $html
