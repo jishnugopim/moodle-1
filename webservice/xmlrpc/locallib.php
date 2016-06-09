@@ -77,7 +77,7 @@ class webservice_xmlrpc_server extends webservice_base_server {
         $methodname = null;
 
         // Decode the request to get the decoded parameters and the name of the method to be called.
-        $decodedparams = xmlrpc_decode_request($rawpostdata, $methodname);
+        $decodedparams = xmlrpc_decode_request($rawpostdata, $methodname, 'UTF-8');
         $methodinfo = external_api::external_function_info($methodname);
         $methodparams = array_keys($methodinfo->parameters_desc->keys);
 
@@ -102,8 +102,10 @@ class webservice_xmlrpc_server extends webservice_base_server {
             if (!empty($this->function->returns_desc)) {
                 $validatedvalues = external_api::clean_returnvalue($this->function->returns_desc, $this->returns);
                 $encodingoptions = array(
-                    "encoding" => "utf-8",
-                    "verbosity" => "no_white_space"
+                    "encoding" => "UTF-8",
+                    "verbosity" => "no_white_space",
+                    // See MDL-54868.
+                    "escaping" => ["markup"]
                 );
                 // We can now convert the response to the requested XML-RPC format.
                 $this->response = xmlrpc_encode_request(null, $validatedvalues, $encodingoptions);
@@ -186,8 +188,10 @@ class webservice_xmlrpc_server extends webservice_base_server {
         );
 
         $encodingoptions = array(
-            "encoding" => "utf-8",
-            "verbosity" => "no_white_space"
+            "encoding" => "UTF-8",
+            "verbosity" => "no_white_space",
+            // See MDL-54868.
+            "escaping" => ["markup"]
         );
 
         return xmlrpc_encode_request(null, $fault, $encodingoptions);
