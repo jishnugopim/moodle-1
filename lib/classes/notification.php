@@ -57,26 +57,7 @@ class notification {
         global $PAGE, $SESSION;
 
         if ($PAGE && $PAGE->state === \moodle_page::STATE_IN_BODY) {
-            // Currently in the page body - just render and exit immediately.
-            // We insert some code to immediately insert this into the user-notifications created by the header.
-            $id = uniqid();
-            echo \html_writer::span(
-                $PAGE->get_renderer('core')->render(new \core\output\notification($message, $level)),
-                '', array('id' => $id));
-
-            // Insert this JS here using a script directly rather than waiting for the page footer to load to avoid
-            // ensure that the message is added to the user-notifications section as soon as possible after it is created.
-            echo \html_writer::script(
-                    "(function() {" .
-                        "var notificationHolder = document.getElementById('user-notifications');" .
-                        "if (!notificationHolder) { return; }" .
-                        "var thisNotification = document.getElementById('{$id}');" .
-                        "if (!thisNotification) { return; }" .
-                        "notificationHolder.appendChild(thisNotification.firstChild);" .
-                        "thisNotification.remove();" .
-                    "})();"
-                );
-            return;
+            return static::display_notification_immediately(new \core\output\notification($message, $level));
         }
 
         // Add the notification directly to the session.
@@ -88,6 +69,47 @@ class notification {
             'message'   => $message,
             'type'      => $level,
         );
+
+        static $registered = false;
+
+        if (!$registered) {
+            \core_shutdown_manager::register_function(['\core\notification', 'flush']);
+            $registered = true;
+        }
+    }
+
+    public static function flush() {
+        echo __FILE__ . "\n";
+        if (\core\session\manager::is_writable()) {
+            return;
+        }
+
+        $notifications = static::fetch();
+        foreach ($notifications as $notification) {
+            static::display_notification_immediately($notification);
+        }
+    }
+
+    public static function display_notification_immediately($notification) {
+        global $PAGE;
+
+        // Currently in the page body - just render and exit immediately.
+        // We insert some code to immediately insert this into the user-notifications created by the header.
+        $id = uniqid();
+        echo \html_writer::span($PAGE->get_renderer('core')->render($notification), '', array('id' => $id));
+
+        // Insert this JS here using a script directly rather than waiting for the page footer to load to avoid
+        // ensure that the message is added to the user-notifications section as soon as possible after it is created.
+        echo \html_writer::script(
+                "(function() {" .
+                    "var notificationHolder = document.getElementById('user-notifications');" .
+                    "if (!notificationHolder) { return; }" .
+                    "var thisNotification = document.getElementById('{$id}');" .
+                    "if (!thisNotification) { return; }" .
+                    "notificationHolder.appendChild(thisNotification.firstChild);" .
+                    "thisNotification.remove();" .
+                "})();"
+            );
     }
 
     /**

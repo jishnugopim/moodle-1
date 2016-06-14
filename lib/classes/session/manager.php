@@ -546,6 +546,10 @@ class manager {
         self::$sessionactive = false;
     }
 
+    public static function is_writable() {
+        return self::$sessionactive;
+    }
+
     /**
      * Does the PHP session with given id exist?
      *

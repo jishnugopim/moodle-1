@@ -2646,6 +2646,9 @@ function redirect($url, $message='', $delay=null, $messagetype = \core\output\no
         $delay = -1;
     }
 
+    $headersent = headers_sent();
+    $headersent = $headersent || !\core\session\manager::is_writable();
+
     // Prevent debug errors - make sure context is properly initialised.
     if ($PAGE) {
         $PAGE->set_context(null);
@@ -2690,7 +2693,7 @@ function redirect($url, $message='', $delay=null, $messagetype = \core\output\no
         }
 
         // Watch out here, @hidden() errors are returned from error_get_last() too.
-        if (headers_sent()) {
+        if ($headersent) {
             // We already started printing something - that means errors likely printed.
             $debugdisableredirect = true;
             break;
@@ -2736,7 +2739,7 @@ function redirect($url, $message='', $delay=null, $messagetype = \core\output\no
     $url = str_replace('&amp;', '&', $encodedurl);
 
     if (!empty($message)) {
-        if (!$debugdisableredirect && !headers_sent()) {
+        if (!$debugdisableredirect && !$headersent) {
             // A message has been provided, and the headers have not yet been sent.
             // Display the message as a notification on the subsequent page.
             \core\notification::add($message, $messagetype);
