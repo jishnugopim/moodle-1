@@ -47,7 +47,15 @@ module.exports = function(grunt) {
     var inAMD = path.basename(cwd) == 'amd';
 
     // Globbing pattern for matching all AMD JS source files.
-    var amdSrc = [inAMD ? cwd + '/src/*.js' : '**/amd/src/*.js'];
+    // When in the AMD directory, only look at /src/*.js.
+    // When in any other directory, look at all /amd/src/*.js files within that directory.
+    var amdSrc = (function() {
+        if (inAMD) {
+            return cwd + '/src/*.js';
+        } else {
+            return cwd + '/**/amd/src/*.js';
+        }
+    })();
 
     /**
      * Function to generate the destination for the uglify task
