@@ -44,7 +44,23 @@ module.exports = function(grunt) {
         }
     }
 
-    var inAMD = path.basename(cwd) == 'amd';
+    // Whether the cwd is in the AMD directory, and adjust the cwd accordingly.
+    var inAMD = (function() {
+        if (path.basename(cwd) === 'amd') {
+            // The current directory is named 'amd'.
+            return true;
+        }
+
+        if (grunt.file.isMatch(['**/amd/src'], cwd)) {
+            // The current directory is the amd/src directory.
+            // Adjust the cwd to be the parent directory and act as though we are in the amd directory directly.
+            cwd = path.dirname(cwd);
+            return true;
+        }
+
+        // This is not an amd directory.
+        return false;
+    })();
 
     // Globbing pattern for matching all AMD JS source files.
     // When in the AMD directory, only look at /src/*.js.
