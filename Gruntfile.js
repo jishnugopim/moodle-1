@@ -86,7 +86,6 @@ module.exports = function(grunt) {
     var uglifyRename = function(destPath, srcPath) {
         destPath = srcPath.replace('src', 'build');
         destPath = destPath.replace('.js', '.min.js');
-        destPath = path.resolve(cwd, destPath);
         return destPath;
     };
 
@@ -121,7 +120,6 @@ module.exports = function(grunt) {
         });
         return libs;
     };
-
 
     // Project configuration.
     grunt.initConfig({
@@ -168,10 +166,12 @@ module.exports = function(grunt) {
         },
         watch: {
             options: {
-                nospawn: true // We need not to spawn so config can be changed dynamically.
+                // We need not to spawn so config can be changed dynamically.
+                nospawn: true,
+                cwd: cwd
             },
             amd: {
-                files: ['**/amd/src/**/*.js'],
+                files: amdSrc,
                 tasks: ['amd']
             },
             bootstrapbase: {
