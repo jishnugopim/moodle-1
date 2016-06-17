@@ -122,6 +122,26 @@ module.exports = function(grunt) {
                src: ['**/yui/src/**/*.js', '!*/**/yui/src/*/meta/*.js'],
             }
         },
+        mocha_istanbul: {
+            // Pass all JS unit tests through mocha.
+            // Mocha tests are located in tests/js/*.js.
+            // Also generate coverage for all JS files which were loaded.
+            // Note: It is not advisable to break this out into a separate set of tests for YUI, AMD, and Legacy JS
+            // because they can have an effect upon one another.
+            coverage: {
+                src: ['**/tests/js', '!vendor/**/tests/js', '!node_modules/**/tests/js'],
+                options: {
+                    mask: '*.js',
+                    coverageFolder: 'coverage/js',
+                    excludes: [
+                        // Don't bother testing upstream projects.
+                        // Note: Adding yuilib to this list makes this unbelievably slow so we can't easily skip it.
+                        'lib/amd/src/mustache.js',
+                        'lib/amd/src/loglevel.js'
+                    ]
+                }
+            },
+        },
         uglify: {
             amd: {
                 files: [{
@@ -303,13 +323,17 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-eslint');
+    grunt.loadNpmTasks('grunt-mocha-istanbul');
 
     // Register JS tasks.
     grunt.registerTask('shifter', 'Run Shifter against the current directory', tasks.shifter);
     grunt.registerTask('ignorefiles', 'Generate ignore files for linters', tasks.ignorefiles);
-    grunt.registerTask('yui', ['eslint:yui', 'shifter']);
-    grunt.registerTask('amd', ['eslint:amd', 'jshint', 'uglify']);
-    grunt.registerTask('js', ['amd', 'yui']);
+    grunt.registerTask('mocha', ['mocha_istanbul']);
+    grunt.registerTask('_yui', ['eslint:yui', 'shifter']);
+    grunt.registerTask('yui', ['_yui', 'mocha']);
+    grunt.registerTask('_amd', ['eslint:amd', 'jshint', 'uglify']);
+    grunt.registerTask('amd', ['_amd', 'mocha']);
+    grunt.registerTask('js', ['_amd', '_yui', 'mocha']);
 
     // Register CSS taks.
     grunt.registerTask('css', ['less:bootstrapbase']);

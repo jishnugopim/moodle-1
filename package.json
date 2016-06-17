@@ -4,14 +4,26 @@
   "description": "Moodle",
   "devDependencies": {
     "async": "^1.5.2",
+    "chai": "^3.5.0",
     "grunt": "0.4.5",
     "grunt-contrib-jshint": "0.11.3",
     "grunt-contrib-less": "1.1.0",
     "grunt-contrib-uglify": "0.11.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-eslint": "^18.1.0",
+    "grunt-mocha-istanbul": "^5.0.1",
+    "istanbul": "^0.4.3",
+    "jsdom": "^9.2.1",
+    "mocha": "^2.5.3",
+    "mocha-testdata": "^1.2.0",
+    "requirejs": "^2.2.0",
+    "requirejs-mock": "^1.0.1",
     "shifter": "0.5.0",
+    "sinon": "^1.17.4",
     "xmldom": "^0.1.22",
     "xpath": "0.0.23"
+  },
+  "scripts": {
+    "test": "mocha '**/tests/js/*.js'"
   }
 }
