@@ -149,6 +149,9 @@ before_script:
     - >
       if [ "$TASK" = 'GRUNT' ];
       then
+        # The default version of grunt on Travis is old.
+        # JSDom needs a newer version.
+        nvm install 5 2> /dev/null ;
         npm install ;
         npm install -g grunt ;
         grunt ;
