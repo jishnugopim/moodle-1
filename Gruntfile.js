@@ -73,6 +73,64 @@ module.exports = function(grunt) {
         }
     })();
 
+    // Whether the cwd is in a YUI directory.
+    var yuiSrc = (function() {
+        var wd = path.normalize(cwd);
+
+        if (grunt.file.isMatch(['**/yui'], wd)) {
+            grunt.log.debug('In a YUI directory ' + wd);
+            // Currently in a /yui/ directory.
+            // Look at all src directories within.
+            return wd + '/src/*/**';
+        }
+
+        if (grunt.file.isMatch(['**/yui/src'], wd)) {
+            grunt.log.debug('In a YUI Source directory ' + wd);
+            // Currently in a /yui/src/ directory.
+            // Check all modules within.
+            return wd + '/*/**';
+        }
+
+        if (grunt.file.isMatch(['**/yui/src/*'], wd)) {
+            grunt.log.debug('In a YUI Module directory ' + wd);
+            // Currently in a module directory.
+            // Check just this module.
+            return wd + '/**';
+        }
+
+        if (grunt.file.isMatch(['**/yui/src/*/*'], wd)) {
+            wd = path.dirname(wd);
+            grunt.log.debug('In a YUI Module sub-directory of ' + wd);
+            // Currently in a module sub-directory.
+            // Check just this module.
+            return wd + '/**';
+        }
+
+        if (grunt.file.isMatch(['**/yui/src/*/**'], [cwd])) {
+            // This directory is deeply nested.
+            // Recurse up the directory until we get to the module
+            // directory (/yui/src/[module]).
+            var pathComponents = path.normalize(cwd).split('/'),
+                fullPath = pathComponents.join('/');
+
+            while(grunt.file.isPathInCwd(fullPath)) {
+                if (grunt.file.isMatch(['**/yui/src/*'], fullPath)) {
+                    grunt.log.debug('In a YUI Module nested sub-directory of ' + fullPath);
+                    return fullPath + '/**';
+                }
+
+                pathComponents.pop();
+                fullPath = pathComponents.join('/');
+            }
+
+            // Shift for all child directories.
+            return cwd + '/**';
+        }
+
+        grunt.log.debug('Not in a YUI Directory');
+        return '**/yui/src/**';
+    })();
+
     /**
      * Function to generate the destination for the uglify task
      * (e.g. build/file.min.js). This function will be passed to
@@ -141,7 +199,7 @@ module.exports = function(grunt) {
             },
             // Check YUI module source files.
             yui: {
-               src: ['**/yui/src/**/*.js', '!*/**/yui/src/*/meta/*.js'],
+               src: [yuiSrc + '/*.js']
             }
         },
         uglify: {
@@ -179,7 +237,7 @@ module.exports = function(grunt) {
                 tasks: ["less:bootstrapbase"]
             },
             yui: {
-                files: ['**/yui/src/**/*.js'],
+                files: [yuiSrc],
                 tasks: ['yui']
             },
         },
