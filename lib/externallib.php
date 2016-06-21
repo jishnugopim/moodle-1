@@ -1128,4 +1128,87 @@ class external_util {
         return array($courses, $warnings);
     }
 
+    /**
+     * Returns all area files (optionally limited by itemid).
+     *
+     * @param int $contextid context ID
+     * @param string $component component
+     * @param string $filearea file area
+     * @param int $itemid item ID or all files if not specified
+     * @param bool $useitemidinurl wether to use the item id in the file URL (modules intro don't use it)
+     * @param array $filefields the list of file fields to return
+     * @param string $sort a fragment of SQL to use for sorting
+     * @param bool $includedirs whether or not include directories
+     * @return array of files, compatible with the external_files structure.
+     * @since Moodle 3.2
+     */
+    public static function get_area_files($contextid, $component, $filearea, $itemid = false, $useitemidinurl = true,
+                                            $filefields = array('filename', 'filepath', 'filesize', 'fileurl',
+                                                                'timemodified', 'mimetype'),
+                                            $sort = 'itemid, filepath, filename', $includedirs = false) {
+        $files = array();
+        $fs = get_file_storage();
+
+        if ($areafiles = $fs->get_area_files($contextid, $component, $filearea, $itemid, $sort, $includedirs)) {
+            foreach ($areafiles as $areafile) {
+                $file = array();
+
+                if (in_array('filename', $filefields)) {
+                    $file['filename'] = $areafile->get_filename();
+                }
+                if (in_array('filepath', $filefields)) {
+                    $file['filepath'] = $areafile->get_filepath();
+                }
+                if (in_array('mimetype', $filefields)) {
+                    $file['mimetype'] = $areafile->get_mimetype();
+                }
+                if (in_array('filesize', $filefields)) {
+                    $file['filesize'] = $areafile->get_filesize();
+                }
+                if (in_array('timemodified', $filefields)) {
+                    $file['timemodified'] = $areafile->get_timemodified();
+                }
+                if (in_array('fileurl', $filefields)) {
+                    $fileitemid = $useitemidinurl ? $areafile->get_itemid() : null;
+                    $file['fileurl'] = moodle_url::make_webservice_pluginfile_url($contextid, $component, $filearea,
+                                        $fileitemid, $areafile->get_filepath(), $areafile->get_filename())->out(false);
+                }
+                $files[] = $file;
+            }
+        }
+        return $files;
+    }
+}
+
+/**
+ * External structure representing a set of files.
+ *
+ * @package    core_webservice
+ * @copyright  2016 Juan Leyva
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.2
+ */
+class external_files extends external_multiple_structure {
+
+    /**
+     * Constructor
+     * @param string $desc Description for the multiple structure.
+     * @param int $required The type of value (VALUE_REQUIRED OR VALUE_OPTIONAL).
+     * @param array $filefields File fields (attributes) to include in the single structure.
+     */
+    public function __construct($desc = 'List of files.', $required = VALUE_REQUIRED,
+                                $filefields = array('filename', 'filepath', 'filesize', 'fileurl', 'timemodified', 'mimetype')) {
+        $elements = array(
+            'filename' => new external_value(PARAM_FILE, 'File name.', VALUE_OPTIONAL),
+            'filepath' => new external_value(PARAM_PATH, 'File path.', VALUE_OPTIONAL),
+            'filesize' => new external_value(PARAM_INT, 'File size.', VALUE_OPTIONAL),
+            'fileurl' => new external_value(PARAM_URL, 'Downloadable file url.', VALUE_OPTIONAL),
+            'timemodified' => new external_value(PARAM_INT, 'Time modified.', VALUE_OPTIONAL),
+            'mimetype' => new external_value(PARAM_RAW, 'File mime type.', VALUE_OPTIONAL),
+        );
+
+        // Return only the fields requested.
+        $elements = array_intersect_key($elements, array_flip($filefields));
+        parent::__construct(new external_single_structure($elements, 'File.'), $desc, $required);
+    }
 }

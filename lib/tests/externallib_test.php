@@ -459,6 +459,118 @@ class core_externallib_testcase extends advanced_testcase {
         $this->assertSame($beforecourse, $COURSE);
     }
 
+    public function test_external_util_get_area_files() {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        // Set the current user to be the administrator.
+        $this->setAdminUser();
+
+        // Create a course.
+        $course = $this->getDataGenerator()->create_course();
+        $record = new stdClass();
+        $record->course = $course->id;
+
+        // Create a database module.
+        $module = $this->getDataGenerator()->create_module('data', $record);
+
+        // Create a new field in the database activity.
+        $field = data_get_field_new('file', $module);
+        // Add more detail about the field.
+        $fielddetail = new stdClass();
+        $fielddetail->d = $module->id;
+        $fielddetail->mode = 'add';
+        $fielddetail->type = 'file';
+        $fielddetail->sesskey = sesskey();
+        $fielddetail->name = 'Upload file';
+        $fielddetail->description = 'Some description';
+        $fielddetail->param3 = '0';
+
+        $field->define_field($fielddetail);
+        $field->insert_field();
+        $recordid = data_add_record($module);
+
+        // File information for the database module record.
+        $datacontent = array();
+        $datacontent['fieldid'] = $field->field->id;
+        $datacontent['recordid'] = $recordid;
+        $datacontent['content'] = 'Simple4.txt';
+
+        // Insert the information about the file.
+        $contentid = $DB->insert_record('data_content', $datacontent);
+        // Required information for uploading a file.
+        $context = context_module::instance($module->cmid);
+        $component = 'mod_data';
+        $filearea = 'content';
+        $itemid = $contentid;
+        $filename = $datacontent['content'];
+        $filecontent = base64_encode("Let us create a nice simple file.");
+
+        $filerecord = array();
+        $filerecord['contextid'] = $context->id;
+        $filerecord['component'] = $component;
+        $filerecord['filearea'] = $filearea;
+        $filerecord['itemid'] = $itemid;
+        $filerecord['filepath'] = '/';
+        $filerecord['filename'] = $filename;
+
+        $fs = get_file_storage();
+        // Create a file from the string that we made earlier.
+        $file = $fs->create_file_from_string($filerecord, $filecontent);
+        $timemodified = $file->get_timemodified();
+        $timecreated = $file->get_timemodified();
+        $filesize = $file->get_filesize();
+
+        $expectedfiles[] = array(
+            'filename' => 'Simple4.txt',
+            'filepath' => '/',
+            'fileurl' => 'http://www.example.com/moodle/webservice/pluginfile.php/'.$context->id.'/mod_data/content/'.$itemid.'/Simple4.txt',
+            'timemodified' => $timemodified,
+            'filesize' => $filesize,
+            'mimetype' => 'text/plain',
+        );
+
+        // Get all the files for the area.
+        $files = external_util::get_area_files($context->id, $component, $filearea, false);
+        $this->assertEquals($expectedfiles, $files);
+
+        // Get just the file indicated by $itemid.
+        $files = external_util::get_area_files($context->id, $component, $filearea, $itemid);
+        $this->assertEquals($expectedfiles, $files);
+
+        // Get just some fields.
+        unset($expectedfiles[0]['filepath']);
+        unset($expectedfiles[0]['timemodified']);
+        unset($expectedfiles[0]['filesize']);
+        unset($expectedfiles[0]['mimetype']);
+        $files = external_util::get_area_files($context->id, $component, $filearea, false, true, array('filename', 'fileurl'));
+        $this->assertEquals($expectedfiles, $files);
+    }
+
+    public function test_external_files() {
+
+        $description = new external_files();
+
+        // First check that the expected default values and keys are returned.
+        $expectedkeys = array_flip(array('filename', 'filepath', 'filesize', 'fileurl', 'timemodified', 'mimetype'));
+        $returnedkeys = array_flip(array_keys($description->content->keys));
+        $this->assertEquals($expectedkeys, $returnedkeys);
+        $this->assertEquals('List of files.', $description->desc);
+        $this->assertEquals(VALUE_REQUIRED, $description->required);
+        foreach ($description->content->keys as $key) {
+            $this->assertEquals(VALUE_OPTIONAL, $key->required);
+        }
+
+        // Now, request some specific keys.
+        $expectedkeys = array('filename', 'fileurl', 'mimetype');
+
+        $description = new external_files('desc', VALUE_OPTIONAL, $expectedkeys);
+        $returnedkeys = array_keys($description->content->keys);
+        $this->assertEquals(array_flip($expectedkeys), array_flip($returnedkeys));
+        $this->assertEquals('desc', $description->desc);
+        $this->assertEquals(VALUE_OPTIONAL, $description->required);
+    }
+
 }
 
 /*
