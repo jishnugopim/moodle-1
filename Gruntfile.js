@@ -133,11 +133,16 @@ module.exports = function(grunt) {
                 options: {
                     mask: '*.js',
                     coverageFolder: 'coverage/js',
+                    istanbulOptions: [
+                        '--hook-run-in-context'
+                    ],
                     excludes: [
                         // Don't bother testing upstream projects.
                         // Note: Adding yuilib to this list makes this unbelievably slow so we can't easily skip it.
                         'lib/amd/src/mustache.js',
-                        'lib/amd/src/loglevel.js'
+                        'lib/amd/src/loglevel.js',
+                        'lib/jquery/*.js',
+                        'lib/yuilib/*/yui-nodejs/*.js'
                     ]
                 }
             },

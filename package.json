@@ -24,6 +24,6 @@
     "xpath": "0.0.23"
   },
   "scripts": {
-    "test": "mocha '**/tests/js/*.js'"
+    "test": "grunt mocha"
   }
 }
