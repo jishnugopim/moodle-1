@@ -30,6 +30,18 @@ require_once($CFG->libdir . '/externallib.php');
 
 
 class core_externallib_testcase extends advanced_testcase {
+    protected $DB;
+
+    public function setUp() {
+        $this->DB = null;
+    }
+    public function tearDown() {
+        global $DB;
+
+        if ($this->DB !== null) {
+            $DB = $this->DB;
+        }
+    }
     public function test_validate_params() {
         $params = array('text'=>'aaa', 'someid'=>'6');
         $description = new external_function_parameters(array('someid' => new external_value(PARAM_INT, 'Some int value'),
@@ -460,90 +472,45 @@ class core_externallib_testcase extends advanced_testcase {
     }
 
     public function test_external_util_get_area_files() {
-        global $DB;
-        $this->resetAfterTest(true);
+        global $CFG, $DB;
 
-        // Set the current user to be the administrator.
-        $this->setAdminUser();
+        $this->DB = $DB;
+        $DB = $this->getMockBuilder('moodle_database')
+            ->getMock();
 
-        // Create a course.
-        $course = $this->getDataGenerator()->create_course();
-        $record = new stdClass();
-        $record->course = $course->id;
+        $content = base64_encode("Let us create a nice simple file.");
+        $timemodified = 102030405;
+        $itemid = 42;
+        $filesize = strlen($content);
 
-        // Create a database module.
-        $module = $this->getDataGenerator()->create_module('data', $record);
+        $DB->method('get_records_sql')
+            ->willReturn([
+                (object) [
+                    'filename'      => 'example.txt',
+                    'filepath'      => '/',
+                    'mimetype'      => 'text/plain',
+                    'filesize'      => $filesize,
+                    'timemodified'  => $timemodified,
+                    'itemid'        => $itemid,
+                    'pathnamehash'  => sha1('/example.txt'),
+                ],
+            ]);
 
-        // Create a new field in the database activity.
-        $field = data_get_field_new('file', $module);
-        // Add more detail about the field.
-        $fielddetail = new stdClass();
-        $fielddetail->d = $module->id;
-        $fielddetail->mode = 'add';
-        $fielddetail->type = 'file';
-        $fielddetail->sesskey = sesskey();
-        $fielddetail->name = 'Upload file';
-        $fielddetail->description = 'Some description';
-        $fielddetail->param3 = '0';
-
-        $field->define_field($fielddetail);
-        $field->insert_field();
-        $recordid = data_add_record($module);
-
-        // File information for the database module record.
-        $datacontent = array();
-        $datacontent['fieldid'] = $field->field->id;
-        $datacontent['recordid'] = $recordid;
-        $datacontent['content'] = 'Simple4.txt';
-
-        // Insert the information about the file.
-        $contentid = $DB->insert_record('data_content', $datacontent);
-        // Required information for uploading a file.
-        $context = context_module::instance($module->cmid);
-        $component = 'mod_data';
-        $filearea = 'content';
-        $itemid = $contentid;
-        $filename = $datacontent['content'];
-        $filecontent = base64_encode("Let us create a nice simple file.");
-
-        $filerecord = array();
-        $filerecord['contextid'] = $context->id;
-        $filerecord['component'] = $component;
-        $filerecord['filearea'] = $filearea;
-        $filerecord['itemid'] = $itemid;
-        $filerecord['filepath'] = '/';
-        $filerecord['filename'] = $filename;
-
-        $fs = get_file_storage();
-        // Create a file from the string that we made earlier.
-        $file = $fs->create_file_from_string($filerecord, $filecontent);
-        $timemodified = $file->get_timemodified();
-        $timecreated = $file->get_timemodified();
-        $filesize = $file->get_filesize();
+        $component = 'mod_foo';
+        $filearea = 'area';
+        $context = 12345;
 
         $expectedfiles[] = array(
-            'filename' => 'Simple4.txt',
+            'filename' => 'example.txt',
             'filepath' => '/',
-            'fileurl' => 'http://www.example.com/moodle/webservice/pluginfile.php/'.$context->id.'/mod_data/content/'.$itemid.'/Simple4.txt',
+            'fileurl' => "{$CFG->wwwroot}/webservice/pluginfile.php/{$context}/{$component}/{$filearea}/{$itemid}/example.txt",
             'timemodified' => $timemodified,
             'filesize' => $filesize,
             'mimetype' => 'text/plain',
         );
 
         // Get all the files for the area.
-        $files = external_util::get_area_files($context->id, $component, $filearea, false);
-        $this->assertEquals($expectedfiles, $files);
-
-        // Get just the file indicated by $itemid.
-        $files = external_util::get_area_files($context->id, $component, $filearea, $itemid);
-        $this->assertEquals($expectedfiles, $files);
-
-        // Get just some fields.
-        unset($expectedfiles[0]['filepath']);
-        unset($expectedfiles[0]['timemodified']);
-        unset($expectedfiles[0]['filesize']);
-        unset($expectedfiles[0]['mimetype']);
-        $files = external_util::get_area_files($context->id, $component, $filearea, false, true, array('filename', 'fileurl'));
+        $files = external_util::get_area_files($context, $component, $filearea, false);
         $this->assertEquals($expectedfiles, $files);
     }
 
