@@ -28,9 +28,12 @@
 require(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
 
-$repoid     = optional_param('repo_id', 0, PARAM_INT);           // Repository ID
-$contextid = optional_param('ctx_id', SYSCONTEXTID, PARAM_INT); // Context ID
-$source    = optional_param('source', '', PARAM_TEXT);          // File path in current user's dropbox
+// Repository ID.
+$repoid    = optional_param('repo_id', 0, PARAM_INT);
+// Context ID.
+$contextid = optional_param('ctx_id', SYSCONTEXTID, PARAM_INT);
+// File path in current user's dropbox.
+$source    = optional_param('source', '', PARAM_TEXT);
 
 $thumbnailavailable = isloggedin();
 $thumbnailavailable = $thumbnailavailable && $repoid;
@@ -39,7 +42,7 @@ $thumbnailavailable = $thumbnailavailable && ($repo = repository::get_repository
 $thumbnailavailable = $thumbnailavailable && method_exists($repo, 'send_thumbnail');
 if ($thumbnailavailable) {
     // Try requesting thumbnail and outputting it.
-    // This function exits if thumbnail was retrieved
+    // This function exits if a thumbnail was retrieved.
     $repo->send_thumbnail($source);
 }
 

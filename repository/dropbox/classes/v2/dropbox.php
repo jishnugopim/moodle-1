@@ -23,9 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace repository_dropbox;
-
-defined('MOODLE_INTERNAL') || die();
+namespace repository_dropbox\v2;
 
 require_once($CFG->libdir.'/oauthlib.php');
 
@@ -44,15 +42,9 @@ class dropbox extends \oauth2_client {
      * @param   string      $key        The API key
      * @param   string      $secret     The API secret
      * @param   string      $callback   The callback URL
-     * @param   string      $usertoken  The user token
      */
-    public function __construct($key, $secret, $callback, \stdClass $usertoken = null) {
+    public function __construct($key, $secret, $callback) {
         parent::__construct($key, $secret, $callback, '');
-
-        $this->store_token(null);
-        if (!empty($usertoken)) {
-            $this->store_token($usertoken);
-        }
     }
 
     /**
@@ -99,20 +91,60 @@ class dropbox extends \oauth2_client {
      * @param   string      $endpoint   The endpoint to be contacted
      * @param   array       $data       Any data to pass to the endpoint
      * @return  object                  Content decoded from the endpoint
-     * TODO Throw
      */
-    protected function fetch_dropbox_data($endpoint, array $data = []) {
+    protected function fetch_dropbox_data($endpoint, $data = []) {
         $url = $this->get_api_endpoint($endpoint);
         $this->cleanopt();
         $this->resetHeader();
 
-        $options['CURLOPT_POSTFIELDS'] = json_encode($data);
+        if ($data === null) {
+            // Some API endpoints explicitly expect a data submission of 'null'.
+            $options['CURLOPT_POSTFIELDS'] = 'null';
+        } else {
+            $options['CURLOPT_POSTFIELDS'] = json_encode($data);
+        }
         $options['CURLOPT_POST'] = 1;
         $this->setHeader('Content-Type: application/json');
 
-        $result = $this->request($url, $options);
+        $response = $this->request($url, $options);
+        $result = json_decode($response);
 
-        return json_decode($result);
+        $this->check_and_handle_api_errors($result);
+
+        if ($this->has_additional_results($result)) {
+            // Any API endpoint returning 'has_more' will provide a cursor, and also have a matching endpoint suffixed
+            // with /continue which takes that cursor.
+            if (preg_match('_/continue$_', $endpoint) === 0) {
+                // Only add /continue if it is not already present.
+                $endpoint .= '/continue';
+            }
+
+            // Fetch the next page of results.
+            $additionaldata = $this->fetch_dropbox_data($endpoint, [
+                    'cursor' => $result->cursor,
+                ]);
+
+            // Merge the list of entries.
+            $result->entries = array_merge($result->entries, $additionaldata->entries);
+        }
+
+        if (isset($result->has_more)) {
+            // Unset the cursor and has_more flags.
+            unset($result->cursor);
+            unset($result->has_more);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Whether the supplied result is paginated and not the final page.
+     *
+     * @param   object      $result     The result of an operation
+     * @return  boolean
+     */
+    public function has_additional_results($result) {
+        return !empty($result->has_more) && !empty($result->cursor);
     }
 
     /**
@@ -121,7 +153,6 @@ class dropbox extends \oauth2_client {
      * @param   string      $endpoint   The endpoint to be contacted
      * @param   array       $data       Any data to pass to the endpoint
      * @return  string                  The returned data
-     * TODO Throw
      */
     protected function fetch_dropbox_content($endpoint, $data = []) {
         $url = $this->get_content_endpoint($endpoint);
@@ -131,15 +162,61 @@ class dropbox extends \oauth2_client {
         $options['CURLOPT_POST'] = 1;
         $this->setHeader('Content-Type: ');
         $this->setHeader('Dropbox-API-Arg: ' . json_encode($data));
-        return $this->request($url, $options);
+
+        $response = $this->request($url, $options);
+
+        $this->check_and_handle_api_errors($response);
+        return $response;
     }
 
     /**
-     * Get file listing from dropbox
+     * Check for an attempt to handle API errors.
+     *
+     * This function attempts to deal with errors as per
+     * https://www.dropbox.com/developers/documentation/http/documentation#error-handling.
+     *
+     * @param   string      $data       The returned content.
+     * @throws  moodle_exception
+     */
+    protected function check_and_handle_api_errors($data) {
+        if ($this->info['http_code'] == 200) {
+            // Dropbox only returns errors on non-200 response codes.
+            return;
+        }
+
+        switch($this->info['http_code']) {
+            case 400:
+                // Bad input parameter. Error message should indicate which one and why.
+                throw new \coding_exception('Invalid input parameter passed to DropBox API.');
+                break;
+            case 401:
+                // Bad or expired token. This can happen if the access token is expired or if the access token has been
+                // revoked by Dropbox or the user. To fix this, you should re-authenticate the user.
+                throw new authentication_exception('Authentication token expired');
+                break;
+            case 409:
+                // Endpoint-specific error. Look to the response body for the specifics of the error.
+                throw new \coding_exception('Endpoint specific error: ' . $data);
+                break;
+            case 429:
+                // Your app is making too many requests for the given user or team and is being rate limited. Your app
+                // should wait for the number of seconds specified in the "Retry-After" response header before trying
+                // again.
+                throw new rate_limit_exception();
+                break;
+            default:
+        }
+
+        if ($this->info['http_code'] >= 500 && $this->info['http_code'] < 600) {
+            throw new rate_limit_exception($this->info['http_code'], $data);
+        }
+    }
+
+    /**
+     * Get file listing from dropbox.
      *
      * @param   string      $path       The path to query
-     * @return  array                   The returned directory listing
-     * TODO Throw
+     * @return  object                  The returned directory listing, or null on failure
      */
     public function get_listing($path = '') {
         if ($path === '/') {
@@ -147,7 +224,22 @@ class dropbox extends \oauth2_client {
         }
 
         $data = $this->fetch_dropbox_data('files/list_folder', [
-                'path'                  => $path,
+                'path' => $path,
+            ]);
+
+        return $data;
+    }
+
+    /**
+     * Get file search results from dropbox.
+     *
+     * @param   string      $query      The search query
+     * @return  object                  The returned directory listing, or null on failure
+     */
+    public function search($query = '') {
+        $data = $this->fetch_dropbox_data('files/search', [
+                'path' => '',
+                'query' => $query,
             ]);
 
         return $data;
@@ -190,7 +282,6 @@ class dropbox extends \oauth2_client {
      *
      * @param   string      $path       The path to fetch a thumbnail for
      * @return  string                  Thumbnail image content
-     * TODO Throw
      */
     public function get_thumbnail($path) {
         $content = $this->fetch_dropbox_content('files/get_thumbnail', [
@@ -201,24 +292,9 @@ class dropbox extends \oauth2_client {
     }
 
     /**
-     * Downloads a file from Dropbox and saves it locally
-     *
-     * @param   string      $path       The path to fetch
-     * @return  string                  File content
-     * TODO Throw
-     */
-    public function get_file($path) {
-        $content = $this->fetch_dropbox_content('files/download', [
-                'path' => $path,
-            ]);
-
-        return $content;
-    }
-
-    /**
      * Fetch a valid public share link for the specified file.
      *
-     * @param   string      $path       The path of the file to fetch a link for
+     * @param   string      $id         The file path or file id of the file to fetch information for.
      * @return  object                  An object containing the id, path, size, and URL of the entry
      */
     public function get_file_share_info($id) {
@@ -261,17 +337,23 @@ class dropbox extends \oauth2_client {
         return (object) [
                 'id'    => $entry->id,
                 'path'  => $entry->path_lower,
-                'size'  => $entry->size,
                 'url'   => $entry->url,
             ];
     }
 
     /**
-     * Fetch this user's authentication token to store for subsequent requests.
+     * Revoke the current access token.
      *
-     * @return  object
+     * @return string
      */
-    public function get_authentication_token_for_storage() {
-        return $this->get_stored_token();
+    public function logout() {
+        try {
+            $this->fetch_dropbox_data('auth/token/revoke', null);
+        } catch(authentication_exception $e) {
+            // An authentication_exception may be expected if the token has
+            // already expired.
+        }
+
+        return parent::logout();
     }
 }

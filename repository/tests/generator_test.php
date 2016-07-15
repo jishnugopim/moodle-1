@@ -110,6 +110,7 @@ class core_repository_generator_testcase extends advanced_testcase {
         $config = get_config('dropbox');
         $record->enableuserinstances = '0';
         $record->enablecourseinstances = '0';
+        $record->legacyapi = '0';
         $this->assertEquals($record, $config);
         $this->assertEquals('Custom Dropbox',
             $DB->get_field('repository_instances', 'name', array('typeid' => $dropbox->id), MUST_EXIST));
