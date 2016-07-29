@@ -321,8 +321,14 @@ function build_logs_array($course, $user=0, $date=0, $order="l.time ASC", $limit
 }
 
 
+/**
+ * Display logs.
+ *
+ * @deprecated since 2.7
+ */
 function print_log($course, $user=0, $date=0, $order="l.time ASC", $page=0, $perpage=100,
                    $url="", $modname="", $modid=0, $modaction="", $groupid=0) {
+    debugging(__FUNCTION__ . '() is deprecated. Please use the report_log framework instead.', DEBUG_DEVELOPER);
 
     global $CFG, $DB, $OUTPUT;
 
@@ -437,9 +443,14 @@ function print_log($course, $user=0, $date=0, $order="l.time ASC", $page=0, $per
     echo $OUTPUT->paging_bar($totalcount, $page, $perpage, "$url&perpage=$perpage");
 }
 
-
+/**
+ * Display MNET logs.
+ *
+ * @deprecated since 2.7
+ */
 function print_mnet_log($hostid, $course, $user=0, $date=0, $order="l.time ASC", $page=0, $perpage=100,
                    $url="", $modname="", $modid=0, $modaction="", $groupid=0) {
+    debugging(__FUNCTION__ . '() is deprecated. Please use the report_log framework instead.', DEBUG_DEVELOPER);
 
     global $CFG, $DB, $OUTPUT;
 
@@ -542,9 +553,15 @@ function print_mnet_log($hostid, $course, $user=0, $date=0, $order="l.time ASC",
     echo $OUTPUT->paging_bar($totalcount, $page, $perpage, "$url&perpage=$perpage");
 }
 
-
+/**
+ * Display logs in CSV format.
+ *
+ * @deprecated since 2.7
+ */
 function print_log_csv($course, $user, $date, $order='l.time DESC', $modname,
                         $modid, $modaction, $groupid) {
+    debugging(__FUNCTION__ . '() is deprecated. Please use the report_log framework instead.', DEBUG_DEVELOPER);
+
     global $DB, $CFG;
 
     require_once($CFG->libdir . '/csvlib.class.php');
@@ -624,9 +641,14 @@ function print_log_csv($course, $user, $date, $order='l.time DESC', $modname,
     return true;
 }
 
-
+/**
+ * Display logs in XLS format.
+ *
+ * @deprecated since 2.7
+ */
 function print_log_xls($course, $user, $date, $order='l.time DESC', $modname,
                         $modid, $modaction, $groupid) {
+    debugging(__FUNCTION__ . '() is deprecated. Please use the report_log framework instead.', DEBUG_DEVELOPER);
 
     global $CFG, $DB;
 
@@ -739,8 +761,14 @@ function print_log_xls($course, $user, $date, $order='l.time DESC', $modname,
     return true;
 }
 
+/**
+ * Display logs in ODS format.
+ *
+ * @deprecated since 2.7
+ */
 function print_log_ods($course, $user, $date, $order='l.time DESC', $modname,
                         $modid, $modaction, $groupid) {
+    debugging(__FUNCTION__ . '() is deprecated. Please use the report_log framework instead.', DEBUG_DEVELOPER);
 
     global $CFG, $DB;
 
