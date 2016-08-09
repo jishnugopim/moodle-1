@@ -14,7 +14,7 @@ language: php
 php:
     # We only run the highest and lowest supported versions to reduce the load on travis-ci.org.
     - 7.0
-    - 5.6
+      #- 5.6
 
 env:
     # Although we want to run these jobs and see failures as quickly as possible, we also want to get the slowest job to
@@ -25,16 +25,16 @@ env:
     # Postgres is significantly is pretty reasonable in its run-time.
 
     # Run unit tests on MySQL
-    - DB=mysqli   TASK=PHPUNIT
+    #- DB=mysqli   TASK=PHPUNIT
 
     # Run CI Tests without running PHPUnit.
-    - DB=none     TASK=CITEST
+    #- DB=none     TASK=CITEST
 
     # Run unit tests on Postgres
     - DB=pgsql    TASK=PHPUNIT
 
     # Perform an upgrade test too.
-    - DB=pgsql    TASK=UPGRADE
+    #- DB=pgsql    TASK=UPGRADE
 
 matrix:
     # Enable fast finish.
@@ -68,7 +68,7 @@ cache:
 
 install:
     # Disable xdebug. We aren't generating code coverage, and it has a huge impact upon test performance.
-    - rm /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
+    - phpenv config-rm xdebug.ini
 
     - >
         if [ "$TASK" = 'PHPUNIT' ];
@@ -145,6 +145,8 @@ before_script:
 
         # Start the SOLR server.
         curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=5.4.0 bash
+
+        pecl install solr
 
         # The phpunit dataroot and prefix..
         sed -i \
