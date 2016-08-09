@@ -125,7 +125,7 @@ before_script:
         mkdir -p "$HOME"/roots/phpunit
 
         # Start the SOLR server.
-        curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=5.4.0 bash
+        curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=5.4.0 SOLR_COLLECTION=unittest bash
 
         printf "\n" | pecl install solr
 
