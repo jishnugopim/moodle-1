@@ -127,7 +127,7 @@ before_script:
         # Start the SOLR server.
         curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=5.4.0 bash
 
-        enable_debug=no pecl install solr
+        printf "\n" | pecl install solr
 
         # The phpunit dataroot and prefix..
         sed -i \
