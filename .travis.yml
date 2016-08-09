@@ -45,10 +45,11 @@ matrix:
         - env: DB=none     TASK=GRUNT   NVM_VERSION='node'
           php: 7
 
-        # Run unit tests on Postgres.
-        - env: DB=pgsql    TASK=PHPUNIT
+        # Run unit tests on Postgres with php 7.0 and solr.
+        - env: DB=pgsql    TASK=PHPUNIT    SOLR_VERSION="4.10.1"
           php: 7.0
 
+        # Run unit tests on Postgres with php 5.6.
         - env: DB=pgsql    TASK=PHPUNIT
           php: 5.6
 
@@ -147,6 +148,23 @@ before_script:
 
         # Initialise PHPUnit for Moodle.
         php admin/tool/phpunit/cli/init.php
+      fi
+
+    - >
+      if [ -n "$SOLR_VERSION" ];
+      then
+
+        # Start the SOLR server.
+        curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | bash
+
+        printf "\n" | pecl install solr
+
+        # Set the SOLR variables for testing.
+        sed -i \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_HOSTNAME', '127.0.0.1');" \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_PORT', '8983');" \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_INDEXNAME', 'gettingstarted');" \
+          config.php ;
       fi
 
     - >
