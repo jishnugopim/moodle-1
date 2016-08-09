@@ -143,10 +143,16 @@ before_script:
         # Create a directory for the phpunit dataroot.
         mkdir -p "$HOME"/roots/phpunit
 
+        # Start the SOLR server.
+        curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=5.4.0 bash
+
         # The phpunit dataroot and prefix..
         sed -i \
           -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
           -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_HOSTNAME', '127.0.0.1');" \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_PORT', '8983');" \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_INDEXNAME', 'unittest');" \
           config.php ;
 
         # Initialise PHPUnit for Moodle.
