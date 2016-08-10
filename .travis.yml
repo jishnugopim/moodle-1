@@ -231,7 +231,7 @@ script:
     - >
       if [ "$TASK" = 'PHPUNIT' ];
       then
-        vendor/bin/phpunit;
+        vendor/bin/phpunit search/engine/solr/tests/engine_test.php;
       fi
 
     - >
