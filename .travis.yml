@@ -156,6 +156,7 @@ before_script:
 
         # Start the SOLR server.
         SOLR_COLLECTION_CONF="./solr-$SOLR_VERSION/server/solr/configsets/basic_configs/conf" \
+        SOLR_COLLECTION="moodle" \
             curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | bash
 
         printf "\n" | pecl install solr
@@ -164,7 +165,7 @@ before_script:
         sed -i \
           -e "/require_once/i \\define('TEST_SEARCH_SOLR_HOSTNAME', '127.0.0.1');" \
           -e "/require_once/i \\define('TEST_SEARCH_SOLR_PORT', '8983');" \
-          -e "/require_once/i \\define('TEST_SEARCH_SOLR_INDEXNAME', 'gettingstarted');" \
+          -e "/require_once/i \\define('TEST_SEARCH_SOLR_INDEXNAME', 'moodle');" \
           config.php ;
       fi
 
