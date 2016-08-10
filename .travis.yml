@@ -27,36 +27,36 @@ matrix:
 
         # Run unit tests on MySQL.
         # This is the slowest combination.
-        - env: DB=mysqli   TASK=PHPUNIT
-          php: 7.0
-
-        # Run CI Tests without running PHPUnit.
-        - env: DB=none     TASK=CITEST
-          php: 7.0
-
-        - env: DB=none     TASK=CITEST
-          php: 5.6
-
-        # Run grunt/npm install on lowest supported npm version.
-        - env: DB=none     TASK=GRUNT   NVM_VERSION='4'
-          php: 7
-
-        # Run grunt/npm install on highest version ('node' is an alias for the latest node.js version).
-        - env: DB=none     TASK=GRUNT   NVM_VERSION='node'
-          php: 7
+#       - env: DB=mysqli   TASK=PHPUNIT
+#         php: 7.0
+#
+#       # Run CI Tests without running PHPUnit.
+#       - env: DB=none     TASK=CITEST
+#         php: 7.0
+#
+#       - env: DB=none     TASK=CITEST
+#         php: 5.6
+#
+#       # Run grunt/npm install on lowest supported npm version.
+#       - env: DB=none     TASK=GRUNT   NVM_VERSION='4'
+#         php: 7
+#
+#       # Run grunt/npm install on highest version ('node' is an alias for the latest node.js version).
+#       - env: DB=none     TASK=GRUNT   NVM_VERSION='node'
+#         php: 7
 
         # Run unit tests on Postgres with php 7.0 and solr.
         - env: DB=pgsql    TASK=PHPUNIT    SOLR_VERSION="5.4.0"
           php: 7.0
 
-        # Run unit tests on Postgres with php 5.6.
-        - env: DB=pgsql    TASK=PHPUNIT
-          php: 5.6
-
-        # Perform an upgrade test from 2.7.
-        # Moodle 2.7 is not compatible with PHP 7.
-        - env: DB=pgsql    TASK=UPGRADE
-          php: 5.6
+#       # Run unit tests on Postgres with php 5.6.
+#       - env: DB=pgsql    TASK=PHPUNIT
+#         php: 5.6
+#
+#       # Perform an upgrade test from 2.7.
+#       # Moodle 2.7 is not compatible with PHP 7.
+#       - env: DB=pgsql    TASK=UPGRADE
+#         php: 5.6
 
 cache:
     directories:
