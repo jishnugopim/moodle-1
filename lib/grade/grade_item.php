@@ -913,8 +913,8 @@ class grade_item extends grade_object {
     public function force_regrading() {
         global $DB;
         $this->needsupdate = 1;
-        //mark this item and course item only - categories and calculated items are always regraded
-        $wheresql = "(itemtype='course' OR id=?) AND courseid=?";
+        // Mark this item and course item only if requried - categories and calculated items are always regraded.
+        $wheresql = "(itemtype='course' OR id=?) AND courseid=? AND needsupdate <> 1";
         $params   = array($this->id, $this->courseid);
         $DB->set_field_select('grade_items', 'needsupdate', 1, $wheresql, $params);
     }
