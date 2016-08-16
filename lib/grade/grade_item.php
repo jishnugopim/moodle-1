@@ -914,7 +914,7 @@ class grade_item extends grade_object {
         global $DB;
         $this->needsupdate = 1;
         // Mark this item and course item only if requried - categories and calculated items are always regraded.
-        $wheresql = "(itemtype='course' OR id=?) AND courseid=? AND needsupdate <> 1";
+        $wheresql = "(itemtype='course' OR id=?) AND courseid=?";
         $params   = array($this->id, $this->courseid);
         $DB->set_field_select('grade_items', 'needsupdate', 1, $wheresql, $params);
     }
