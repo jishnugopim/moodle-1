@@ -1450,12 +1450,26 @@ function forum_print_overview($courses,&$htmlarray) {
         $sql = 'SELECT d.forum,d.course,COUNT(p.id) AS count '.
             ' FROM {forum_posts} p '.
             ' JOIN {forum_discussions} d ON p.discussion = d.id '.
-            ' LEFT JOIN {forum_read} r ON r.postid = p.id AND r.userid = ? WHERE (';
-        $params = array($USER->id);
+            ' LEFT JOIN {forum_read} r ON r.postid = p.id AND r.userid = :userid1 WHERE (';
+        $params = [
+            'userid1'   => $USER->id,
+        ];
 
+        $i = 0;
+        $trackforumsql = [];
         foreach ($trackingforums as $track) {
-            $sql .= '(d.forum = ? AND (d.groupid = -1 OR d.groupid = 0 OR d.groupid = ?)) OR ';
-            $params[] = $track->id;
+            $forumsql  = "       d.forum = :forumid{$i}";
+            $forumsql .= " AND (d.groupid = -1 OR d.groupid = 0 OR d.groupid = :groupid{$i})";
+            $forumsql .= " AND p.modified >= (
+                            SELECT MIN(ue.timecreated)
+                                FROM {user_enrolments} ue
+                                JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid{$i})
+                                WHERE ue.userid = :ueuserid{$i}
+                    )
+                ";
+            $params["forumid{$i}"]  = $track->id;
+            $params["courseid{$i}"] = $track->course;
+            $params["ueuserid{$i}"] = $USER->id;
             if (isset($SESSION->currentgroup[$track->course])) {
                 $groupid =  $SESSION->currentgroup[$track->course];
             } else {
@@ -1470,15 +1484,18 @@ function forum_print_overview($courses,&$htmlarray) {
                 }
                 unset($groupids);
             }
-            $params[] = $groupid;
+            $params["groupid{$i}"] = $groupid;
+            $trackforumsql[] = "($forumsql)";
+            $i++;
         }
-        $sql = substr($sql,0,-3); // take off the last OR
-        $sql .= ') AND p.modified >= ? AND r.id is NULL ';
-        $sql .= 'AND (d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?)) ';
+        $sql .= implode(' OR ', $trackforumsql);
+
+        $sql .= ') AND p.modified >= :cutoffdate AND r.id is NULL ';
+        $sql .= 'AND (d.timestart < :timestart AND (d.timeend = 0 OR d.timeend > :timeend)) ';
         $sql .= 'GROUP BY d.forum,d.course';
-        $params[] = $cutoffdate;
-        $params[] = time();
-        $params[] = time();
+        $params['cutoffdate'] = $cutoffdate;
+        $params['timestart'] = time();
+        $params['timeend'] = time();
 
         if (!$unread = $DB->get_records_sql($sql, $params)) {
             $unread = array();
@@ -2883,18 +2900,30 @@ function forum_get_discussions_unread($cm) {
                    JOIN {forum_posts} p     ON p.discussion = d.id
                    LEFT JOIN {forum_read} r ON (r.postid = p.id AND r.userid = $USER->id)
              WHERE d.forum = {$cm->instance}
-                   AND p.modified >= :cutoffdate AND r.id is NULL
+                   AND r.id is NULL
+                   AND p.modified >= :cutoffdate
+                   AND p.modified >= (
+                           SELECT MIN(ue.timecreated)
+                             FROM {user_enrolments} ue
+                             JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid)
+                            WHERE ue.userid = :userid
+                   )
                    $groupselect
                    $timedsql
           GROUP BY d.id";
     $params['cutoffdate'] = $cutoffdate;
+    $params['courseid'] = $cm->course;
+    $params['userid'] = $USER->id;
 
+    $DB->set_debug(true);
     if ($unreads = $DB->get_records_sql($sql, $params)) {
+    $DB->set_debug(false);
         foreach ($unreads as $unread) {
             $unreads[$unread->id] = $unread->unread;
         }
         return $unreads;
     } else {
+    $DB->set_debug(false);
         return array();
     }
 }
@@ -6270,6 +6299,7 @@ function forum_tp_mark_discussion_read($user, $discussionid) {
  */
 function forum_tp_is_post_read($userid, $post) {
     global $DB;
+    // TODO use course enrolment date
     return (forum_tp_is_post_old($post) ||
             $DB->record_exists('forum_read', array('userid' => $userid, 'postid' => $post->id)));
 }
@@ -6285,6 +6315,7 @@ function forum_tp_is_post_old($post, $time=null) {
     if (is_null($time)) {
         $time = time();
     }
+    // TODO use course enrolment date
     return ($post->modified < ($time - ($CFG->forum_oldpostdays * 24 * 3600)));
 }
 
@@ -6303,12 +6334,20 @@ function forum_tp_get_course_unread_posts($userid, $courseid) {
 
     $now = round(time(), -2); // DB cache friendliness.
     $cutoffdate = $now - ($CFG->forum_oldpostdays * 24 * 60 * 60);
-    $params = array($userid, $userid, $courseid, $cutoffdate, $userid);
+    $params = [
+        'userid1'       => $userid,
+        'userid2'       => $userid,
+        'userid3'       => $userid,
+        'userid4'       => $userid,
+        'courseid1'     => $courseid,
+        'courseid2'     => $courseid,
+        'cutoffdate'    => $cutoffdate,
+    ];
 
     if (!empty($CFG->forum_enabletimedposts)) {
-        $timedsql = "AND d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?)";
-        $params[] = $now;
-        $params[] = $now;
+        $timedsql = "AND d.timestart < :timestart AND (d.timeend = 0 OR d.timeend > :timeend)";
+        $params['timestart'] = $now;
+        $params['timeend'] = $now;
     } else {
         $timedsql = "";
     }
@@ -6316,11 +6355,11 @@ function forum_tp_get_course_unread_posts($userid, $courseid) {
     if ($CFG->forum_allowforcedreadtracking) {
         $trackingsql = "AND (f.trackingtype = ".FORUM_TRACKING_FORCED."
                             OR (f.trackingtype = ".FORUM_TRACKING_OPTIONAL." AND tf.id IS NULL
-                                AND (SELECT trackforums FROM {user} WHERE id = ?) = 1))";
+                                AND (SELECT trackforums FROM {user} WHERE id = :userid4) = 1))";
     } else {
         $trackingsql = "AND ((f.trackingtype = ".FORUM_TRACKING_OPTIONAL." OR f.trackingtype = ".FORUM_TRACKING_FORCED.")
                             AND tf.id IS NULL
-                            AND (SELECT trackforums FROM {user} WHERE id = ?) = 1)";
+                            AND (SELECT trackforums FROM {user} WHERE id = :userid4) = 1)";
     }
 
     $sql = "SELECT f.id, COUNT(p.id) AS unread
@@ -6328,10 +6367,17 @@ function forum_tp_get_course_unread_posts($userid, $courseid) {
                    JOIN {forum_discussions} d       ON d.id = p.discussion
                    JOIN {forum} f                   ON f.id = d.forum
                    JOIN {course} c                  ON c.id = f.course
-                   LEFT JOIN {forum_read} r         ON (r.postid = p.id AND r.userid = ?)
-                   LEFT JOIN {forum_track_prefs} tf ON (tf.userid = ? AND tf.forumid = f.id)
-             WHERE f.course = ?
-                   AND p.modified >= ? AND r.id is NULL
+                   LEFT JOIN {forum_read} r         ON (r.postid = p.id AND r.userid = :userid1)
+                   LEFT JOIN {forum_track_prefs} tf ON (tf.userid = :userid2 AND tf.forumid = f.id)
+             WHERE f.course = :courseid1
+                   AND p.modified >= :cutoffdate
+                   AND r.id is NULL
+                   AND p.modified >= (
+                           SELECT MIN(ue.timecreated)
+                             FROM {user_enrolments} ue
+                             JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid2)
+                            WHERE ue.userid = :userid3
+                   )
                    $trackingsql
                    $timedsql
           GROUP BY f.id";
@@ -6393,16 +6439,23 @@ function forum_tp_count_forum_unread_posts($cm, $course) {
     // add all groups posts
     $mygroups[-1] = -1;
 
-    list ($groups_sql, $groups_params) = $DB->get_in_or_equal($mygroups);
+    list ($groups_sql, $groups_params) = $DB->get_in_or_equal($mygroups, SQL_PARAMS_NAMED, 'g');
 
     $now = round(time(), -2); // db cache friendliness
     $cutoffdate = $now - ($CFG->forum_oldpostdays*24*60*60);
     $params = array($USER->id, $forumid, $cutoffdate);
+    $params = [
+        'userid1'       => $userid,
+        'userid2'       => $userid,
+        'forumid1'      => $forumid,
+        'courseid1'     => $cm->course,
+        'cutoffdate'    => $cutoffdate,
+    ];
 
     if (!empty($CFG->forum_enabletimedposts)) {
-        $timedsql = "AND d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?)";
-        $params[] = $now;
-        $params[] = $now;
+        $timedsql = "AND d.timestart < :timestart AND (d.timeend = 0 OR d.timeend > :timeend)";
+        $params['timestart'] = $now;
+        $params['timeend'] = $now;
     } else {
         $timedsql = "";
     }
@@ -6412,13 +6465,22 @@ function forum_tp_count_forum_unread_posts($cm, $course) {
     $sql = "SELECT COUNT(p.id)
               FROM {forum_posts} p
                    JOIN {forum_discussions} d ON p.discussion = d.id
-                   LEFT JOIN {forum_read} r   ON (r.postid = p.id AND r.userid = ?)
-             WHERE d.forum = ?
-                   AND p.modified >= ? AND r.id is NULL
+                   LEFT JOIN {forum_read} r   ON (r.postid = p.id AND r.userid = :userid1)
+             WHERE d.forum = :forumid1
+                   AND p.modified >= :cutoffdate
+                   AND r.id is NULL
+                   AND p.modified >= (
+                           SELECT MIN(ue.timecreated)
+                             FROM {user_enrolments} ue
+                             JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid1)
+                            WHERE ue.userid = :userid2
+                   )
                    $timedsql
                    AND d.groupid $groups_sql";
 
-    return $DB->get_field_sql($sql, $params);
+    $foo = $DB->get_field_sql($sql, $params);
+    var_dump($foo);
+    return $foo;
 }
 
 /**
@@ -7991,4 +8053,54 @@ function forum_is_author_hidden($post, $forum) {
         return true;
     }
     return false;
+}
+
+/**
+ * Get the optimum time to use for calculating read times.
+ * The returned time will be rounded to the nearest 100 seconds to facilitate better DB caching.
+ *
+ * TODO Add some caching.
+ * TODO See if we can find a better way than this.
+ *
+ * @param   stdClass    $forum  The forum to check for
+ * @param   int         $userid The ID of the user to check
+ * @return  int         The earliest time, or the calculated forum_oldpostdays if not found
+ */
+function forum_tp_get_start_readtime($forum, $userid) {
+    global $CFG, $DB;
+
+    $sql = "SELECT ue.timecreated
+              FROM {user_enrolments} ue
+              JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid)
+              JOIN {user} u ON u.id = ue.userid
+             WHERE
+                   ue.userid    = :userid
+               AND ue.status    = :active
+               AND e.status     = :enabled
+               AND u.deleted    = 0
+               AND (
+                        u.timestart  = 0
+                    OR  u.timestart >= :timenow1
+               )
+               AND (
+                        u.timeend  = 0
+                    OR  u.timeend <= :timenow2
+               )
+        ";
+    $params = [
+        'enabled'   => ENROL_INSTANCE_ENABLED,
+        'active'    => ENROL_USER_ACTIVE,
+        'userid'    => $userid,
+        'courseid'  => $forum->courseid,
+    ];
+    $params['timenow1'] = $params['timenow2'] = time();
+
+    $earliestdate = time() - ($CFG->forum_oldpostdays * 24 * 60 * 60);
+    if ($enrolments = $DB->get_records_sql($sql, $params)) {
+        foreach ($enrolments as $enrolment) {
+            $earliestdate = min($earliestdate, $enrolment['timecreated']);
+        }
+    }
+
+    return round($earliestdate, -2);
 }
