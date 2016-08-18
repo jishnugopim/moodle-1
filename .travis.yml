@@ -217,7 +217,7 @@ script:
     - >
       if [ "$TASK" = 'PHPUNIT' ];
       then
-        vendor/bin/phpunit;
+        vendor/bin/phpunit --testsuite mod_assign_testsuite;
       fi
 
     - >
