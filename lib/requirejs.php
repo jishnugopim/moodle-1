@@ -132,6 +132,8 @@ foreach ($jsfiles as $modulename => $jsfile) {
     $search = 'define(';
 
     if (strpos($js, $search) === false) {
+    var_dump($search);
+    var_dump($js);
         // We can't call debugging because we only have minimal config loaded.
         header('HTTP/1.0 500 error');
         die('JS file: ' . $shortfilename . ' does not contain a javascript module in AMD format. "define()" not found.');

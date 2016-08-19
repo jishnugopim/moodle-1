@@ -25,6 +25,12 @@
  */
 
 module.exports = function(grunt) {
+    // Keep track of build time.
+    require('time-grunt')(grunt);
+
+    // Register NPM tasks.
+    require('jit-grunt')(grunt);
+
     var path = require('path'),
         tasks = {},
         cwd = process.env.PWD || process.cwd(),
@@ -98,6 +104,21 @@ module.exports = function(grunt) {
         return libs;
     };
 
+    var getBabelFiles = function() {
+        var babelSources = grunt.file.expand('**/js/src/*.js'),
+            exclusions = ['node_modules/', 'vendor/'],
+            babelFiles = {};
+
+        babelSources.forEach(function(file) {
+            if (!grunt.file.isFile(file)) {
+                return;
+            }
+
+            babelFiles[path.join(file, '../../build', path.basename(file))] = file;
+        });
+
+        return babelFiles;
+    };
 
     // Project configuration.
     grunt.initConfig({
@@ -166,8 +187,16 @@ module.exports = function(grunt) {
         },
         shifter: {
             options: {
-                recursive: true,
+                recursive: false,
                 paths: [cwd]
+            }
+        },
+        "babel": {
+            options: {
+                sourceMap: true
+            },
+            dist: {
+                files: getBabelFiles(),
             }
         },
         stylelint: {
@@ -327,13 +356,6 @@ module.exports = function(grunt) {
           changedFiles[filepath] = action;
           onChange();
     });
-
-    // Register NPM tasks.
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-less');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-eslint');
-    grunt.loadNpmTasks('grunt-stylelint');
 
     // Register JS tasks.
     grunt.registerTask('shifter', 'Run Shifter against the current directory', tasks.shifter);

@@ -80,17 +80,26 @@ class core_requirejs {
     public static function find_all_amd_modules($debug = false) {
         global $CFG;
 
+        $amddirs = array();
         $jsdirs = array();
         $jsfiles = array();
 
         $dir = $CFG->libdir . '/amd';
         if (!empty($dir) && is_dir($dir)) {
+            $amddirs['core'] = $dir;
+        }
+        $dir = $CFG->libdir . '/js';
+        if (!empty($dir) && is_dir($dir)) {
             $jsdirs['core'] = $dir;
         }
+
         $subsystems = core_component::get_core_subsystems();
         foreach ($subsystems as $subsystem => $dir) {
             if (!empty($dir) && is_dir($dir . '/amd')) {
-                $jsdirs['core_' . $subsystem] = $dir . '/amd';
+                $amddirs['core_' . $subsystem] = $dir . '/amd';
+            }
+            if (!empty($dir) && is_dir($dir . '/js')) {
+                $jsdirs['core_' . $subsystem] = $dir . '/js';
             }
         }
         $plugintypes = core_component::get_plugin_types();
@@ -98,18 +107,47 @@ class core_requirejs {
             $plugins = core_component::get_plugin_list_with_file($type, 'amd', false);
             foreach ($plugins as $plugin => $dir) {
                 if (!empty($dir) && is_dir($dir)) {
+                    $amddirs[$type . '_' . $plugin] = $dir;
+                }
+            }
+            $plugins = core_component::get_plugin_list_with_file($type, 'js', false);
+            foreach ($plugins as $plugin => $dir) {
+                if (!empty($dir) && is_dir($dir)) {
                     $jsdirs[$type . '_' . $plugin] = $dir;
                 }
             }
         }
 
-        foreach ($jsdirs as $component => $dir) {
+        foreach ($amddirs as $component => $dir) {
             $srcdir = $dir . '/build';
             if ($debug) {
                 $srcdir = $dir . '/src';
             }
             if (!is_dir($srcdir) || !is_readable($srcdir)) {
                 // This is probably an empty amd directory without src or build.
+                // Skip it - RecursiveDirectoryIterator fatals if the directory is not readable as an iterator.
+                continue;
+            }
+            $items = new RecursiveDirectoryIterator($srcdir);
+            foreach ($items as $item) {
+                $extension = $item->getExtension();
+                if ($extension === 'js') {
+                    $filename = str_replace('.min', '', $item->getBaseName('.js'));
+                    // We skip lazy loaded modules.
+                    if (strpos($filename, '-lazy') === false) {
+                        $modulename = $component . '/' . $filename;
+                        $jsfiles[$modulename] = $item->getRealPath();
+                    }
+                }
+                unset($item);
+            }
+            unset($items);
+        }
+
+        foreach ($jsdirs as $component => $dir) {
+            $srcdir = $dir . '/build';
+            if (!is_dir($srcdir) || !is_readable($srcdir)) {
+                // This is probably an empty directory without src or build.
                 // Skip it - RecursiveDirectoryIterator fatals if the directory is not readable as an iterator.
                 continue;
             }
