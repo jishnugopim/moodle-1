@@ -2363,50 +2363,22 @@ class admin_setting_configpasswordunmask extends admin_setting_configtext {
     }
 
     /**
-     * Returns XHTML for the field
-     * Writes Javascript into the HTML below right before the last div
+     * Returns HTML for the field.
      *
-     * @todo Make javascript available through newer methods if possible
-     * @param string $data Value for the field
-     * @param string $query Passed as final argument for format_admin_setting
-     * @return string XHTML field
+     * @param   string  $data       Value for the field
+     * @param   string  $query      Passed as final argument for format_admin_setting
+     * @return  string              Rendered HTML
      */
     public function output_html($data, $query='') {
-        $id = $this->get_id();
-        $unmask = get_string('unmaskpassword', 'form');
-        $unmaskjs = '<script type="text/javascript">
-//<![CDATA[
-var is_ie = (navigator.userAgent.toLowerCase().indexOf("msie") != -1);
-
-document.getElementById("'.$id.'").setAttribute("autocomplete", "off");
-
-var unmaskdiv = document.getElementById("'.$id.'unmaskdiv");
-
-var unmaskchb = document.createElement("input");
-unmaskchb.setAttribute("type", "checkbox");
-unmaskchb.setAttribute("id", "'.$id.'unmask");
-unmaskchb.onchange = function() {unmaskPassword("'.$id.'");};
-unmaskdiv.appendChild(unmaskchb);
-
-var unmasklbl = document.createElement("label");
-unmasklbl.innerHTML = "'.addslashes_js($unmask).'";
-if (is_ie) {
-  unmasklbl.setAttribute("htmlFor", "'.$id.'unmask");
-} else {
-  unmasklbl.setAttribute("for", "'.$id.'unmask");
-}
-unmaskdiv.appendChild(unmasklbl);
-
-if (is_ie) {
-  // ugly hack to work around the famous onchange IE bug
-  unmaskchb.onclick = function() {this.blur();};
-  unmaskdiv.onclick = function() {this.blur();};
-}
-//]]>
-</script>';
-        return format_admin_setting($this, $this->visiblename,
-        '<div class="form-password"><input type="password" size="'.$this->size.'" id="'.$id.'" name="'.$this->get_full_name().'" value="'.s($data).'" /><div class="unmask" id="'.$id.'unmaskdiv"></div>'.$unmaskjs.'</div>',
-        $this->description, true, '', NULL, $query);
+        global $OUTPUT;
+        $context = (object) [
+            'id' => $this->get_id(),
+            'name' => $this->get_full_name(),
+            'size' => $this->size,
+            'value' => $data,
+        ];
+        $element = $OUTPUT->render_from_template('core_admin/setting_configpasswordunmask', $context);
+        return format_admin_setting($this, $this->visiblename, $element, $this->description, true, '', null, $query);
     }
 }
 

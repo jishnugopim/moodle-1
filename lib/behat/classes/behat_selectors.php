@@ -72,6 +72,7 @@ class behat_selectors {
         'list_item' => 'list_item',
         'optgroup' => 'optgroup',
         'option' => 'option',
+        'passwordunmask' => 'passwordunmask',
         'question' => 'question',
         'radio' => 'radio',
         'region' => 'region',
@@ -115,6 +116,10 @@ XPATH
 XPATH
         , 'list_item' => <<<XPATH
 .//li[contains(normalize-space(.), %locator%) and not(.//li[contains(normalize-space(.), %locator%)])]
+XPATH
+        , 'passwordunmask' => <<<XPATH
+.//*[@data-passwordunmask='wrapper']
+    /descendant::input[@id = //label[contains(normalize-space(string(.)), %locator%)]/@for]
 XPATH
         , 'question' => <<<XPATH
 .//div[contains(concat(' ', normalize-space(@class), ' '), ' que ')]

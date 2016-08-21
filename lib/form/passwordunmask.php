@@ -31,6 +31,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 global $CFG;
 require_once($CFG->libdir.'/form/password.php');
+require_once('templatable_form_element.php');
 
 /**
  * Password type form element with unmask option
@@ -43,6 +44,9 @@ require_once($CFG->libdir.'/form/password.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
+
+    use templatable_form_element;
+
     /**
      * constructor
      *
@@ -52,7 +56,6 @@ class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
      *              or an associative array
      */
     public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-        global $CFG;
         // no standard mform in moodle should allow autocomplete of passwords
         if (empty($attributes)) {
             $attributes = array('autocomplete'=>'off');
@@ -63,6 +66,7 @@ class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
                 $attributes .= ' autocomplete="off" ';
             }
         }
+        $this->_persistantFreeze = true;
 
         parent::__construct($elementName, $elementLabel, $attributes);
     }
@@ -75,25 +79,18 @@ class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
     }
 
     /**
-     * Returns HTML for password form element.
+     * Returns HTML for this form element.
      *
      * @return string
      */
     function toHtml() {
-        global $PAGE;
+        global $OUTPUT;
 
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            $unmask = get_string('unmaskpassword', 'form');
-            //Pass id of the element, so that unmask checkbox can be attached.
-            $attributes = array('formid' => $this->getAttribute('id'),
-                'checkboxlabel' => $unmask,
-                'checkboxname' => $this->getAttribute('name'));
-            $PAGE->requires->yui_module('moodle-form-passwordunmask', 'M.form.passwordunmask',
-                    array($attributes));
-            return $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />';
-        }
+        $context = $this->export_for_template($OUTPUT);
+        $context['valuechars'] = array_fill(0, strlen($context['value']), 'x');
+
+        return $OUTPUT->render_from_template('core_form/element-passwordunmask', [
+                'element' => $context,
+            ]);
     }
-
 }

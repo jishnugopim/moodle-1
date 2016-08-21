@@ -55,12 +55,31 @@ class behat_field_manager {
             // The DOM node.
             $fieldnode = $context->find_field($label);
         } catch (ElementNotFoundException $fieldexception) {
+            $found = false;
 
-            // Looking for labels that points to filemanagers.
-            try {
-                $fieldnode = $context->find_filemanager($label);
-            } catch (ElementNotFoundException $filemanagerexception) {
-                // We want the generic 'field' exception.
+            if (!$found) {
+                try {
+                    // Looking for labels that points to passwordunmask fields.
+                    $fieldnode = $context->find_passwordunmask($label);
+                    $found = true;
+                } catch (ElementNotFoundException $filemanagerexception) {
+                    // Do nothing.
+                    $found = false;
+                }
+            }
+
+            if (!$found) {
+                try {
+                    // Looking for labels that points to filemanagers.
+                    $fieldnode = $context->find_filemanager($label);
+                    $found = true;
+                } catch (ElementNotFoundException $filemanagerexception) {
+                    // Do nothing.
+                    $found = false;
+                }
+            }
+
+            if (!$found) {
                 throw $fieldexception;
             }
         }
@@ -226,6 +245,11 @@ class behat_field_manager {
         // Special handling for availability field which requires custom JavaScript.
         if ($fieldnode->getAttribute('name') === 'availabilityconditionsjson') {
             return 'availability';
+        }
+
+        $passwordunmask = $fieldnode->find('xpath', '/ancestor::*[@data-passwordunmaskid]');
+        if (!empty($passwordunmask)) {
+            return 'passwordunmask';
         }
 
         // We look for a parent node with 'felement' class.
