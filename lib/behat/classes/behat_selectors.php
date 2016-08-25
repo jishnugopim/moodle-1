@@ -32,7 +32,23 @@
  * @copyright  2013 David Monllaó
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class behat_selectors {
+class behat_selectors extends \Behat\Mink\Selector\PartialNamedSelector {
+
+    /**
+     * Creates selector instance.
+     */
+    public function __construct() {
+        foreach (self::$customselectors as $alias => $selectors) {
+            $this->registerNamedXpath($alias, implode(' | ', $selectors));
+        }
+
+        foreach (self::get_moodle_selectors() as $name => $xpath) {
+            $this->registerNamedXpath($name, $xpath);
+        }
+
+        // Call the constructor after adding any new selector or replacement values.
+        parent::__construct();
+    }
 
     /**
      * @var Allowed types when using text selectors arguments.
@@ -108,10 +124,6 @@ XPATH
 .//div[contains(concat(' ', normalize-space(@class), ' '), ' yui-dialog ') and
     normalize-space(descendant::div[@class='hd']) = %locator%]
 XPATH
-        , 'filemanager' => <<<XPATH
-.//div[contains(concat(' ', normalize-space(@class), ' '), ' ffilemanager ')]
-    /descendant::input[@id = //label[contains(normalize-space(string(.)), %locator%)]/@for]
-XPATH
         , 'list_item' => <<<XPATH
 .//li[contains(normalize-space(.), %locator%) and not(.//li[contains(normalize-space(.), %locator%)])]
 XPATH
@@ -140,6 +152,27 @@ XPATH
 XPATH
     );
 
+    protected static $customselectors = [
+        'field' => [
+            'upstream' => <<<XPATH
+.//*
+[%fieldFilterWithPlaceholder%][%notFieldTypeFilter%][%fieldMatchWithPlaceholder%]
+|
+.//label[%tagTextMatch%]//.//*[%fieldFilterWithPlaceholder%][%notFieldTypeFilter%]
+|
+.//*
+[%fieldFilterWithoutPlaceholder%][%notFieldTypeFilter%][%fieldMatchWithoutPlaceholder%]
+|
+.//label[%tagTextMatch%]//.//*[%fieldFilterWithoutPlaceholder%][%notFieldTypeFilter%]
+XPATH
+        ,
+            'filemanager' => <<<XPATH
+.//div[contains(concat(' ', normalize-space(@class), ' '), ' ffilemanager ')]
+    /descendant::input[@id = //label[%tagTextMatch%]/@for]
+XPATH
+        ],
+    ];
+
     /**
      * Returns the behat selector and locator for a given moodle selector and locator
      *
@@ -164,25 +197,12 @@ XPATH
     }
 
     /**
-     * Adds moodle selectors as behat named selectors.
-     *
-     * @param Session $session The mink session
-     * @return void
-     */
-    public static function register_moodle_selectors(Behat\Mink\Session $session) {
-
-        foreach (self::get_moodle_selectors() as $name => $xpath) {
-            $session->getSelectorsHandler()->getSelector('named_partial')->registerNamedXpath($name, $xpath);
-        }
-    }
-
-    /**
      * Allowed selectors getter.
      *
      * @return array
      */
     public static function get_allowed_selectors() {
-        return self::$allowedselectors;
+        return static::$allowedselectors;
     }
 
     /**
@@ -191,7 +211,7 @@ XPATH
      * @return array
      */
     public static function get_allowed_text_selectors() {
-        return self::$allowedtextselectors;
+        return static::$allowedtextselectors;
     }
 
     /**
@@ -200,6 +220,6 @@ XPATH
      * @return array
      */
     protected static function get_moodle_selectors() {
-        return self::$moodleselectors;
+        return static::$moodleselectors;
     }
 }

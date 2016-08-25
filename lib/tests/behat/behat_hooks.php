@@ -314,8 +314,7 @@ class behat_hooks extends behat_base {
                 $behatselectorclass = behat_config_util::get_behat_theme_selector_override_classname($suitename, true);
             }
             if (class_exists($behatselectorclass)) {
-                $behatselectorclass = new $behatselectorclass();
-                $behatselectorclass::register_moodle_selectors($session);
+                $this->getSession()->getSelectorsHandler()->registerSelector('named_partial', new $behatselectorclass());
             }
         }
 
