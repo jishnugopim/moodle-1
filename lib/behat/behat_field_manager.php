@@ -51,19 +51,8 @@ class behat_field_manager {
 
         // There are moodle form elements that are not directly related with
         // a basic HTML form field, we should also take care of them.
-        try {
-            // The DOM node.
-            $fieldnode = $context->find_field($label);
-        } catch (ElementNotFoundException $fieldexception) {
-
-            // Looking for labels that points to filemanagers.
-            try {
-                $fieldnode = $context->find_filemanager($label);
-            } catch (ElementNotFoundException $filemanagerexception) {
-                // We want the generic 'field' exception.
-                throw $fieldexception;
-            }
-        }
+        // The DOM node.
+        $fieldnode = $context->find_field($label);
 
         // The behat field manager.
         return self::get_form_field($fieldnode, $context->getSession());
@@ -226,6 +215,10 @@ class behat_field_manager {
         // Special handling for availability field which requires custom JavaScript.
         if ($fieldnode->getAttribute('name') === 'availabilityconditionsjson') {
             return 'availability';
+        }
+
+        if (!empty($fieldnode->find('xpath', '/ancestor::*[@data-passwordunmaskid]'))) {
+            return 'passwordunmask';
         }
 
         // We look for a parent node with 'felement' class.
