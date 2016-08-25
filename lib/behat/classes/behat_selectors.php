@@ -39,7 +39,7 @@ class behat_selectors extends \Behat\Mink\Selector\PartialNamedSelector {
      */
     public function __construct() {
         foreach (self::$customselectors as $alias => $selectors) {
-            $this->registerNamedXpath($alias, implode(' | ', $selectors));
+            //$this->registerNamedXpath($alias, implode(' | ', $selectors));
         }
 
         foreach (self::get_moodle_selectors() as $name => $xpath) {
