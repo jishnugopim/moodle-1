@@ -170,6 +170,10 @@ class forum extends persistent {
                 'default' => 0,
                 'type' => PARAM_INT
             ],
+            'lockdiscussionafter' => [
+                'default' => 0,
+                'type' => PARAM_INT
+            ],
         ];
     }
 }

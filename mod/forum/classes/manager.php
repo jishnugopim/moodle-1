@@ -141,6 +141,12 @@ abstract class manager {
             return groups_is_member($discussion->get_groupid());
         }
 
+        if ($this->is_locked($discussion)) {
+            if (!has_capability('mod/forum:ignoreforumlock', $this->get_context_module())) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -196,6 +202,20 @@ abstract class manager {
     }
 
     /**
+     * Whether the specified discussion is locked.
+     *
+     * @param   discussion  $discussion     The discussion being tested
+     * @return  bool
+     */
+    public function is_locked(discussion $discussion) {
+        if ($this->forum->get_lockdiscussionafter()) {
+            return !static::within_bounds($discussion->get_timemodified(), $this->forum->get_lockdiscussionafter());
+        }
+
+        return false;
+    }
+
+    /**
      * Fetch the context for the module.
      *
      * @return  context_module
@@ -246,5 +266,25 @@ abstract class manager {
         }
 
         return $this->course;
+    }
+
+    /**
+     * Determine whether the specified timestamp is within the boundary.
+     *
+     * @param   int         $timestamp      The timestamp to check
+     * @param   int         $bound          The boundary period
+     * @return  bool
+     */
+    protected static function within_bounds($timestamp, $bound) {
+        if ($timestamp === null) {
+            // The timestamp is assumed to be out of bounds if it not set.
+            return true;
+        }
+
+        if (($timestamp + $bound) < time()) {
+            return true;
+        }
+
+        return false;
     }
 }
