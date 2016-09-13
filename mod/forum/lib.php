@@ -4937,64 +4937,8 @@ function forum_get_user_posted_time($did, $userid) {
  * @return bool
  */
 function forum_user_can_post_discussion($forum, $currentgroup=null, $unused=-1, $cm=NULL, $context=NULL) {
-// $forum is an object
-    global $USER;
-
-    // shortcut - guest and not-logged-in users can not post
-    if (isguestuser() or !isloggedin()) {
-        return false;
-    }
-
-    if (!$cm) {
-        debugging('missing cm', DEBUG_DEVELOPER);
-        if (!$cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course)) {
-            print_error('invalidcoursemodule');
-        }
-    }
-
-    if (!$context) {
-        $context = context_module::instance($cm->id);
-    }
-
-    if ($currentgroup === null) {
-        $currentgroup = groups_get_activity_group($cm);
-    }
-
-    $groupmode = groups_get_activity_groupmode($cm);
-
-    if ($forum->type == 'news') {
-        $capname = 'mod/forum:addnews';
-    } else if ($forum->type == 'qanda') {
-        $capname = 'mod/forum:addquestion';
-    } else {
-        $capname = 'mod/forum:startdiscussion';
-    }
-
-    if (!has_capability($capname, $context)) {
-        return false;
-    }
-
-    if ($forum->type == 'single') {
-        return false;
-    }
-
-    if ($forum->type == 'eachuser') {
-        if (forum_user_has_posted_discussion($forum->id, $USER->id, $currentgroup)) {
-            return false;
-        }
-    }
-
-    if (!$groupmode or has_capability('moodle/site:accessallgroups', $context)) {
-        return true;
-    }
-
-    if ($currentgroup) {
-        return groups_is_member($currentgroup);
-    } else {
-        // no group membership and no accessallgroups means no new discussions
-        // reverted to 1.7 behaviour in 1.9+,  buggy in 1.8.0-1.9.0
-        return false;
-    }
+    $manager = \mod_forum\manager::instance(new \mod_forum\forum(0, $forum));
+    return $manager->can_create_discussion($currentgroup);
 }
 
 /**
@@ -5016,76 +4960,8 @@ function forum_user_can_post_discussion($forum, $currentgroup=null, $unused=-1, 
  * @return bool
  */
 function forum_user_can_post($forum, $discussion, $user=NULL, $cm=NULL, $course=NULL, $context=NULL) {
-    global $USER, $DB;
-    if (empty($user)) {
-        $user = $USER;
-    }
-
-    // shortcut - guest and not-logged-in users can not post
-    if (isguestuser($user) or empty($user->id)) {
-        return false;
-    }
-
-    if (!isset($discussion->groupid)) {
-        debugging('incorrect discussion parameter', DEBUG_DEVELOPER);
-        return false;
-    }
-
-    if (!$cm) {
-        debugging('missing cm', DEBUG_DEVELOPER);
-        if (!$cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course)) {
-            print_error('invalidcoursemodule');
-        }
-    }
-
-    if (!$course) {
-        debugging('missing course', DEBUG_DEVELOPER);
-        if (!$course = $DB->get_record('course', array('id' => $forum->course))) {
-            print_error('invalidcourseid');
-        }
-    }
-
-    if (!$context) {
-        $context = context_module::instance($cm->id);
-    }
-
-    // normal users with temporary guest access can not post, suspended users can not post either
-    if (!is_viewing($context, $user->id) and !is_enrolled($context, $user->id, '', true)) {
-        return false;
-    }
-
-    if ($forum->type == 'news') {
-        $capname = 'mod/forum:replynews';
-    } else {
-        $capname = 'mod/forum:replypost';
-    }
-
-    if (!has_capability($capname, $context, $user->id)) {
-        return false;
-    }
-
-    if (!$groupmode = groups_get_activity_groupmode($cm, $course)) {
-        return true;
-    }
-
-    if (has_capability('moodle/site:accessallgroups', $context)) {
-        return true;
-    }
-
-    if ($groupmode == VISIBLEGROUPS) {
-        if ($discussion->groupid == -1) {
-            // allow students to reply to all participants discussions - this was not possible in Moodle <1.8
-            return true;
-        }
-        return groups_is_member($discussion->groupid);
-
-    } else {
-        //separate groups
-        if ($discussion->groupid == -1) {
-            return false;
-        }
-        return groups_is_member($discussion->groupid);
-    }
+    $manager = \mod_forum\manager::instance(new \mod_forum\forum(0, $forum));
+    return $manager->can_reply_to_discussion(new \mod_forum\discussion(0, $discussion));
 }
 
 /**
