@@ -133,6 +133,7 @@ $string['disallowsubscription'] = 'Subscription';
 $string['disallowsubscription_help'] = 'This forum has been configured so that you cannot subscribe to discussions.';
 $string['disallowsubscribeteacher'] = 'Subscriptions not allowed (except for teachers)';
 $string['discussion'] = 'Discussion';
+$string['discussionlocked'] = 'This discussion has been archived and you can no longer reply to it. Consider starting a new discussion instead.';
 $string['discussionmoved'] = 'This discussion has been moved to \'{$a}\'.';
 $string['discussionmovedpost'] = 'This discussion has been moved to <a href="{$a->discusshref}">here</a> in the forum <a href="{$a->forumhref}">{$a->forumname}</a>';
 $string['discussionname'] = 'Discussion name';
@@ -216,6 +217,7 @@ $string['forum:addinstance'] = 'Add a new forum';
 $string['forum:addnews'] = 'Add news';
 $string['forum:addquestion'] = 'Add question';
 $string['forum:allowforcesubscribe'] = 'Allow force subscribe';
+$string['forum:canoverridediscussionlock'] = 'Allow posting when a discussion is locked';
 $string['forumauthorhidden'] = 'Author (hidden)';
 $string['forumblockingalmosttoomanyposts'] = 'You are approaching the posting threshold. You have posted {$a->numposts} times in the last {$a->blockperiod} and the limit is {$a->blockafter} posts.';
 $string['forumbodyhidden'] = 'This post cannot be viewed by you, probably because you have not posted in the discussion, the maximum editing time hasn\'t passed yet, the discussion has not started or the discussion has expired.';
@@ -529,6 +531,13 @@ $string['warnformorepost'] = 'Warning! There is more than one discussion in this
 $string['yournewquestion'] = 'Your new question';
 $string['yournewtopic'] = 'Your new discussion topic';
 $string['yourreply'] = 'Your reply';
+
+$string['discussionlockingheader'] = 'Discussion locking';
+$string['discussionlockingdisabled'] = 'Do not lock discussions';
+$string['lockdiscussionafter'] = 'Lock discussions after period of inactivity';
+$string['lockdiscussionafter_help'] = 'Locking discussions can be a helpful way of archiving older content and encouraging newer discussions to develop instead.
+
+You can have discussions automatically lock after a period since the last reply.';
 
 // Deprecated since Moodle 3.0.
 $string['subscribersto'] = 'Subscribers to "{$a->name}"';
