@@ -1889,9 +1889,6 @@ function forum_get_all_discussion_posts($discussionid, $sort, $tracking=false) {
 /**
  * An array of forum objects that the user is allowed to read/search through.
  *
- * @global object
- * @global object
- * @global object
  * @param int $userid
  * @param int $courseid if 0, we look for forums throughout the whole site.
  * @return array of forum objects, or false if no matches
@@ -1899,39 +1896,49 @@ function forum_get_all_discussion_posts($discussionid, $sort, $tracking=false) {
  *         id, type, course, cmid, cmvisible, cmgroupmode, accessallgroups,
  *         viewhiddentimedposts
  */
-function forum_get_readable_forums($userid, $courseid=0) {
-
+function forum_get_readable_forums($userid, $courseid = 0) {
     global $CFG, $DB, $USER;
-    require_once($CFG->dirroot.'/course/lib.php');
 
-    if (!$forummod = $DB->get_record('modules', array('name' => 'forum'))) {
-        print_error('notinstalled', 'forum');
-    }
+    require_once($CFG->dirroot . '/course/lib.php');
 
     if ($courseid) {
         $courses = $DB->get_records('course', array('id' => $courseid));
     } else {
         // If no course is specified, then the user can see SITE + his courses.
-        $courses1 = $DB->get_records('course', array('id' => SITEID));
-        $courses2 = enrol_get_users_courses($userid, true, array('modinfo'));
-        $courses = array_merge($courses1, $courses2);
+        $courses = array_merge(
+            $DB->get_records('course', array('id' => SITEID)),
+            enrol_get_users_courses($userid, true, array('modinfo'))
+        );
     }
+
     if (!$courses) {
         return array();
     }
 
     $readableforums = array();
 
+    list($incoursesql, $params) = $DB->get_in_or_equal($courses);
+    $forums = $DB->get_records_sql("SELECT * FROM {forum} WHERE course {$incoursesql}", $params);
+    $allcourseforums = [];
+    foreach ($forums as $forum) {
+        if (!isset($allcourseforums[$forum->courseid])) {
+            $allcourseforums[$forum->courseid] = [];
+        }
+        $allcourseforums[$forum->courseid][] = $forum;
+    }
+
+    if (empty($courseforums)) {
+        return [];
+    }
+
     foreach ($courses as $course) {
-
         $modinfo = get_fast_modinfo($course);
-
         if (empty($modinfo->instances['forum'])) {
-            // hmm, no forums?
+            // No forums in this course.
             continue;
         }
 
-        $courseforums = $DB->get_records('forum', array('course' => $course->id));
+        $courseforums = $allcourseforums[$course->id];
 
         foreach ($modinfo->instances['forum'] as $forumid => $cm) {
             if (!$cm->uservisible or !isset($courseforums[$forumid])) {
@@ -1942,33 +1949,30 @@ function forum_get_readable_forums($userid, $courseid=0) {
             $forum->context = $context;
             $forum->cm = $cm;
 
-            if (!has_capability('mod/forum:viewdiscussion', $context)) {
+            if (!has_capability('mod/forum:viewdiscussion', $context, $userid)) {
                 continue;
             }
 
-         /// group access
-            if (groups_get_activity_groupmode($cm, $course) == SEPARATEGROUPS and !has_capability('moodle/site:accessallgroups', $context)) {
-
+            // Group access.
+            $hasgroupaccess = groups_get_activity_groupmode($cm, $course) === SEPARATEGROUPS;
+            $hasgroupaccess = $hasgroupaccess && !has_capability('moodle/site:accessallgroups', $context, $userid);
+            if ($hasgroupaccess) {
                 $forum->onlygroups = $modinfo->get_groups($cm->groupingid);
                 $forum->onlygroups[] = -1;
             }
 
-        /// hidden timed discussions
-            $forum->viewhiddentimedposts = true;
+            // Hidden timed discussions.
+            $forum->viewhiddentimedposts = false;
             if (!empty($CFG->forum_enabletimedposts)) {
-                if (!has_capability('mod/forum:viewhiddentimedposts', $context)) {
-                    $forum->viewhiddentimedposts = false;
-                }
+                $forum->viewhiddentimedposts = has_capability('mod/forum:viewhiddentimedposts', $context, $userid);
             }
 
-        /// qanda access
-            if ($forum->type == 'qanda'
-                    && !has_capability('mod/forum:viewqandawithoutposting', $context)) {
-
+            // QandA access.
+            if ($forum->type == 'qanda' && !has_capability('mod/forum:viewqandawithoutposting', $context, $userid)) {
                 // We need to check whether the user has posted in the qanda forum.
                 $forum->onlydiscussions = array();  // Holds discussion ids for the discussions
                                                     // the user is allowed to see in this forum.
-                if ($discussionspostedin = forum_discussions_user_has_posted_in($forum->id, $USER->id)) {
+                if ($discussionspostedin = forum_discussions_user_has_posted_in($forum->id, $userid)) {
                     foreach ($discussionspostedin as $d) {
                         $forum->onlydiscussions[] = $d->id;
                     }
@@ -1979,8 +1983,7 @@ function forum_get_readable_forums($userid, $courseid=0) {
         }
 
         unset($modinfo);
-
-    } // End foreach $courses
+    }
 
     return $readableforums;
 }
