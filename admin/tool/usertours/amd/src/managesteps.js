@@ -1,8 +1,8 @@
 /**
  * Step management code.
  *
- * @module     tool_usertours/manage
- * @class      manage
+ * @module     tool_usertours/managesteps
+ * @class      managesteps
  * @package    tool_usertours
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  */
@@ -11,8 +11,20 @@ define(
 function($, ajax, str, Y, templates, notification) {
     Y.use('moodle-core-notification-dialogue');
     var manager = {
+        /**
+         * The dialogue.
+         *
+         * @property dialogue
+         * @type M.core.dialogue
+         */
         dialogue: null,
 
+        /**
+         * Get the dialogue used.
+         *
+         * @method  getDialogue
+         * @return  M.core.dialogue
+         */
         getDialogue: function() {
             if (manager.dialogue === null) {
                 manager.dialogue = new M.core.dialogue({
@@ -24,11 +36,22 @@ function($, ajax, str, Y, templates, notification) {
             return manager.dialogue;
         },
 
+        /**
+         * Get the dialogue node.
+         *
+         * @method  getDialogueNode
+         * @return  NodeElement
+         */
         getDialogueNode: function() {
             var dialogue = manager.getDialogue();
             return $(dialogue.get('boundingBox').getDOMNode());
         },
 
+        /**
+         * Start the Add Step dialogue.
+         *
+         * @method  startAddStepDialogue
+         */
         startAddStepDialogue: function() {
             ajax.call([
                 {
@@ -40,6 +63,11 @@ function($, ajax, str, Y, templates, notification) {
             ]);
         },
 
+        /**
+         * Display the list of target types.
+         *
+         * @method  displayTargetTypeList
+         */
         displayTargetTypeList: function(targetTypes) {
             templates.render('tool_usertours/selecttarget', {targetTypes: targetTypes})
                 .done(manager.updateDialogueContent)
@@ -47,6 +75,12 @@ function($, ajax, str, Y, templates, notification) {
                 ;
         },
 
+        /**
+         * Handle the target type selection.
+         *
+         * @method  handleSubmissionResponse
+         * @param   {object}    response    The user repsonse
+         */
         handleSubmissionResponse: function(response) {
             if (response.template && response.context) {
                 templates.render(response.template, response.context)
@@ -64,6 +98,12 @@ function($, ajax, str, Y, templates, notification) {
             }
         },
 
+        /**
+         * Update the contetn of the dialogue.
+         *
+         * @method  updateDialogueContent
+         * @param   {String}    content     The intended content of the dialogue
+         */
         updateDialogueContent: function(content) {
             // Update the dialogue content.
             var dialogue = manager.getDialogue();
@@ -78,6 +118,12 @@ function($, ajax, str, Y, templates, notification) {
             dialogue.show();
         },
 
+        /**
+         * Handle submission of the dialogue form.
+         *
+         * @method  handleSubmission
+         * @param   {EventFacade}   e   The EventFacade
+         */
         handleSubmission: function(e) {
             e.preventDefault();
 
@@ -101,6 +147,12 @@ function($, ajax, str, Y, templates, notification) {
             ]);
         },
 
+        /**
+         * Confirm removal of the specified step.
+         *
+         * @method  removeStep
+         * @param   {EventFacade}   e   The EventFacade
+         */
         removeStep: function(e) {
             e.preventDefault();
             str.get_strings([
@@ -127,6 +179,12 @@ function($, ajax, str, Y, templates, notification) {
             });
         },
 
+        /**
+         * Setup the step management UI.
+         *
+         * @method          setup
+         * @param   {int}   tourid      The tour to be managed.
+         */
         setup: function(tourid) {
             manager.tourid = tourid;
             $('.createstep').click(function(e) {

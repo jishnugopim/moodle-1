@@ -577,7 +577,7 @@ class tour {
 
         if ($tourcompletiondate = get_user_preferences(self::TOUR_LAST_COMPLETED_BY_USER . $this->get_id(), null)) {
             if ($tourresetdate = get_user_preferences(self::TOUR_REQUESTED_BY_USER . $this->get_id(), null)) {
-                if ($tourresetdate > $tourcompletiondate) {
+                if ($tourresetdate >= $tourcompletiondate) {
                     return true;
                 }
             }

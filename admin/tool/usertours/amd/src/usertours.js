@@ -1,14 +1,14 @@
 /**
- * Tour management code.
+ * User tour control library.
  *
- * @module     tool_usertours/managetours
- * @class      managetours
+ * @module     tool_usertours/usertours
+ * @class      usertours
  * @package    tool_usertours
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  */
 define(
-['core/ajax', 'tool_usertours/tour', 'jquery', 'core/templates', 'core/str'],
-function(ajax, BootstrapTour, $, templates, str) {
+['core/ajax', 'tool_usertours/tour', 'jquery', 'core/templates', 'core/str', 'core/log', 'core/notification'],
+function(ajax, BootstrapTour, $, templates, str, log, notification) {
     var usertours = {
         tourId: null,
 
@@ -16,6 +16,13 @@ function(ajax, BootstrapTour, $, templates, str) {
 
         context: null,
 
+        /**
+         * Initialise the user tour for the current page.
+         *
+         * @method  init
+         * @param   int     tourId      The ID of the tour to start.
+         * @param   bool    startTour   Attempt to start the tour now.
+         */
         init: function(tourId, startTour, context) {
             // Only one tour per page is allowed.
             usertours.tourId = tourId;
@@ -49,7 +56,7 @@ function(ajax, BootstrapTour, $, templates, str) {
             $.when(
                 ajax.call([
                     {
-                        methodname: 'tool_usertours_fetch_tour',
+                        methodname: 'tool_usertours_fetch_and_start_tour',
                         args: {
                             tourid:     tourId,
                             context:    usertours.context,
@@ -60,7 +67,7 @@ function(ajax, BootstrapTour, $, templates, str) {
                 templates.render('tool_usertours/tourstep', {})
             ).then(function(response, template) {
                 usertours.startBootstrapTour(tourId, template[0], response.tourConfig);
-            });
+            }).fail(notification.exception);
         },
 
         /**
@@ -144,18 +151,20 @@ function(ajax, BootstrapTour, $, templates, str) {
          */
         markStepShown: function() {
             var stepConfig = this.getStepConfig(this.getCurrentStepNumber());
-            ajax.call([
-                {
-                    methodname: 'tool_usertours_step_shown',
-                    args: {
-                        tourid:     usertours.tourId,
-                        context:    usertours.context,
-                        pageurl:    window.location.href,
-                        stepid:     stepConfig.stepid,
-                        stepindex:  this.getCurrentStepNumber(),
+            $.when(
+                ajax.call([
+                    {
+                        methodname: 'tool_usertours_step_shown',
+                        args: {
+                            tourid:     usertours.tourId,
+                            context:    usertours.context,
+                            pageurl:    window.location.href,
+                            stepid:     stepConfig.stepid,
+                            stepindex:  this.getCurrentStepNumber(),
+                        }
                     }
-                }
-            ]);
+                ])[0]
+            ).fail(log.error);
         },
 
         /**
@@ -165,18 +174,20 @@ function(ajax, BootstrapTour, $, templates, str) {
          */
         markTourComplete: function() {
             var stepConfig = this.getStepConfig(this.getCurrentStepNumber());
-            ajax.call([
-                {
-                    methodname: 'tool_usertours_complete_tour',
-                    args: {
-                        tourid:     usertours.tourId,
-                        context:    usertours.context,
-                        pageurl:    window.location.href,
-                        stepid:     stepConfig.stepid,
-                        stepindex:  this.getCurrentStepNumber(),
+            $.when(
+                ajax.call([
+                    {
+                        methodname: 'tool_usertours_complete_tour',
+                        args: {
+                            tourid:     usertours.tourId,
+                            context:    usertours.context,
+                            pageurl:    window.location.href,
+                            stepid:     stepConfig.stepid,
+                            stepindex:  this.getCurrentStepNumber(),
+                        }
                     }
-                }
-            ]);
+                ])[0]
+            ).fail(log.error);
         },
 
         /**
@@ -186,21 +197,22 @@ function(ajax, BootstrapTour, $, templates, str) {
          * @param   {Number}    tourId      The ID of the tour to start.
          */
         resetTourState: function(tourId) {
-            ajax.call([
-                {
-                    methodname: 'tool_usertours_reset_tour',
-                    args: {
-                        tourid:     tourId,
-                        context:    usertours.context,
-                        pageurl:    window.location.href,
-                    },
-                    done: function(response) {
-                        if (response.startTour) {
-                            usertours.fetchTour(response.startTour);
+            $.when(
+                ajax.call([
+                    {
+                        methodname: 'tool_usertours_reset_tour',
+                        args: {
+                            tourid:     tourId,
+                            context:    usertours.context,
+                            pageurl:    window.location.href,
                         }
                     }
+                ])[0]
+            ).then(function(response) {
+                if (response.startTour) {
+                    usertours.fetchTour(response.startTour);
                 }
-            ]);
+            }).fail(notification.exception);
         }
     };
 

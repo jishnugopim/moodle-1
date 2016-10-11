@@ -46,12 +46,12 @@ class tour extends external_api {
      * @param   int     $tourid     The ID of the tour to fetch.
      * @param   int     $context    The Context ID of the current page.
      * @param   string  $pageurl    The path of the current page.
-     * @return  array               As described in fetch_tour_returns
+     * @return  array               As described in fetch_and_start_tour_returns
      */
-    public static function fetch_tour($tourid, $context, $pageurl) {
+    public static function fetch_and_start_tour($tourid, $context, $pageurl) {
         global $PAGE;
 
-        $params = self::validate_parameters(self::fetch_tour_parameters(), [
+        $params = self::validate_parameters(self::fetch_and_start_tour_parameters(), [
                 'tourid'    => $tourid,
                 'context'   => $context,
                 'pageurl'   => $pageurl,
@@ -81,11 +81,11 @@ class tour extends external_api {
     }
 
     /**
-     * The parameters for fetch_tour.
+     * The parameters for fetch_and_start_tour.
      *
      * @return external_function_parameters
      */
-    public static function fetch_tour_parameters() {
+    public static function fetch_and_start_tour_parameters() {
         return new external_function_parameters([
             'tourid'    => new external_value(PARAM_INT, 'Tour ID'),
             'context'   => new external_value(PARAM_INT, 'Context ID'),
@@ -94,11 +94,11 @@ class tour extends external_api {
     }
 
     /**
-     * The return configuration for fetch_tour.
+     * The return configuration for fetch_and_start_tour.
      *
      * @return external_single_structure
      */
-    public static function fetch_tour_returns() {
+    public static function fetch_and_start_tour_returns() {
         return new external_single_structure([
             'tourConfig'    => new external_single_structure([
                 'name'      => new external_value(PARAM_RAW, 'Tour ID'),
@@ -183,8 +183,6 @@ class tour extends external_api {
      * @return  array               As described in complete_tour_returns
      */
     public static function complete_tour($tourid, $context, $pageurl, $stepid, $stepindex) {
-        require_login();
-
         $params = self::validate_parameters(self::complete_tour_parameters(), [
                 'tourid'    => $tourid,
                 'context'   => $context,
@@ -247,8 +245,6 @@ class tour extends external_api {
      * @return  array               As described in complete_tour_returns
      */
     public static function step_shown($tourid, $context, $pageurl, $stepid, $stepindex) {
-        require_login();
-
         $params = self::validate_parameters(self::step_shown_parameters(), [
                 'tourid'    => $tourid,
                 'context'   => $context,

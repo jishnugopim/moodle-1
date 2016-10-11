@@ -10,6 +10,12 @@ define(
 ['jquery', 'core/ajax', 'core/str', 'core/notification'],
 function($, ajax, str, notification) {
     var manager = {
+        /**
+         * Confirm removal of the specified tour.
+         *
+         * @method  removeTour
+         * @param   {EventFacade}   e   The EventFacade
+         */
         removeTour: function(e) {
             e.preventDefault();
 
@@ -37,6 +43,11 @@ function($, ajax, str, notification) {
             });
         },
 
+        /**
+         * Setup the tour management UI.
+         *
+         * @method          setup
+         */
         setup: function() {
             $('body').delegate('[data-action="delete"]', 'click', manager.removeTour);
         }

@@ -43,9 +43,9 @@ $functions = array(
         'ajax'            => true,
     ),
 
-    'tool_usertours_fetch_tour' => array(
+    'tool_usertours_fetch_and_start_tour' => array(
         'classname'       => 'tool_usertours\external\tour',
-        'methodname'      => 'fetch_tour',
+        'methodname'      => 'fetch_and_start_tour',
         'description'     => 'Fetch the specified tour',
         'type'            => 'read',
         'capabilities'    => '',
