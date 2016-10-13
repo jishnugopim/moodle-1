@@ -338,6 +338,11 @@ class manager {
                 $tour->set_config($key, $data->$key);
             }
 
+            // Save filter values.
+            foreach (helper::get_all_filters() as $filterclass) {
+                $filterclass::save_filter_values_from_form($tour, $data);
+            }
+
             $tour->persist();
 
             redirect(helper::get_list_tour_link());
@@ -346,7 +351,13 @@ class manager {
                 $this->header('newtour');
             } else {
                 $this->header($tour->get_name());
-                $form->set_data($tour->prepare_data_for_form());
+                $data = $tour->prepare_data_for_form();
+
+                // Prepare filter values for the form.
+                foreach (helper::get_all_filters() as $filterclass) {
+                    $filterclass::prepare_filter_values_for_form($tour, $data);
+                }
+                $form->set_data($data);
             }
 
             $form->display();
@@ -547,7 +558,7 @@ class manager {
      * @return  tour
      */
     public static function get_matching_tours(\moodle_url $pageurl) {
-        global $DB;
+        global $DB, $PAGE;
 
         // Do not show tours whilst upgrades are pending.
         if (moodle_needs_upgrading()) {
@@ -567,7 +578,7 @@ EOF;
 
         foreach ($tours as $record) {
             $tour = tour::load_from_record($record);
-            if ($tour->is_enabled()) {
+            if ($tour->is_enabled() && $tour->matches_all_filters($PAGE->context)) {
                 return $tour;
             }
         }

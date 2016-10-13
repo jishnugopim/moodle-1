@@ -49,7 +49,18 @@ $string['delay'] = 'Delay before showing the step';
 $string['done'] = 'Done';
 $string['editstep'] = 'Editing "{$a}"';
 $string['enabled'] = 'Enabled';
+$string['event_tour_started'] = 'Tour started';
+$string['event_tour_reset'] = 'Tour reset';
+$string['event_tour_ended'] = 'Tour ended';
+$string['event_step_shown'] = 'Step shown';
 $string['exporttour'] = 'Export tour';
+$string['filter_header'] = 'Tour filters';
+$string['filter_help'] = 'Your can choose which conditions your tour will be shown under.
+All of the filters must match for a tour to be shown to that user.';
+$string['filter_theme'] = 'Theme';
+$string['filter_theme_help'] = 'Show the tour when the user is using one of the selected themes.';
+$string['filter_role'] = 'Role';
+$string['filter_role_help'] = 'Only show the tour to users with one of the specified roles.';
 $string['importtour'] = 'Import tour';
 $string['left'] = 'Left';
 $string['movestepdown'] = 'Move step down';
@@ -127,6 +138,7 @@ $string['delay_help'] = 'You can optionally choose to add a delay before the ste
 
 This delay is in milliseconds.';
 $string['selecttype'] = 'Select step type';
+$string['sharedtourslink'] = 'Tour repository';
 $string['usertours'] = 'User tours';
 $string['target_selector_targetvalue'] = 'CSS Selectors';
 $string['target_selector_targetvalue_help'] = 'You can use a "CSS Selector" to target almost any element on the page.
@@ -144,11 +156,6 @@ You will also find your browser\'s developer tools to be extremely useful in cre
 * [Microsoft Edge](https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/f12-devtools-guide/)
 * [Apple Safari](https://developer.apple.com/library/iad/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/ResourcesandtheDOM/ResourcesandtheDOM.html#//apple_ref/doc/uid/TP40007874-CH3-SW1)
 ';
-$string['sharedtourslink'] = 'Tour repository';
 $string['viewtour_info'] = 'This is the \'{$a->tourname}\' tour. It applies to the path \'{$a->path}\'.';
 $string['viewtour_edit'] = 'You can <a href="{$a->editlink}">edit the tour defaults</a> and <a href="{$a->resetlink}">force the tour to be displayed</a> to all users again.';
-$string['event_tour_started'] = 'Tour started';
-$string['event_tour_reset'] = 'Tour reset';
-$string['event_tour_ended'] = 'Tour ended';
-$string['event_step_shown'] = 'Step shown';
 $string['tour_resetforall'] = 'The state of the tour has been reset. It will be displayed to all users again.';

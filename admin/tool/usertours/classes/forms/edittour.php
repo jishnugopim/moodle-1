@@ -28,6 +28,8 @@ defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 require_once($CFG->libdir . '/formslib.php');
 
+use \tool_usertours\helper;
+
 /**
  * Form for editing tours.
  *
@@ -79,6 +81,14 @@ class edittour extends \moodleform {
 
         // Configuration.
         $this->tour->add_config_to_form($mform);
+
+        // Filters.
+        $mform->addElement('header', 'filters', get_string('filter_header', 'tool_usertours'));
+        $mform->addElement('static', 'filterhelp', '', get_string('filter_help', 'tool_usertours'));
+
+        foreach (helper::get_all_filters() as $filterclass) {
+            $filterclass::add_filter_to_form($mform);
+        }
 
         $this->add_action_buttons();
     }

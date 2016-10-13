@@ -504,4 +504,21 @@ class helper {
                 ]);
         }
     }
+
+    /**
+     * Get a list of all possible filters.
+     *
+     * @return  array
+     */
+    public static function get_all_filters() {
+        $filters = \core_component::get_component_classes_in_namespace('tool_usertours', 'filter');
+        $filters = array_keys($filters);
+
+        $filters = array_filter($filters, function($filterclass) {
+            $rc = new \ReflectionClass($filterclass);
+            return $rc->isInstantiable();
+        });
+
+        return $filters;
+    }
 }

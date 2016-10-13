@@ -103,6 +103,11 @@ class tour {
     protected $config;
 
     /**
+     * @var $filtervalues The filter configuration object for the tour.
+     */
+    protected $filtervalues;
+
+    /**
      * @var $steps  The steps in this tour.
      */
     protected $steps = [];
@@ -708,5 +713,53 @@ class tour {
         return $data;
     }
 
+    /**
+     * Get the configured filter values.
+     *
+     * @param   string      $filter     The filter to retrieve values for.
+     * @return  array
+     */
+    public function get_filter_values($filter) {
+        if ($allvalues = (array) $this->get_config('filtervalues')) {
+            if (isset($allvalues[$filter])) {
+                return $allvalues[$filter];
+            }
+        }
 
+        return [];
+    }
+
+    /**
+     * Set the values for the specified filter.
+     *
+     * @param   string      $filter     The filter to set.
+     * @param   array       $values     The values to set.
+     * @return  $this
+     */
+    public function set_filter_values($filter, array $values = []) {
+        $allvalues = (array) $this->get_config('filtervalues', []);
+        $allvalues[$filter] = $values;
+
+        return $this->set_config('filtervalues', $allvalues);
+    }
+
+    /**
+     * Check whether this tour matches all filters.
+     *
+     * @param   context     $context    The context to check
+     * @return  bool
+     */
+    public function matches_all_filters(\context $context) {
+        $filters = helper::get_all_filters();
+
+        // All filters must match.
+        // If any one filter fails to match, we return false.
+        foreach ($filters as $filterclass) {
+            if (!$filterclass::filter_matches($this, $context)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
