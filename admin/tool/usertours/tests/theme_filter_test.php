@@ -84,7 +84,7 @@ class tool_usertours_theme_filter_testcase extends advanced_testcase {
 	public function test_filter_matches($filtervalues, $currenttheme, $expected) {
         global $PAGE;
 
-		$filtername = \tool_usertours\filter\theme::class;
+		$filtername = \tool_usertours\local\filter\theme::class;
 
 		// Note: No need to persist this tour.
 		$tour = new \tool_usertours\tour();

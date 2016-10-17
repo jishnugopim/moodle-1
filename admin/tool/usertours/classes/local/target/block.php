@@ -15,34 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A step designed to be orphaned.
+ * Block target.
  *
  * @package    tool_usertours
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace tool_usertours\target;
+namespace tool_usertours\local\target;
 
 defined('MOODLE_INTERNAL') || die();
 
 use tool_usertours\step;
 
 /**
- * A step designed to be orphaned.
+ * Block target.
  *
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class unattached extends base {
-    /**
-     * @var     array       $forcedsettings The settings forced by this type.
-     */
-    protected $forcedsettings = [
-            'placement'     => 'top',
-            'orphan'        => true,
-            'reflex'        => false,
-        ];
+class block extends base {
 
     /**
      * Convert the target value to a valid CSS selector for use in the
@@ -51,7 +43,9 @@ class unattached extends base {
      * @return string
      */
     public function convert_to_css() {
-        return '';
+        // The block has the following CSS class selector style:
+        // .block-region .block_[name] .
+        return sprintf('.block-region .block_%s', $this->step->get_targetvalue());
     }
 
     /**
@@ -60,7 +54,26 @@ class unattached extends base {
      * @return string
      */
     public function get_displayname() {
-        return get_string('target_unattached', 'tool_usertours');
+        return get_string('block_named', 'tool_usertours', $this->get_block_name());
+    }
+
+    /**
+     * Get the translated name of the block.
+     *
+     * @return string
+     */
+    protected function get_block_name() {
+        return get_string('pluginname', self::get_frankenstyle($this->step->get_targetvalue()));
+    }
+
+    /**
+     * Get the frankenstyle name of the block.
+     *
+     * @param   string  $block  The block name.
+     * @return                  The frankenstyle block name.
+     */
+    protected static function get_frankenstyle($block) {
+        return sprintf('block_%s', $block);
     }
 
     /**
@@ -70,9 +83,14 @@ class unattached extends base {
      * @return  $this
      */
     public function add_config_to_form(\MoodleQuickForm $mform) {
-        // There is no relevant value here.
-        $mform->addElement('hidden', 'targetvalue', '');
-        $mform->setType('targetvalue', PARAM_TEXT);
+        global $PAGE;
+
+        $blocks = [];
+        foreach ($PAGE->blocks->get_installed_blocks() as $block) {
+            $blocks[$block->name] = get_string('pluginname', 'block_' . $block->name);
+        }
+
+        $mform->addElement('select', 'targetvalue', get_string('block', 'tool_usertours'), $blocks);
 
         return $this;
     }

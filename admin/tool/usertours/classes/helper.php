@@ -511,7 +511,7 @@ class helper {
      * @return  array
      */
     public static function get_all_filters() {
-        $filters = \core_component::get_component_classes_in_namespace('tool_usertours', 'filter');
+        $filters = \core_component::get_component_classes_in_namespace('tool_usertours', 'local\filter');
         $filters = array_keys($filters);
 
         $filters = array_filter($filters, function($filterclass) {

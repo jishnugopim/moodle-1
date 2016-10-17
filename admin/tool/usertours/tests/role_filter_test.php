@@ -87,12 +87,12 @@ class tool_usertours_role_filter_testcase extends advanced_testcase {
         // Note: The role filter does not use the context.
         foreach ($this->testroles as $role) {
             $this->setUser($this->$role);
-            $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+            $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
         }
 
         // The admin should always be able to view too.
         $this->setAdminUser();
-        $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+        $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
 	}
 
     /**
@@ -113,15 +113,15 @@ class tool_usertours_role_filter_testcase extends advanced_testcase {
         foreach ($this->testroles as $role) {
             $this->setUser($this->$role);
             if ($role === 'student') {
-                $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+                $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
             } else {
-                $this->assertFalse(\tool_usertours\filter\role::filter_matches($tour, $context));
+                $this->assertFalse(\tool_usertours\local\filter\role::filter_matches($tour, $context));
             }
         }
 
         // The admin should always be able to view too.
         $this->setAdminUser();
-        $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+        $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
 	}
 
     /**
@@ -143,15 +143,15 @@ class tool_usertours_role_filter_testcase extends advanced_testcase {
         foreach ($this->testroles as $role) {
             $this->setUser($this->$role);
             if ($role === 'student') {
-                $this->assertFalse(\tool_usertours\filter\role::filter_matches($tour, $context));
+                $this->assertFalse(\tool_usertours\local\filter\role::filter_matches($tour, $context));
             } else {
-                $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+                $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
             }
         }
 
         // The admin should always be able to view too.
         $this->setAdminUser();
-        $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+        $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
 	}
 
     /**
@@ -175,14 +175,14 @@ class tool_usertours_role_filter_testcase extends advanced_testcase {
         foreach ($this->testroles as $role) {
             $this->setUser($this->$role);
             if ($role === 'student') {
-                $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+                $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
             } else {
-                $this->assertFalse(\tool_usertours\filter\role::filter_matches($tour, $context));
+                $this->assertFalse(\tool_usertours\local\filter\role::filter_matches($tour, $context));
             }
         }
 
         // The admin should always be able to view too.
         $this->setAdminUser();
-        $this->assertTrue(\tool_usertours\filter\role::filter_matches($tour, $context));
+        $this->assertTrue(\tool_usertours\local\filter\role::filter_matches($tour, $context));
 	}
 }

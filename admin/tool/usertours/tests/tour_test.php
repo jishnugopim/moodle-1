@@ -69,7 +69,7 @@ class tour_testcase extends advanced_testcase {
     public function mock_database() {
         global $DB;
 
-        $DB = $this->getMockBuilder('moodle_database')
+        $DB = $this->getMockBuilder(\moodle_database::class)
             ->getMock()
             ;
 
@@ -122,7 +122,7 @@ class tour_testcase extends advanced_testcase {
         $method = 'set_' . $name;
         call_user_func_array([$tour, $method], $value);
 
-        $rc = new \ReflectionClass('tool_usertours\tour');
+        $rc = new \ReflectionClass(\tool_usertours\tour::class);
         $rcp = $rc->getProperty('dirty');
         $rcp->setAccessible(true);
 
@@ -555,7 +555,7 @@ class tour_testcase extends advanced_testcase {
         $rcp->setAccessible(true);
         $rcp->setValue($tour, $id);
 
-        $step = $this->getMockBuilder('\tool_usertours\step')
+        $step = $this->getMockBuilder(\tool_usertours\step::class)
             ->setMethods([
                     'remove',
                 ])

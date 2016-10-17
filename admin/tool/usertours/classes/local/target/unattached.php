@@ -15,26 +15,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Selector target.
+ * A step designed to be orphaned.
  *
  * @package    tool_usertours
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace tool_usertours\target;
+namespace tool_usertours\local\target;
 
 defined('MOODLE_INTERNAL') || die();
 
 use tool_usertours\step;
 
 /**
- * Selector target.
+ * A step designed to be orphaned.
  *
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class selector extends base {
+class unattached extends base {
+    /**
+     * @var     array       $forcedsettings The settings forced by this type.
+     */
+    protected $forcedsettings = [
+            'placement'     => 'top',
+            'orphan'        => true,
+            'reflex'        => false,
+        ];
 
     /**
      * Convert the target value to a valid CSS selector for use in the
@@ -43,7 +51,7 @@ class selector extends base {
      * @return string
      */
     public function convert_to_css() {
-        return $this->step->get_targetvalue();
+        return '';
     }
 
     /**
@@ -52,25 +60,7 @@ class selector extends base {
      * @return string
      */
     public function get_displayname() {
-        return get_string('selectordisplayname', 'tool_usertours', $this->step->get_targetvalue());
-    }
-
-    /**
-     * Get the default title.
-     *
-     * @return string
-     */
-    public function get_default_title() {
-        return get_string('selector_defaulttitle', 'tool_usertours');
-    }
-
-    /**
-     * Get the default content.
-     *
-     * @return string
-     */
-    public function get_default_content() {
-        return get_string('selector_defaultcontent', 'tool_usertours');
+        return get_string('target_unattached', 'tool_usertours');
     }
 
     /**
@@ -80,9 +70,9 @@ class selector extends base {
      * @return  $this
      */
     public function add_config_to_form(\MoodleQuickForm $mform) {
-        $mform->addElement('text', 'targetvalue', get_string('cssselector', 'tool_usertours'));
-        $mform->setType('targetvalue', PARAM_RAW);
-        $mform->addHelpButton('targetvalue', 'target_selector_targetvalue', 'tool_usertours');
+        // There is no relevant value here.
+        $mform->addElement('hidden', 'targetvalue', '');
+        $mform->setType('targetvalue', PARAM_TEXT);
 
         return $this;
     }

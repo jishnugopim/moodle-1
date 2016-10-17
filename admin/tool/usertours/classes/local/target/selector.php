@@ -15,26 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Block target.
+ * Selector target.
  *
  * @package    tool_usertours
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace tool_usertours\target;
+namespace tool_usertours\local\target;
 
 defined('MOODLE_INTERNAL') || die();
 
 use tool_usertours\step;
 
 /**
- * Block target.
+ * Selector target.
  *
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block extends base {
+class selector extends base {
 
     /**
      * Convert the target value to a valid CSS selector for use in the
@@ -43,9 +43,7 @@ class block extends base {
      * @return string
      */
     public function convert_to_css() {
-        // The block has the following CSS class selector style:
-        // .block-region .block_[name] .
-        return sprintf('.block-region .block_%s', $this->step->get_targetvalue());
+        return $this->step->get_targetvalue();
     }
 
     /**
@@ -54,26 +52,25 @@ class block extends base {
      * @return string
      */
     public function get_displayname() {
-        return get_string('block_named', 'tool_usertours', $this->get_block_name());
+        return get_string('selectordisplayname', 'tool_usertours', $this->step->get_targetvalue());
     }
 
     /**
-     * Get the translated name of the block.
+     * Get the default title.
      *
      * @return string
      */
-    protected function get_block_name() {
-        return get_string('pluginname', self::get_frankenstyle($this->step->get_targetvalue()));
+    public function get_default_title() {
+        return get_string('selector_defaulttitle', 'tool_usertours');
     }
 
     /**
-     * Get the frankenstyle name of the block.
+     * Get the default content.
      *
-     * @param   string  $block  The block name.
-     * @return                  The frankenstyle block name.
+     * @return string
      */
-    protected static function get_frankenstyle($block) {
-        return sprintf('block_%s', $block);
+    public function get_default_content() {
+        return get_string('selector_defaultcontent', 'tool_usertours');
     }
 
     /**
@@ -83,14 +80,9 @@ class block extends base {
      * @return  $this
      */
     public function add_config_to_form(\MoodleQuickForm $mform) {
-        global $PAGE;
-
-        $blocks = [];
-        foreach ($PAGE->blocks->get_installed_blocks() as $block) {
-            $blocks[$block->name] = get_string('pluginname', 'block_' . $block->name);
-        }
-
-        $mform->addElement('select', 'targetvalue', get_string('block', 'tool_usertours'), $blocks);
+        $mform->addElement('text', 'targetvalue', get_string('cssselector', 'tool_usertours'));
+        $mform->setType('targetvalue', PARAM_RAW);
+        $mform->addHelpButton('targetvalue', 'target_selector_targetvalue', 'tool_usertours');
 
         return $this;
     }

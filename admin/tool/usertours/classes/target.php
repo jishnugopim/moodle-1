@@ -66,7 +66,7 @@ class target {
      */
     public static function get_classname($type) {
         $targettype = self::$mapping[self::get_target_constant($type)];
-        return "\\tool_usertours\\target\\{$targettype}";
+        return "\\tool_usertours\\local\target\\{$targettype}";
     }
 
     /**
@@ -81,7 +81,7 @@ class target {
         }
 
         $targettype = self::$mapping[$step->get_targettype()];
-        return "\\tool_usertours\\target\\{$targettype}";
+        return "\\tool_usertours\\local\\target\\{$targettype}";
     }
 
     /**

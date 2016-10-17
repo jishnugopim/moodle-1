@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace tool_usertours\target;
+namespace tool_usertours\local\target;
 
 defined('MOODLE_INTERNAL') || die();
 

@@ -599,11 +599,11 @@ class step {
     /**
      * Handle submission of the step editing form.
      *
-     * @param   forms\editstep  $mform      The sumitted form.
+     * @param   local\forms\editstep  $mform      The sumitted form.
      * @param   stdClass        $data       The submitted data.
      * @return  $this
      */
-    public function handle_form_submission(forms\editstep &$mform, \stdClass $data) {
+    public function handle_form_submission(local\forms\editstep &$mform, \stdClass $data) {
         $this->set_title($data->title);
         $this->set_content($data->content);
         $this->set_targettype($data->targettype);
