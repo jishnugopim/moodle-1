@@ -327,12 +327,10 @@ class manager {
             redirect(helper::get_list_tour_link());
         } else if ($data = $form->get_data()) {
             // Creating a new tour.
-            $tour
-                ->set_name($data->name)
-                ->set_description($data->description)
-                ->set_pathmatch($data->pathmatch)
-                ->set_enabled(!empty($data->enabled))
-                ;
+            $tour->set_name($data->name);
+            $tour->set_description($data->description);
+            $tour->set_pathmatch($data->pathmatch);
+            $tour->set_enabled(!empty($data->enabled));
 
             foreach (configuration::get_defaultable_keys() as $key) {
                 $tour->set_config($key, $data->$key);
@@ -657,10 +655,8 @@ EOF;
             $step = step::instance($id);
         } else {
             $step = new step();
-            $step
-                ->set_tourid(required_param('tourid', PARAM_INT))
-                ->set_targettype(required_param('targettype', PARAM_INT))
-                ;
+            $step->set_tourid(required_param('tourid', PARAM_INT));
+            $step->set_targettype(required_param('targettype', PARAM_INT));
         }
 
         $tour = $step->get_tour();
@@ -708,20 +704,15 @@ EOF;
         $swapwith = helper::get_tour_from_sortorder($targetsortorder);
 
         // Set the sort order to something out of the way.
-        $tour
-            ->set_sortorder(-1)
-            ->persist()
-            ;
+        $tour->set_sortorder(-1);
+        $tour->persist();
 
         // Swap the two sort orders.
-        $swapwith
-            ->set_sortorder($currentsortorder)
-            ->persist()
-            ;
+        $swapwith->set_sortorder($currentsortorder);
+        $swapwith->persist();
 
-        $tour->set_sortorder($targetsortorder)
-            ->persist()
-            ;
+        $tour->set_sortorder($targetsortorder);
+        $tour->persist();
 
         redirect(helper::get_list_tour_link());
     }
@@ -744,20 +735,15 @@ EOF;
         $swapwith = helper::get_step_from_sortorder($tour->get_id(), $targetsortorder);
 
         // Set the sort order to something out of the way.
-        $step
-            ->set_sortorder(-1)
-            ->persist()
-            ;
+        $step->set_sortorder(-1);
+        $step->persist();
 
         // Swap the two sort orders.
-        $swapwith
-            ->set_sortorder($currentsortorder)
-            ->persist()
-            ;
+        $swapwith->set_sortorder($currentsortorder);
+        $swapwith->persist();
 
-        $step->set_sortorder($targetsortorder)
-            ->persist()
-            ;
+        $step->set_sortorder($targetsortorder);
+        $step->persist();
 
         // Reset the sort order.
         $tour->reset_step_sortorder();

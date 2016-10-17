@@ -68,8 +68,8 @@ class tour extends external_api {
         $touroutput = new \tool_usertours\output\tour($tour);
 
         \tool_usertours\event\tour_started::create([
-            'contextid' =>  $context->id,
-            'objectid'  =>  $tourid,
+            'contextid' => $context->id,
+            'objectid'  => $tourid,
             'other'     => [
                 'pageurl' => $pageurl,
             ],
@@ -135,8 +135,8 @@ class tour extends external_api {
                 $result['startTour'] = $tour->get_id();
 
                 \tool_usertours\event\tour_reset::create([
-                    'contextid' =>  $context->id,
-                    'objectid'  =>  $params['tourid'],
+                    'contextid' => $context->id,
+                    'objectid'  => $params['tourid'],
                     'other'     => [
                         'pageurl'   => $params['pageurl'],
                     ],
@@ -198,8 +198,8 @@ class tour extends external_api {
         $tour->mark_user_completed();
 
         \tool_usertours\event\tour_ended::create([
-            'contextid' =>  $context->id,
-            'objectid'  =>  $params['tourid'],
+            'contextid' => $context->id,
+            'objectid'  => $params['tourid'],
             'other'     => [
                 'pageurl'   => $params['pageurl'],
                 'stepid'    => $params['stepid'],
@@ -257,8 +257,9 @@ class tour extends external_api {
         self::validate_context($context);
 
         \tool_usertours\event\step_shown::create([
-            'contextid' =>  $context->id,
-            'objectid'  =>  $params['stepid'],
+            'contextid' => $context->id,
+            'objectid'  => $params['stepid'],
+
             'other'     => [
                 'pageurl'   => $params['pageurl'],
                 'tourid'    => $params['tourid'],

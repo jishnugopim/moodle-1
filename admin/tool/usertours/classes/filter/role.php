@@ -41,7 +41,7 @@ class role extends base {
      *
      * @return  string
      */
-    public static  function get_filter_name() {
+    public static function get_filter_name() {
         return 'role';
     }
 

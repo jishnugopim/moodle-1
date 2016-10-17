@@ -20,8 +20,9 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * Initialise the user tour for the current page.
          *
          * @method  init
-         * @param   int     tourId      The ID of the tour to start.
-         * @param   bool    startTour   Attempt to start the tour now.
+         * @param   {Number}    tourId      The ID of the tour to start.
+         * @param   {Bool}      startTour   Attempt to start the tour now.
+         * @param   {Number}    context     The context of the current page.
          */
         init: function(tourId, startTour, context) {
             // Only one tour per page is allowed.
@@ -96,8 +97,8 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          *
          * @method  startBootstrapTour
          * @param   {Number}    tourId      The ID of the tour to start.
-         * @param   {string}    template    The template to use.
-         * @param   {object}    tourConfig  The tour configuration.
+         * @param   {String}    template    The template to use.
+         * @param   {Object}    tourConfig  The tour configuration.
          */
         startBootstrapTour: function(tourId, template, tourConfig) {
             if (usertours.currentTour) {
@@ -221,8 +222,8 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * Initialise the user tour for the current page.
          *
          * @method  init
-         * @param   int     tourId      The ID of the tour to start.
-         * @param   bool    startTour   Attempt to start the tour now.
+         * @param   {Number}    tourId      The ID of the tour to start.
+         * @param   {Bool}      startTour   Attempt to start the tour now.
          */
         init: usertours.init,
 
@@ -230,7 +231,7 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * Reset the state, and restart the the tour on the current page.
          *
          * @method  resetTourState
-         * @param   int     tourId      The ID of the tour to restart.
+         * @param   {Number}    tourId      The ID of the tour to restart.
          */
         resetTourState: usertours.resetTourState
     };

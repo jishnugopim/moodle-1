@@ -16666,12 +16666,10 @@ div[data-flexitour="step-background"] {
   border-radius: 6px;
   z-index: 4031;
 }
+span[data-flexitour="container"],
 div[data-flexitour="step-background-fader"],
 [data-flexitour="step-backdrop"] > td,
 [data-flexitour="step-backdrop"] {
-  z-index: 4032;
-}
-span[data-flexitour="container"] {
   z-index: 4032;
 }
 span[data-flexitour="container"] div[data-role="flexitour-step"] {

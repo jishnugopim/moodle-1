@@ -604,12 +604,10 @@ class step {
      * @return  $this
      */
     public function handle_form_submission(forms\editstep &$mform, \stdClass $data) {
-        $this
-            ->set_title($data->title)
-            ->set_content($data->content)
-            ->set_targettype($data->targettype)
-            ->set_targetvalue($data->targetvalue)
-            ;
+        $this->set_title($data->title);
+        $this->set_content($data->content);
+        $this->set_targettype($data->targettype);
+        $this->set_targetvalue($data->targetvalue);
 
         foreach (self::get_config_keys() as $key) {
             if (!$this->get_target()->is_setting_forced($key)) {

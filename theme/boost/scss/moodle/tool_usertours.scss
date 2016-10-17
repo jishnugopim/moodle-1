@@ -61,22 +61,23 @@ span[data-flexitour="container"] {
     }
 
     // We need to know the opposite sides for arrow placement.
-    $opposites: (
-        top: bottom,
-        bottom: top,
-        left: right,
-        right: left,
-    );
+    $opposites:
+        (
+            top: bottom,
+            bottom: top,
+            left: right,
+            right: left,
+        );
 
     // These are the next leading side and allow for placement half-way along the step dialogue.
-    $sides: (
-        top: left,
-        bottom: left,
-        left: top,
-        right: top,
-    );
+    $sides:
+        (
+            top: left,
+            bottom: left,
+            left: top,
+            right: top,
+        );
 
-    
     @each $direction in map-keys($opposites) {
         $opposite: map_get($opposites, $direction);
         $side: map_get($sides, $direction);
@@ -85,7 +86,7 @@ span[data-flexitour="container"] {
         &[x-placement="#{$direction}"],
         &[x-placement="#{$direction}-start"] {
             margin-#{$opposite}: #{$popover-arrow-width};
-                div[data-role="arrow"] {
+            div[data-role="arrow"] {
                 #{$opposite}: -#{$popover-arrow-outer-width};
                 #{$side}: 50%;
                 margin-#{$side}: -#{$popover-arrow-outer-width};

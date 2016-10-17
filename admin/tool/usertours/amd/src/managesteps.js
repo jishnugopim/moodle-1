@@ -23,7 +23,7 @@ function($, ajax, str, Y, templates, notification) {
          * Get the dialogue used.
          *
          * @method  getDialogue
-         * @return  M.core.dialogue
+         * @return  {M.core.dialogue}
          */
         getDialogue: function() {
             if (manager.dialogue === null) {
@@ -40,7 +40,7 @@ function($, ajax, str, Y, templates, notification) {
          * Get the dialogue node.
          *
          * @method  getDialogueNode
-         * @return  NodeElement
+         * @return  {HTMLElement}
          */
         getDialogueNode: function() {
             var dialogue = manager.getDialogue();
@@ -67,6 +67,7 @@ function($, ajax, str, Y, templates, notification) {
          * Display the list of target types.
          *
          * @method  displayTargetTypeList
+         * @param   {object}    targetTypes     The list of valid target types
          */
         displayTargetTypeList: function(targetTypes) {
             templates.render('tool_usertours/selecttarget', {targetTypes: targetTypes})

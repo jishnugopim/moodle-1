@@ -606,10 +606,8 @@ class tour {
         if ($tourtime === null) {
             // This tour has no majorupdate time.
             // Set one now to prevent repeated displays to the user.
-            $this
-                ->set_config('majorupdatetime', time())
-                ->persist()
-                ;
+            $this->set_config('majorupdatetime', time());
+            $this->persist();
             $tourtime = $this->get_config('majorupdatetime', null);
         }
 
@@ -654,10 +652,8 @@ class tour {
         // Clear old reset and completion notes.
         $DB->delete_records('user_preferences', ['name' => self::TOUR_LAST_COMPLETED_BY_USER . $this->get_id()]);
         $DB->delete_records('user_preferences', ['name' => self::TOUR_REQUESTED_BY_USER . $this->get_id()]);
-        $this
-            ->set_config('majorupdatetime', time())
-            ->persist()
-            ;
+        $this->set_config('majorupdatetime', time());
+        $this->persist();
 
         return $this;
     }

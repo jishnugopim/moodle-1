@@ -1028,6 +1028,9 @@ class tour_testcase extends advanced_testcase {
      * Tests for the get_filter_values function.
      *
      * @dataProvider get_filter_values_provider
+     * @param   array       $fullconfig     The config value being tested
+     * @param   string      $filtername     The name of the filter being tested
+     * @param   array       $expectedvalues The expected result
      */
     public function test_get_filter_values($fullconfig, $filtername, $expectedvalues) {
         $tour = $this->getMockBuilder(tour::class)
