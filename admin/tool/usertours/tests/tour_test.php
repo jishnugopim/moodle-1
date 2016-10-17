@@ -41,7 +41,7 @@ class tour_testcase extends advanced_testcase {
     /**
      * @var moodle_database
      */
-    protected $DB;
+    protected $db;
 
     /**
      * Setup to store the DB reference.
@@ -49,7 +49,7 @@ class tour_testcase extends advanced_testcase {
     public function setUp() {
         global $DB;
 
-        $this->DB = $DB;
+        $this->db = $DB;
     }
 
     /**
@@ -58,7 +58,7 @@ class tour_testcase extends advanced_testcase {
     public function tearDown() {
         global $DB;
 
-        $DB = $this->DB;
+        $DB = $this->db;
     }
 
     /**

@@ -31,7 +31,8 @@ use external_function_parameters;
 use external_single_structure;
 use external_multiple_structure;
 use external_value;
-use \tool_usertours\tour as tourinstance;
+use tool_usertours\tour as tourinstance;
+use tool_usertours\step;
 
 /**
  * Web Service functions for steps.
@@ -101,7 +102,7 @@ class tour extends external_api {
     public static function fetch_and_start_tour_returns() {
         return new external_single_structure([
             'tourConfig'    => new external_single_structure([
-                'name'      => new external_value(PARAM_RAW, 'Tour ID'),
+                'name'      => new external_value(PARAM_RAW, 'Tour Name'),
                 'steps'     => new external_multiple_structure(self::step_structure_returns()),
             ])
         ]);
@@ -255,6 +256,11 @@ class tour extends external_api {
 
         $context = \context_helper::instance_by_id($params['context']);
         self::validate_context($context);
+
+        $step = step::instance($params['stepid']);
+        if ($step->get_tourid() !== $params['tourid']) {
+            throw new \moodle_exception('Incorrect tour specified.');
+        }
 
         \tool_usertours\event\step_shown::create([
             'contextid' => $context->id,

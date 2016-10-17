@@ -39,7 +39,7 @@ class step_testcase extends advanced_testcase {
     /**
      * @var moodle_database
      */
-    protected $DB;
+    protected $db;
 
     /**
      * Setup to store the DB reference.
@@ -47,7 +47,7 @@ class step_testcase extends advanced_testcase {
     public function setUp() {
         global $DB;
 
-        $this->DB = $DB;
+        $this->db = $DB;
     }
 
     /**
@@ -56,7 +56,7 @@ class step_testcase extends advanced_testcase {
     public function tearDown() {
         global $DB;
 
-        $DB = $this->DB;
+        $DB = $this->db;
     }
 
     /**

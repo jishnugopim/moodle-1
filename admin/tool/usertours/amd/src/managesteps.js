@@ -109,14 +109,15 @@ function($, ajax, str, Y, templates, notification) {
             // Update the dialogue content.
             var dialogue = manager.getDialogue();
 
-            dialogue
-                .set('headerContent', str.get_string('selecttype', 'tool_usertours'))
-                .set('bodyContent', content)
-                ;
+            str.get_string('selecttype', 'tool_usertours').then(function(s) {
+                dialogue
+                    .set('headerContent', s)
+                    .set('bodyContent', content)
+                    ;
 
-            manager.getDialogueNode().find('form').submit(manager.handleSubmission);
-
-            dialogue.show();
+                manager.getDialogueNode().find('form').submit(manager.handleSubmission);
+                dialogue.show();
+            });
         },
 
         /**
