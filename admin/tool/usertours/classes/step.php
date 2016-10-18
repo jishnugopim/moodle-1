@@ -142,7 +142,7 @@ class step {
         $this->tourid       = $record->tourid;
         if ($clean) {
             $this->title    = clean_param($record->title, PARAM_TEXT);
-            $this->content  = clean_param($record->content, PARAM_RAW);
+            $this->content  = clean_text($record->content);
         } else {
             $this->title    = $record->title;
             $this->content  = $record->content;
@@ -216,7 +216,7 @@ class step {
      * @return  $this
      */
     public function set_title($value) {
-        $this->title = $value;
+        $this->title = clean_param($value, PARAM_TEXT);
         $this->dirty = true;
 
         return $this;
@@ -238,7 +238,7 @@ class step {
      * @return  $this
      */
     public function set_content($value) {
-        $this->content = $value;
+        $this->content = clean_text($value);
         $this->dirty = true;
 
         return $this;

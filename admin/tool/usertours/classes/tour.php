@@ -175,7 +175,7 @@ class tour {
         }
         if ($clean) {
             $this->name         = clean_param($record->name, PARAM_TEXT);
-            $this->description  = clean_param($record->description, PARAM_RAW);
+            $this->description  = clean_text($record->description);
         } else {
             $this->name         = $record->name;
             $this->description  = $record->description;
@@ -239,7 +239,7 @@ class tour {
      * @return  $this
      */
     public function set_name($value) {
-        $this->name = $value;
+        $this->name = clean_param($value, PARAM_TEXT);
         $this->dirty = true;
 
         return $this;
@@ -261,7 +261,7 @@ class tour {
      * @return  $this
      */
     public function set_description($value) {
-        $this->description = $value;
+        $this->description = clean_text($value);
         $this->dirty = true;
 
         return $this;
