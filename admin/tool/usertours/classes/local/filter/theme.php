@@ -53,11 +53,26 @@ class theme extends base {
      */
     public static function get_filter_options() {
         $manager = \core_plugin_manager::instance();
-        $plugins = $manager->get_installed_plugins('theme');
+        $themes = $manager->get_installed_plugins('theme');
 
         $options = [];
-        foreach (array_keys($plugins) as $plugin) {
-            $options[$plugin] = get_string('pluginname', "theme_{$plugin}");
+        foreach (array_keys($themes) as $themename) {
+            try {
+                $theme = \theme_config::load($themename);
+            } catch (Exception $e) {
+                // Bad theme, just skip it for now.
+                continue;
+            }
+            if ($themename !== $theme->name) {
+                // Obsoleted or broken theme, just skip for now.
+                continue;
+            }
+            if ($theme->hidefromselector) {
+                // The theme doesn't want to be shown in the theme selector and as theme
+                // designer mode is switched off we will respect that decision.
+                continue;
+            }
+            $options[$theme->name] = get_string('pluginname', "theme_{$theme->name}");
         }
         return $options;
     }

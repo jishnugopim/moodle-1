@@ -140,6 +140,7 @@ This delay is in milliseconds.';
 $string['selecttype'] = 'Select step type';
 $string['sharedtourslink'] = 'Tour repository';
 $string['usertours'] = 'User tours';
+$string['usertours:managetours'] = 'Create, edit, and remove user tours';
 $string['target_selector_targetvalue'] = 'CSS Selectors';
 $string['target_selector_targetvalue_help'] = 'You can use a "CSS Selector" to target almost any element on the page.
 

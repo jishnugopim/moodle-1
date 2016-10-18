@@ -37,7 +37,7 @@ use tool_usertours\helper;
 function tool_usertours_inplace_editable($itemtype, $itemid, $newvalue) {
     $context = \context_system::instance();
     external_api::validate_context($context);
-    require_capability('moodle/site:config', $context);
+    require_capability('tool/usertours:managetours', $context);
 
     if ($itemtype === 'tourname') {
         $tour = helper::get_tour($itemid);

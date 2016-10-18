@@ -30,7 +30,7 @@ $functions = array(
         'methodname'      => 'get_target_types',
         'description'     => 'Fetch all target types',
         'type'            => 'read',
-        'capabilities'    => 'moodle/site:config',
+        'capabilities'    => 'tool/usertours:managetours',
         'ajax'            => true,
     ),
 
@@ -39,7 +39,7 @@ $functions = array(
         'methodname'      => 'set_target',
         'description'     => 'Set the target value and fetch the next step',
         'type'            => 'read',
-        'capabilities'    => 'moodle/site:config',
+        'capabilities'    => 'tool/usertours:managetours',
         'ajax'            => true,
     ),
 

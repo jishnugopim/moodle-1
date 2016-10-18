@@ -15,26 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings page.
+ * Plugin capabilities.
  *
  * @package   tool_usertours
  * @copyright 2016 Andrew Nicols <andrew@nicols.co.uk>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$capabilities = [
-    'tool/usertours:managetours',
-];
-if ($hassiteconfig || has_any_capability($capabilities, context_system::instance())) {
-    $ADMIN->add(
-        'appearance',
-        new admin_externalpage(
-            'tool_usertours/tours',
-            get_string('usertours', 'tool_usertours'),
-            new moodle_url('/admin/tool/usertours/configure.php'),
-            'tool/usertours:managetours'
-        )
-    );
-}
+$capabilities = array(
+    'tool/usertours:managetours' => [
+        'captype' => 'write',
+        'riskbitmask' => RISK_XSS,
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ]
+    ],
+);

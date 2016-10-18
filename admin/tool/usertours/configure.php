@@ -25,7 +25,7 @@
 require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-$action = optional_param('action', \tool_usertours\manager::ACTION_LISTTOURS, PARAM_PLUGIN);
+$action = optional_param('action', \tool_usertours\manager::ACTION_LISTTOURS, PARAM_ALPHANUMEXT);
 
 $pluginmanager = new \tool_usertours\manager();
 $PAGE->set_context(context_system::instance());

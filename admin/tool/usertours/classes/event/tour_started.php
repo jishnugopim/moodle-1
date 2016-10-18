@@ -46,7 +46,7 @@ class tour_started extends \core\event\base {
      * Init method.
      */
     protected function init() {
-        $this->data['crud'] = 'c';
+        $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'tool_usertours_tours';
     }

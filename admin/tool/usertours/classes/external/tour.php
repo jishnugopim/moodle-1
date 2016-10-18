@@ -220,7 +220,7 @@ class tour extends external_api {
         return new external_function_parameters([
             'tourid'    => new external_value(PARAM_INT, 'Tour ID'),
             'context'   => new external_value(PARAM_INT, 'Context ID'),
-            'pageurl'   => new external_value(PARAM_URL, 'Page URL'),
+            'pageurl'   => new external_value(PARAM_LOCALURL, 'Page URL'),
             'stepid'    => new external_value(PARAM_INT, 'Step ID'),
             'stepindex' => new external_value(PARAM_INT, 'Step Number'),
         ]);
