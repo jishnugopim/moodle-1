@@ -43,7 +43,7 @@ abstract class base {
     /**
      * @var     array       $forcedsettings The settings forced by this type.
      */
-    protected $forcedsettings = [];
+    protected static $forcedsettings = [];
 
     /**
      * Create the target type.
@@ -73,10 +73,16 @@ abstract class base {
      * Add the target type configuration to the form.
      *
      * @param   MoodleQuickForm $mform      The form to add configuration to.
-     * @return  $this
      */
-    public function add_config_to_form(\MoodleQuickForm $mform) {
-        return $this;
+    public static function add_config_to_form(\MoodleQuickForm $mform) {
+    }
+
+    /**
+     * Add the disabledIf values.
+     *
+     * @param   MoodleQuickForm $mform      The form to add configuration to.
+     */
+    public static function add_disabled_constraints_to_form(\MoodleQuickForm $mform) {
     }
 
     /**
@@ -86,7 +92,7 @@ abstract class base {
      * @return  boolean
      */
     public function is_setting_forced($key) {
-        return isset($this->forcedsettings[$key]);
+        return isset(static::$forcedsettings[$key]);
     }
 
     /**
@@ -97,9 +103,17 @@ abstract class base {
      */
     public function get_forced_setting_value($key) {
         if ($this->is_setting_forced($key)) {
-            return $this->forcedsettings[$key];
+            return static::$forcedsettings[$key];
         }
 
         return null;
     }
+
+    /**
+     * Fetch the targetvalue from the form for this target type.
+     *
+     * @param   stdClass        $data       The data submitted in the form
+     * @return  string
+     */
+    abstract public function get_value_from_form($data);
 }

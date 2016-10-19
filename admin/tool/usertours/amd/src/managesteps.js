@@ -7,148 +7,9 @@
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  */
 define(
-['jquery', 'core/ajax', 'core/str', 'core/yui', 'core/templates', 'core/notification'],
-function($, ajax, str, Y, templates, notification) {
-    Y.use('moodle-core-notification-dialogue');
+['jquery', 'core/str', 'core/notification'],
+function($, str, notification) {
     var manager = {
-        /**
-         * The dialogue.
-         *
-         * @property dialogue
-         * @type M.core.dialogue
-         */
-        dialogue: null,
-
-        /**
-         * Get the dialogue used.
-         *
-         * @method  getDialogue
-         * @return  {M.core.dialogue}
-         */
-        getDialogue: function() {
-            if (manager.dialogue === null) {
-                manager.dialogue = new M.core.dialogue({
-                    modal:      true,
-                    visible:    false
-                });
-            }
-
-            return manager.dialogue;
-        },
-
-        /**
-         * Get the dialogue node.
-         *
-         * @method  getDialogueNode
-         * @return  {HTMLElement}
-         */
-        getDialogueNode: function() {
-            var dialogue = manager.getDialogue();
-            return $(dialogue.get('boundingBox').getDOMNode());
-        },
-
-        /**
-         * Start the Add Step dialogue.
-         *
-         * @method  startAddStepDialogue
-         */
-        startAddStepDialogue: function() {
-            ajax.call([
-                {
-                    methodname: 'tool_usertours_get_targettypes',
-                    args:       {},
-                    done:       manager.displayTargetTypeList,
-                    fail:       notification.exception
-                }
-            ]);
-        },
-
-        /**
-         * Display the list of target types.
-         *
-         * @method  displayTargetTypeList
-         * @param   {object}    targetTypes     The list of valid target types
-         */
-        displayTargetTypeList: function(targetTypes) {
-            templates.render('tool_usertours/selecttarget', {targetTypes: targetTypes})
-                .done(manager.updateDialogueContent)
-                .fail(notification.exception)
-                ;
-        },
-
-        /**
-         * Handle the target type selection.
-         *
-         * @method  handleSubmissionResponse
-         * @param   {object}    response    The user repsonse
-         */
-        handleSubmissionResponse: function(response) {
-            if (response.template && response.context) {
-                templates.render(response.template, response.context)
-                    .done(manager.updateDialogueContent)
-                    .fail(notification.exception)
-                    ;
-            }
-
-            if (response.closeDialogue) {
-                manager.getDialogue().hide();
-            }
-
-            if (response.redirectTo) {
-                window.location.href = response.redirectTo;
-            }
-        },
-
-        /**
-         * Update the contetn of the dialogue.
-         *
-         * @method  updateDialogueContent
-         * @param   {String}    content     The intended content of the dialogue
-         */
-        updateDialogueContent: function(content) {
-            // Update the dialogue content.
-            var dialogue = manager.getDialogue();
-
-            str.get_string('selecttype', 'tool_usertours').then(function(s) {
-                dialogue
-                    .set('headerContent', s)
-                    .set('bodyContent', content)
-                    ;
-
-                manager.getDialogueNode().find('form').submit(manager.handleSubmission);
-                dialogue.show();
-            });
-        },
-
-        /**
-         * Handle submission of the dialogue form.
-         *
-         * @method  handleSubmission
-         * @param   {EventFacade}   e   The EventFacade
-         */
-        handleSubmission: function(e) {
-            e.preventDefault();
-
-            var target = $(e.target),
-                formData = {};
-
-            target.serializeArray().map(function(v) {
-                formData[v.name] = v.value;
-                return true;
-            });
-
-            formData.tourid = manager.tourid;
-
-            ajax.call([
-                {
-                    methodname: 'tool_usertours_set_target',
-                    args:       formData,
-                    done:       manager.handleSubmissionResponse,
-                    fail:       notification.exception
-                }
-            ]);
-        },
-
         /**
          * Confirm removal of the specified step.
          *
@@ -185,14 +46,8 @@ function($, ajax, str, Y, templates, notification) {
          * Setup the step management UI.
          *
          * @method          setup
-         * @param   {int}   tourid      The tour to be managed.
          */
-        setup: function(tourid) {
-            manager.tourid = tourid;
-            $('.createstep').click(function(e) {
-                e.preventDefault();
-                manager.startAddStepDialogue();
-            });
+        setup: function() {
 
             $('body').delegate('[data-action="delete"]', 'click', manager.removeStep);
         }
@@ -203,10 +58,7 @@ function($, ajax, str, Y, templates, notification) {
          * Setup the step management UI.
          *
          * @method          setup
-         * @param   {int}   tourid      The tour to be managed.
          */
-        setup: function(tourid) {
-            manager.setup(tourid);
-        }
+        setup: manager.setup
     };
 });

@@ -64,7 +64,6 @@ class helper {
         } else {
             $link->param('action', manager::ACTION_NEWSTEP);
             $link->param('tourid', $tourid);
-            $link->param('targettype', $targettype);
         }
 
         return $link;

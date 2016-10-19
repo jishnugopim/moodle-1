@@ -65,10 +65,7 @@ class behat_tool_usertours extends behat_base {
 
         foreach ($table->getHash() as $step) {
             $this->execute('behat_general::click_link', get_string('newstep', 'tool_usertours'));
-            $this->execute('behat_forms::i_set_the_field_to', ['targettype', $this->escape($step['targettype'])]);
-            $this->execute('behat_forms::press_button', get_string('next', 'tool_usertours'));
 
-            unset($step['targettype']);
             foreach ($step as $locator => $value) {
                 $this->execute('behat_forms::i_set_the_field_to', [$this->escape($locator), $this->escape($value)]);
             }

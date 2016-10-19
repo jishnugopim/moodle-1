@@ -19,10 +19,12 @@ Feature: Add a new user tour
       | targettype                  | Title             | Content |
       | Display in middle of page   | Welcome           | Welcome to your personal learning space. We'd like to give you a quick tour to show you some of the areas you may find helpful |
     And I add steps to the "First tour" tour:
-      | targettype                  | targetvalue       | Title             | Content |
+      | targettype                  | targetvalue_block | Title             | Content |
       | Block                       | Course overview   | Course overview   | This area shows you what's happening in some of your courses  |
       | Block                       | Calendar          | Calendar          | This is the Calendar. All of your assignments and due dates can be found here |
-      | Selector                    | .usermenu         | User menu         | This is your personal user menu. You'll find your personal preferences and your user profile here. |
+    And I add steps to the "First tour" tour:
+      | targettype                  | targetvalue_selector | Title             | Content |
+      | Selector                    | .usermenu            | User menu         | This is your personal user menu. You'll find your personal preferences and your user profile here. |
     When I click on "Dashboard" "link" in the "Navigation" "block"
     Then I should see "Welcome to your personal learning space. We'd like to give you a quick tour to show you some of the areas you may find helpful"
     And I press "Next"

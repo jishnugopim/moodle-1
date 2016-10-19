@@ -374,9 +374,11 @@ class step {
             return $this->config;
         }
 
-        $target = $this->get_target();
-        if ($target->is_setting_forced($key)) {
-            return $target->get_forced_setting_value($key);
+        if ($this->get_targettype()) {
+            $target = $this->get_target();
+            if ($target->is_setting_forced($key)) {
+                return $target->get_forced_setting_value($key);
+            }
         }
 
         if (property_exists($this->config, $key)) {
@@ -532,14 +534,11 @@ class step {
      * @return  $this
      */
     public function add_config_to_form(\MoodleQuickForm $mform) {
-        $target = $this->get_target();
         $tour = $this->get_tour();
 
-        if (!$target->is_setting_forced('placement')) {
-            $options = configuration::get_placement_options($tour->get_config('placement'));
-            $mform->addElement('select', 'placement', get_string('placement', 'tool_usertours'), $options);
-            $mform->addHelpButton('placement', 'placement', 'tool_usertours');
-        }
+        $options = configuration::get_placement_options($tour->get_config('placement'));
+        $mform->addElement('select', 'placement', get_string('placement', 'tool_usertours'), $options);
+        $mform->addHelpButton('placement', 'placement', 'tool_usertours');
 
         $this->add_config_field_to_form($mform, 'orphan');
         $this->add_config_field_to_form($mform, 'backdrop');
@@ -556,28 +555,26 @@ class step {
      * @return  $this
      */
     public function add_config_field_to_form(\MoodleQuickForm $mform, $key) {
-        if (!$this->get_target()->is_setting_forced($key)) {
-            $tour = $this->get_tour();
+        $tour = $this->get_tour();
 
-            $default = (bool) $tour->get_config($key);
+        $default = (bool) $tour->get_config($key);
 
-            $options = [
-                true    => get_string('yes'),
-                false   => get_string('no'),
-            ];
+        $options = [
+            true    => get_string('yes'),
+            false   => get_string('no'),
+        ];
 
-            if (!isset($options[$default])) {
-                $default = configuration::get_default_value($key);
-            }
-
-            $options = array_reverse($options, true);
-            $options[configuration::TOURDEFAULT] = get_string('defaultvalue', 'tool_usertours', $options[$default]);
-            $options = array_reverse($options, true);
-
-            $mform->addElement('select', $key, get_string($key, 'tool_usertours'), $options);
-            $mform->setDefault($key, configuration::TOURDEFAULT);
-            $mform->addHelpButton($key, $key, 'tool_usertours');
+        if (!isset($options[$default])) {
+            $default = configuration::get_default_value($key);
         }
+
+        $options = array_reverse($options, true);
+        $options[configuration::TOURDEFAULT] = get_string('defaultvalue', 'tool_usertours', $options[$default]);
+        $options = array_reverse($options, true);
+
+        $mform->addElement('select', $key, get_string($key, 'tool_usertours'), $options);
+        $mform->setDefault($key, configuration::TOURDEFAULT);
+        $mform->addHelpButton($key, $key, 'tool_usertours');
 
         return $this;
     }
@@ -607,11 +604,16 @@ class step {
         $this->set_title($data->title);
         $this->set_content($data->content);
         $this->set_targettype($data->targettype);
-        $this->set_targetvalue($data->targetvalue);
+
+        $this->set_targetvalue($this->get_target()->get_value_from_form($data));
 
         foreach (self::get_config_keys() as $key) {
             if (!$this->get_target()->is_setting_forced($key)) {
-                $value = $data->$key;
+                if (isset($data->$key)) {
+                    $value = $data->$key;
+                } else {
+                    $value = configuration::TOURDEFAULT;
+                }
                 if ($value === configuration::TOURDEFAULT) {
                     $this->set_config($key, null);
                 } else {

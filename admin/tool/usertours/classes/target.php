@@ -52,11 +52,11 @@ class target {
     /**
      * @var     array   $mapping    The list of target type to target name.
      */
-    protected static $mapping = array(
+    protected static $mapping = [
         self::TARGET_BLOCK      => 'block',
         self::TARGET_SELECTOR   => 'selector',
         self::TARGET_UNATTACHED => 'unattached',
-    );
+    ];
 
     /**
      * Return the name of the class for this target type.
@@ -66,7 +66,7 @@ class target {
      */
     public static function get_classname($type) {
         $targettype = self::$mapping[self::get_target_constant($type)];
-        return "\\tool_usertours\\local\target\\{$targettype}";
+        return "\\tool_usertours\\local\\target\\{$targettype}";
     }
 
     /**
@@ -92,6 +92,18 @@ class target {
      */
     public static function get_target_constant($type) {
         return array_search($type, self::$mapping);
+    }
+
+    /**
+     * Return the constant used to describe this class.
+     *
+     * @param   string  $classname  The fully-qualified class name of the target
+     * @return  int                 The constant for this target.
+     */
+    public static function get_target_constant_for_class($classname) {
+        $rc = new \ReflectionClass($classname);
+
+        return self::get_target_constant($rc->getShortName());
     }
 
     /**

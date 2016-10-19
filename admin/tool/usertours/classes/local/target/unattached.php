@@ -38,7 +38,7 @@ class unattached extends base {
     /**
      * @var     array       $forcedsettings The settings forced by this type.
      */
-    protected $forcedsettings = [
+    protected static $forcedsettings = [
             'placement'     => 'top',
             'orphan'        => true,
             'reflex'        => false,
@@ -69,11 +69,32 @@ class unattached extends base {
      * @param   MoodleQuickForm $mform      The form to add configuration to.
      * @return  $this
      */
-    public function add_config_to_form(\MoodleQuickForm $mform) {
+    public static function add_config_to_form(\MoodleQuickForm $mform) {
         // There is no relevant value here.
-        $mform->addElement('hidden', 'targetvalue', '');
-        $mform->setType('targetvalue', PARAM_TEXT);
+        $mform->addElement('hidden', 'targetvalue_unattached', '');
+        $mform->setType('targetvalue_unattached', PARAM_TEXT);
+    }
 
-        return $this;
+    /**
+     * Add the disabledIf values.
+     *
+     * @param   MoodleQuickForm $mform      The form to add configuration to.
+     */
+    public static function add_disabled_constraints_to_form(\MoodleQuickForm $mform) {
+        $myvalue = \tool_usertours\target::get_target_constant_for_class(get_class());
+
+        foreach (array_keys(self::$forcedsettings) as $settingname) {
+            $mform->disabledIf($settingname, 'targettype', 'eq', $myvalue);
+        }
+    }
+
+    /**
+     * Fetch the targetvalue from the form for this target type.
+     *
+     * @param   stdClass        $data       The data submitted in the form
+     * @return  string
+     */
+    public function get_value_from_form($data) {
+        return '';
     }
 }

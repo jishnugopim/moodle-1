@@ -25,24 +25,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
-    'tool_usertours_get_targettypes' => array(
-        'classname'       => 'tool_usertours\external\target',
-        'methodname'      => 'get_target_types',
-        'description'     => 'Fetch all target types',
-        'type'            => 'read',
-        'capabilities'    => 'tool/usertours:managetours',
-        'ajax'            => true,
-    ),
-
-    'tool_usertours_set_target' => array(
-        'classname'       => 'tool_usertours\external\target',
-        'methodname'      => 'set_target',
-        'description'     => 'Set the target value and fetch the next step',
-        'type'            => 'read',
-        'capabilities'    => 'tool/usertours:managetours',
-        'ajax'            => true,
-    ),
-
     'tool_usertours_fetch_and_start_tour' => array(
         'classname'       => 'tool_usertours\external\tour',
         'methodname'      => 'fetch_and_start_tour',

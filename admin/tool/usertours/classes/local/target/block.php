@@ -82,7 +82,7 @@ class block extends base {
      * @param   MoodleQuickForm $mform      The form to add configuration to.
      * @return  $this
      */
-    public function add_config_to_form(\MoodleQuickForm $mform) {
+    public static function add_config_to_form(\MoodleQuickForm $mform) {
         global $PAGE;
 
         $blocks = [];
@@ -90,8 +90,26 @@ class block extends base {
             $blocks[$block->name] = get_string('pluginname', 'block_' . $block->name);
         }
 
-        $mform->addElement('select', 'targetvalue', get_string('block', 'tool_usertours'), $blocks);
+        $mform->addElement('select', 'targetvalue_block', get_string('block', 'tool_usertours'), $blocks);
+    }
 
-        return $this;
+    /**
+     * Add the disabledIf values.
+     *
+     * @param   MoodleQuickForm $mform      The form to add configuration to.
+     */
+    public static function add_disabled_constraints_to_form(\MoodleQuickForm $mform) {
+        $mform->disabledIf('targetvalue_block', 'targettype', 'noteq',
+                \tool_usertours\target::get_target_constant_for_class(get_class()));
+    }
+
+    /**
+     * Fetch the targetvalue from the form for this target type.
+     *
+     * @param   stdClass        $data       The data submitted in the form
+     * @return  string
+     */
+    public function get_value_from_form($data) {
+        return $data->targetvalue_block;
     }
 }

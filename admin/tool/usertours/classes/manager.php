@@ -465,7 +465,7 @@ class manager {
         $this->print_edit_step_link($tourid);
 
         // JS for Step management.
-        $PAGE->requires->js_call_amd('tool_usertours/managesteps', 'setup', array('tourid' => $tourid));
+        $PAGE->requires->js_call_amd('tool_usertours/managesteps', 'setup');
 
         $this->footer();
     }
@@ -659,7 +659,6 @@ EOF;
         } else {
             $step = new step();
             $step->set_tourid(required_param('tourid', PARAM_INT));
-            $step->set_targettype(required_param('targettype', PARAM_INT));
         }
 
         $tour = $step->get_tour();

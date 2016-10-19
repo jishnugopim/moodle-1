@@ -362,7 +362,7 @@ class step_testcase extends advanced_testcase {
      */
     public function test_get_config_valid_keys($values, $key, $default, $tourconfig, $isforced, $forcedvalue, $expected) {
         $step = $this->getMockBuilder(\tool_usertours\step::class)
-            ->setMethods(['get_target', 'get_tour'])
+            ->setMethods(['get_target', 'get_targettype', 'get_tour'])
             ->getMock();
 
         $rc = new \ReflectionClass(\tool_usertours\step::class);
@@ -384,6 +384,11 @@ class step_testcase extends advanced_testcase {
             ->method('get_forced_setting_value')
             ->with($this->equalTo($key))
             ->willReturn($forcedvalue)
+            ;
+
+        $step->expects($this->any())
+            ->method('get_targettype')
+            ->willReturn('type')
             ;
 
         $step->expects($this->any())

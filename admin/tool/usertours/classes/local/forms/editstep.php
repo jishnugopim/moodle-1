@@ -63,10 +63,12 @@ class editstep extends \moodleform {
             $types[$value] = get_string('target_' . $type, 'tool_usertours');
         }
         $mform->addElement('select', 'targettype', get_string('targettype', 'tool_usertours'), $types);
-        $mform->freeze('targettype');
 
         // The target configuration.
-        $this->step->get_target()->add_config_to_form($mform);
+        foreach (\tool_usertours\target::get_target_types() as $value => $type) {
+            $targetclass = \tool_usertours\target::get_classname($type);
+            $targetclass::add_config_to_form($mform);
+        }
 
         // Title of the step.
         $mform->addElement('textarea', 'title', get_string('title', 'tool_usertours'));
@@ -82,6 +84,12 @@ class editstep extends \moodleform {
         // Add the step configuration.
         // All step configuration is defined in the step.
         $this->step->add_config_to_form($mform);
+
+        // And apply any form constraints.
+        foreach (\tool_usertours\target::get_target_types() as $value => $type) {
+            $targetclass = \tool_usertours\target::get_classname($type);
+            $targetclass::add_disabled_constraints_to_form($mform);
+        }
 
         $this->add_action_buttons();
     }

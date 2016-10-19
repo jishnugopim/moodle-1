@@ -79,11 +79,29 @@ class selector extends base {
      * @param   MoodleQuickForm $mform      The form to add configuration to.
      * @return  $this
      */
-    public function add_config_to_form(\MoodleQuickForm $mform) {
-        $mform->addElement('text', 'targetvalue', get_string('cssselector', 'tool_usertours'));
-        $mform->setType('targetvalue', PARAM_RAW);
-        $mform->addHelpButton('targetvalue', 'target_selector_targetvalue', 'tool_usertours');
+    public static function add_config_to_form(\MoodleQuickForm $mform) {
+        $mform->addElement('text', 'targetvalue_selector', get_string('cssselector', 'tool_usertours'));
+        $mform->setType('targetvalue_selector', PARAM_RAW);
+        $mform->addHelpButton('targetvalue_selector', 'target_selector_targetvalue', 'tool_usertours');
+    }
 
-        return $this;
+    /**
+     * Add the disabledIf values.
+     *
+     * @param   MoodleQuickForm $mform      The form to add configuration to.
+     */
+    public static function add_disabled_constraints_to_form(\MoodleQuickForm $mform) {
+        $mform->disabledIf('targetvalue_selector', 'targettype', 'noteq',
+                \tool_usertours\target::get_target_constant_for_class(get_class()));
+    }
+
+    /**
+     * Fetch the targetvalue from the form for this target type.
+     *
+     * @param   stdClass        $data       The data submitted in the form
+     * @return  string
+     */
+    public function get_value_from_form($data) {
+        return $data->targetvalue_selector;
     }
 }
