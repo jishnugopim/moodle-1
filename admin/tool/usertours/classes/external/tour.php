@@ -77,7 +77,7 @@ class tour extends external_api {
         ])->trigger();
 
         return [
-            'tourConfig' => $touroutput->export_for_template($PAGE->get_renderer('core')),
+            'tourconfig' => $touroutput->export_for_template($PAGE->get_renderer('core')),
         ];
     }
 
@@ -101,7 +101,7 @@ class tour extends external_api {
      */
     public static function fetch_and_start_tour_returns() {
         return new external_single_structure([
-            'tourConfig'    => new external_single_structure([
+            'tourconfig'    => new external_single_structure([
                 'name'      => new external_value(PARAM_RAW, 'Tour Name'),
                 'steps'     => new external_multiple_structure(self::step_structure_returns()),
             ])

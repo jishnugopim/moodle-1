@@ -67,7 +67,7 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
                 ])[0],
                 templates.render('tool_usertours/tourstep', {})
             ).then(function(response, template) {
-                usertours.startBootstrapTour(tourId, template[0], response.tourConfig);
+                usertours.startBootstrapTour(tourId, template[0], response.tourconfig);
             }).fail(notification.exception);
         },
 
