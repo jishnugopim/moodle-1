@@ -1108,4 +1108,41 @@ class tour_testcase extends advanced_testcase {
 
         $tour->set_filter_values($filtername, $newvalues);
     }
+
+    /**
+     * Datra provider for translate_pathmatch.
+     *
+     * @return  array
+     */
+    public function translate_pathmatch_provider() {
+        return [
+            'Dashboard leading slash' => [
+                '/my/%',
+                '^/my/.*$',
+            ],
+            'Dashboard without leading slash' => [
+                'my/%',
+                '^/my/.*$',
+            ],
+            'Whole site' => [
+                '%',
+                '^/.*$',
+            ],
+            'Course view' => [
+                'course/view.php?id=%',
+                '^/course/view\.php\?id\=.*$',
+            ],
+        ];
+    }
+
+    /**
+     * Test the translate_pathmatch function.
+     *
+     * @dataProvider translate_pathmatch_provider
+     * @param   string      $pathmatch      The path to translate
+     * @param   string      $expected       The expected translation
+     */
+    public function test_translate_pathmatch($pathmatch, $expected) {
+        $this->assertEquals($expected, tour::translate_pathmatch($pathmatch));
+    }
 }

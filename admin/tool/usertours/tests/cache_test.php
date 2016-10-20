@@ -136,19 +136,19 @@ class cache_testcase extends advanced_testcase {
         $tourconfigs = [
             (object) [
                 'name' => 'my_exact_1',
-                'pathmatch' => '/my/view.php'
+                'pathmatch' => '^/my/view\.php$'
             ],
             (object) [
                 'name' => 'my_failed_regex',
-                'pathmatch' => '/my/*.php'
+                'pathmatch' => '^/my/*\.php$'
             ],
             (object) [
                 'name' => 'my_glob_1',
-                'pathmatch' => '/my/%'
+                'pathmatch' => '^/my/.*$'
             ],
             (object) [
                 'name' => 'my_glob_2',
-                'pathmatch' => '/my/%'
+                'pathmatch' => '^/my/.*$'
             ],
         ];
 

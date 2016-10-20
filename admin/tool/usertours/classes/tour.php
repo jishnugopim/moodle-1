@@ -765,4 +765,28 @@ class tour {
 
         return true;
     }
+
+    /**
+     * Translate a pathmatch from the older DB LIKE style to a regular expression.
+     *
+     * @param   string      $pathmatch  The pathmatch to translate
+     * @return  string
+     */
+    public static function translate_pathmatch($pathmatch) {
+        // Pass the existing translation through preg_quote to escape any necessary characters.
+        $pathmatch = preg_quote($pathmatch, '@');
+
+        // Replace the % with it's PCRE equivalent '.*'.
+        $pathmatch = str_replace('%', '.*', $pathmatch);
+
+        // Local URLs always start with a leading slash. Add one if it was not present.
+        if (strpos($pathmatch, '/') !== 0) {
+            $pathmatch = "/{$pathmatch}";
+        }
+
+        // By their nature, the previous versions were all tightly bound at the start and end.
+        $pathmatch = "^{$pathmatch}$";
+
+        return $pathmatch;
+    }
 }

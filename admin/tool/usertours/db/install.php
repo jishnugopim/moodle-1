@@ -41,6 +41,13 @@ function xmldb_tool_usertours_install() {
         $hasdescription = ($localplugin->versiondb < 2016052301 && $localplugin->versiondb >= 2015111604);
         $hasdescription = $hasdescription || ($localplugin->versiondb > 2016052303);
 
+        // When the local_usertours plugin was converted to a core plugin, the pathmatch field changed to a regex. This
+        // change was backported to the local plugin in:
+        // * 3.0 version 2015111608
+        // * 3.1 version 2016052308
+        $haslikefield = ($localplugin->versiondb < 2016052308 && $localplugin->versiondb >= 2015111604);
+        $haslikefield = $haslikefield || ($localplugin->versiondb > 2016052308);
+
         $tours = $DB->get_recordset('usertours_tours');
         $mapping = [];
         foreach ($tours as $tour) {
@@ -51,6 +58,9 @@ function xmldb_tool_usertours_install() {
                 } else {
                     $tour->description = '';
                 }
+            }
+            if (!$haslikefield) {
+                $tour->pathmatch = tour::translate_pathmatch($tour->pathmatch);
             }
             $mapping[$tour->id] = $DB->insert_record('tool_usertours_tours', $tour);
         }

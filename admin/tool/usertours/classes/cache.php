@@ -84,9 +84,7 @@ EOF;
         $tours = self::get_enabled_tourdata();
 
         return array_filter($tours, function($tour) use ($targetmatch) {
-            $pattern = preg_quote($tour->pathmatch, '@');
-            $pattern = str_replace('%', '.*', $pattern);
-            return !!preg_match("@{$pattern}@", $targetmatch);
+            return !!preg_match("@{$tour->pathmatch}@", $targetmatch);
         });
     }
 

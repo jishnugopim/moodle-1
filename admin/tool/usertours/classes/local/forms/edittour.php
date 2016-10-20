@@ -75,7 +75,7 @@ class edittour extends \moodleform {
         // Application.
         $mform->addElement('text', 'pathmatch', get_string('pathmatch', 'tool_usertours'));
         $mform->setType('pathmatch', PARAM_RAW);
-        $mform->addHelpButton('pathmatch', 'pathmatch', 'tool_usertours');
+        $mform->addHelpButton('pathmatch', 'pathmatch_regex', 'tool_usertours');
 
         $mform->addElement('checkbox', 'enabled', get_string('enabled', 'tool_usertours'));
 

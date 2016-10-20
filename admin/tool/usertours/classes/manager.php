@@ -583,7 +583,17 @@ class manager {
     public static function import_tour_from_json($json) {
         $tourconfig = json_decode($json);
 
-        // We do not use this yet - we may do in the future.
+        // When the local_usertours plugin was converted to a core plugin, the pathmatch field changed to a regex. This
+        // change was backported to the local plugin in:
+        // * 3.0 version 2015111608
+        // * 3.1 version 2016052308
+        // * 3.2 version 2016102000
+        $haslikefield = ($localplugin->versiondb < 2016102000 && $localplugin->versiondb >= 2016101800);
+        $haslikefield = $haslikefield || ($localplugin->versiondb < 2016052308 && $localplugin->versiondb >= 2015111604);
+        $haslikefield = $haslikefield || ($localplugin->versiondb > 2016052308);
+        if ($tourconfig->version < 2016102000) {
+            $tourconfig->pathmatch = tour::translate_pathmatch($tourconfig->pathmatch);
+        }
         unset($tourconfig->version);
 
         $steps = $tourconfig->steps;

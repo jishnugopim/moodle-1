@@ -73,15 +73,18 @@ $string['newstep'] = 'New step';
 $string['newtour'] = 'Create a new tour';
 $string['next'] = 'Next';
 $string['pathmatch'] = 'Apply to URL match';
-$string['pathmatch_help'] = 'Tours will be displayed on any page whose URL matches this value.
+$string['pathmatch_regex'] = 'Apply to URL match';
+$string['pathmatch_regex_help'] = 'Tours will be displayed on any page whose URL matches this value.
 
-You can use the % character as a wildcard to mean anything.
+You can use a standard Regular Expression here.
+
+You can use the .* as a wildcard to mean anything.
 Some example values include:
 
-* /my/% - to match the Dashboard
-* /course/view.php?id=2 - to match a specific course
-* /mod/forum/view.php% - to match the forum discussion list
-* /user/profile.php% - to match the user profile page';
+* /my/.* - to match the Dashboard
+* /course/view\\\\.php?id=2$ - to match a specific course
+* /mod/forum/view\\\\.php.* - to match the forum discussion list
+* /user/profile\\\\.php.* - to match the user profile page';
 $string['placement'] = 'Placement';
 $string['pluginname'] = 'User Tours';
 $string['resettouronpage'] = 'Reset user tour on this page';
