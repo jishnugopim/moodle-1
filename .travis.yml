@@ -99,6 +99,8 @@ install:
         fi
 
 before_script:
+    - if [[ $TRAVIS_PHP_VERSION = '5.6' ]] ; then echo yes | pecl install apcu-4.0.10; fi;
+    - if [[ $TRAVIS_PHP_VERSION = 7.* ]] ; then pecl config-set preferred_state beta; echo yes | pecl install apcu; fi;
     - >
       if [ "$TASK" = 'PHPUNIT' -o "$TASK" = 'UPGRADE' ];
       then
@@ -154,6 +156,7 @@ before_script:
         sed -i \
           -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
           -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
+          -e "/require_once/i \\define('TEST_CACHE_USING_APPLICATION_STORE', 'apcu');" \
           -e "/require_once/i \\define('TEST_SESSION_REDIS_HOST', '127.0.0.1');" \
           config.php ;
 
