@@ -155,6 +155,8 @@ before_script:
           -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
           -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
           -e "/require_once/i \\define('TEST_SESSION_REDIS_HOST', '127.0.0.1');" \
+          -e "/require_once/i \\define('TEST_CACHE_USING_APPLICATION_STORE', 'redis');" \
+          -e "/require_once/i \\define('TEST_CACHESTORE_REDIS_TESTSERVERS', '127.0.0.1');" \
           config.php ;
 
         # Initialise PHPUnit for Moodle.
