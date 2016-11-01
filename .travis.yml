@@ -140,7 +140,7 @@ before_script:
         # Create a directory for the phpunit dataroot.
         mkdir -p "$HOME"/roots/phpunit
 
-        echo "extension = <extension>.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+        echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
         # The phpunit dataroot and prefix..
         sed -i \
