@@ -114,7 +114,7 @@ class role extends base {
         }
 
         foreach ($userroles as $role) {
-            if (isset($values[$role->roleid])) {
+            if (isset($values[$role->shortname])) {
                 return true;
             }
         }
