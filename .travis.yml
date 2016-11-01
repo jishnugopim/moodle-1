@@ -18,6 +18,7 @@ php:
 
 services:
     - redis-server
+    - memcached
 
 env:
     # Although we want to run these jobs and see failures as quickly as possible, we also want to get the slowest job to
@@ -31,27 +32,19 @@ env:
     - DB=mysqli   TASK=PHPUNIT
 
     # Run CI Tests without running PHPUnit.
-    - DB=none     TASK=CITEST
+    #- DB=none     TASK=CITEST
 
     # Run unit tests on Postgres
     - DB=pgsql    TASK=PHPUNIT
 
     # Perform an upgrade test too.
-    - DB=pgsql    TASK=UPGRADE
+    #- DB=pgsql    TASK=UPGRADE
 
 matrix:
     # Enable fast finish.
     # This will fail the build if a single job fails (except those in allow_failures).
     # It will not stop the jobs from running.
     fast_finish: true
-
-    include:
-          # Run grunt/npm install on lowest supported npm version
-        - php: 7
-          env: DB=none     TASK=GRUNT   NVM_VERSION='4'
-          # Run grunt/npm install on highest version ('node' is an alias for the latest node.js version.)
-        - php: 7
-          env: DB=none     TASK=GRUNT   NVM_VERSION='node'
 
     exclude:
         # MySQL - it's just too slow.
@@ -60,9 +53,6 @@ matrix:
         - env: DB=mysqli   TASK=PHPUNIT
           php: 5.6
 
-        # Moodle 2.7 is not compatible with PHP 7 for the upgrade test.
-        - env: DB=pgsql    TASK=UPGRADE
-          php: 7.0
 
 cache:
     directories:
@@ -150,11 +140,14 @@ before_script:
         # Create a directory for the phpunit dataroot.
         mkdir -p "$HOME"/roots/phpunit
 
+        echo "extension = <extension>.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
         # The phpunit dataroot and prefix..
         sed -i \
           -e "/require_once/i \\\$CFG->phpunit_dataroot = '\/home\/travis\/roots\/phpunit';" \
           -e "/require_once/i \\\$CFG->phpunit_prefix = 'p_';" \
           -e "/require_once/i \\define('TEST_SESSION_REDIS_HOST', '127.0.0.1');" \
+          -e "/require_once/i \\define('TEST_CACHESTORE_MEMCACHED_TESTSERVERS', '127.0.0.1');" \
           config.php ;
 
         # Initialise PHPUnit for Moodle.
@@ -225,7 +218,7 @@ script:
     - >
       if [ "$TASK" = 'PHPUNIT' ];
       then
-        vendor/bin/phpunit;
+        vendor/bin/phpunit cache/stores/memcached/tests/memcached_test.php ;
       fi
 
     - >
