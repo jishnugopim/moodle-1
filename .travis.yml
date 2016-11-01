@@ -219,6 +219,7 @@ script:
       if [ "$TASK" = 'PHPUNIT' ];
       then
         vendor/bin/phpunit cache/stores/memcached/tests/memcached_test.php ;
+        php -i ;
       fi
 
     - >
