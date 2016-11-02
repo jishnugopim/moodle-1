@@ -229,8 +229,30 @@ class cachestore_memcached extends cache_store implements cache_is_configurable 
         $version = phpversion('memcached');
         $this->candeletemulti = ($version && version_compare($version, self::REQUIRED_VERSION, '>='));
 
-        // Test the connection to the main connection.
-        $this->isready = @$this->connection->set("ping", 'ping', 1);
+        $this->isready = $this->is_connection_ready();
+    }
+
+    /**
+     * Confirm whether the connection is ready and usable.
+     *
+     * @return boolean
+     */
+    public function is_connection_ready() {
+        if (!@$this->connection->set("ping", 'ping', 1)) {
+            // Test the connection to the server.
+            return false;
+        }
+
+        if ($this->isshared && !is_array($this->connection->getAllKeys())) {
+            // There is a bug in libmemcached which means that we cannot purge the cache if the configuration is set to
+            // be shared.
+            // This happens because the call to getAllKeys() silently errors and returns false instead of an array
+            // containing the keys.
+            // The only safe option is to mark the plugin as not being ready in this situation.
+            return false;
+        }
+
+        return true;
     }
 
     /**
