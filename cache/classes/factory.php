@@ -319,6 +319,28 @@ class cache_factory {
     }
 
     /**
+     * Clear the definition stores in use.
+     *
+     * This includes purging their values, and then removing them from the
+     * list of known stores.
+     *
+     * @param cache_definition $definition
+     * @return array
+     */
+    public function clear_definition_stores_in_use(cache_definition $definition) {
+        $id = $definition->get_id();
+        if (!isset($this->definitionstores[$id])) {
+            return;
+        }
+        foreach ($this->definitionstores[$id] as $instanceid => $store) {
+            $store->purge();
+            unset($this->definitionstores[$id][$instanceid]);
+        }
+
+        unset($this->definitionstores[$id]);
+    }
+
+    /**
      * Returns the cache instances that have been used within this request.
      * @since Moodle 2.6
      * @return array

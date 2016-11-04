@@ -507,19 +507,11 @@ class cache_helper {
         if (!$class::are_requirements_met()) {
             return false;
         }
-        // Found the store: is it ready?
-        /* @var cache_store $instance */
-        $instance = new $class($store['name'], $store['configuration']);
-        if (!$instance->is_ready()) {
-            unset($instance);
-            return false;
-        }
+
+        $factory = cache_factory::instance();
         foreach ($config->get_definitions_by_store($storename) as $id => $definition) {
             $definition = cache_definition::load($id, $definition);
-            $definitioninstance = clone($instance);
-            $definitioninstance->initialise($definition);
-            $definitioninstance->purge();
-            unset($definitioninstance);
+            $factory->clear_definition_stores_in_use($definition);
         }
 
         return true;
