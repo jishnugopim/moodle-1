@@ -34,7 +34,7 @@ Feature: Assign user override
     And I navigate to "User overrides" node in "Assignment administration"
     And I press "Add user override"
     And I set the following fields to these values:
-      | Override user      | Student1 |
+      | Override user      | Sam1 Student1, student1@example.com  |
       | id_duedate_enabled | 1 |
       | duedate[day]       | 1 |
       | duedate[month]     | January |
@@ -57,7 +57,7 @@ Feature: Assign user override
     And I navigate to "User overrides" node in "Assignment administration"
     And I press "Add user override"
     And I set the following fields to these values:
-      | Override user      | Student1 |
+      | Override user      | Sam1 Student1, student1@example.com  |
       | id_duedate_enabled | 1 |
       | duedate[day]       | 1 |
       | duedate[month]     | January |
@@ -68,7 +68,7 @@ Feature: Assign user override
     And I should see "Wednesday, 1 January 2020, 8:00"
     Then I click on "copy" "link"
     And I set the following fields to these values:
-      | Override user  | Student2  |
+      | Override user      | Sam2 Student2, student2@example.com  |
       | duedate[year] | 2030 |
     And I press "Save"
     And I should see "Tuesday, 1 January 2030, 8:00"
@@ -90,7 +90,7 @@ Feature: Assign user override
     And I navigate to "User overrides" node in "Assignment administration"
     And I press "Add user override"
     And I set the following fields to these values:
-      | Override user       | Student1 |
+      | Override user      | Sam1 Student1, student1@example.com  |
       | id_duedate_enabled | 1 |
       | duedate[day]       | 1 |
       | duedate[month]     | January |
@@ -126,7 +126,7 @@ Feature: Assign user override
     And I navigate to "User overrides" node in "Assignment administration"
     And I press "Add user override"
     And I set the following fields to these values:
-      | Override user       | Student1 |
+      | Override user      | Sam1 Student1, student1@example.com  |
       | id_cutoffdate_enabled | 1 |
       | cutoffdate[day]       | 1 |
       | cutoffdate[month]     | January |
@@ -162,7 +162,7 @@ Feature: Assign user override
     And I navigate to "User overrides" node in "Assignment administration"
     And I press "Add user override"
     And I set the following fields to these values:
-      | Override user        | Student1 |
+      | Override user        | Sam1 Student1, student1@example.com  |
       | id_allowsubmissionsfromdate_enabled | 1 |
       | allowsubmissionsfromdate[day]       | 1 |
       | allowsubmissionsfromdate[month]     | January |

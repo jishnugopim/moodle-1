@@ -61,7 +61,7 @@ Feature: Quiz reset
     And I navigate to "User overrides" node in "Quiz administration"
     And I press "Add user override"
     And I set the following fields to these values:
-        | Override user    | Student1  |
+        | Override user    | Sam1 Student1, student1@example.com  |
         | Attempts allowed | 2 |
     And I press "Save"
     And I should see "Sam1 Student1"

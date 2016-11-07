@@ -222,7 +222,7 @@ Feature: Assign group override
     And I navigate to "User overrides" node in "Assignment administration"
     And I press "Add user override"
     And I set the following fields to these values:
-      | Override user        | Student1 |
+      | Override user        | Sam1 Student1, student1@example.com  |
       | id_allowsubmissionsfromdate_enabled | 1 |
       | allowsubmissionsfromdate[day]       | 1 |
       | allowsubmissionsfromdate[month]     | January |
