@@ -9621,6 +9621,38 @@ function get_course_display_name_for_list($course) {
 }
 
 /**
+ * Convert a Moodle Version formatted number into a guaranteed incrementing timestamp.
+ *
+ * @param float $version The version to convert
+ * @return int The calculated timestamp
+ */
+function version_to_timestamp($version) {
+    // Moodle version numbers are in stored in one of the following formats:
+    // * YYYYMMDDRR.II
+    // * YYYYMMDDRR
+    //
+    // To convert these into a value akin to a Unix Time Stamp, we take the timestamp of the YYYYMMDD component. and add
+    // a calculation of the RR.II component.
+
+    // Round down to the produce a value in the format YYYYMMDD.
+    $ymd = floor($version / 100);
+    // Calculate the RR component by taking the version and removing the YMD component.
+    $rr = floor($version) - ($ymd * 100);
+    // Calculate the II component by calculating the difference between the version with, and without the .II component.
+    $ii = ($version - floor($version)) * 100;
+
+    // The hours/minutes/seconds must be specified otherwise the current time is used.
+    $date = DateTime::createFromFormat('YmdHis', $ymd * 1000000);
+
+    // To ensure a unique incrementing timestamp, we multiple the $rr value by a value larger than the max of $ii,
+    // and then add $ii.
+    // As a two-digit number, the max value of $ii is 99, so we multiply by 100.
+    // The final calculation should be:
+    // (Unix Time Stamp of YMD) + ((max($ii) + 1) * $rr) + $ii.
+    return (int) ($date->format('U') + (100 * $rr) + $ii);
+}
+
+/**
  * The lang_string class
  *
  * This special class is used to create an object representation of a string request.
