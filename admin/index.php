@@ -293,6 +293,10 @@ if (empty($CFG->version)) {
     print_error('missingconfigversion', 'debug');
 }
 
+if (isset($CFG->themerev)) {
+    $themerev = $CFG->themerev;
+}
+
 // Detect config cache inconsistency, this happens when you switch branches on dev servers.
 if ($CFG->version != $DB->get_field('config', 'value', array('name'=>'version'))) {
     purge_all_caches();
@@ -300,7 +304,6 @@ if ($CFG->version != $DB->get_field('config', 'value', array('name'=>'version'))
 }
 
 if (!$cache and $version > $CFG->version) {  // upgrade
-
     $PAGE->set_url(new moodle_url($PAGE->url, array(
         'confirmupgrade' => $confirmupgrade,
         'confirmrelease' => $confirmrelease,
@@ -325,6 +328,11 @@ if (!$cache and $version > $CFG->version) {  // upgrade
     purge_all_caches();
 
     $output = $PAGE->get_renderer('core', 'admin');
+
+    // Override the themerev during upgrade.
+    if (isset($themerev)) {
+        set_config('themerev', $themerev);
+    }
 
     if (upgrade_stale_php_files_present()) {
         $PAGE->set_title($stradministration);

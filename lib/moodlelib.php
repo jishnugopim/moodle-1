@@ -1636,8 +1636,6 @@ function purge_all_caches() {
     global $CFG, $DB;
 
     reset_text_filters_cache();
-    js_reset_all_caches();
-    theme_reset_all_caches();
     get_string_manager()->reset_caches();
     core_text::reset_caches();
     if (class_exists('core_plugin_manager')) {
@@ -1663,9 +1661,17 @@ function purge_all_caches() {
 
     // This is the only place where we purge local caches, we are only adding files there.
     // The $CFG->localcachedirpurged flag forces local directories to be purged on cluster nodes.
-    remove_dir($CFG->localcachedir, true);
+    $excludes = [];
+    if ($CFG->themerev) {
+        $excludes[] = $CFG->localcachedir . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $CFG->themerev;
+    }
+    remove_dir($CFG->localcachedir, true, $excludes);
     set_config('localcachedirpurged', time());
     make_localcache_directory('', true);
+
+    js_reset_all_caches();
+    theme_reset_all_caches();
+
     \core\task\manager::clear_static_caches();
 }
 
@@ -9117,7 +9123,7 @@ function get_performance_info() {
  * @param bool $contentonly
  * @return bool success, true also if dir does not exist
  */
-function remove_dir($dir, $contentonly=false) {
+function remove_dir($dir, $contentonly = false, $exclude = []) {
     if (!file_exists($dir)) {
         // Nothing to do.
         return true;
@@ -9126,19 +9132,29 @@ function remove_dir($dir, $contentonly=false) {
         return false;
     }
     $result = true;
+    $skipfound = false;
     while (false!==($item = readdir($handle))) {
         if ($item != '.' && $item != '..') {
-            if (is_dir($dir.'/'.$item)) {
-                $result = remove_dir($dir.'/'.$item) && $result;
+            $targetpath = $dir . '/' . $item;
+            if (is_dir($targetpath)) {
+                $result = remove_dir($targetpath, false, $exclude) && $result;
             } else {
-                $result = unlink($dir.'/'.$item) && $result;
+                $skip = array_filter($exclude, function($key) use ($targetpath) {
+                    return strpos($targetpath, $key) !== false;
+                });
+
+                if (!empty($skip)) {
+                    $skipfound = true;
+                    continue;
+                }
+                $result = unlink($targetpath) && $result;
             }
         }
     }
     closedir($handle);
-    if ($contentonly) {
+    if (!$result || $contentonly || $skipfound) {
         clearstatcache(); // Make sure file stat cache is properly invalidated.
-        return $result;
+        return $result && !$skipfound;
     }
     $result = rmdir($dir); // If anything left the result will be false, no need for && $result.
     clearstatcache(); // Make sure file stat cache is properly invalidated.
