@@ -20,31 +20,13 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * Initialise the user tour for the current page.
          *
          * @method  init
-         * @param   {Number}    tourId      The ID of the tour to start.
-         * @param   {Bool}      startTour   Attempt to start the tour now.
          * @param   {Number}    context     The context of the current page.
          */
-        init: function(tourId, startTour, context) {
-            // Only one tour per page is allowed.
-            usertours.tourId = tourId;
-
+        init: function(context) {
             usertours.context = context;
 
-            if (typeof startTour === 'undefined') {
-                startTour = true;
-            }
-
-            if (startTour) {
-                // Fetch the tour configuration.
-                usertours.fetchTour(tourId);
-            }
-
-            usertours.addResetLink();
-            // Watch for the reset link.
-            $('body').on('click', '[data-action="tool_usertours/resetpagetour"]', function(e) {
-                e.preventDefault();
-                usertours.resetTourState(usertours.tourId);
-            });
+            // Fetch the tour configuration.
+            usertours.fetchTour();
         },
 
         /**
@@ -53,13 +35,12 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * @method  fetchTour
          * @param   {Number}    tourId      The ID of the tour to start.
          */
-        fetchTour: function(tourId) {
+        fetchTour: function() {
             $.when(
                 ajax.call([
                     {
                         methodname: 'tool_usertours_fetch_and_start_tour',
                         args: {
-                            tourid:     tourId,
                             context:    usertours.context,
                             pageurl:    window.location.href,
                         }
@@ -67,7 +48,19 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
                 ])[0],
                 templates.render('tool_usertours/tourstep', {})
             ).then(function(response, template) {
-                usertours.startBootstrapTour(tourId, template[0], response.tourconfig);
+                if (response.tourconfig) {
+                    usertours.tourId = response.tourid;
+                    usertours.addResetLink();
+                    // Watch for the reset link.
+                    $('body').on('click', '[data-action="tool_usertours/resetpagetour"]', function(e) {
+                        e.preventDefault();
+                        usertours.resetTourState();
+                    });
+                }
+
+                if (response.starttour) {
+                    usertours.startBootstrapTour(response.tourId, template[0], response.tourconfig);
+                }
             }).fail(notification.exception);
         },
 
@@ -77,6 +70,12 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * @method  addResetLink
          */
         addResetLink: function() {
+            var resetLink = $('[data-action="tool_usertours/resetpagetour"]');
+            if (resetLink.length) {
+                // The link is already on the page.
+                return;
+            }
+
             str.get_string('resettouronpage', 'tool_usertours')
                 .done(function(s) {
                     // Grab the last item in the page of these.
@@ -198,6 +197,7 @@ function(ajax, BootstrapTour, $, templates, str, log, notification) {
          * @param   {Number}    tourId      The ID of the tour to start.
          */
         resetTourState: function(tourId) {
+            tourId = tourId || usertours.tourId;
             $.when(
                 ajax.call([
                     {

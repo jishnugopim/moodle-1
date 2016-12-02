@@ -571,19 +571,33 @@ class manager {
     }
 
     /**
+     * Whether the current page has any tours which match the URL.
+     *
+     * Note, this does not take into account any tour filters.
+     *
+     * @return  tour
+     */
+    public static function page_has_any_tour() {
+        global $PAGE;
+
+        return !!self::get_matching_tours($PAGE->url, false);
+    }
+
+    /**
      * Get the first tour matching the specified URL.
      *
      * @param   moodle_url  $pageurl        The URL to match.
+     * @param   bool        $filter         Whether to check the tour filters
      * @return  tour
      */
-    public static function get_matching_tours(\moodle_url $pageurl) {
+    public static function get_matching_tours(\moodle_url $pageurl, $filter = true) {
         global $PAGE;
 
         $tours = cache::get_matching_tourdata($pageurl);
 
         foreach ($tours as $record) {
             $tour = tour::load_from_record($record);
-            if ($tour->is_enabled() && $tour->matches_all_filters($PAGE->context)) {
+            if ($tour->is_enabled() && (!$filter || $tour->matches_all_filters($PAGE->context))) {
                 return $tour;
             }
         }

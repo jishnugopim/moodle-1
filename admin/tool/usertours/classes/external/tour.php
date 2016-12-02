@@ -49,11 +49,10 @@ class tour extends external_api {
      * @param   string  $pageurl    The path of the current page.
      * @return  array               As described in fetch_and_start_tour_returns
      */
-    public static function fetch_and_start_tour($tourid, $context, $pageurl) {
+    public static function fetch_and_start_tour($context, $pageurl) {
         global $PAGE;
 
         $params = self::validate_parameters(self::fetch_and_start_tour_parameters(), [
-                'tourid'    => $tourid,
                 'context'   => $context,
                 'pageurl'   => $pageurl,
             ]);
@@ -61,22 +60,28 @@ class tour extends external_api {
         $context = \context_helper::instance_by_id($params['context']);
         self::validate_context($context);
 
-        $tour = tourinstance::instance($params['tourid']);
-        if (!$tour->should_show_for_user()) {
+        $tour = \tool_usertours\manager::get_matching_tours(new \moodle_url($pageurl));
+
+        if (empty($tour)) {
             return [];
         }
 
         $touroutput = new \tool_usertours\output\tour($tour);
 
-        \tool_usertours\event\tour_started::create([
-            'contextid' => $context->id,
-            'objectid'  => $tourid,
-            'other'     => [
-                'pageurl' => $pageurl,
-            ],
-        ])->trigger();
+        $start = $tour->should_show_for_user();
+        if ($start) {
+            \tool_usertours\event\tour_started::create([
+                'contextid' => $context->id,
+                'objectid'  => $tour->get_id(),
+                'other'     => [
+                    'pageurl' => $pageurl,
+                ],
+            ])->trigger();
+        }
 
         return [
+            'tourid' => $tour->get_id(),
+            'starttour' => $start,
             'tourconfig' => $touroutput->export_for_template($PAGE->get_renderer('core')),
         ];
     }
@@ -88,7 +93,6 @@ class tour extends external_api {
      */
     public static function fetch_and_start_tour_parameters() {
         return new external_function_parameters([
-            'tourid'    => new external_value(PARAM_INT, 'Tour ID'),
             'context'   => new external_value(PARAM_INT, 'Context ID'),
             'pageurl'   => new external_value(PARAM_URL, 'Page URL'),
         ]);
@@ -101,10 +105,12 @@ class tour extends external_api {
      */
     public static function fetch_and_start_tour_returns() {
         return new external_single_structure([
+            'tourid'        => new external_value(PARAM_INT, 'Tour ID', VALUE_OPTIONAL),
+            'starttour'     => new external_value(PARAM_BOOL, 'Start Tour', VALUE_OPTIONAL),
             'tourconfig'    => new external_single_structure([
                 'name'      => new external_value(PARAM_RAW, 'Tour Name'),
                 'steps'     => new external_multiple_structure(self::step_structure_returns()),
-            ])
+            ], 'Tour configuration', VALUE_OPTIONAL)
         ]);
     }
 

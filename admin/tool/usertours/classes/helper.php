@@ -488,10 +488,8 @@ class helper {
     public static function bootstrap() {
         global $PAGE;
 
-        if ($tour = manager::get_current_tour()) {
+        if (true || manager::page_has_any_tour()) {
             $PAGE->requires->js_call_amd('tool_usertours/usertours', 'init', [
-                    $tour->get_id(),
-                    $tour->should_show_for_user(),
                     $PAGE->context->id,
                 ]);
         }
