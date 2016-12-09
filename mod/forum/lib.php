@@ -7123,7 +7123,7 @@ function forum_get_extra_capabilities() {
  * @param navigation_node $forumnode The node to add module settings to
  */
 function forum_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $forumnode) {
-    global $USER, $PAGE, $CFG, $DB, $OUTPUT;
+    global $USER, $PAGE, $CFG, $DB;
 
     $forumobject = $DB->get_record("forum", array("id" => $PAGE->cm->instance));
     if (empty($PAGE->cm->context)) {
@@ -7144,40 +7144,7 @@ function forum_extend_settings_navigation(settings_navigation $settingsnav, navi
     $cansubscribe = $activeenrolled && !\mod_forum\subscriptions::is_forcesubscribed($forumobject) &&
             (!\mod_forum\subscriptions::subscription_disabled($forumobject) || $canmanage);
 
-    if ($canmanage) {
-        $mode = $forumnode->add(get_string('subscriptionmode', 'forum'), null, navigation_node::TYPE_CONTAINER);
-        $mode->add_class('subscriptionmode');
-
-        $allowchoice = $mode->add(get_string('subscriptionoptional', 'forum'), new moodle_url('/mod/forum/subscribe.php', array('id'=>$forumobject->id, 'mode'=>FORUM_CHOOSESUBSCRIBE, 'sesskey'=>sesskey())), navigation_node::TYPE_SETTING);
-        $forceforever = $mode->add(get_string("subscriptionforced", "forum"), new moodle_url('/mod/forum/subscribe.php', array('id'=>$forumobject->id, 'mode'=>FORUM_FORCESUBSCRIBE, 'sesskey'=>sesskey())), navigation_node::TYPE_SETTING);
-        $forceinitially = $mode->add(get_string("subscriptionauto", "forum"), new moodle_url('/mod/forum/subscribe.php', array('id'=>$forumobject->id, 'mode'=>FORUM_INITIALSUBSCRIBE, 'sesskey'=>sesskey())), navigation_node::TYPE_SETTING);
-        $disallowchoice = $mode->add(get_string('subscriptiondisabled', 'forum'), new moodle_url('/mod/forum/subscribe.php', array('id'=>$forumobject->id, 'mode'=>FORUM_DISALLOWSUBSCRIBE, 'sesskey'=>sesskey())), navigation_node::TYPE_SETTING);
-
-        switch ($subscriptionmode) {
-            case FORUM_CHOOSESUBSCRIBE : // 0
-                $allowchoice->action = null;
-                $allowchoice->add_class('activesetting');
-                $allowchoice->icon = new pix_icon('t/selected', '', 'mod_forum');
-                break;
-            case FORUM_FORCESUBSCRIBE : // 1
-                $forceforever->action = null;
-                $forceforever->add_class('activesetting');
-                $forceforever->icon = new pix_icon('t/selected', '', 'mod_forum');
-                break;
-            case FORUM_INITIALSUBSCRIBE : // 2
-                $forceinitially->action = null;
-                $forceinitially->add_class('activesetting');
-                $forceinitially->icon = new pix_icon('t/selected', '', 'mod_forum');
-                break;
-            case FORUM_DISALLOWSUBSCRIBE : // 3
-                $disallowchoice->action = null;
-                $disallowchoice->add_class('activesetting');
-                $disallowchoice->icon = new pix_icon('t/selected', '', 'mod_forum');
-                break;
-        }
-
-    } else if ($activeenrolled) {
-
+    if ($activeenrolled) {
         switch ($subscriptionmode) {
             case FORUM_CHOOSESUBSCRIBE : // 0
                 $notenode = $forumnode->add(get_string('subscriptionoptional', 'forum'));
