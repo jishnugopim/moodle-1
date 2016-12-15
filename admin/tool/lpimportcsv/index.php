@@ -46,38 +46,65 @@ if (optional_param('needsconfirm', 0, PARAM_BOOL)) {
     $form = new \tool_lpimportcsv\form\import($url->out(false));
 }
 
-if ($form->is_cancelled()) {
-    $form = new \tool_lpimportcsv\form\import($url->out(false));
-} else if ($data = $form->get_data()) {
+if ($data = $form->get_data()) {
     require_sesskey();
+}
+
+if ($form->is_cancelled()) {
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading($pagetitle);
+
+    $form = new \tool_lpimportcsv\form\import($url->out(false));
+    $form->display();
+
+    echo $OUTPUT->footer();
+} else if ($data) {
 
     if ($data->confirm) {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading($pagetitle);
+
+        $progress = new \core\progress\display_if_slow();
+        $progress->start_html();
+
         $importid = $data->importid;
-        $importer = new \tool_lpimportcsv\framework_importer(null, null, null, $importid, $data);
+        $importer = new \tool_lpimportcsv\framework_importer(null, null, null, $importid, $data, $progress);
 
         $error = $importer->get_error();
         if ($error) {
             $form = new \tool_lpimportcsv\form\import($url->out(false));
             $form->set_import_error($error);
+            $form->display();
         } else {
             $framework = $importer->import();
             redirect(new moodle_url('continue.php', array('id' => $framework->get_id())));
             die();
         }
+
+        $progress->end_html();
+        echo $OUTPUT->footer();
     } else {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('confirmcolumnmappings', 'tool_lpimportcsv'));
+
+        $progress = new \core\progress\display_if_slow();
+
         $text = $form->get_file_content('importfile');
         $encoding = $data->encoding;
         $delimiter = $data->delimiter_name;
-        $importer = new \tool_lpimportcsv\framework_importer($text, $encoding, $delimiter);
+        $importer = new \tool_lpimportcsv\framework_importer($text, $encoding, $delimiter, 0, null, $progress);
         $confirmform = new \tool_lpimportcsv\form\import_confirm(null, $importer);
-        $form = $confirmform;
-        $pagetitle = get_string('confirmcolumnmappings', 'tool_lpimportcsv');
+        $confirmformform->display();
+
+        $progress->end_progress();
+        $progress->end_html();
+        echo $OUTPUT->footer();
     }
+} else {
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading($pagetitle);
+
+    $form->display();
+
+    echo $OUTPUT->footer();
 }
-
-echo $OUTPUT->header();
-echo $OUTPUT->heading($pagetitle);
-
-$form->display();
-
-echo $OUTPUT->footer();

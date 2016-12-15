@@ -54,6 +54,8 @@ class framework_importer {
     protected $foundheaders = array();
     protected $scalecache = array();
 
+    protected $progress = null;
+
     /**
      * Store an error message for display later
      * @param string $msg
@@ -165,7 +167,7 @@ class framework_importer {
      * @param string importid The id of the csv import.
      * @param array mappingdata The mapping data from the import form.
      */
-    public function __construct($text = null, $encoding = null, $delimiter = null, $importid = 0, $mappingdata = null) {
+    public function __construct($text = null, $encoding = null, $delimiter = null, $importid = 0, $mappingdata = null, $progress = null) {
         global $CFG;
 
         // The format of our records is:
@@ -264,8 +266,13 @@ class framework_importer {
             $this->fail(get_string('invalidimportfile', 'tool_lpimportcsv'));
             return;
         } else {
+            $this->progress = $progress;
+            $rowcount = count($this->flat);
+            $this->progress->start_progress('Theoretical max', $rowcount * $rowcount);
+
             // Build a tree from this flat list.
             $this->add_children($this->framework, '');
+            $this->progress->end_progress();
         }
     }
 
@@ -281,6 +288,7 @@ class framework_importer {
                 $node->children[] = $competency;
                 $this->add_children($competency, $competency->idnumber);
             }
+            $this->progress->increment_progress();
         }
     }
 
